@@ -19,13 +19,13 @@ class AppSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    PageController pageController = PageController(initialPage: 0);
+    PageController pageController = PageController(initialPage: 3);
     UserBloc userBloc = Provider.of<UserBloc>(context);
     BookBloc bookBloc = Provider.of<BookBloc>(context);
     DayBloc dayBloc = Provider.of<DayBloc>(context);
     AppNavigatorService appNavigatorService =
         Provider.of<AppNavigatorService>(context);
-    ValueNotifier<int> currentIndex = ValueNotifier<int>(0);
+    ValueNotifier<int> currentIndex = ValueNotifier<int>(3);
     List<String> titles = [
       'Strona główna',
       'Biblioteka',

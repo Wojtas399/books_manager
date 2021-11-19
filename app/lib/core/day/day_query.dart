@@ -37,4 +37,12 @@ class DayQuery {
       return idx == -1 ? [] : allDays[idx].booksReadPages.keys.toList();
     });
   }
+
+  Stream<List<Day>> selectDaysFromTheMonth(int monthNumber) {
+    return _allDays.map((allDays) {
+      return allDays
+          .where((day) => int.parse(day.id.split('.')[1]) == monthNumber)
+          .toList();
+    });
+  }
 }

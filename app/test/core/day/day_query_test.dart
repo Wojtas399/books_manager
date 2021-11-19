@@ -12,15 +12,16 @@ void main() {
     booksReadPages['b1'] = 40;
     booksReadPages['b2'] = 20;
     allDays.add([
-      createDay(id: 'd1', booksReadPages: booksReadPages),
+      createDay(id: '18.11.2021', booksReadPages: booksReadPages),
+      createDay(id: '15.10.2021'),
     ]);
   });
 
   tearDownAll(() => allDays.close());
 
   group('selectBooksIds', () {
-    test('should contain books ids from selected day', () async {
-      List<String> booksIds = await query.selectBooksIds('d1').first;
+    test('should return books ids from selected day', () async {
+      List<String> booksIds = await query.selectBooksIds('18.11.2021').first;
       expect(booksIds[0], 'b1');
       expect(booksIds[1], 'b2');
     });
@@ -28,11 +29,35 @@ void main() {
 
   group('selectReadPages', () {
     test(
-      'should be the read pages of selected book from selected day',
+      'should return the amount of read pages of selected book from selected day',
       () async {
-        int? readPages = await query.selectReadPages('d1', 'b2').first;
+        int? readPages = await query.selectReadPages('18.11.2021', 'b2').first;
         expect(readPages, 20);
       },
     );
+  });
+
+  group('selectTheAmountOfReadPagesFromTheDay', () {
+    test('should return the amount of read pages from selected day', () async {
+      int readPages =
+          await query.selectTheAmountOfReadPagesFromTheDay('18.11.2021').first;
+      expect(readPages, 60);
+    });
+  });
+
+  group('selectBooksIdsFromTheDay', () {
+    test('should return books ids from selected day', () async {
+      List<String> booksIds =
+          await query.selectBooksIdsFromTheDay('18.11.2021').first;
+      expect(booksIds, ['b1', 'b2']);
+    });
+  });
+
+  group('selectDaysFromTheMonth', () {
+    test('should return days from the month', () async {
+      List<Day> days = await query.selectDaysFromTheMonth(11).first;
+      expect(days.length, 1);
+      expect(days[0].id, '18.11.2021');
+    });
   });
 }

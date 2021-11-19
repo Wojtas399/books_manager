@@ -1,12 +1,16 @@
+import 'package:app/core/day/day_query.dart';
 import 'package:app/modules/calendar/elements/calendar_body.dart';
 import 'package:app/modules/calendar/elements/calendar_controller.dart';
 import 'package:app/modules/calendar/elements/calendar_header.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Calendar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    CalendarController controller = CalendarController();
+    CalendarController controller = CalendarController(
+      dayQuery: Provider.of<DayQuery>(context),
+    );
 
     return Card(
       shape: RoundedRectangleBorder(

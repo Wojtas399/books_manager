@@ -1,3 +1,4 @@
+import 'package:app/constants/date_constants.dart';
 import 'package:app/constants/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -39,15 +40,17 @@ class _DaysShortcuts extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _DayShortcut(text: 'Pon'),
-          _DayShortcut(text: 'Wto'),
-          _DayShortcut(text: 'Śro'),
-          _DayShortcut(text: 'Czw'),
-          _DayShortcut(text: 'Pią'),
-          _DayShortcut(text: 'Sob'),
-          _DayShortcut(text: 'Nie')
-        ],
+        children: DateConstants.DAYS_SHORTNAMES
+            .map(
+              (shortname) => Container(
+                width: 44,
+                child: Center(
+                  child: Text(shortname,
+                      style: Theme.of(context).textTheme.subtitle2),
+                ),
+              ),
+            )
+            .toList(),
       ),
     );
   }
@@ -70,22 +73,6 @@ class _Weeks extends StatelessWidget {
   }
 }
 
-class _DayShortcut extends StatelessWidget {
-  final String text;
-
-  const _DayShortcut({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 44,
-      child: Center(
-        child: Text(text, style: Theme.of(context).textTheme.subtitle2),
-      ),
-    );
-  }
-}
-
 class _Week extends StatelessWidget {
   final List<CalendarDay> days;
   final bool isTheLastWeek;
@@ -97,26 +84,17 @@ class _Week extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: days.map((day) {
-        return _DayItem(
-          dayNumber: day.dayNumber,
-          isTheLastRow: isTheLastWeek,
-          isDisabled: day.isDisabled,
-        );
+        return _DayItem(dayInfo: day, isTheLastRow: isTheLastWeek);
       }).toList(),
     );
   }
 }
 
 class _DayItem extends StatelessWidget {
-  final int dayNumber;
+  final CalendarDay dayInfo;
   final bool isTheLastRow;
-  final bool isDisabled;
 
-  const _DayItem({
-    required this.dayNumber,
-    this.isTheLastRow = false,
-    this.isDisabled = false,
-  });
+  const _DayItem({required this.dayInfo, this.isTheLastRow = false});
 
   @override
   Widget build(BuildContext context) {
@@ -128,13 +106,33 @@ class _DayItem extends StatelessWidget {
           ? EdgeInsets.only(left: 3.0, top: 3.0, right: 3.0)
           : EdgeInsets.all(3.0),
       decoration: BoxDecoration(
-        color: HexColor(isDisabled ? '#D0EFE6' : AppColors.LIGHT_GREEN),
+        color: HexColor(dayInfo.isDisabled ? '#D0EFE6' : AppColors.LIGHT_GREEN),
         borderRadius: BorderRadius.circular(4.0),
       ),
-      child: Text(
-        '$dayNumber',
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.bodyText1,
+      child: Column(
+        children: [
+          Expanded(
+            child: Text(
+              '${dayInfo.dayNumber}',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyText1,
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: dayInfo.hasReadBooks
+                  ? Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: HexColor(AppColors.DARK_GREEN),
+                        borderRadius: BorderRadius.circular(100.0),
+                      ),
+                    )
+                  : SizedBox(height: 0),
+            ),
+          ),
+        ],
       ),
     );
   }

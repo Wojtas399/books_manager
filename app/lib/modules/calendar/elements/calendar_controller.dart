@@ -1,9 +1,16 @@
+import 'package:app/core/day/day_model.dart';
+import 'package:app/core/day/day_query.dart';
 import 'package:app/core/services/date_service.dart';
 import 'package:rxdart/rxdart.dart';
 
 class CalendarController {
+  late DayQuery _dayQuery;
   BehaviorSubject<DateTime> _date =
       new BehaviorSubject<DateTime>.seeded(new DateTime.now());
+
+  CalendarController({required DayQuery dayQuery}) {
+    _dayQuery = dayQuery;
+  }
 
   Stream<DateTime> get _date$ => _date.stream;
 
@@ -12,11 +19,15 @@ class CalendarController {
         _countTheDifferenceBetweenFirstAndPassedWeekFromTheMonth(date),
       ));
 
-  Stream<List<List<CalendarDay>>> get days$ => Rx.combineLatest2(
+  Stream<List<Day>> get _daysFromDb$ =>
+      _date$.flatMap((date) => _dayQuery.selectDaysFromTheMonth(date.month));
+
+  Stream<List<List<CalendarDay>>> get days$ => Rx.combineLatest3(
         _date$,
         _days$,
-        (DateTime date, List<String> days) =>
-            _generateMonthDaysAsCalendarItems(date, days),
+        _daysFromDb$,
+        (DateTime date, List<String> days, List<Day> daysFromDb) =>
+            _generateMonthDaysAsCalendarItems(date, days, daysFromDb),
       );
 
   Stream<String> get header$ => _date$.map(
@@ -76,8 +87,10 @@ class CalendarController {
   List<List<CalendarDay>> _generateMonthDaysAsCalendarItems(
     DateTime date,
     List<String> days,
+    List<Day> daysFromDb,
   ) {
     int dayIndex = -1;
+    List<String> daysIdsFromDb = daysFromDb.map((day) => day.id).toList();
     return List.generate(
       6,
       (i) => List.generate(
@@ -89,6 +102,7 @@ class CalendarController {
           int month = int.parse(dateInArray[1]);
           return CalendarDay(
             dayNumber: day,
+            hasReadBooks: daysIdsFromDb.contains(days[dayIndex]),
             isDisabled: month != date.month,
           );
         },
@@ -99,7 +113,12 @@ class CalendarController {
 
 class CalendarDay {
   final int dayNumber;
+  final bool hasReadBooks;
   final bool isDisabled;
 
-  CalendarDay({required this.dayNumber, required this.isDisabled});
+  CalendarDay({
+    required this.dayNumber,
+    required this.hasReadBooks,
+    required this.isDisabled,
+  });
 }

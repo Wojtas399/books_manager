@@ -1,3 +1,4 @@
+import 'package:app/constants/date_constants.dart';
 import 'package:intl/intl.dart';
 
 class DateService {
@@ -52,41 +53,15 @@ class DateService {
   }
 
   static String getDayShortcut(int number) {
-    return ['Pon', 'Wto', 'Śro', 'Czw', 'Pią', 'Sob', 'Nie'][number];
+    return DateConstants.DAYS_SHORTNAMES[number];
   }
 
   static String getMonthShortcut(int number) {
-    return [
-      'Sty',
-      'Lut',
-      'Mar',
-      'Kwi',
-      'Maj',
-      'Cze',
-      'Lip',
-      'Sie',
-      'Wrz',
-      'Paź',
-      'Lis',
-      'Gru'
-    ][number];
+    return DateConstants.MONTH_SHORTNAMES[number];
   }
 
   static String getMonthName(int number) {
-    return [
-      'Styczeń',
-      'Luty',
-      'Marzec',
-      'Kwiecień',
-      'Maj',
-      'Czerwiec',
-      'Lipiec',
-      'Sierpień',
-      'Wrzesień',
-      'Październik',
-      'Listopad',
-      'Grudzień',
-    ][number];
+    return DateConstants.MONTH_NAMES[number];
   }
 
   static List<String> getWeekDays(DateTime date) {

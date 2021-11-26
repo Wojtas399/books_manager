@@ -4,11 +4,16 @@ import 'package:app/core/services/date_service.dart';
 import 'package:rxdart/rxdart.dart';
 
 class CalendarController {
+  late Stream<String> _selectedDayId$;
   late DayQuery _dayQuery;
   BehaviorSubject<DateTime> _date =
       new BehaviorSubject<DateTime>.seeded(new DateTime.now());
 
-  CalendarController({required DayQuery dayQuery}) {
+  CalendarController({
+    required Stream<String> selectedDayId$,
+    required DayQuery dayQuery,
+  }) {
+    _selectedDayId$ = selectedDayId$;
     _dayQuery = dayQuery;
   }
 
@@ -22,12 +27,23 @@ class CalendarController {
   Stream<List<Day>> get _daysFromDb$ =>
       _date$.flatMap((date) => _dayQuery.selectDaysFromTheMonth(date.month));
 
-  Stream<List<List<CalendarDay>>> get days$ => Rx.combineLatest3(
+  Stream<List<List<CalendarDay>>> get days$ => Rx.combineLatest4(
         _date$,
         _days$,
         _daysFromDb$,
-        (DateTime date, List<String> days, List<Day> daysFromDb) =>
-            _generateMonthDaysAsCalendarItems(date, days, daysFromDb),
+        _selectedDayId$,
+        (
+          DateTime date,
+          List<String> days,
+          List<Day> daysFromDb,
+          String selectedDayId,
+        ) =>
+            _generateMonthDaysAsCalendarItems(
+          date,
+          days,
+          daysFromDb,
+          selectedDayId,
+        ),
       );
 
   Stream<String> get header$ => _date$.map(
@@ -59,9 +75,11 @@ class CalendarController {
       DateTime newDate =
           new DateTime(date.year, date.month, date.day + (7 * weekDifference));
       List<String> weekDays = DateService.getWeekDays(newDate);
-      int monthNumber = int.parse(weekDays[0].split('.')[1]);
-      int dayNumber = int.parse(weekDays[0].split('.')[0]);
-      if (monthNumber < date.month || dayNumber == 1) {
+      List<String> dateInArray = weekDays[0].split('.');
+      int day = int.parse(dateInArray[0]);
+      int month = int.parse(dateInArray[1]);
+      int year = int.parse(dateInArray[2]);
+      if (day == 1 || month < date.month || year < date.year) {
         isTheFirstWeekFounded = true;
       } else {
         weekDifference--;
@@ -88,6 +106,7 @@ class CalendarController {
     DateTime date,
     List<String> days,
     List<Day> daysFromDb,
+    String selectedDayId,
   ) {
     int dayIndex = -1;
     List<String> daysIdsFromDb = daysFromDb.map((day) => day.id).toList();
@@ -97,13 +116,15 @@ class CalendarController {
         7,
         (j) {
           dayIndex++;
-          List<String> dateInArray = days[dayIndex].split('.');
-          int day = int.parse(dateInArray[0]);
-          int month = int.parse(dateInArray[1]);
+          List<String> dayInArray = days[dayIndex].split('.');
+          int day = int.parse(dayInArray[0]);
+          int month = int.parse(dayInArray[1]);
           return CalendarDay(
+            id: days[dayIndex],
             dayNumber: day,
             hasReadBooks: daysIdsFromDb.contains(days[dayIndex]),
             isDisabled: month != date.month,
+            isSelected: days[dayIndex] == selectedDayId,
           );
         },
       ),
@@ -112,13 +133,17 @@ class CalendarController {
 }
 
 class CalendarDay {
+  final String id;
   final int dayNumber;
   final bool hasReadBooks;
   final bool isDisabled;
+  final bool isSelected;
 
   CalendarDay({
+    required this.id,
     required this.dayNumber,
     required this.hasReadBooks,
     required this.isDisabled,
+    required this.isSelected,
   });
 }

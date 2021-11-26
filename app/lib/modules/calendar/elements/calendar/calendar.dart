@@ -1,14 +1,20 @@
 import 'package:app/core/day/day_query.dart';
-import 'package:app/modules/calendar/elements/calendar_body.dart';
-import 'package:app/modules/calendar/elements/calendar_controller.dart';
-import 'package:app/modules/calendar/elements/calendar_header.dart';
+import 'package:app/modules/calendar/elements/calendar/calendar_body.dart';
+import 'package:app/modules/calendar/elements/calendar/calendar_controller.dart';
+import 'package:app/modules/calendar/elements/calendar/calendar_header.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class Calendar extends StatelessWidget {
+  final Stream<String> selectedDayId$;
+  final Function(String dayId) onTapDay;
+
+  const Calendar({required this.selectedDayId$, required this.onTapDay});
+
   @override
   Widget build(BuildContext context) {
     CalendarController controller = CalendarController(
+      selectedDayId$: selectedDayId$,
       dayQuery: Provider.of<DayQuery>(context),
     );
 
@@ -34,7 +40,10 @@ class Calendar extends StatelessWidget {
             ),
             Expanded(
               flex: 7,
-              child: _CalendarBody(days$: controller.days$),
+              child: _CalendarBody(
+                days$: controller.days$,
+                onTapDay: onTapDay,
+              ),
             ),
           ],
         ),
@@ -75,8 +84,9 @@ class _CalendarHeader extends StatelessWidget {
 
 class _CalendarBody extends StatelessWidget {
   final Stream<List<List<CalendarDay>>> days$;
+  final Function(String dayId) onTapDay;
 
-  const _CalendarBody({required this.days$});
+  const _CalendarBody({required this.days$, required this.onTapDay});
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +95,10 @@ class _CalendarBody extends StatelessWidget {
       builder: (_, AsyncSnapshot<List<List<CalendarDay>>> snapshot) {
         List<List<CalendarDay>>? days = snapshot.data;
         if (days != null) {
-          return CalendarBody(weeks: days);
+          return CalendarBody(
+            weeks: days,
+            onTapDay: onTapDay,
+          );
         }
         return SizedBox(height: 0);
       },

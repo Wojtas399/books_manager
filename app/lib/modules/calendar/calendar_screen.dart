@@ -8,26 +8,19 @@ class CalendarScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     CalendarScreenController controller = CalendarScreenController();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return Stack(
       children: [
-        Expanded(
-          flex: 2,
-          child: Container(
-            padding: EdgeInsets.all(8.0),
-            child: Calendar(
-              selectedDayId$: controller.selectedDayId$,
-              onTapDay: (String dayId) {
-                controller.onTapDay(dayId);
-              },
-            ),
+        Container(
+          height: 430,
+          padding: EdgeInsets.only(left: 8.0, right: 8.0, top: 16.0),
+          child: Calendar(
+            selectedDayId$: controller.selectedDayId$,
+            onTapDay: (String dayId) {
+              controller.onTapDay(dayId);
+            },
           ),
         ),
-        Expanded(
-          child: Container(
-            child: _DayInfo(dayId$: controller.selectedDayId$),
-          ),
-        ),
+        _DayInfo(dayId$: controller.selectedDayId$),
       ],
     );
   }

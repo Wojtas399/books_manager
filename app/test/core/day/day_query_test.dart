@@ -45,14 +45,6 @@ void main() {
     });
   });
 
-  group('selectBooksIdsFromTheDay', () {
-    test('should return books ids from selected day', () async {
-      List<String> booksIds =
-          await query.selectBooksIdsFromTheDay('18.11.2021').first;
-      expect(booksIds, ['b1', 'b2']);
-    });
-  });
-
   group('selectDaysFromTheMonth', () {
     test('should return days from the month', () async {
       List<Day> days = await query.selectDaysFromTheMonth(11).first;

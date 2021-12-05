@@ -24,7 +24,7 @@ class ReadBooksStatisticsController {
       (ReportType reportType, DateTime date) => _getDays(reportType, date));
 
   Stream<List<List<String>>> get _booksIds$ => _days$
-      .map((days) => days.map((day) => _dayQuery.selectBooksIdsFromTheDay(day)))
+      .map((days) => days.map((day) => _dayQuery.selectBooksIds(day)))
       .flatMap((streams) => Rx.combineLatest(streams, (values) {
             return values as List<List<String>>;
           }));

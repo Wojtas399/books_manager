@@ -8,7 +8,7 @@ class DayQuery {
   Stream<List<String>> selectBooksIds(String dayId) {
     return _allDays.map((allDays) {
       int idx = allDays.indexWhere((day) => day.id == dayId);
-      return allDays[idx].booksReadPages.keys.toList();
+      return idx == -1 ? [] : allDays[idx].booksReadPages.keys.toList();
     });
   }
 
@@ -28,13 +28,6 @@ class DayQuery {
               .booksReadPages
               .values
               .reduce((value, element) => value + element);
-    });
-  }
-
-  Stream<List<String>> selectBooksIdsFromTheDay(String dayId) {
-    return _allDays.map((allDays) {
-      int idx = allDays.indexWhere((day) => day.id == dayId);
-      return idx == -1 ? [] : allDays[idx].booksReadPages.keys.toList();
     });
   }
 

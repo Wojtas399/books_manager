@@ -1,7 +1,7 @@
 app
 2.12
-file:///Users/wojtekpiekielny/Desktop/books_manager_mobile/app/
-file:///Users/wojtekpiekielny/Desktop/books_manager_mobile/app/lib/
+file:///Users/wojtekpiekielny/Desktop/projects/books_manager_mobile/app/
+file:///Users/wojtekpiekielny/Desktop/projects/books_manager_mobile/app/lib/
 _fe_analyzer_shared
 2.12
 file:///Users/wojtekpiekielny/flutter/.pub-cache/hosted/pub.dartlang.org/_fe_analyzer_shared-30.0.0/
@@ -402,6 +402,10 @@ shelf_web_socket
 2.12
 file:///Users/wojtekpiekielny/flutter/.pub-cache/hosted/pub.dartlang.org/shelf_web_socket-1.0.1/
 file:///Users/wojtekpiekielny/flutter/.pub-cache/hosted/pub.dartlang.org/shelf_web_socket-1.0.1/lib/
+sliding_up_panel
+2.12
+file:///Users/wojtekpiekielny/flutter/.pub-cache/hosted/pub.dartlang.org/sliding_up_panel-2.0.0+1/
+file:///Users/wojtekpiekielny/flutter/.pub-cache/hosted/pub.dartlang.org/sliding_up_panel-2.0.0+1/lib/
 source_map_stack_trace
 2.12
 file:///Users/wojtekpiekielny/flutter/.pub-cache/hosted/pub.dartlang.org/source_map_stack_trace-2.1.0/

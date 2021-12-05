@@ -24,7 +24,7 @@ void main() {
 
     setUp(() {
       for (String day in currentWeekDays) {
-        when(() => dayQuery.selectBooksIdsFromTheDay(day))
+        when(() => dayQuery.selectBooksIds(day))
             .thenAnswer((_) => new BehaviorSubject<List<String>>.seeded(
                   ['b1', 'b2', 'b3'],
                 ));
@@ -60,7 +60,7 @@ void main() {
     setUp(() {
       controller.onChangeReportType(ReportType.monthly);
       for (String day in currentMonthDays) {
-        when(() => dayQuery.selectBooksIdsFromTheDay(day))
+        when(() => dayQuery.selectBooksIds(day))
             .thenAnswer((_) => new BehaviorSubject<List<String>>.seeded(
                   ['b1', 'b2'],
                 ));
@@ -94,7 +94,7 @@ void main() {
     setUp(() {
       controller.onChangeReportType(ReportType.annual);
       for (String day in currentYearDays) {
-        when(() => dayQuery.selectBooksIdsFromTheDay(day))
+        when(() => dayQuery.selectBooksIds(day))
             .thenAnswer((_) => new BehaviorSubject<List<String>>.seeded(
                   ['b1', 'b2', 'b3', 'b4'],
                 ));

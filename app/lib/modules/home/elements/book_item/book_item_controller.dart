@@ -1,10 +1,8 @@
 import 'package:app/constants/route_paths/app_route_path.dart';
-import 'package:app/core/book/book_bloc.dart';
-import 'package:app/core/book/book_model.dart';
 import 'package:app/core/book/book_query.dart';
-import 'package:app/core/day/day_bloc.dart';
-import 'package:app/core/services/date_service.dart';
 import 'package:app/core/services/app_navigator_service.dart';
+import 'package:app/modules/home/bloc/home_actions.dart';
+import 'package:app/modules/home/bloc/home_bloc.dart';
 import 'package:app/modules/home/elements/book_item/book_item_action_sheet.dart';
 import 'package:rxdart/rxdart.dart';
 import '../../home_screen_dialogs.dart';
@@ -13,25 +11,22 @@ import 'book_item_model.dart';
 class BookItemController {
   late String _bookId;
   late BookQuery _bookQuery;
-  late BookBloc _bookBloc;
-  late DayBloc _dayBloc;
   late HomeScreenDialogs _homeScreenDialogs;
   late AppNavigatorService _navigatorService;
+  late HomeBloc _homeBloc;
 
   BookItemController({
     required String bookId,
     required BookQuery bookQuery,
-    required BookBloc bookBloc,
-    required DayBloc dayBloc,
     required HomeScreenDialogs homeScreenDialogs,
     required AppNavigatorService navigatorService,
+    required HomeBloc homeBloc,
   }) {
     _bookId = bookId;
     _bookQuery = bookQuery;
-    _bookBloc = bookBloc;
-    _dayBloc = dayBloc;
     _homeScreenDialogs = homeScreenDialogs;
     _navigatorService = navigatorService;
+    _homeBloc = homeBloc;
   }
 
   Stream<BookItemModel> get bookItemData$ => Rx.combineLatest5(
@@ -58,51 +53,34 @@ class BookItemController {
 
   onClickBookItem(String bookTitle) async {
     BookItemActionSheetResult? result =
-        await _homeScreenDialogs.askForBookItemOperation(
-      bookTitle,
-    );
-    if (result == BookItemActionSheetResult.updatePage) {
-      int bookReadPages = await _bookQuery.selectReadPages(_bookId).first;
-      int bookPages = await _bookQuery.selectPages(_bookId).first;
-      int? newPage = await _homeScreenDialogs.askForNewPage(bookReadPages);
-      if (newPage != null &&
-          await _checkNewPage(newPage, bookReadPages, bookPages)) {
-        if (newPage >= bookPages) {
-          await _bookBloc.updateBook(
-            bookId: _bookId,
-            readPages: bookPages,
-            status: BookStatus.end,
-          );
-          await _dayBloc.addPages(
-            dayId: DateService.getCurrentDate(),
-            bookId: _bookId,
-            pagesToAdd: bookPages - bookReadPages,
-          );
-        } else {
-          await _bookBloc.updateBook(
-            bookId: _bookId,
-            readPages: newPage,
-          );
-          if (newPage < bookReadPages) {
-            await _dayBloc.deletePages(
-              bookId: _bookId,
-              pagesToDelete: bookReadPages - newPage,
-            );
-          } else {
-            await _dayBloc.addPages(
-              dayId: DateService.getCurrentDate(),
-              bookId: _bookId,
-              pagesToAdd: newPage - bookReadPages,
-            );
-          }
-        }
-        await _homeScreenDialogs.showSuccessfullyUpdatedInfo();
-      }
-    } else if (result == BookItemActionSheetResult.bookDetails) {
-      _navigatorService.pushNamed(path: AppRoutePath.BOOK_DETAILS, arguments: {
-        'bookId': _bookId,
-      });
+        await _homeScreenDialogs.askForBookItemOperation(bookTitle);
+    switch (result) {
+      case BookItemActionSheetResult.updatePage:
+        await _updatePage();
+        break;
+      case BookItemActionSheetResult.bookDetails:
+        _navigateToBookDetails();
+        break;
+      default:
+        break;
     }
+  }
+
+  _updatePage() async {
+    int bookReadPages = await _bookQuery.selectReadPages(_bookId).first;
+    int bookPages = await _bookQuery.selectPages(_bookId).first;
+    int? newPage = await _homeScreenDialogs.askForNewPage(bookReadPages);
+    if (newPage != null &&
+        await _checkNewPage(newPage, bookReadPages, bookPages)) {
+      _homeBloc.add(HomeBlocUpdatePage(bookId: _bookId, newPage: newPage));
+      await _homeScreenDialogs.showSuccessfullyUpdatedInfo();
+    }
+  }
+
+  _navigateToBookDetails() {
+    _navigatorService.pushNamed(path: AppRoutePath.BOOK_DETAILS, arguments: {
+      'bookId': _bookId,
+    });
   }
 
   Future<bool> _checkNewPage(

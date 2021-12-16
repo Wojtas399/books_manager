@@ -1,34 +1,28 @@
 import 'package:app/constants/theme.dart';
-import 'package:app/core/book/book_bloc.dart';
 import 'package:app/core/book/book_query.dart';
-import 'package:app/core/day/day_bloc.dart';
 import 'package:app/core/services/app_navigator_service.dart';
+import 'package:app/modules/home/bloc/home_bloc.dart';
 import 'package:app/modules/home/elements/book_item/book_item_controller.dart';
 import 'package:app/modules/home/home_screen_dialogs.dart';
 import 'package:app/widgets/icons/large_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:provider/provider.dart';
-import 'package:rxdart/rxdart.dart';
 import 'book_item_model.dart';
 
 class BookItem extends StatelessWidget {
   final String bookId;
-  final BehaviorSubject _bookId = new BehaviorSubject<String?>.seeded(null);
 
-  BookItem({required this.bookId}) {
-    _bookId.add(bookId);
-  }
+  BookItem({required this.bookId});
 
   @override
   Widget build(BuildContext context) {
     BookItemController controller = BookItemController(
-      bookId: _bookId.value,
+      bookId: bookId,
       bookQuery: context.read<BookQuery>(),
-      bookBloc: context.read<BookBloc>(),
-      dayBloc: context.read<DayBloc>(),
       homeScreenDialogs: HomeScreenDialogs(),
       navigatorService: context.read<AppNavigatorService>(),
+      homeBloc: context.read<HomeBloc>(),
     );
     return StreamBuilder<BookItemModel>(
       stream: controller.bookItemData$,

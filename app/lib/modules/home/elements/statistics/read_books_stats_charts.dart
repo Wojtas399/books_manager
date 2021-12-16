@@ -1,50 +1,50 @@
-import 'package:app/core/book/book_query.dart';
+import 'package:app/modules/home/bloc/home_bloc.dart';
+import 'package:app/modules/home/bloc/home_query.dart';
 import 'package:app/modules/home/elements/statistics/read_books_stats_charts_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../widgets/charts/doughnut_chart.dart';
 
 class ReadBooksStatsCharts extends StatelessWidget {
-  final List<String> booksIds;
-
-  const ReadBooksStatsCharts({required this.booksIds});
+  const ReadBooksStatsCharts();
 
   @override
   Widget build(BuildContext context) {
-    BookQuery bookQuery = Provider.of<BookQuery>(context);
-    ReadBooksStatsChartsController controller = ReadBooksStatsChartsController(
-      booksIds: booksIds,
-      bookQuery: bookQuery,
-    );
-
-    return StreamBuilder(
-      stream: controller.categoriesData$,
-      builder: (_, AsyncSnapshot<List<DoughnutChartData>?> snapshot) {
-        List<DoughnutChartData>? categoriesData = snapshot.data;
-        if (categoriesData != null) {
-          return StreamBuilder(
-            stream: controller.pagesData$,
-            builder: (_, AsyncSnapshot<PagesData?> snapshot2) {
-              PagesData? pagesData = snapshot2.data;
-              if (pagesData != null) {
-                return Container(
-                  width: double.infinity,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(height: 8),
-                      _CategoriesChart(categoriesData: categoriesData),
-                      SizedBox(height: 16),
-                      _PagesChart(pagesData: pagesData),
-                    ],
-                  ),
-                );
-              }
-              return Text('No data');
-            },
-          );
-        }
-        return Text('No data');
+    return BlocBuilder<HomeBloc, HomeQuery>(
+      builder: (context, query) {
+        ReadBooksStatsChartsController controller =
+            ReadBooksStatsChartsController(homeQuery: query);
+        return StreamBuilder(
+          stream: controller.categoriesData$,
+          builder: (_, AsyncSnapshot<List<DoughnutChartData>?> snapshot) {
+            List<DoughnutChartData>? categoriesData = snapshot.data;
+            if (categoriesData != null) {
+              return StreamBuilder(
+                stream: controller.pagesData$,
+                builder: (_, AsyncSnapshot<PagesData?> snapshot2) {
+                  PagesData? pagesData = snapshot2.data;
+                  if (pagesData != null) {
+                    return Container(
+                      width: double.infinity,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(height: 8),
+                          _CategoriesChart(categoriesData: categoriesData),
+                          SizedBox(height: 16),
+                          _PagesChart(pagesData: pagesData),
+                          SizedBox(height: 16),
+                        ],
+                      ),
+                    );
+                  }
+                  return Text('No data');
+                },
+              );
+            }
+            return Text('No data');
+          },
+        );
       },
     );
   }

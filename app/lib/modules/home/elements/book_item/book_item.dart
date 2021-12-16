@@ -1,6 +1,7 @@
 import 'package:app/constants/theme.dart';
 import 'package:app/core/book/book_query.dart';
 import 'package:app/core/services/app_navigator_service.dart';
+import 'package:app/modules/home/bloc/home_bloc.dart';
 import 'package:app/modules/home/elements/book_item/book_item_controller.dart';
 import 'package:app/modules/home/home_screen_dialogs.dart';
 import 'package:app/widgets/icons/large_icon.dart';
@@ -11,9 +12,8 @@ import 'book_item_model.dart';
 
 class BookItem extends StatelessWidget {
   final String bookId;
-  final Function(String bookId, int newPages) onUpdatePage;
 
-  BookItem({required this.bookId, required this.onUpdatePage}) {}
+  BookItem({required this.bookId});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class BookItem extends StatelessWidget {
       bookQuery: context.read<BookQuery>(),
       homeScreenDialogs: HomeScreenDialogs(),
       navigatorService: context.read<AppNavigatorService>(),
-      updateBook: onUpdatePage,
+      homeBloc: context.read<HomeBloc>(),
     );
     return StreamBuilder<BookItemModel>(
       stream: controller.bookItemData$,

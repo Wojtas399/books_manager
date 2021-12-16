@@ -18,16 +18,16 @@ class HomeQuery {
             (values) => values as List<BookCategory>),
       );
 
-  Stream<int> get booksReadPages$ =>
-      booksIds$.flatMap((booksIds) => Rx.combineLatest(
-            booksIds.map((id) => _bookQuery.selectReadPages(id)),
-            (values) => values as List<int>,
-          ).map(
-            (readPages) =>
-                readPages.reduce((value, element) => value + element),
-          ));
+  Stream<int> get readPages$ => booksIds$.flatMap(
+        (booksIds) => Rx.combineLatest(
+          booksIds.map((id) => _bookQuery.selectReadPages(id)),
+          (values) => values as List<int>,
+        ).map(
+          (readPages) => readPages.reduce((value, element) => value + element),
+        ),
+      );
 
-  Stream<int> get booksAllPages$ => booksIds$.flatMap(
+  Stream<int> get allPages$ => booksIds$.flatMap(
         (booksIds) => Rx.combineLatest(
           booksIds.map((id) => _bookQuery.selectPages(id)),
           (values) => values as List<int>,

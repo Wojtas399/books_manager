@@ -1,7 +1,6 @@
 import 'package:app/core/book/book_bloc.dart';
 import 'package:app/core/book/book_query.dart';
 import 'package:app/core/day/day_bloc.dart';
-import 'package:app/modules/home/bloc/home_actions.dart';
 import 'package:app/modules/home/bloc/home_bloc.dart';
 import 'package:app/modules/home/bloc/home_query.dart';
 import 'package:flutter/material.dart';
@@ -55,17 +54,7 @@ class _ReadBooks extends StatelessWidget {
                     style: Theme.of(context).textTheme.headline6,
                   ),
                   SizedBox(height: 8),
-                  ...booksIds.map(
-                    (id) => BookItem(
-                      bookId: id,
-                      onUpdatePage: (String bookId, int newPage) {
-                        context.read<HomeBloc>().add(UpdatePages(
-                              bookId: bookId,
-                              newPage: newPage,
-                            ));
-                      },
-                    ),
-                  ),
+                  ...booksIds.map((id) => BookItem(bookId: id)),
                 ],
               );
             }

@@ -13,9 +13,7 @@ class ReadBooksStatsCharts extends StatelessWidget {
     return BlocBuilder<HomeBloc, HomeQuery>(
       builder: (context, query) {
         ReadBooksStatsChartsController controller =
-            ReadBooksStatsChartsController(
-          query: query,
-        );
+            ReadBooksStatsChartsController(homeQuery: query);
         return StreamBuilder(
           stream: controller.categoriesData$,
           builder: (_, AsyncSnapshot<List<DoughnutChartData>?> snapshot) {

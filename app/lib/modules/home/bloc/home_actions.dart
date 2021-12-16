@@ -1,8 +1,13 @@
+import 'package:equatable/equatable.dart';
+
 abstract class HomeActions {}
 
-class UpdatePages extends HomeActions {
+class HomeBlocUpdatePage extends Equatable implements HomeActions {
   final String bookId;
   final int newPage;
 
-  UpdatePages({required this.bookId, required this.newPage});
+  HomeBlocUpdatePage({required this.bookId, required this.newPage});
+
+  @override
+  List<Object> get props => [bookId, newPage];
 }

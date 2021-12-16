@@ -11,9 +11,9 @@ class ReadBooksStatsChartsController {
   BookCategoryService bookCategoryService = BookCategoryService();
 
   ReadBooksStatsChartsController({
-    required HomeQuery query,
+    required HomeQuery homeQuery,
   }) {
-    _query = query;
+    _query = homeQuery;
   }
 
   Stream<List<DoughnutChartData>> get categoriesData$ =>
@@ -22,8 +22,8 @@ class ReadBooksStatsChartsController {
       );
 
   Stream<PagesData?> get pagesData$ => Rx.combineLatest2(
-        _query.booksReadPages$,
-        _query.booksAllPages$,
+        _query.readPages$,
+        _query.allPages$,
         (int readPages, int allPages) => _getPagesData(readPages, allPages),
       );
 

@@ -20,12 +20,12 @@ class HomeBloc extends Bloc<HomeActions, HomeQuery> {
 
   @override
   Stream<HomeQuery> mapEventToState(HomeActions event) async* {
-    if (event is UpdatePages) {
-      _updateBook(event.bookId, event.newPage);
+    if (event is HomeBlocUpdatePage) {
+      _updateBookReadPage(event.bookId, event.newPage);
     }
   }
 
-  _updateBook(String bookId, int newPage) async {
+  _updateBookReadPage(String bookId, int newPage) async {
     int bookReadPages = await bookQuery.selectReadPages(bookId).first;
     int bookPages = await bookQuery.selectPages(bookId).first;
     if (newPage >= bookPages) {

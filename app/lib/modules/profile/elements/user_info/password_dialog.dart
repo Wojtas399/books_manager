@@ -1,6 +1,7 @@
 import 'package:app/common/ui/snack_bars.dart';
 import 'package:app/constants/theme.dart';
-import 'package:app/core/user/user_bloc.dart';
+import 'package:app/modules/profile/bloc/profile_actions.dart';
+import 'package:app/modules/profile/bloc/profile_bloc.dart';
 import 'package:app/widgets/app_bars/dialog_app_bar.dart';
 import 'package:app/widgets/buttons/medium_red_button.dart';
 import 'package:app/widgets/buttons/medium_green_button.dart';
@@ -206,7 +207,7 @@ class _SubmitButton extends StatelessWidget {
     );
   }
 
-  _onClick(BuildContext context) async {
+  _onClick(BuildContext context) {
     String currentPassword = currentPasswordController.text;
     String newPassword = newPasswordController.text;
     String newPasswordConfirmation = newPasswordConfirmationController.text;
@@ -214,9 +215,10 @@ class _SubmitButton extends StatelessWidget {
       isCorrectNewPasswordConfirmationNotifier.value = false;
       _showNotTheSamePasswordsMessage();
     } else {
-      await context
-          .read<UserBloc>()
-          .updatePassword(currentPassword, newPassword);
+      context.read<ProfileBloc>().add(ProfileActionsChangePassword(
+            currentPassword: currentPassword,
+            newPassword: newPassword,
+          ));
       Navigator.pop(context);
     }
   }

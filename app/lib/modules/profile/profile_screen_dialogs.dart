@@ -3,6 +3,7 @@ import 'package:app/common/ui/action_sheet.dart';
 import 'package:app/common/ui/dialogs.dart';
 import 'package:app/core/services/validation_service.dart';
 import 'package:app/core/user/user_bloc.dart';
+import 'package:app/modules/profile/bloc/profile_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'elements/avatar/avatar_action_sheet.dart';
@@ -41,12 +42,12 @@ class ProfileScreenDialogs {
   }
 
   openEmailDialog(
-    UserBloc userBloc,
+    ProfileBloc profileBloc,
     String currentEmail,
   ) async {
     await Dialogs.showCustomDialog(
-      child: Provider<UserBloc>.value(
-        value: userBloc,
+      child: Provider<ProfileBloc>.value(
+        value: profileBloc,
         child: EmailDialog(
           currentEmail: currentEmail,
         ),
@@ -55,11 +56,11 @@ class ProfileScreenDialogs {
   }
 
   openPasswordDialog(
-    UserBloc userBloc,
+    ProfileBloc profileBloc,
   ) async {
     await Dialogs.showCustomDialog(
-      child: Provider<UserBloc>.value(
-        value: userBloc,
+      child: Provider<ProfileBloc>.value(
+        value: profileBloc,
         child: PasswordDialog(),
       ),
     );

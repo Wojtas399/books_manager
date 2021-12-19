@@ -2,6 +2,8 @@ import 'package:app/common/enum/avatar_type.dart';
 import 'package:app/core/services/avatar_book_service.dart';
 import 'package:app/core/services/image_service.dart';
 import 'package:app/core/user/user_bloc.dart';
+import 'package:app/modules/profile/bloc/profile_actions.dart';
+import 'package:app/modules/profile/bloc/profile_bloc.dart';
 import 'package:app/modules/profile/profile_screen_dialogs.dart';
 
 enum AvatarActionSheetResult {
@@ -10,24 +12,22 @@ enum AvatarActionSheetResult {
 }
 
 class AvatarController {
-  late final UserBloc _userBloc;
+  late final ProfileBloc _profileBloc;
   late final AvatarBookService _avatarBookService;
   late final ImageService _imageService;
   late final ProfileScreenDialogs _dialogs;
 
   AvatarController({
-    required UserBloc userBloc,
+    required ProfileBloc profileBloc,
     required AvatarBookService avatarBookService,
     required ImageService imageService,
     required ProfileScreenDialogs profileScreenDialogs,
   }) {
-    _userBloc = userBloc;
+    _profileBloc = profileBloc;
     _avatarBookService = avatarBookService;
     _imageService = imageService;
     _dialogs = profileScreenDialogs;
   }
-
-  Stream<AvatarInfo?> get avatarInfo$ => _userBloc.avatarInfo$;
 
   openAvatarActionSheet() async {
     AvatarActionSheetResult? result = await _dialogs.askForAvatarOperation();
@@ -53,7 +53,9 @@ class AvatarController {
       bool? confirmation =
           await _dialogs.askForNewAvatarConfirmation(avatarInfo);
       if (confirmation == true) {
-        await _userBloc.updateAvatar(avatarInfo.avatarUrl);
+        _profileBloc.add(ProfileActionsChangeAvatar(
+          avatar: avatarInfo.avatarUrl,
+        ));
       }
     }
   }
@@ -62,10 +64,12 @@ class AvatarController {
     AvatarType? type = await _dialogs.askForBasicAvatar();
     if (type != null) {
       AvatarInfo avatarInfo = new AvatarInfo(avatarUrl: '', avatarType: type);
-      bool? confirmation = await _dialogs.askForNewAvatarConfirmation(avatarInfo);
+      bool? confirmation =
+          await _dialogs.askForNewAvatarConfirmation(avatarInfo);
       if (confirmation != null && confirmation == true) {
-        _userBloc.updateAvatar(
-            _avatarBookService.getBookFileName(avatarInfo.avatarType));
+        _profileBloc.add(ProfileActionsChangeAvatar(
+          avatar: _avatarBookService.getBookFileName(avatarInfo.avatarType),
+        ));
       }
     }
   }

@@ -31,23 +31,6 @@ class UserBloc {
 
   Stream<LoggedUser?> get loggedUser$ => _loggedUser.stream;
 
-  Stream<String?> get username$ => loggedUser$.map((event) => event?.username);
-
-  Stream<String?> get email$ => loggedUser$.map((event) => event?.email);
-
-  Stream<AvatarInfo?> get avatarInfo$ => loggedUser$.map(
-        (event) {
-          LoggedUser? user = event;
-          if (user != null) {
-            return new AvatarInfo(
-              avatarUrl: user.avatarUrl,
-              avatarType: user.avatarType,
-            );
-          }
-          return null;
-        },
-      );
-
   void subscribeUserData() {
     Stream<DocumentSnapshot>? snapshot = _authInterface.subscribeUserData();
     if (snapshot != null) {

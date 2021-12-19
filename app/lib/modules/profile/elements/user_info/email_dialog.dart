@@ -1,6 +1,7 @@
 import 'package:app/constants/theme.dart';
 import 'package:app/core/services/validation_service.dart';
-import 'package:app/core/user/user_bloc.dart';
+import 'package:app/modules/profile/bloc/profile_actions.dart';
+import 'package:app/modules/profile/bloc/profile_bloc.dart';
 import 'package:app/widgets/app_bars/dialog_app_bar.dart';
 import 'package:app/widgets/buttons/medium_red_button.dart';
 import 'package:app/widgets/buttons/medium_green_button.dart';
@@ -163,11 +164,11 @@ class _SubmitButton extends StatelessWidget {
               icon: Icons.check,
               onPressed: isEmailCorrect == false || isPasswordCorrect == false
                   ? null
-                  : () async {
-                      await context.read<UserBloc>().updateEmail(
-                            emailController.text,
-                            passwordController.text,
-                          );
+                  : () {
+                      context.read<ProfileBloc>().add(ProfileActionsChangeEmail(
+                            newEmail: emailController.text,
+                            password: passwordController.text,
+                          ));
                       Navigator.pop(context);
                     },
             );

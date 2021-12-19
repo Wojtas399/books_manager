@@ -1,37 +1,35 @@
-import 'package:app/core/user/user_bloc.dart';
+import 'package:app/modules/profile/bloc/profile_actions.dart';
+import 'package:app/modules/profile/bloc/profile_bloc.dart';
 import 'package:app/modules/profile/profile_screen_dialogs.dart';
 
 class UserInfoController {
-  late final UserBloc _userBloc;
+  late final ProfileBloc _profileBloc;
   late final ProfileScreenDialogs _dialogs;
 
   UserInfoController({
-    required UserBloc userBloc,
+    required ProfileBloc profileBloc,
     required ProfileScreenDialogs profileScreenDialogs,
   }) {
-    _userBloc = userBloc;
+    _profileBloc = profileBloc;
     _dialogs = profileScreenDialogs;
   }
 
-  Stream<String?> get username$ => _userBloc.username$;
-
-  Stream<String?> get email$ => _userBloc.email$;
-
-  onClickUsername() async {
-    String? username = await username$.first;
+  onClickUsername(String? username) async {
     if (username != null) {
       String? newUsername = await _dialogs.askForNewUsername(username);
       if (newUsername != null) {
-        await _userBloc.updateUsername(newUsername);
+        _profileBloc.add(
+          ProfileActionsChangeUsername(newUsername: newUsername),
+        );
       }
     }
   }
 
   onClickEmail(String currentEmail) async {
-    await _dialogs.openEmailDialog(_userBloc, currentEmail);
+    await _dialogs.openEmailDialog(_profileBloc, currentEmail);
   }
 
   onClickPassword() async {
-    await _dialogs.openPasswordDialog(_userBloc);
+    await _dialogs.openPasswordDialog(_profileBloc);
   }
 }

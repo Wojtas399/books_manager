@@ -19,7 +19,6 @@ class AvatarInfo extends Equatable {
 
 class UserBloc {
   AuthInterface _authInterface;
-  LoggedUser? loggedUser;
   AvatarBookService avatarBookService = AvatarBookService();
 
   StreamSubscription? _userSubscription;
@@ -31,7 +30,7 @@ class UserBloc {
 
   Stream<LoggedUser?> get loggedUser$ => _loggedUser.stream;
 
-  void subscribeUserData() {
+  subscribeUserData() {
     Stream<DocumentSnapshot>? snapshot = _authInterface.subscribeUserData();
     if (snapshot != null) {
       _userSubscription = snapshot.listen((event) async {
@@ -53,13 +52,13 @@ class UserBloc {
     }
   }
 
-  void setUserData({
+  setUserData({
     required String username,
     required String email,
     required String avatarUrl,
     required AvatarType avatarType,
   }) {
-    loggedUser = new LoggedUser(
+    LoggedUser loggedUser = new LoggedUser(
       username: username,
       email: email,
       avatarType: avatarType,
@@ -96,10 +95,10 @@ class UserBloc {
     await _authInterface.logOut();
   }
 
-  void _updateEmail(String newEmail) {
-    LoggedUser? userData = loggedUser;
+  _updateEmail(String newEmail) {
+    LoggedUser? userData = _loggedUser.value;
     if (userData != null) {
-      loggedUser = new LoggedUser(
+      LoggedUser loggedUser = new LoggedUser(
         username: userData.username,
         email: newEmail,
         avatarType: userData.avatarType,
@@ -109,7 +108,7 @@ class UserBloc {
     }
   }
 
-  void _dispose() {
+  _dispose() {
     _userSubscription?.cancel();
     _loggedUser.close();
   }

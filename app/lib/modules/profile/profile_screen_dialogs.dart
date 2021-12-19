@@ -5,7 +5,6 @@ import 'package:app/core/services/validation_service.dart';
 import 'package:app/core/user/user_bloc.dart';
 import 'package:app/modules/profile/bloc/profile_bloc.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:provider/provider.dart';
 import 'elements/avatar/avatar_action_sheet.dart';
 import 'elements/avatar/avatar_controller.dart';
 import 'elements/avatar/chose_basic_avatar_dialog.dart';
@@ -41,28 +40,20 @@ class ProfileScreenDialogs {
     );
   }
 
-  openEmailDialog(
+  Future<EmailDialogResult?> askForNewEmail(
     ProfileBloc profileBloc,
     String currentEmail,
   ) async {
-    await Dialogs.showCustomDialog(
-      child: Provider<ProfileBloc>.value(
-        value: profileBloc,
-        child: EmailDialog(
-          currentEmail: currentEmail,
-        ),
-      ),
+    return await Dialogs.showCustomDialog(
+      child: EmailDialog(currentEmail: currentEmail),
     );
   }
 
-  openPasswordDialog(
+  Future<PasswordDialogResult?> askForNewPassword(
     ProfileBloc profileBloc,
   ) async {
-    await Dialogs.showCustomDialog(
-      child: Provider<ProfileBloc>.value(
-        value: profileBloc,
-        child: PasswordDialog(),
-      ),
+    return await Dialogs.showCustomDialog(
+      child: PasswordDialog(),
     );
   }
 

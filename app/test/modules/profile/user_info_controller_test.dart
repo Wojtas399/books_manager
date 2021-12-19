@@ -1,101 +1,80 @@
-import 'package:app/core/user/user_bloc.dart';
+import 'package:app/modules/profile/bloc/profile_actions.dart';
+import 'package:app/modules/profile/bloc/profile_bloc.dart';
+import 'package:app/modules/profile/elements/user_info/email_dialog.dart';
+import 'package:app/modules/profile/elements/user_info/password_dialog.dart';
 import 'package:app/modules/profile/elements/user_info/user_info_controller.dart';
 import 'package:app/modules/profile/profile_screen_dialogs.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rxdart/rxdart.dart';
-import 'profile_mocks.dart';
 import 'package:mocktail/mocktail.dart';
 
+class MockProfileBloc extends Mock implements ProfileBloc {}
+
+class MockProfileScreenDialogs extends Mock implements ProfileScreenDialogs {}
+
 void main() {
-  UserBloc userBloc = MockUserBloc();
+  ProfileBloc profileBloc = MockProfileBloc();
   ProfileScreenDialogs dialogs = MockProfileScreenDialogs();
   late UserInfoController controller;
 
   setUp(() {
     controller = UserInfoController(
-      userBloc: userBloc,
+      profileBloc: profileBloc,
       profileScreenDialogs: dialogs,
     );
   });
 
   tearDown(() {
-    reset(userBloc);
+    reset(profileBloc);
     reset(dialogs);
   });
 
-  group('username', () {
-    setUp(() {
-      when(() => userBloc.username$).thenAnswer(
-          (_) => new BehaviorSubject<String>.seeded('username').stream);
-    });
+  test('on click username', () async {
+    String newUsername = 'new username';
+    when(() => dialogs.askForNewUsername('username'))
+        .thenAnswer((_) async => newUsername);
 
-    test('should be the username of the user', () async {
-      String? username = await controller.username$.first;
-      expect(username, 'username');
-    });
+    await controller.onClickUsername('username');
+
+    verify(
+      () => profileBloc.add(
+        ProfileActionsChangeUsername(newUsername: newUsername),
+      ),
+    ).called(1);
   });
 
-  group('email', () {
-    setUp(() {
-      when(() => userBloc.email$).thenAnswer(
-          (_) => new BehaviorSubject<String>.seeded('jan@example.com').stream);
-    });
+  test('on click email', () async {
+    EmailDialogResult result = EmailDialogResult(
+      newEmail: 'newEmail',
+      password: 'password',
+    );
+    when(() => dialogs.askForNewEmail(profileBloc, 'currentEmail'))
+        .thenAnswer((_) async => result);
 
-    test('should be the email of the user', () async {
-      String? email = await controller.email$.first;
-      expect(email, 'jan@example.com');
-    });
+    await controller.onClickEmail('currentEmail');
+
+    verify(
+      () => profileBloc.add(ProfileActionsChangeEmail(
+        newEmail: result.newEmail,
+        password: result.password,
+      )),
+    ).called(1);
   });
 
-  group('on click username', () {
-    setUp(() {
-      when(() => userBloc.username$)
-          .thenAnswer((_) => new BehaviorSubject<String>.seeded('username'));
-    });
+  test('on click password', () async {
+    PasswordDialogResult result = PasswordDialogResult(
+      currentPassword: 'currentPassword',
+      newPassword: 'newPassword',
+    );
+    when(() => dialogs.askForNewPassword(profileBloc))
+        .thenAnswer((_) async => result);
 
-    group('changed', () {
-      setUp(() async {
-        when(() => dialogs.askForNewUsername('username'))
-            .thenAnswer((_) async => 'new username');
-        await controller.onClickUsername();
-      });
+    await controller.onClickPassword();
 
-      test('should call update username method with new username', () {
-        verify(() => userBloc.updateUsername('new username')).called(1);
-      });
-    });
-
-    group('not changed', () {
-      setUp(() async {
-        when(() => dialogs.askForNewUsername('username'))
-            .thenAnswer((_) async => null);
-        await controller.onClickUsername();
-      });
-
-      test('should not call update username method', () {
-        verifyNever(() => userBloc.updateUsername('new username'));
-      });
-    });
-  });
-
-  group('on click email dialog', () {
-    setUp(() async {
-      await controller.onClickEmail('jan@example.com');
-    });
-
-    test('should call open email dialog method', () {
-      verify(() => dialogs.openEmailDialog(userBloc, 'jan@example.com'))
-          .called(1);
-    });
-  });
-
-  group('on click password', () {
-    setUp(() async {
-      await controller.onClickPassword();
-    });
-
-    test('should call open password method', () {
-      verify(() => dialogs.openPasswordDialog(userBloc)).called(1);
-    });
+    verify(
+      () => profileBloc.add(ProfileActionsChangePassword(
+        currentPassword: result.currentPassword,
+        newPassword: result.newPassword,
+      )),
+    ).called(1);
   });
 }

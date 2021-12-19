@@ -66,7 +66,7 @@ class AvatarController {
       AvatarInfo avatarInfo = new AvatarInfo(avatarUrl: '', avatarType: type);
       bool? confirmation =
           await _dialogs.askForNewAvatarConfirmation(avatarInfo);
-      if (confirmation != null && confirmation == true) {
+      if (confirmation == true) {
         _profileBloc.add(ProfileActionsChangeAvatar(
           avatar: _avatarBookService.getBookFileName(avatarInfo.avatarType),
         ));

@@ -1,3 +1,4 @@
+import 'package:app/core/user/user_query.dart';
 import 'package:app/repositories/auth/auth_interface.dart';
 import 'package:app/repositories/book_repository/book_interface.dart';
 import 'package:app/config/routes/app_routes.dart';
@@ -21,13 +22,15 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return _AuthInterfaceProvider(
       child: _UserBlocProvider(
-        child: _BookInterfaceProvider(
-          child: _BookBlocProvider(
-            child: _BookQueryProvider(
-              child: _DayInterfaceProvider(
-                child: _DayBlocProvider(
-                  child: _DayQueryProvider(
-                    child: _NavigatorServiceProvider(),
+        child: _UserQueryProvider(
+          child: _BookInterfaceProvider(
+            child: _BookBlocProvider(
+              child: _BookQueryProvider(
+                child: _DayInterfaceProvider(
+                  child: _DayBlocProvider(
+                    child: _DayQueryProvider(
+                      child: _NavigatorServiceProvider(),
+                    ),
                   ),
                 ),
               ),
@@ -127,6 +130,22 @@ class _DayBlocProvider extends StatelessWidget {
       )..subscribe(),
       child: child,
       dispose: (_, value) => value.dispose(),
+    );
+  }
+}
+
+class _UserQueryProvider extends StatelessWidget {
+  final Widget child;
+
+  const _UserQueryProvider({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Provider<UserQuery>(
+      create: (context) => UserQuery(
+        loggedUser$: context.read<UserBloc>().loggedUser$,
+      ),
+      child: child,
     );
   }
 }

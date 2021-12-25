@@ -1,12 +1,10 @@
 import 'package:app/common/ui/snack_bars.dart';
 import 'package:app/constants/theme.dart';
-import 'package:app/core/user/user_bloc.dart';
 import 'package:app/widgets/app_bars/dialog_app_bar.dart';
 import 'package:app/widgets/buttons/medium_red_button.dart';
 import 'package:app/widgets/buttons/medium_green_button.dart';
 import 'package:app/widgets/text_fields/password_text_form_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 class PasswordDialog extends StatelessWidget {
@@ -74,6 +72,16 @@ class PasswordDialog extends StatelessWidget {
       ),
     );
   }
+}
+
+class PasswordDialogResult {
+  final String currentPassword;
+  final String newPassword;
+
+  PasswordDialogResult({
+    required this.currentPassword,
+    required this.newPassword,
+  });
 }
 
 class _CurrentPassword extends StatelessWidget {
@@ -206,7 +214,7 @@ class _SubmitButton extends StatelessWidget {
     );
   }
 
-  _onClick(BuildContext context) async {
+  _onClick(BuildContext context) {
     String currentPassword = currentPasswordController.text;
     String newPassword = newPasswordController.text;
     String newPasswordConfirmation = newPasswordConfirmationController.text;
@@ -214,10 +222,13 @@ class _SubmitButton extends StatelessWidget {
       isCorrectNewPasswordConfirmationNotifier.value = false;
       _showNotTheSamePasswordsMessage();
     } else {
-      await context
-          .read<UserBloc>()
-          .updatePassword(currentPassword, newPassword);
-      Navigator.pop(context);
+      Navigator.pop(
+        context,
+        PasswordDialogResult(
+          currentPassword: currentPassword,
+          newPassword: newPassword,
+        ),
+      );
     }
   }
 

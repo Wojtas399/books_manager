@@ -1,15 +1,12 @@
 import 'package:app/constants/theme.dart';
 import 'package:app/core/services/validation_service.dart';
-import 'package:app/core/user/user_bloc.dart';
 import 'package:app/widgets/app_bars/dialog_app_bar.dart';
 import 'package:app/widgets/buttons/medium_red_button.dart';
 import 'package:app/widgets/buttons/medium_green_button.dart';
 import 'package:app/widgets/text_fields/basic_text_form_field.dart';
 import 'package:app/widgets/text_fields/password_text_form_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:provider/provider.dart';
 
 class EmailDialog extends StatelessWidget {
   final ValidationService validationService = ValidationService();
@@ -71,6 +68,13 @@ class EmailDialog extends StatelessWidget {
       ),
     );
   }
+}
+
+class EmailDialogResult {
+  final String newEmail;
+  final String password;
+
+  EmailDialogResult({required this.newEmail, required this.password});
 }
 
 class _Email extends StatelessWidget {
@@ -163,13 +167,12 @@ class _SubmitButton extends StatelessWidget {
               icon: Icons.check,
               onPressed: isEmailCorrect == false || isPasswordCorrect == false
                   ? null
-                  : () async {
-                      await context.read<UserBloc>().updateEmail(
-                            emailController.text,
-                            passwordController.text,
-                          );
-                      Navigator.pop(context);
-                    },
+                  : () => Navigator.pop(
+                      context,
+                      EmailDialogResult(
+                        newEmail: emailController.text,
+                        password: passwordController.text,
+                      )),
             );
           },
         );

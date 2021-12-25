@@ -1,35 +1,41 @@
-import 'package:app/core/user/user_bloc.dart';
+import 'package:app/modules/profile/bloc/profile_bloc.dart';
+import 'package:app/modules/profile/bloc/profile_query.dart';
 import 'package:app/modules/profile/elements/user_info/user_info_controller.dart';
 import 'package:app/modules/profile/profile_screen_dialogs.dart';
 import 'package:app/widgets/icons/default_icon.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class UserInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    UserInfoController controller = UserInfoController(
-        userBloc: context.read<UserBloc>(),
-        profileScreenDialogs: ProfileScreenDialogs());
+    return BlocBuilder<ProfileBloc, ProfileQuery>(
+      builder: (context, query) {
+        UserInfoController controller = UserInfoController(
+          profileBloc: context.read<ProfileBloc>(),
+          profileScreenDialogs: ProfileScreenDialogs(),
+        );
 
-    return Column(
-      children: [
-        _Username(
-          username$: controller.username$,
-          onTap: controller.onClickUsername,
-        ),
-        Divider(height: 1),
-        _Email(email$: controller.email$, onTap: controller.onClickEmail),
-        Divider(height: 1),
-        _Password(onTap: controller.onClickPassword),
-      ],
+        return Column(
+          children: [
+            _Username(
+              username$: query.username$,
+              onTap: controller.onClickUsername,
+            ),
+            Divider(height: 1),
+            _Email(email$: query.email$, onTap: controller.onClickEmail),
+            Divider(height: 1),
+            _Password(onTap: controller.onClickPassword),
+          ],
+        );
+      },
     );
   }
 }
 
 class _Username extends StatelessWidget {
   final Stream<String?> username$;
-  final Function() onTap;
+  final Function(String? username) onTap;
 
   const _Username({required this.username$, required this.onTap});
 
@@ -42,7 +48,7 @@ class _Username extends StatelessWidget {
         return _InfoElement(
           text: username ?? '',
           icon: Icons.person_outlined,
-          onTap: () => onTap(),
+          onTap: () => onTap(username),
         );
       },
     );

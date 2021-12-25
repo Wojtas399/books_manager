@@ -2,19 +2,23 @@ import 'package:app/common/enum/avatar_type.dart';
 import 'package:app/core/services/avatar_book_service.dart';
 import 'package:app/core/services/image_service.dart';
 import 'package:app/core/user/user_bloc.dart';
+import 'package:app/modules/profile/bloc/profile_actions.dart';
+import 'package:app/modules/profile/bloc/profile_bloc.dart';
 import 'package:app/modules/profile/elements/avatar/avatar_controller.dart';
 import 'package:app/modules/profile/profile_screen_dialogs.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:rxdart/rxdart.dart';
-import 'profile_mocks.dart';
+
+class MockProfileBloc extends Mock implements ProfileBloc {}
 
 class MockAvatarBookService extends Mock implements AvatarBookService {}
 
 class MockImageService extends Mock implements ImageService {}
 
+class MockProfileScreenDialogs extends Mock implements ProfileScreenDialogs {}
+
 void main() {
-  UserBloc userBloc = MockUserBloc();
+  ProfileBloc profileBloc = MockProfileBloc();
   AvatarBookService avatarBookService = MockAvatarBookService();
   ImageService imageService = MockImageService();
   ProfileScreenDialogs dialogs = MockProfileScreenDialogs();
@@ -22,7 +26,7 @@ void main() {
 
   setUp(() {
     controller = AvatarController(
-      userBloc: userBloc,
+      profileBloc: profileBloc,
       avatarBookService: avatarBookService,
       imageService: imageService,
       profileScreenDialogs: dialogs,
@@ -30,155 +34,82 @@ void main() {
   });
 
   tearDown(() {
-    reset(userBloc);
+    reset(profileBloc);
     reset(avatarBookService);
     reset(imageService);
     reset(dialogs);
   });
 
-  group('avatar info', () {
+  group('open avatar action sheet, from gallery', () {
+    AvatarInfo avatarInfo = new AvatarInfo(
+      avatarUrl: 'imgPath',
+      avatarType: AvatarType.custom,
+    );
+
     setUp(() {
-      when(() => userBloc.avatarInfo$).thenAnswer(
-        (_) => new BehaviorSubject<AvatarInfo>.seeded(AvatarInfo(
-          avatarUrl: 'avatarUrl',
-          avatarType: AvatarType.custom,
-        )).stream,
-      );
+      when(() => dialogs.askForAvatarOperation())
+          .thenAnswer((_) async => AvatarActionSheetResult.fromGallery);
+      when(() => imageService.getImageFromGallery())
+          .thenAnswer((_) async => 'imgPath');
     });
 
-    test('should contain avatar info', () async {
-      AvatarInfo? avatarInfo = await controller.avatarInfo$.first;
-      expect(avatarInfo?.avatarUrl, 'avatarUrl');
-      expect(avatarInfo?.avatarType, AvatarType.custom);
+    test('confirmed', () async {
+      when(() => dialogs.askForNewAvatarConfirmation(avatarInfo))
+          .thenAnswer((_) async => true);
+
+      await controller.openAvatarActionSheet();
+
+      verify(
+        () => profileBloc.add(ProfileActionsChangeAvatar(avatar: 'imgPath')),
+      ).called(1);
+    });
+
+    test('canceled', () async {
+      when(() => dialogs.askForNewAvatarConfirmation(avatarInfo))
+          .thenAnswer((_) async => false);
+
+      await controller.openAvatarActionSheet();
+
+      verifyNever(
+          () => profileBloc.add(ProfileActionsChangeAvatar(avatar: 'imgPath')));
     });
   });
 
-  group('open avatar action sheet', () {
-    group('from gallery', () {
-      setUp(() {
-        when(() => dialogs.askForAvatarOperation())
-            .thenAnswer((_) async => AvatarActionSheetResult.fromGallery);
-      });
+  group('open avatar action sheet, basic avatar', () {
+    AvatarType selectedAvatar = AvatarType.green;
+    AvatarInfo avatarInfo = AvatarInfo(
+      avatarUrl: '',
+      avatarType: selectedAvatar,
+    );
 
-      group('new image selected', () {
-        setUp(() {
-          when(() => imageService.getImageFromGallery())
-              .thenAnswer((_) async => 'new/image/path');
-        });
-
-        group('confirmed', () {
-          setUp(() async {
-            when(
-              () => dialogs.askForNewAvatarConfirmation(AvatarInfo(
-                avatarUrl: 'new/image/path',
-                avatarType: AvatarType.custom,
-              )),
-            ).thenAnswer((_) async => true);
-            await controller.openAvatarActionSheet();
-          });
-
-          test('should call update avatar method with the avatar url', () {
-            verify(() => userBloc.updateAvatar('new/image/path')).called(1);
-          });
-        });
-
-        group('cancelled', () {
-          setUp(() async {
-            when(
-              () => dialogs.askForNewAvatarConfirmation(AvatarInfo(
-                avatarUrl: 'new/image/path',
-                avatarType: AvatarType.custom,
-              )),
-            ).thenAnswer((_) async => false);
-            await controller.openAvatarActionSheet();
-          });
-
-          test('should not call update avatar method', () {
-            verifyNever(() => userBloc.updateAvatar('new/image/path'));
-          });
-        });
-      });
-
-      group('new image not selected', () {
-        setUp(() async {
-          when(() => imageService.getImageFromGallery())
-              .thenAnswer((_) async => null);
-          await controller.openAvatarActionSheet();
-        });
-
-        test('should not ask for confirmation', () {
-          verifyNever(() => dialogs.askForNewAvatarConfirmation(AvatarInfo(
-                avatarUrl: 'avatarUrl',
-                avatarType: AvatarType.custom,
-              )));
-        });
-
-        test('should not call update avatar method', () {
-          verifyNever(() => userBloc.updateAvatar('avatarUrl'));
-        });
-      });
+    setUp(() {
+      when(() => dialogs.askForAvatarOperation())
+          .thenAnswer((_) async => AvatarActionSheetResult.basicAvatar);
+      when(() => dialogs.askForBasicAvatar())
+          .thenAnswer((_) async => selectedAvatar);
+      when(() => avatarBookService.getBookFileName(selectedAvatar))
+          .thenReturn('fileName');
     });
 
-    group('basic avatar', () {
-      setUp(() {
-        when(() => dialogs.askForAvatarOperation())
-            .thenAnswer((_) async => AvatarActionSheetResult.basicAvatar);
-      });
+    test('confirmed', () async {
+      when(() => dialogs.askForNewAvatarConfirmation(avatarInfo))
+          .thenAnswer((_) async => true);
 
-      group('new basic avatar selected', () {
-        AvatarInfo avatarInfo = AvatarInfo(
-          avatarUrl: '',
-          avatarType: AvatarType.blue,
-        );
-        setUp(() {
-          when(() => dialogs.askForBasicAvatar())
-              .thenAnswer((_) async => AvatarType.blue);
-        });
+      await controller.openAvatarActionSheet();
 
-        group('confirmed', () {
-          setUp(() async {
-            when(() => dialogs.askForNewAvatarConfirmation(avatarInfo))
-                .thenAnswer((_) async => true);
-            when(() => avatarBookService.getBookFileName(AvatarType.blue))
-                .thenReturn('Blue.png');
-            await controller.openAvatarActionSheet();
-          });
+      verify(
+        () => profileBloc.add(ProfileActionsChangeAvatar(avatar: 'fileName')),
+      ).called(1);
+    });
 
-          test('should call update avatar method with the book file name', () {
-            verify(() => userBloc.updateAvatar('Blue.png')).called(1);
-          });
-        });
+    test('canceled', () async {
+      when(() => dialogs.askForNewAvatarConfirmation(avatarInfo))
+          .thenAnswer((_) async => false);
 
-        group('canceled', () {
-          setUp(() async {
-            when(() => dialogs.askForNewAvatarConfirmation(avatarInfo))
-                .thenAnswer((_) async => false);
-            await controller.openAvatarActionSheet();
-          });
+      await controller.openAvatarActionSheet();
 
-          test('should not call update avatar method', () {
-            verifyNever(() => userBloc.updateAvatar('Blue.png'));
-          });
-        });
-      });
-
-      group('new basic avatar not selected', () {
-        setUp(() async {
-          when(() => dialogs.askForBasicAvatar()).thenAnswer((_) async => null);
-          await controller.openAvatarActionSheet();
-        });
-
-        test('should not ask for confirmation', () {
-          verifyNever(() => dialogs.askForNewAvatarConfirmation(AvatarInfo(
-                avatarUrl: '',
-                avatarType: AvatarType.blue,
-              )));
-        });
-
-        test('should not call update method', () {
-          verifyNever(() => userBloc.updateAvatar('Blue.png'));
-        });
-      });
+      verifyNever(() =>
+          profileBloc.add(ProfileActionsChangeAvatar(avatar: 'fileName')));
     });
   });
 }

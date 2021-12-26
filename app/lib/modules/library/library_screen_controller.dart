@@ -1,12 +1,11 @@
 import 'package:app/core/book/book_model.dart';
-import 'package:app/core/book/book_query.dart';
 import 'package:app/modules/library/filter_dialog/filter_dialog_controller.dart';
+import 'package:app/modules/library/bloc/library_query.dart';
 import 'package:app/modules/library/library_screen_dialogs.dart';
 import 'package:rxdart/rxdart.dart';
 
 class LibraryScreenController {
-  late List<String> _allBooksIds;
-  late BookQuery _bookQuery;
+  late LibraryQuery _libraryQuery;
   late LibraryScreenDialogs _dialogs;
   BehaviorSubject<String> _dynamicQueryValue =
       new BehaviorSubject<String>.seeded('');
@@ -16,12 +15,10 @@ class LibraryScreenController {
       new BehaviorSubject<FilterOptions>.seeded(FilterOptions());
 
   LibraryScreenController({
-    required List<String> allBooksIds,
-    required BookQuery bookQuery,
+    required LibraryQuery libraryQuery,
     required LibraryScreenDialogs libraryScreenDialogs,
   }) {
-    _bookQuery = bookQuery;
-    _allBooksIds = allBooksIds;
+    _libraryQuery = libraryQuery;
     _dialogs = libraryScreenDialogs;
   }
 
@@ -31,39 +28,8 @@ class LibraryScreenController {
 
   Stream<FilterOptions> get filterOptions$ => _filterOptions.stream;
 
-  Iterable<Stream<BookInfo>> get _allBooksInfoAsIterableStreams$ =>
-      _allBooksIds.map((bookId) {
-        return Rx.combineLatest5(
-          _bookQuery.selectTitle(bookId),
-          _bookQuery.selectAuthor(bookId),
-          _bookQuery.selectStatus(bookId),
-          _bookQuery.selectCategory(bookId),
-          _bookQuery.selectPages(bookId),
-          (
-            String title,
-            String author,
-            BookStatus status,
-            BookCategory category,
-            int pages,
-          ) =>
-              BookInfo(
-            id: bookId,
-            title: title,
-            author: author,
-            status: status,
-            category: category,
-            pages: pages,
-          ),
-        );
-      });
-
-  Stream<List<BookInfo>> get _allBooksInfo$ => Rx.combineLatest(
-        _allBooksInfoAsIterableStreams$,
-        (values) => values as List<BookInfo>,
-      );
-
   Stream<List<String>> get matchingBooksIds$ => Rx.combineLatest3(
-        _allBooksInfo$,
+        _libraryQuery.allBooksInfo$,
         _staticQueryValue$,
         filterOptions$,
         (
@@ -87,7 +53,7 @@ class LibraryScreenController {
       );
 
   Stream<List<BookInfo>> get matchingBooksInSearchEngine$ => Rx.combineLatest2(
-        _allBooksInfo$,
+        _libraryQuery.allBooksInfo$,
         _dynamicQueryValue$,
         (List<BookInfo> allBooksInfo, String queryValue) {
           return allBooksInfo

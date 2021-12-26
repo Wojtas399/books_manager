@@ -1,6 +1,6 @@
 import 'package:app/core/book/book_model.dart';
 
-class LibraryScreenBookStatusService {
+class LibraryBookStatusService {
   BookStatus convertBookStatusStringToEnum(String status) {
     switch (status) {
       case 'czytane':

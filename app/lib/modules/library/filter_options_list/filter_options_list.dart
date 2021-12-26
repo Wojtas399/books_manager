@@ -2,12 +2,12 @@ import 'package:app/core/book/book_model.dart';
 import 'package:app/core/services/book_category_service.dart';
 import 'package:app/modules/library/filter_dialog/filter_dialog_controller.dart';
 import 'package:flutter/material.dart';
-import '../library_screen_book_status_service.dart';
-import '../library_screen_controller.dart';
+import '../library_book_status_service.dart';
+import '../library_controller.dart';
 import 'filter_option_item.dart';
 
 class FilterOptionsList extends StatelessWidget {
-  final LibraryScreenController controller;
+  final LibraryController controller;
 
   const FilterOptionsList({required this.controller});
 
@@ -66,8 +66,7 @@ class _StatusesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    LibraryScreenBookStatusService bookStatusService =
-        LibraryScreenBookStatusService();
+    LibraryBookStatusService bookStatusService = LibraryBookStatusService();
 
     return Row(
       children: [

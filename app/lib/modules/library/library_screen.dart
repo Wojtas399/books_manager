@@ -1,32 +1,33 @@
 import 'package:app/constants/route_paths/app_route_path.dart';
 import 'package:app/core/book/book_query.dart';
 import 'package:app/core/services/app_navigator_service.dart';
+import 'package:app/modules/library/bloc/library_bloc.dart';
 import 'package:app/modules/library/filter_options_list/filter_options_list.dart';
 import 'package:app/modules/library/action_button.dart';
-import 'package:app/modules/library/library_screen_controller.dart';
-import 'package:app/modules/library/library_screen_dialogs.dart';
+import 'package:app/modules/library/library_controller.dart';
+import 'package:app/modules/library/library_dialogs.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:provider/provider.dart';
+import 'bloc/library_query.dart';
 import 'books_list_item.dart';
 
 class LibraryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    BookQuery bookQuery = Provider.of<BookQuery>(context);
     AppNavigatorService appNavigatorService =
         Provider.of<AppNavigatorService>(context);
 
-    return StreamBuilder(
-      stream: bookQuery.selectAllIds(),
-      builder: (_, AsyncSnapshot<List<String>> snapshot) {
-        List<String>? allBooksIds = snapshot.data;
-        if (allBooksIds != null) {
-          LibraryScreenController controller = LibraryScreenController(
-            allBooksIds: allBooksIds,
-            bookQuery: bookQuery,
-            libraryScreenDialogs: LibraryScreenDialogs(),
+    return BlocProvider(
+      create: (_) => LibraryBloc(bookQuery: Provider.of<BookQuery>(context)),
+      child: BlocBuilder<LibraryBloc, LibraryQuery>(
+        builder: (context, query) {
+          LibraryController controller = LibraryController(
+            libraryQuery: query,
+            libraryScreenDialogs: LibraryDialogs(),
           );
+
           return Stack(
             children: [
               FilterOptionsList(controller: controller),
@@ -49,15 +50,14 @@ class LibraryScreen extends StatelessWidget {
               _SearchBar(controller: controller),
             ],
           );
-        }
-        return Text('No books');
-      },
+        },
+      ),
     );
   }
 }
 
 class _SearchBar extends StatelessWidget {
-  final LibraryScreenController controller;
+  final LibraryController controller;
 
   const _SearchBar({required this.controller});
 
@@ -154,9 +154,8 @@ class _MatchingBooksList extends StatelessWidget {
                 (data) => InkWell(
                   onTap: () {
                     appNavigatorService.pushNamed(
-                      path: AppRoutePath.BOOK_DETAILS,
-                      arguments: {'bookId': data.id }
-                    );
+                        path: AppRoutePath.BOOK_DETAILS,
+                        arguments: {'bookId': data.id});
                   },
                   child: ListTile(
                     title: Text(data.title),

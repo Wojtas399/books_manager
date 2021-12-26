@@ -1,50 +1,49 @@
 import 'package:app/core/book/book_model.dart';
-import 'package:app/core/book/book_query.dart';
+import 'package:app/modules/library/bloc/library_query.dart';
 import 'package:app/modules/library/filter_dialog/filter_dialog_controller.dart';
-import 'package:app/modules/library/library_screen_controller.dart';
-import 'package:app/modules/library/library_screen_dialogs.dart';
+import 'package:app/modules/library/library_controller.dart';
+import 'package:app/modules/library/library_dialogs.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:rxdart/rxdart.dart';
-import '../global_mocks.dart';
-import 'library_mocks.dart';
+
+class MockLibraryQuery extends Mock implements LibraryQuery {}
+
+class MockLibraryDialogs extends Mock implements LibraryDialogs {}
 
 void main() {
-  BookQuery bookQuery = MockBookQuery();
-  LibraryScreenDialogs libraryScreenDialogs = MockLibraryScreenDialogs();
-  List<String> allBooksIds = ['b1', 'b2'];
-  late LibraryScreenController controller;
+  LibraryQuery libraryQuery = MockLibraryQuery();
+  LibraryDialogs libraryScreenDialogs = MockLibraryDialogs();
+  late LibraryController controller;
+  List<BookInfo> fakeBooksInfo = [
+    BookInfo(
+      id: 'b1',
+      title: 'title first',
+      author: 'first author',
+      status: BookStatus.read,
+      category: BookCategory.for_kids,
+      pages: 500,
+    ),
+    BookInfo(
+      id: 'b2',
+      title: 'title second',
+      author: 'second author',
+      status: BookStatus.end,
+      category: BookCategory.art,
+      pages: 250,
+    ),
+  ];
 
   setUp(() {
-    controller = LibraryScreenController(
-      allBooksIds: allBooksIds,
-      bookQuery: bookQuery,
+    controller = LibraryController(
+      libraryQuery: libraryQuery,
       libraryScreenDialogs: libraryScreenDialogs,
     );
-    when(() => bookQuery.selectTitle('b1'))
-        .thenAnswer((_) => new BehaviorSubject<String>.seeded('title first'));
-    when(() => bookQuery.selectAuthor('b1'))
-        .thenAnswer((_) => new BehaviorSubject<String>.seeded('first author'));
-    when(() => bookQuery.selectStatus('b1')).thenAnswer(
-        (_) => new BehaviorSubject<BookStatus>.seeded(BookStatus.read));
-    when(() => bookQuery.selectCategory('b1')).thenAnswer(
-        (_) => new BehaviorSubject<BookCategory>.seeded(BookCategory.for_kids));
-    when(() => bookQuery.selectPages('b1'))
-        .thenAnswer((_) => new BehaviorSubject<int>.seeded(500));
-    when(() => bookQuery.selectTitle('b2'))
-        .thenAnswer((_) => new BehaviorSubject<String>.seeded('title second'));
-    when(() => bookQuery.selectAuthor('b2'))
-        .thenAnswer((_) => new BehaviorSubject<String>.seeded('second author'));
-    when(() => bookQuery.selectStatus('b2')).thenAnswer(
-        (_) => new BehaviorSubject<BookStatus>.seeded(BookStatus.end));
-    when(() => bookQuery.selectCategory('b2')).thenAnswer(
-        (_) => new BehaviorSubject<BookCategory>.seeded(BookCategory.art));
-    when(() => bookQuery.selectPages('b2'))
-        .thenAnswer((_) => new BehaviorSubject<int>.seeded(250));
+    when(() => libraryQuery.allBooksInfo$)
+        .thenAnswer((_) => Stream.value(fakeBooksInfo));
   });
 
   tearDown(() {
-    reset(bookQuery);
+    reset(libraryQuery);
     reset(libraryScreenDialogs);
   });
 

@@ -2,8 +2,8 @@ import 'package:app/config/themes/gradients.dart';
 import 'package:app/constants/theme.dart';
 import 'package:app/core/services/book_category_service.dart';
 import 'package:app/modules/library/filter_dialog/filter_dialog_controller.dart';
-import 'package:app/modules/library/library_screen_book_status_service.dart';
-import 'package:app/modules/library/library_screen_dialogs.dart';
+import 'package:app/modules/library/library_book_status_service.dart';
+import 'package:app/modules/library/library_dialogs.dart';
 import 'package:app/widgets/buttons/big_green_button.dart';
 import 'package:app/widgets/text_fields/basic_text_form_field.dart';
 import 'package:flutter/material.dart';
@@ -18,9 +18,9 @@ class FilterDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     FilterDialogController controller = FilterDialogController(
       bookCategoryService: BookCategoryService(),
-      libraryScreenDialogs: LibraryScreenDialogs(),
+      libraryScreenDialogs: LibraryDialogs(),
       filterOptions: filterOptions,
-      libraryScreenBookStatusService: LibraryScreenBookStatusService(),
+      libraryScreenBookStatusService: LibraryBookStatusService(),
     );
 
     return Scaffold(

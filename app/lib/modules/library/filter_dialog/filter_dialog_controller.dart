@@ -1,15 +1,15 @@
 import 'package:app/core/book/book_model.dart';
 import 'package:app/core/services/book_category_service.dart';
-import 'package:app/modules/library/library_screen_book_status_service.dart';
-import 'package:app/modules/library/library_screen_dialogs.dart';
+import 'package:app/modules/library/library_book_status_service.dart';
+import 'package:app/modules/library/library_dialogs.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:rxdart/rxdart.dart';
 
 class FilterDialogController {
   late BookCategoryService _bookCategoryService;
-  late LibraryScreenDialogs _dialogs;
+  late LibraryDialogs _dialogs;
   late FilterOptions _filterOptions;
-  late LibraryScreenBookStatusService _bookStatusService;
+  late LibraryBookStatusService _bookStatusService;
   BehaviorSubject<List<CheckboxProps>> _statuses =
       new BehaviorSubject<List<CheckboxProps>>.seeded([]);
   BehaviorSubject<List<CheckboxProps>> _categories =
@@ -21,9 +21,9 @@ class FilterDialogController {
 
   FilterDialogController({
     required BookCategoryService bookCategoryService,
-    required LibraryScreenDialogs libraryScreenDialogs,
+    required LibraryDialogs libraryScreenDialogs,
     required FilterOptions filterOptions,
-    required LibraryScreenBookStatusService libraryScreenBookStatusService,
+    required LibraryBookStatusService libraryScreenBookStatusService,
   }) {
     _bookCategoryService = bookCategoryService;
     _dialogs = libraryScreenDialogs;
@@ -177,11 +177,11 @@ class FilterOptions {
   @override
   bool operator ==(Object other) =>
       other is FilterOptions &&
-          other.runtimeType == runtimeType &&
-          other.statuses == statuses &&
-          other.categories == categories &&
-          other.minNumberOfPages == minNumberOfPages &&
-          other.maxNumberOfPages == maxNumberOfPages;
+      other.runtimeType == runtimeType &&
+      other.statuses == statuses &&
+      other.categories == categories &&
+      other.minNumberOfPages == minNumberOfPages &&
+      other.maxNumberOfPages == maxNumberOfPages;
 
   @override
   int get hashCode => statuses.hashCode;

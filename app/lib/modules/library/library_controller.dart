@@ -69,12 +69,14 @@ class LibraryController {
         },
       );
 
-  Stream<bool> get areFilterOptions$ => filterOptions$.map((filterOptions) {
-        return filterOptions.statuses != null ||
-            filterOptions.categories != null ||
-            filterOptions.minNumberOfPages != null ||
-            filterOptions.maxNumberOfPages != null;
-      });
+  Stream<bool> get areFilterOptions$ => filterOptions$.map(
+        (filterOptions) {
+          return filterOptions.statuses != null ||
+              filterOptions.categories != null ||
+              filterOptions.minNumberOfPages != null ||
+              filterOptions.maxNumberOfPages != null;
+        },
+      );
 
   onQueryChanged(String value) {
     _dynamicQueryValue.add(value);
@@ -191,12 +193,12 @@ class LibraryController {
 }
 
 class BookInfo extends Equatable {
-  String id;
-  String title;
-  String author;
-  BookStatus status;
-  BookCategory category;
-  int pages;
+  final String id;
+  final String title;
+  final String author;
+  final BookStatus status;
+  final BookCategory category;
+  final int pages;
 
   BookInfo({
     required this.id,

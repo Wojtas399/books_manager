@@ -3,7 +3,7 @@ import 'package:app/modules/library/filter_dialog/filter_dialog_controller.dart'
 
 import 'filter_dialog/filter_dialog.dart';
 
-class LibraryScreenDialogs {
+class LibraryDialogs {
   Future<FilterOptions?> askForFilterOptions(
     FilterOptions filterOptions,
   ) async {

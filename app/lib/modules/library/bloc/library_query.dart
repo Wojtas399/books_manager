@@ -1,6 +1,6 @@
 import 'package:app/core/book/book_model.dart';
 import 'package:app/core/book/book_query.dart';
-import '../library_screen_controller.dart';
+import '../library_controller.dart';
 import 'package:rxdart/rxdart.dart';
 
 class LibraryQuery {

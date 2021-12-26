@@ -1,12 +1,13 @@
 import 'package:app/core/book/book_model.dart';
 import 'package:app/modules/library/filter_dialog/filter_dialog_controller.dart';
 import 'package:app/modules/library/bloc/library_query.dart';
-import 'package:app/modules/library/library_screen_dialogs.dart';
+import 'package:app/modules/library/library_dialogs.dart';
+import 'package:equatable/equatable.dart';
 import 'package:rxdart/rxdart.dart';
 
-class LibraryScreenController {
+class LibraryController {
   late LibraryQuery _libraryQuery;
-  late LibraryScreenDialogs _dialogs;
+  late LibraryDialogs _dialogs;
   BehaviorSubject<String> _dynamicQueryValue =
       new BehaviorSubject<String>.seeded('');
   BehaviorSubject<String> _staticQueryValue =
@@ -14,9 +15,9 @@ class LibraryScreenController {
   BehaviorSubject<FilterOptions> _filterOptions =
       new BehaviorSubject<FilterOptions>.seeded(FilterOptions());
 
-  LibraryScreenController({
+  LibraryController({
     required LibraryQuery libraryQuery,
-    required LibraryScreenDialogs libraryScreenDialogs,
+    required LibraryDialogs libraryScreenDialogs,
   }) {
     _libraryQuery = libraryQuery;
     _dialogs = libraryScreenDialogs;
@@ -189,7 +190,7 @@ class LibraryScreenController {
   }
 }
 
-class BookInfo {
+class BookInfo extends Equatable {
   String id;
   String title;
   String author;
@@ -205,4 +206,14 @@ class BookInfo {
     required this.category,
     required this.pages,
   });
+
+  @override
+  List<Object> get props => [
+        id,
+        title,
+        author,
+        status,
+        category,
+        pages,
+      ];
 }

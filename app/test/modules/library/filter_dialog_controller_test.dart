@@ -1,30 +1,33 @@
 import 'package:app/core/book/book_model.dart';
 import 'package:app/core/services/book_category_service.dart';
 import 'package:app/modules/library/filter_dialog/filter_dialog_controller.dart';
-import 'package:app/modules/library/library_screen_book_status_service.dart';
-import 'package:app/modules/library/library_screen_dialogs.dart';
+import 'package:app/modules/library/library_book_status_service.dart';
+import 'package:app/modules/library/library_dialogs.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import '../global_mocks.dart';
-import 'library_mocks.dart';
+
+class MockLibraryDialogs extends Mock implements LibraryDialogs {}
+
+class MockLibraryBookStatusService extends Mock
+    implements LibraryBookStatusService {}
 
 void main() {
   BookCategoryService bookCategoryService = MockBookCategoryService();
-  LibraryScreenDialogs libraryScreenDialogs = MockLibraryScreenDialogs();
+  LibraryDialogs libraryScreenDialogs = MockLibraryDialogs();
   FilterOptions filterOptions = FilterOptions(
     statuses: [BookStatus.read],
     categories: [BookCategory.art],
     minNumberOfPages: 100,
     maxNumberOfPages: 500,
   );
-  LibraryScreenBookStatusService libraryScreenBookStatusService =
-      MockLibraryScreenBookStatusService();
+  LibraryBookStatusService libraryScreenBookStatusService =
+      MockLibraryBookStatusService();
   late FilterDialogController controller;
 
   setUp(() {
-    when(() => libraryScreenBookStatusService.convertBookStatusStringToEnum(
-          'czytane'
-        )).thenReturn(BookStatus.read);
+    when(() => libraryScreenBookStatusService
+        .convertBookStatusStringToEnum('czytane')).thenReturn(BookStatus.read);
     when(() => libraryScreenBookStatusService.convertBookStatusStringToEnum(
           'przeczytane',
         )).thenReturn(BookStatus.end);
@@ -34,9 +37,9 @@ void main() {
     when(() => libraryScreenBookStatusService.convertBookStatusStringToEnum(
           'wstrzymane',
         )).thenReturn(BookStatus.paused);
-    when(() => bookCategoryService.convertCategoryToText(
-          BookCategory.biography_autobiography
-        )).thenReturn('biografie i autobiografie');
+    when(() => bookCategoryService
+            .convertCategoryToText(BookCategory.biography_autobiography))
+        .thenReturn('biografie i autobiografie');
     when(() => bookCategoryService.convertCategoryToText(
           BookCategory.business_economy_marketing,
         )).thenReturn('biznes, ekonomia, marketing');

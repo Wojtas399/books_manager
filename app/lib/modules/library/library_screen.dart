@@ -4,8 +4,8 @@ import 'package:app/core/services/app_navigator_service.dart';
 import 'package:app/modules/library/bloc/library_bloc.dart';
 import 'package:app/modules/library/filter_options_list/filter_options_list.dart';
 import 'package:app/modules/library/action_button.dart';
-import 'package:app/modules/library/library_screen_controller.dart';
-import 'package:app/modules/library/library_screen_dialogs.dart';
+import 'package:app/modules/library/library_controller.dart';
+import 'package:app/modules/library/library_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
@@ -23,9 +23,9 @@ class LibraryScreen extends StatelessWidget {
       create: (_) => LibraryBloc(bookQuery: Provider.of<BookQuery>(context)),
       child: BlocBuilder<LibraryBloc, LibraryQuery>(
         builder: (context, query) {
-          LibraryScreenController controller = LibraryScreenController(
+          LibraryController controller = LibraryController(
             libraryQuery: query,
-            libraryScreenDialogs: LibraryScreenDialogs(),
+            libraryScreenDialogs: LibraryDialogs(),
           );
 
           return Stack(
@@ -57,7 +57,7 @@ class LibraryScreen extends StatelessWidget {
 }
 
 class _SearchBar extends StatelessWidget {
-  final LibraryScreenController controller;
+  final LibraryController controller;
 
   const _SearchBar({required this.controller});
 

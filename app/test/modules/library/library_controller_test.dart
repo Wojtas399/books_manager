@@ -1,18 +1,19 @@
 import 'package:app/core/book/book_model.dart';
 import 'package:app/modules/library/bloc/library_query.dart';
 import 'package:app/modules/library/filter_dialog/filter_dialog_controller.dart';
-import 'package:app/modules/library/library_screen_controller.dart';
-import 'package:app/modules/library/library_screen_dialogs.dart';
+import 'package:app/modules/library/library_controller.dart';
+import 'package:app/modules/library/library_dialogs.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'library_mocks.dart';
 
 class MockLibraryQuery extends Mock implements LibraryQuery {}
 
+class MockLibraryDialogs extends Mock implements LibraryDialogs {}
+
 void main() {
   LibraryQuery libraryQuery = MockLibraryQuery();
-  LibraryScreenDialogs libraryScreenDialogs = MockLibraryScreenDialogs();
-  late LibraryScreenController controller;
+  LibraryDialogs libraryScreenDialogs = MockLibraryDialogs();
+  late LibraryController controller;
   List<BookInfo> fakeBooksInfo = [
     BookInfo(
       id: 'b1',
@@ -33,7 +34,7 @@ void main() {
   ];
 
   setUp(() {
-    controller = LibraryScreenController(
+    controller = LibraryController(
       libraryQuery: libraryQuery,
       libraryScreenDialogs: libraryScreenDialogs,
     );

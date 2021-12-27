@@ -57,7 +57,7 @@ class _InfoItem extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(keyName, style: Theme.of(context).textTheme.bodyText1),
-        SizedBox(height: 4),
+        SizedBox(height: 2),
         Text(value, style: Theme.of(context).textTheme.subtitle1),
       ],
     );

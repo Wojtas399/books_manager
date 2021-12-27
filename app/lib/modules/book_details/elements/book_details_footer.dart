@@ -18,6 +18,7 @@ class BookDetailsFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.only(bottom: 16.0),
       child: Column(
         children: [
           Divider(height: 1),

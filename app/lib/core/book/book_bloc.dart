@@ -53,11 +53,11 @@ class BookBloc {
   updateBookImg({
     required String bookId,
     required String newImgPath,
-  }) async {
-    await _bookInterface.updateBookImage(
-      bookId: bookId,
-      newImgPath: newImgPath,
-    );
+  }) {
+    Rx.fromCallable(() => _bookInterface.updateBookImage(
+          bookId: bookId,
+          newImgPath: newImgPath,
+        )).listen((_) => print('BOOK_BLOC update book img'));
   }
 
   updateBook({
@@ -68,20 +68,21 @@ class BookBloc {
     int? pages,
     int? readPages,
     BookStatus? status,
-  }) async {
-    await _bookInterface.updateBook(
-      bookId: bookId,
-      author: author,
-      title: title,
-      category: category != null ? category : null,
-      pages: pages,
-      readPages: readPages,
-      status: status != null ? status : null,
-    );
+  }) {
+    Rx.fromCallable(() => _bookInterface.updateBook(
+          bookId: bookId,
+          author: author,
+          title: title,
+          category: category != null ? category : null,
+          pages: pages,
+          readPages: readPages,
+          status: status != null ? status : null,
+        )).listen((_) => print('BOOK_BLOC update book'));
   }
 
-  deleteBook({required String bookId}) async {
-    await _bookInterface.deleteBook(bookId: bookId);
+  deleteBook({required String bookId}) {
+    Rx.fromCallable(() => _bookInterface.deleteBook(bookId: bookId))
+        .listen((_) => print('BOOK_BLOC delete book'));
   }
 
   dispose() {

@@ -5,46 +5,53 @@ import 'package:app/modules/book_details/elements/book_details_edit/book_details
 import 'package:app/modules/book_details/elements/book_details_action_sheet.dart';
 import 'package:app/modules/book_details/elements/book_details_edit/book_details_edit_dialog.dart';
 import 'package:app/modules/book_details/elements/book_details_new_image_preview.dart';
+import 'package:rxdart/rxdart.dart';
 
 class BookDetailsDialogs {
-  Future<BookDetailsEditAction?> askForEditOperation() async {
-    return await ActionSheet.showActionSheet(BookDetailsActionSheet());
+  Stream<BookDetailsEditAction?> askForEditOperation() {
+    return Rx.fromCallable(
+      () => ActionSheet.showActionSheet(BookDetailsActionSheet()),
+    ).map((action) => action);
   }
 
-  Future<bool?> askForNewImageConfirmation(String imgPath) async {
-    return await Dialogs.showCustomDialog(
-      child: BookDetailsNewImagePreview(
-        imgPath: imgPath,
+  Stream<bool?> askForNewImageConfirmation(String imgPath) {
+    return Rx.fromCallable(
+      () => Dialogs.showCustomDialog(
+        child: BookDetailsNewImagePreview(imgPath: imgPath),
       ),
-    );
+    ).map((confirmation) => confirmation);
   }
 
-  Future<BookDetailsEditedDataModel?> askForNewBookDetails(
+  Stream<BookDetailsEditedDataModel?> askForNewBookDetails(
     BookDetailsEditModel bookDetails,
-  ) async {
-    return await Dialogs.showCustomDialog(
-      child: BookDetailsEditDialog(
-        bookDetails: bookDetails,
+  ) {
+    return Rx.fromCallable(
+      () => Dialogs.showCustomDialog(
+        child: BookDetailsEditDialog(bookDetails: bookDetails),
       ),
-    );
+    ).map((newDetails) => newDetails);
   }
 
-  Future<bool?> askForEndReadingBookConfirmation() async {
-    return await Dialogs.showConfirmationDialog(
-      title: 'Ostrzeżenie!',
-      message:
-          'W zmienionych szczegółach książki liczba stron przeczytanych jest większa lub równa liczbie wszystkich stron z książki. Spowoduje to oznaczenie książki jako przeczytanej. Czy chcesz kontunować?',
-    );
+  Stream<bool?> askForEndReadingBookConfirmation() {
+    return Rx.fromCallable(
+      () => Dialogs.showConfirmationDialog(
+        title: 'Ostrzeżenie!',
+        message:
+            'W zmienionych szczegółach książki liczba stron przeczytanych jest większa lub równa liczbie wszystkich stron z książki. Spowoduje to oznaczenie książki jako przeczytanej. Czy chcesz kontunować?',
+      ),
+    ).map((confirmation) => confirmation);
   }
 
-  Future<bool?> askForDeleteBookConfirmation(String bookTitle) async {
-    return await Dialogs.showConfirmationDialog(
-      title: 'Usuwanie książki',
-      message: 'Czy na pewno chcesz usunąć książkę "$bookTitle?"',
-    );
+  Stream<bool?> askForDeleteBookConfirmation(String bookTitle) {
+    return Rx.fromCallable(
+      () => Dialogs.showConfirmationDialog(
+        title: 'Usuwanie książki',
+        message: 'Czy na pewno chcesz usunąć książkę "$bookTitle?"',
+      ),
+    ).map((confirmation) => confirmation);
   }
 
-  showSuccessfullySavedInfo() async {
-    await SnackBars.showSnackBar('Pomyślnie zapisano zmiany');
+  showSuccessfullySavedInfo() {
+    SnackBars.showSnackBar('Pomyślnie zapisano zmiany');
   }
 }

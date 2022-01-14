@@ -17,11 +17,13 @@ class BookDetailsBloc extends Bloc<BookDetailsActions, BookDetailsQuery> {
     required this.bookQuery,
     required this.bookBloc,
     required this.bookCategoryService,
-  }) : super(BookDetailsQuery(
-          bookQuery: bookQuery,
-          bookId: bookId,
-          bookCategoryService: bookCategoryService,
-        ));
+  }) : super(
+          BookDetailsQuery(
+            bookId: bookId,
+            bookQuery: bookQuery,
+            bookCategoryService: bookCategoryService,
+          ),
+        );
 
   @override
   Stream<BookDetailsQuery> mapEventToState(BookDetailsActions event) async* {

@@ -5,17 +5,17 @@ import 'package:rxdart/rxdart.dart';
 import '../book_details_model.dart';
 
 class BookDetailsQuery {
-  late BookQuery _bookQuery;
   late String _bookId;
+  late BookQuery _bookQuery;
   late BookCategoryService _bookCategoryService;
 
   BookDetailsQuery({
-    required BookQuery bookQuery,
     required String bookId,
+    required BookQuery bookQuery,
     required BookCategoryService bookCategoryService,
   }) {
-    _bookQuery = bookQuery;
     _bookId = bookId;
+    _bookQuery = bookQuery;
     _bookCategoryService = bookCategoryService;
   }
 

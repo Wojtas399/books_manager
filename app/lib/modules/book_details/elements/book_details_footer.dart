@@ -17,46 +17,43 @@ class BookDetailsFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(bottom: 16.0),
-      child: Column(
-        children: [
-          Divider(height: 1),
-          Expanded(
-            child: Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 16.0, right: 8.0),
-                    child: ElevatedButton.icon(
-                      label: Text('Edytuj'),
-                      icon: Icon(Icons.edit_rounded),
-                      style: ButtonStyles.mediumButton(
-                        color: AppColors.DARK_BLUE,
-                        context: context,
-                      ),
-                      onPressed: () {
-                        onClickEditButton();
-                      },
+    return Column(
+      children: [
+        Divider(height: 1),
+        Expanded(
+          child: Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(left: 16.0, right: 8.0),
+                  child: ElevatedButton.icon(
+                    label: Text('Edytuj'),
+                    icon: Icon(Icons.edit_rounded),
+                    style: ButtonStyles.mediumButton(
+                      color: AppColors.DARK_BLUE,
+                      context: context,
                     ),
+                    onPressed: () {
+                      onClickEditButton();
+                    },
                   ),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 8.0, right: 16.0),
-                    child: BookDetailsFunctionalButton(
-                      bookStatus$: bookStatus$,
-                      onClickFunctionalButton: () {
-                        onClickFunctionalButton();
-                      },
-                    ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(left: 8.0, right: 16.0),
+                  child: BookDetailsFunctionalButton(
+                    bookStatus$: bookStatus$,
+                    onClickFunctionalButton: () {
+                      onClickFunctionalButton();
+                    },
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

@@ -53,24 +53,27 @@ class BookDetailsScreen extends StatelessWidget {
               builder: (_, AsyncSnapshot<BookDetailsModel> snapshot) {
                 BookDetailsModel? bookDetails = snapshot.data;
                 if (bookDetails != null) {
-                  return Column(
-                    children: [
-                      Expanded(
-                        flex: 10,
-                        child: _Body(bookDetails: bookDetails),
-                      ),
-                      Expanded(
-                        child: BookDetailsFooter(
-                          bookStatus$: query.status$,
-                          onClickEditButton: () {
-                            controller.onClickEditButton();
-                          },
-                          onClickFunctionalButton: () {
-                            controller.onClickFunctionalButton();
-                          },
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: 16),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          flex: 10,
+                          child: _Body(bookDetails: bookDetails),
                         ),
-                      ),
-                    ],
+                        Expanded(
+                          child: BookDetailsFooter(
+                            bookStatus$: query.status$,
+                            onClickEditButton: () {
+                              controller.onClickEditButton();
+                            },
+                            onClickFunctionalButton: () {
+                              controller.onClickFunctionalButton();
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 }
                 return Text('No book data');

@@ -29,7 +29,7 @@ class HomeBloc extends Bloc<HomeActions, HomeQuery> {
     int bookReadPages = await bookQuery.selectReadPages(bookId).first;
     int bookPages = await bookQuery.selectPages(bookId).first;
     if (newPage >= bookPages) {
-      await bookBloc.updateBook(
+      bookBloc.updateBook(
         bookId: bookId,
         readPages: bookPages,
         status: BookStatus.end,
@@ -40,10 +40,7 @@ class HomeBloc extends Bloc<HomeActions, HomeQuery> {
         pagesToAdd: bookPages - bookReadPages,
       );
     } else {
-      await bookBloc.updateBook(
-        bookId: bookId,
-        readPages: newPage,
-      );
+      bookBloc.updateBook(bookId: bookId, readPages: newPage);
       if (newPage < bookReadPages) {
         await dayBloc.deletePages(
           bookId: bookId,

@@ -20,7 +20,7 @@ class BookDetailsEditModel extends Equatable {
   List<Object> get props => [title, author, category, readPages, pages];
 }
 
-class BookDetailsEditedDataModel {
+class BookDetailsEditedDataModel extends Equatable {
   String? title;
   String? author;
   BookCategory? category;
@@ -34,4 +34,45 @@ class BookDetailsEditedDataModel {
     this.readPages,
     this.pages,
   });
+
+  @override
+  List<Object> get props => [
+        title ?? '',
+        author ?? '',
+        category ?? '',
+        readPages ?? '',
+        pages ?? '',
+      ];
+}
+
+BookDetailsEditModel createBookDetailsEdit({
+  String? title,
+  String? author,
+  BookCategory? category,
+  int? readPages,
+  int? pages,
+}) {
+  return BookDetailsEditModel(
+    title: title ?? '',
+    author: author ?? '',
+    category: category ?? BookCategory.biography_autobiography,
+    readPages: readPages ?? 0,
+    pages: pages ?? 0,
+  );
+}
+
+BookDetailsEditedDataModel createBookDetailsEditedData({
+  String? title,
+  String? author,
+  BookCategory? category,
+  int? readPages,
+  int? pages,
+}) {
+  return BookDetailsEditedDataModel(
+    title: title,
+    author: author,
+    category: category,
+    readPages: readPages,
+    pages: pages,
+  );
 }

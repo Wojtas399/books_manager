@@ -12,7 +12,7 @@ class CustomActionSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: HexColor(AppColors.LIGHT_BLUE),
-      padding: EdgeInsets.only(top: 16.0),
+      padding: EdgeInsets.symmetric(vertical: 16),
       child: Wrap(
         children: [
           _Title(title: title),

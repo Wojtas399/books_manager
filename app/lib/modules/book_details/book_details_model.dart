@@ -1,4 +1,6 @@
-class BookDetailsModel {
+import 'package:equatable/equatable.dart';
+
+class BookDetailsModel extends Equatable {
   final String title;
   final String author;
   final String category;
@@ -20,4 +22,41 @@ class BookDetailsModel {
     required this.lastActualisation,
     required this.addDate,
   });
+
+  @override
+  List<Object> get props => [
+        title,
+        author,
+        category,
+        imgUrl,
+        readPages,
+        pages,
+        status,
+        lastActualisation,
+        addDate,
+      ];
+}
+
+BookDetailsModel createBookDetails({
+  String? title,
+  String? author,
+  String? category,
+  String? imgUrl,
+  int? readPages,
+  int? pages,
+  String? status,
+  String? lastActualisation,
+  String? addDate,
+}) {
+  return BookDetailsModel(
+    title: title ?? '',
+    author: author ?? '',
+    category: category ?? '',
+    imgUrl: imgUrl ?? '',
+    readPages: readPages ?? 0,
+    pages: pages ?? 0,
+    status: status ?? '',
+    lastActualisation: lastActualisation ?? '',
+    addDate: addDate ?? '',
+  );
 }

@@ -1,6 +1,8 @@
 import 'package:app/core/book/book_bloc.dart';
 import 'package:app/core/book/book_query.dart';
 import 'package:app/core/services/book_category_service.dart';
+import 'package:app/modules/book_details/bloc/book_details_bloc.dart';
+import 'package:app/modules/book_details/bloc/book_details_query.dart';
 import 'package:app/modules/book_details/book_details_controller.dart';
 import 'package:app/modules/book_details/book_details_dialogs.dart';
 import 'package:app/modules/book_details/elements/book_details_app_bar.dart';
@@ -9,6 +11,7 @@ import 'package:app/modules/book_details/elements/book_details_info.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:app/constants/theme.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -21,50 +24,62 @@ class BookDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    BookDetailsController controller = BookDetailsController(
-      bookId: bookId,
-      bookQuery: Provider.of<BookQuery>(context),
-      bookCategoryService: BookCategoryService(),
-      bookDetailsDialogs: BookDetailsDialogs(),
-      bookBloc: context.read<BookBloc>(),
-      imagePicker: ImagePicker(),
-    );
-
-    return Scaffold(
-      appBar: BookDetailsAppBar(
-        onClickDeleteButton: () async {
-          bool isBookDeleted = await controller.onClickDeleteButton();
-          if (isBookDeleted) {
-            Navigator.pop(context);
-          }
-        },
+    return BlocProvider(
+      create: (_) => BookDetailsBloc(
+        bookId: bookId,
+        bookQuery: context.read<BookQuery>(),
+        bookBloc: context.read<BookBloc>(),
+        bookCategoryService: BookCategoryService(),
       ),
-      body: StreamBuilder(
-        stream: controller.bookDetails$,
-        builder: (_, AsyncSnapshot<BookDetailsModel> snapshot) {
-          BookDetailsModel? bookDetails = snapshot.data;
-          if (bookDetails != null) {
-            return Column(
-              children: [
-                Expanded(
-                  flex: 10,
-                  child: _Body(bookDetails: bookDetails),
-                ),
-                Expanded(
-                  child: BookDetailsFooter(
-                    bookStatus$: controller.bookStatus$,
-                    onClickEditButton: () {
-                      controller.onClickEditButton();
-                    },
-                    onClickFunctionalButton: () {
-                      controller.onClickFunctionalButton();
-                    },
-                  ),
-                ),
-              ],
-            );
-          }
-          return Text('No book data');
+      child: BlocBuilder<BookDetailsBloc, BookDetailsQuery>(
+        builder: (context, query) {
+          BookDetailsController controller = BookDetailsController(
+            bookDetailsQuery: query,
+            bookDetailsBloc: context.read<BookDetailsBloc>(),
+            bookDetailsDialogs: BookDetailsDialogs(),
+            imagePicker: ImagePicker(),
+          );
+
+          return Scaffold(
+            appBar: BookDetailsAppBar(
+              onClickDeleteButton: () {
+                controller.onClickDeleteButton().listen((_) {
+                  Navigator.pop(context);
+                });
+              },
+            ),
+            body: StreamBuilder(
+              stream: query.bookDetails$,
+              builder: (_, AsyncSnapshot<BookDetailsModel> snapshot) {
+                BookDetailsModel? bookDetails = snapshot.data;
+                if (bookDetails != null) {
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: 16),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          flex: 10,
+                          child: _Body(bookDetails: bookDetails),
+                        ),
+                        Expanded(
+                          child: BookDetailsFooter(
+                            bookStatus$: query.status$,
+                            onClickEditButton: () {
+                              controller.onClickEditButton();
+                            },
+                            onClickFunctionalButton: () {
+                              controller.onClickFunctionalButton();
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return Text('No book data');
+              },
+            ),
+          );
         },
       ),
     );

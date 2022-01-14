@@ -34,8 +34,8 @@ class BookDetailsScreen extends StatelessWidget {
       child: BlocBuilder<BookDetailsBloc, BookDetailsQuery>(
         builder: (context, query) {
           BookDetailsController controller = BookDetailsController(
-            query: query,
-            bloc: context.read<BookDetailsBloc>(),
+            bookDetailsQuery: query,
+            bookDetailsBloc: context.read<BookDetailsBloc>(),
             bookDetailsDialogs: BookDetailsDialogs(),
             imagePicker: ImagePicker(),
           );

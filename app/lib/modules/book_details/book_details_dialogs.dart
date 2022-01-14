@@ -51,7 +51,7 @@ class BookDetailsDialogs {
     ).map((confirmation) => confirmation);
   }
 
-  showSuccessfullySavedInfo() {
-    SnackBars.showSnackBar('Pomyślnie zapisano zmiany');
+  showSuccessfullySavedInfo(String text) {
+    SnackBars.showSnackBar(text);
   }
 }

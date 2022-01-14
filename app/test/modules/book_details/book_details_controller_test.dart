@@ -1,7 +1,7 @@
-import 'package:app/core/book/book_bloc.dart';
 import 'package:app/core/book/book_model.dart';
-import 'package:app/core/book/book_query.dart';
-import 'package:app/core/services/book_category_service.dart';
+import 'package:app/modules/book_details/bloc/book_details_actions.dart';
+import 'package:app/modules/book_details/bloc/book_details_bloc.dart';
+import 'package:app/modules/book_details/bloc/book_details_query.dart';
 import 'package:app/modules/book_details/book_details_controller.dart';
 import 'package:app/modules/book_details/book_details_dialogs.dart';
 import 'package:app/modules/book_details/book_details_model.dart';
@@ -10,345 +10,205 @@ import 'package:app/modules/book_details/elements/book_details_edit/book_details
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:rxdart/rxdart.dart';
-import '../global_mocks.dart';
 
+class MockBookDetailsQuery extends Mock implements BookDetailsQuery {}
+
+class MockBookDetailsBloc extends Mock implements BookDetailsBloc {}
 
 class MockBookDetailsDialogs extends Mock implements BookDetailsDialogs {}
 
 class MockImagePicker extends Mock implements ImagePicker {}
 
 void main() {
-  BookQuery bookQuery = MockBookQuery();
-  BookCategoryService bookCategoryService = MockBookCategoryService();
+  BookDetailsQuery query = MockBookDetailsQuery();
+  BookDetailsBloc bloc = MockBookDetailsBloc();
   BookDetailsDialogs bookDetailsDialogs = MockBookDetailsDialogs();
-  BookBloc bookBloc = MockBookBloc();
   ImagePicker imagePicker = MockImagePicker();
   late BookDetailsController controller;
 
   setUp(() {
-    when(() => bookQuery.selectTitle('b1'))
-        .thenAnswer((_) => new BehaviorSubject<String>.seeded('book title'));
-    when(() => bookQuery.selectAuthor('b1'))
-        .thenAnswer((_) => new BehaviorSubject<String>.seeded('author name'));
-    when(() => bookQuery.selectCategory('b1')).thenAnswer((_) =>
-        new BehaviorSubject<BookCategory>.seeded(
-            BookCategory.biography_autobiography));
-    when(() => bookQuery.selectImgUrl('b1'))
-        .thenAnswer((_) => new BehaviorSubject<String>.seeded('img/url'));
-    when(() => bookQuery.selectReadPages('b1'))
-        .thenAnswer((_) => new BehaviorSubject<int>.seeded(100));
-    when(() => bookQuery.selectPages('b1'))
-        .thenAnswer((_) => new BehaviorSubject<int>.seeded(500));
-    when(() => bookQuery.selectStatus('b1')).thenAnswer(
-        (_) => new BehaviorSubject<BookStatus>.seeded(BookStatus.read));
-    when(() => bookQuery.selectLastActualisationDate('b1'))
-        .thenAnswer((_) => new BehaviorSubject<String>.seeded('05.10.2021'));
-    when(() => bookQuery.selectAddDate('b1'))
-        .thenAnswer((_) => new BehaviorSubject<String>.seeded('10.05.2021'));
-    when(() => bookCategoryService.convertCategoryToText(
-          BookCategory.biography_autobiography,
-        )).thenReturn('biografie i autobiografie');
     controller = BookDetailsController(
-      bookId: 'b1',
-      bookQuery: bookQuery,
-      bookCategoryService: bookCategoryService,
+      bookDetailsQuery: query,
+      bookDetailsBloc: bloc,
       bookDetailsDialogs: bookDetailsDialogs,
-      bookBloc: bookBloc,
       imagePicker: imagePicker,
     );
   });
 
   tearDown(() {
-    reset(bookQuery);
-    reset(bookCategoryService);
+    reset(query);
+    reset(bloc);
     reset(bookDetailsDialogs);
-    reset(bookBloc);
     reset(imagePicker);
   });
 
-  group('book status', () {
-    test('should be the status of selected book', () async {
-      BookStatus status = await controller.bookStatus$.first;
-      expect(status, BookStatus.read);
+  test('on click functional button, read status', () async {
+    when(() => query.status$).thenAnswer((_) => Stream.value(BookStatus.read));
+
+    await controller.onClickFunctionalButton();
+
+    verify(() => bloc.add(BookDetailsActionsPauseReading())).called(1);
+  });
+
+  test('on click functional button, no read status', () async {
+    when(() => query.status$).thenAnswer((_) => Stream.value(BookStatus.end));
+
+    await controller.onClickFunctionalButton();
+
+    verify(() => bloc.add(BookDetailsActionsStartReading())).called(1);
+  });
+
+  group('on click edit button, edit image', () {
+    const imgPath = 'img/path';
+    setUp(() {
+      when(() => bookDetailsDialogs.askForEditOperation())
+          .thenAnswer((_) => Stream.value(BookDetailsEditAction.editImage));
+      when(() => imagePicker.pickImage(source: ImageSource.gallery))
+          .thenAnswer((_) => Future.value(XFile(imgPath)));
+    });
+
+    test('image selected, confirmed', () async {
+      when(() => bookDetailsDialogs.askForNewImageConfirmation(imgPath))
+          .thenAnswer((_) => Stream.value(true));
+
+      await controller.onClickEditButton();
+
+      verify(
+        () => bloc.add(BookDetailsActionsUpdateImg(newImgPath: imgPath)),
+      ).called(1);
+    });
+
+    test('image selected, canceled', () async {
+      when(() => bookDetailsDialogs.askForNewImageConfirmation(imgPath))
+          .thenAnswer((_) => Stream.value(false));
+
+      await controller.onClickEditButton();
+
+      verifyNever(
+        () => bloc.add(BookDetailsActionsUpdateImg(newImgPath: imgPath)),
+      );
     });
   });
 
-  group('book details', () {
-    test('should contain all book details', () async {
-      BookDetailsModel bookDetails = await controller.bookDetails$.first;
-      expect(bookDetails.title, 'book title');
-      expect(bookDetails.author, 'author name');
-      expect(bookDetails.category, 'biografie i autobiografie');
-      expect(bookDetails.imgUrl, 'img/url');
-      expect(bookDetails.readPages, 100);
-      expect(bookDetails.pages, 500);
-      expect(bookDetails.status, 'W trakcie czytania');
-      expect(bookDetails.lastActualisation, '05.10.2021');
-      expect(bookDetails.addDate, '10.05.2021');
-    });
-  });
-
-  group('on click function button', () {
-    group('the book has read status', () {
-      setUp(() async {
-        await controller.onClickFunctionalButton();
-      });
-
-      test('should call update book details method with paused book status',
-          () {
-        verify(() => bookBloc.updateBook(
-              bookId: 'b1',
-              status: BookStatus.paused,
-            )).called(1);
-      });
+  group('on click edit button, edit details', () {
+    setUp(() {
+      when(() => bookDetailsDialogs.askForEditOperation())
+          .thenAnswer((_) => Stream.value(BookDetailsEditAction.editDetails));
     });
 
-    group('the book has any other status except read status', () {
-      late BookDetailsController newController;
-      setUp(() async {
-        when(() => bookQuery.selectStatus('b2')).thenAnswer(
-            (_) => new BehaviorSubject<BookStatus>.seeded(BookStatus.pending));
-        newController = BookDetailsController(
-          bookId: 'b2',
-          bookQuery: bookQuery,
-          bookCategoryService: bookCategoryService,
-          bookDetailsDialogs: bookDetailsDialogs,
-          bookBloc: bookBloc,
-          imagePicker: imagePicker,
+    group('end book reading', () {
+      setUp(() {
+        when(() => query.category$).thenAnswer(
+          (_) => Stream.value(BookCategory.biography_autobiography),
         );
-        await newController.onClickFunctionalButton();
+        when(() => query.bookDetails$).thenAnswer(
+          (_) => Stream.value(
+            createBookDetails(readPages: 100, pages: 500, status: 'czytane'),
+          ),
+        );
+        when(
+          () => bookDetailsDialogs.askForNewBookDetails(
+            createBookDetailsEdit(readPages: 100, pages: 500),
+          ),
+        ).thenAnswer(
+          (_) => Stream.value(createBookDetailsEditedData(readPages: 600)),
+        );
       });
 
-      test('should call update book details method with read book status', () {
-        verify(() => bookBloc.updateBook(
-              bookId: 'b2',
-              status: BookStatus.read,
-            )).called(1);
+      test('confirmed', () async {
+        when(() => bookDetailsDialogs.askForEndReadingBookConfirmation())
+            .thenAnswer((_) => Stream.value(true));
+
+        await controller.onClickEditButton();
+
+        verify(
+          () => bloc.add(BookDetailsActionsUpdateBook(
+            readPages: 500,
+            status: BookStatus.end,
+          )),
+        ).called(1);
       });
+
+      test('canceled', () async {
+        when(() => bookDetailsDialogs.askForEndReadingBookConfirmation())
+            .thenAnswer((_) => Stream.value(false));
+
+        await controller.onClickEditButton();
+
+        verifyNever(
+          () => bloc.add(BookDetailsActionsUpdateBook(
+            readPages: 500,
+            status: BookStatus.end,
+          )),
+        );
+      });
+    });
+
+    test('normal changes', () async {
+      final details = createBookDetails(
+        title: 'Title',
+        author: 'Author',
+        category: 'Biografie i autobiografie',
+        readPages: 100,
+        pages: 500,
+        status: 'czytane',
+      );
+      final editedDetails = createBookDetailsEditedData(
+        title: 'New title',
+        author: 'New author',
+        category: BookCategory.academic_books,
+        readPages: 200,
+        pages: 700,
+      );
+      when(() => query.category$).thenAnswer(
+        (_) => Stream.value(BookCategory.biography_autobiography),
+      );
+      when(() => query.bookDetails$).thenAnswer((_) => Stream.value(details));
+      when(
+        () => bookDetailsDialogs.askForNewBookDetails(
+          createBookDetailsEdit(
+            title: details.title,
+            author: details.author,
+            category: BookCategory.biography_autobiography,
+            readPages: details.readPages,
+            pages: details.pages,
+          ),
+        ),
+      ).thenAnswer((_) => Stream.value(editedDetails));
+
+      await controller.onClickEditButton();
+
+      verify(
+        () => bloc.add(BookDetailsActionsUpdateBook(
+          title: editedDetails.title,
+          author: editedDetails.author,
+          category: editedDetails.category,
+          readPages: editedDetails.readPages,
+          pages: editedDetails.pages,
+        )),
+      ).called(1);
     });
   });
 
-  group('on click edit button', () {
-    group('edit image', () {
-      setUp(() {
-        when(() => bookDetailsDialogs.askForEditOperation())
-            .thenAnswer((_) async => BookDetailsEditAction.editImage);
-      });
+  test('on click delete button, accepted', () {
+    when(() => query.title$).thenAnswer((_) => Stream.value('title'));
+    when(
+      () => bookDetailsDialogs.askForDeleteBookConfirmation('title'),
+    ).thenAnswer((_) => Stream.value(true));
 
-      group('image selected', () {
-        setUp(() {
-          when(() => imagePicker.pickImage(source: ImageSource.gallery))
-              .thenAnswer((_) async => XFile('img/path'));
-        });
-
-        group('confirmed', () {
-          setUp(() async {
-            when(() => bookDetailsDialogs.askForNewImageConfirmation(
-                  'img/path',
-                )).thenAnswer((_) async => true);
-            await controller.onClickEditButton();
-          });
-
-          test('should call update image method with new image path', () {
-            verify(() => bookBloc.updateBookImg(
-                  bookId: 'b1',
-                  newImgPath: 'img/path',
-                )).called(1);
-          });
-        });
-
-        group('canceled', () {
-          setUp(() async {
-            when(() => bookDetailsDialogs.askForNewImageConfirmation(
-                  'img/path',
-                )).thenAnswer((_) async => false);
-            await controller.onClickEditButton();
-          });
-
-          test('should not call update image method', () {
-            verifyNever(() => bookBloc.updateBookImg(
-                  bookId: 'b1',
-                  newImgPath: 'img/path',
-                ));
-          });
-        });
-      });
-
-      group('image not selected', () {
-        setUp(() async {
-          when(() => imagePicker.pickImage(source: ImageSource.gallery))
-              .thenAnswer((_) async => null);
-          await controller.onClickEditButton();
-        });
-
-        test('should not call update image method', () {
-          verifyNever(() => bookBloc.updateBookImg(
-                bookId: 'b1',
-                newImgPath: 'img/path',
-              ));
-        });
-      });
-    });
-
-    group('edit details', () {
-      setUp(() {
-        when(() => bookDetailsDialogs.askForEditOperation())
-            .thenAnswer((_) async => BookDetailsEditAction.editDetails);
-      });
-
-      group('amount of read pages is higher than amount of all book pages', () {
-        group('changed read pages', () {
-          setUp(() {
-            when(
-              () =>
-                  bookDetailsDialogs.askForNewBookDetails(BookDetailsEditModel(
-                title: 'book title',
-                author: 'author name',
-                category: BookCategory.biography_autobiography,
-                readPages: 100,
-                pages: 500,
-              )),
-            ).thenAnswer(
-                (_) async => BookDetailsEditedDataModel(readPages: 600));
-          });
-
-          group('confirmed', () {
-            setUp(() async {
-              when(() => bookDetailsDialogs.askForEndReadingBookConfirmation())
-                  .thenAnswer((_) async => true);
-              await controller.onClickEditButton();
-            });
-
-            test(
-              'should call update book details method with new book details, end status and read pages number set to the total number of book pages',
-              () {
-                verify(() => bookBloc.updateBook(
-                      bookId: 'b1',
-                      author: null,
-                      title: null,
-                      category: null,
-                      pages: null,
-                      readPages: 500,
-                      status: BookStatus.end,
-                    )).called(1);
-              },
-            );
-          });
-
-          group('canceled', () {
-            setUp(() async {
-              when(() => bookDetailsDialogs.askForEndReadingBookConfirmation())
-                  .thenAnswer((_) async => false);
-              await controller.onClickEditButton();
-            });
-
-            test('should not call update book details method', () {
-              verifyNever(() => bookBloc.updateBook(
-                    bookId: 'b1',
-                    author: null,
-                    title: null,
-                    category: null,
-                    pages: null,
-                    readPages: 500,
-                    status: BookStatus.end,
-                  ));
-            });
-          });
-        });
-
-        group('changed pages number', () {
-          setUp(() async {
-            when(
-              () =>
-                  bookDetailsDialogs.askForNewBookDetails(BookDetailsEditModel(
-                title: 'book title',
-                author: 'author name',
-                category: BookCategory.biography_autobiography,
-                readPages: 100,
-                pages: 500,
-              )),
-            ).thenAnswer((_) async => BookDetailsEditedDataModel(pages: 50));
-            when(() => bookDetailsDialogs.askForEndReadingBookConfirmation())
-                .thenAnswer((_) async => true);
-            await controller.onClickEditButton();
-          });
-
-          test(
-            'should call update book details method with new book details, end status and read pages number set to the new total number of book pages',
-            () {
-              verify(() => bookBloc.updateBook(
-                    bookId: 'b1',
-                    author: null,
-                    title: null,
-                    category: null,
-                    pages: 50,
-                    readPages: 50,
-                    status: BookStatus.end,
-                  )).called(1);
-            },
-          );
-        });
-      });
-
-      group('normal edit', () {
-        setUp(() async {
-          when(
-            () => bookDetailsDialogs.askForNewBookDetails(BookDetailsEditModel(
-              title: 'book title',
-              author: 'author name',
-              category: BookCategory.biography_autobiography,
-              readPages: 100,
-              pages: 500,
-            )),
-          ).thenAnswer((_) async => BookDetailsEditedDataModel(
-                title: 'new title',
-                category: BookCategory.academic_books,
-                pages: 400,
-              ));
-          await controller.onClickEditButton();
-        });
-
-        test('should call update book details method with new details', () {
-          verify(() => bookBloc.updateBook(
-                bookId: 'b1',
-                title: 'new title',
-                author: null,
-                category: BookCategory.academic_books,
-                readPages: null,
-                pages: 400,
-                status: null,
-              )).called(1);
-        });
-      });
+    controller.onClickDeleteButton().listen((_) {
+      verify(() => bloc.add(BookDetailsActionsDeletedBook())).called(1);
     });
   });
 
-  group('on click delete button', () {
-    group('accepted', () {
-      setUp(() async {
-        when(() => bookDetailsDialogs.askForDeleteBookConfirmation(
-              'book title',
-            )).thenAnswer((_) async => true);
-        await controller.onClickDeleteButton();
-      });
+  test('on click delete button, cancelled', () {
+    when(() => query.title$).thenAnswer((_) => Stream.value('title'));
+    when(
+      () => bookDetailsDialogs.askForDeleteBookConfirmation('title'),
+    ).thenAnswer((_) => Stream.value(false));
 
-      test('should call delete book method', () {
-        verify(() => bookBloc.deleteBook(bookId: 'b1')).called(1);
-      });
-    });
-
-    group('canceled', () {
-      setUp(() async {
-        when(() => bookDetailsDialogs.askForDeleteBookConfirmation(
-              'book title',
-            )).thenAnswer((_) async => false);
-        await controller.onClickDeleteButton();
-      });
-
-      test('should not call delete book method', () {
-        verifyNever(() => bookBloc.deleteBook(bookId: 'b1'));
-      });
+    controller.onClickDeleteButton().listen((_) {
+      verifyNever(() => bloc.add(BookDetailsActionsDeletedBook()));
     });
   });
 }

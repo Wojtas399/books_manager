@@ -2,8 +2,8 @@ import 'package:app/core/book/book_model.dart';
 import 'package:app/modules/book_details/bloc/book_details_actions.dart';
 import 'package:app/modules/book_details/bloc/book_details_bloc.dart';
 import 'package:app/modules/book_details/bloc/book_details_query.dart';
-import 'package:app/modules/book_details/elements/book_details_edit/book_details_edit_model.dart';
 import 'package:app/modules/book_details/elements/book_details_action_sheet.dart';
+import 'package:app/modules/book_details/elements/book_details_edit/book_details_edit_model.dart';
 import 'package:app/modules/book_details/book_details_model.dart';
 import 'package:app/modules/book_details/book_details_dialogs.dart';
 import 'package:image_picker/image_picker.dart';
@@ -16,40 +16,40 @@ class BookDetailsController {
   late ImagePicker _imagePicker;
 
   BookDetailsController({
-    required BookDetailsQuery query,
-    required BookDetailsBloc bloc,
+    required BookDetailsQuery bookDetailsQuery,
+    required BookDetailsBloc bookDetailsBloc,
     required BookDetailsDialogs bookDetailsDialogs,
     required ImagePicker imagePicker,
   }) {
-    _query = query;
-    _bloc = bloc;
+    _query = bookDetailsQuery;
+    _bloc = bookDetailsBloc;
     _bookDetailsDialogs = bookDetailsDialogs;
     _imagePicker = imagePicker;
   }
 
-  onClickFunctionalButton() {
-    _query.status$.take(1).map(
-      (bookStatus) {
-        if (bookStatus == BookStatus.read) {
-          _bloc.add(BookDetailsActionsPauseReading());
-        } else {
-          _bloc.add(BookDetailsActionsStartReading());
-        }
-      },
-    ).listen((_) => _bookDetailsDialogs.showSuccessfullySavedInfo());
+  Future<void> onClickFunctionalButton() async {
+    BookStatus bookStatus = await _query.status$.first;
+    if (bookStatus == BookStatus.read) {
+      _bloc.add(BookDetailsActionsPauseReading());
+    } else {
+      _bloc.add(BookDetailsActionsStartReading());
+    }
   }
 
-  onClickEditButton() {
-    _bookDetailsDialogs.askForEditOperation().whereType().switchMap((result) {
-      switch (result) {
+  Future<void> onClickEditButton() async {
+    Stream<BookDetailsEditAction> action$ = _bookDetailsDialogs
+        .askForEditOperation()
+        .whereType<BookDetailsEditAction>();
+    await for (final val in action$) {
+      switch (val) {
         case BookDetailsEditAction.editImage:
-          return _changeImage();
+          await _changeImage();
+          break;
         case BookDetailsEditAction.editDetails:
-          return _changeDetails();
-        default:
-          return Stream.empty();
+          await _changeDetails();
+          break;
       }
-    }).listen((_) {});
+    }
   }
 
   Stream<void> onClickDeleteButton() {
@@ -62,52 +62,79 @@ class BookDetailsController {
         .map((_) => _bloc.add(BookDetailsActionsDeletedBook()));
   }
 
-  Stream<void> _changeImage() {
-    return _getImageFromGallery()
-        .whereType<String>()
-        .switchMap((String imgPath) => Rx.combineLatest2(
-              Stream<String>.value(imgPath),
-              _bookDetailsDialogs.askForNewImageConfirmation(imgPath),
-              (String imgPath, bool? confirmation) {
-                if (confirmation == true) {
-                  _bloc.add(BookDetailsActionsUpdateImg(newImgPath: imgPath));
-                  return true;
-                }
-                return false;
-              },
-            ))
-        .where((imageChanged) => imageChanged == true)
-        .map((_) => _bookDetailsDialogs.showSuccessfullySavedInfo());
+  Future<void> _changeImage() async {
+    Stream<String> imgPath$ = _getImageFromGallery().whereType<String>();
+    await for (final imgPath in imgPath$) {
+      _confirmImage(imgPath);
+    }
   }
 
-  Stream<void> _changeDetails() {
-    return Rx.combineLatest2(
-            _query.category$,
-            _query.bookDetails$,
-            (BookCategory category, BookDetailsModel bookDetails) =>
-                BookDetailsEditModel(
-                  title: bookDetails.title,
-                  author: bookDetails.author,
-                  category: category,
-                  readPages: bookDetails.readPages,
-                  pages: bookDetails.pages,
-                ))
-        .take(1)
-        .switchMap((BookDetailsEditModel details) => Rx.combineLatest2(
-                Stream<BookDetailsEditModel>.value(details),
-                _bookDetailsDialogs.askForNewBookDetails(details), (
-              BookDetailsEditModel details,
-              BookDetailsEditedDataModel? newDetails,
-            ) {
-              if (newDetails != null) {
-                return [newDetails, details];
-              }
-            }))
-        .whereType<List>()
-        .where((values) => values.length == 2)
-        .switchMap((values) => _saveNewBookDetails(
-              values[0] as BookDetailsEditedDataModel,
-              values[1] as BookDetailsEditModel,
+  Future<void> _changeDetails() async {
+    BookDetailsEditModel details = await Rx.combineLatest2(
+        _query.category$,
+        _query.bookDetails$,
+        (BookCategory category, BookDetailsModel bookDetails) =>
+            BookDetailsEditModel(
+              title: bookDetails.title,
+              author: bookDetails.author,
+              category: category,
+              readPages: bookDetails.readPages,
+              pages: bookDetails.pages,
+            )).first;
+    Stream<BookDetailsEditedDataModel> newDetails$ = _bookDetailsDialogs
+        .askForNewBookDetails(details)
+        .whereType<BookDetailsEditedDataModel>();
+    await for (final newDetails in newDetails$) {
+      _saveNewBookDetails(newDetails, details);
+    }
+  }
+
+  void _confirmImage(String imgPath) {
+    _bookDetailsDialogs
+        .askForNewImageConfirmation(imgPath)
+        .whereType<bool>()
+        .where((confirmation) => confirmation == true)
+        .map((_) => _bloc.add(
+              BookDetailsActionsUpdateImg(newImgPath: imgPath),
+            ))
+        .listen((_) => _bookDetailsDialogs.showSuccessfullySavedInfo(
+              'Pomyślnie zmieniono zdjęcie',
+            ));
+  }
+
+  void _saveNewBookDetails(
+    BookDetailsEditedDataModel? newBookDetails,
+    BookDetailsEditModel bookDetails,
+  ) {
+    int? newReadPages = newBookDetails?.readPages;
+    int? newPages = newBookDetails?.pages;
+    bool isBookEnded = _isBookEnded(
+      bookDetails.readPages,
+      bookDetails.pages,
+      newBookDetails?.readPages,
+      newBookDetails?.pages,
+    );
+    Stream<bool> confirmation$ = isBookEnded
+        ? _bookDetailsDialogs
+            .askForEndReadingBookConfirmation()
+            .whereType<bool>()
+        : Stream<bool>.value(true);
+    confirmation$
+        .where((confirmation) => confirmation)
+        .map((_) => _bloc.add(BookDetailsActionsUpdateBook(
+              title: newBookDetails?.title,
+              author: newBookDetails?.author,
+              category: newBookDetails?.category,
+              readPages: isBookEnded
+                  ? newPages != null
+                      ? newPages
+                      : bookDetails.pages
+                  : newReadPages,
+              pages: newPages,
+              status: isBookEnded ? BookStatus.end : null,
+            )))
+        .listen((_) => _bookDetailsDialogs.showSuccessfullySavedInfo(
+              'Pomyślnie zmieniono dane',
             ));
   }
 
@@ -124,56 +151,19 @@ class BookDetailsController {
     }
   }
 
-  Stream<void> _saveNewBookDetails(
-    BookDetailsEditedDataModel? newBookDetails,
-    BookDetailsEditModel bookDetails,
-  ) {
-    int? newReadPages = newBookDetails?.readPages;
-    int? newPages = newBookDetails?.pages;
-    bool isEndReading = false;
-    return _isBookEnded(
-      bookDetails.readPages,
-      bookDetails.pages,
-      newBookDetails?.readPages,
-      newBookDetails?.pages,
-    )
-        .take(1)
-        .switchMap((isEnded) {
-          if (isEnded) {
-            isEndReading = true;
-            return _bookDetailsDialogs.askForEndReadingBookConfirmation();
-          }
-          return Stream<bool>.value(true);
-        })
-        .where((confirmation) => confirmation == true)
-        .map((_) => _bloc.add(BookDetailsActionsUpdateBook(
-              title: newBookDetails?.title,
-              author: newBookDetails?.author,
-              category: newBookDetails?.category,
-              readPages: isEndReading
-                  ? newPages != null
-                      ? newPages
-                      : bookDetails.pages
-                  : newReadPages,
-              pages: newPages,
-              status: isEndReading ? BookStatus.end : null,
-            )))
-        .map((_) => _bookDetailsDialogs.showSuccessfullySavedInfo());
-  }
-
-  Stream<bool> _isBookEnded(
+  bool _isBookEnded(
     int readPages,
     int pages,
     int? newReadPages,
     int? newPages,
-  ) async* {
+  ) {
     if (newReadPages != null && newPages != null) {
-      yield newReadPages >= newPages;
+      return newReadPages >= newPages;
     } else if (newReadPages != null) {
-      yield newReadPages >= pages;
+      return newReadPages >= pages;
     } else if (newPages != null) {
-      yield readPages >= newPages;
+      return readPages >= newPages;
     }
-    yield false;
+    return false;
   }
 }

@@ -1,11 +1,10 @@
 import 'package:app/widgets/action_sheet/custom_action_sheet.dart';
 import 'package:app/widgets/action_sheet/custom_action_sheet_item.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-enum BookItemActionSheetResult {
+enum BookItemActions {
   updatePage,
-  bookDetails,
+  navigateToBookDetails,
 }
 
 class BookItemActionSheet extends StatelessWidget {
@@ -23,7 +22,7 @@ class BookItemActionSheet extends StatelessWidget {
           icon: Icons.note_add,
           onTap: () => Navigator.pop(
             context,
-            BookItemActionSheetResult.updatePage,
+            BookItemActions.updatePage,
           ),
         ),
         CustomActionSheetItem(
@@ -31,7 +30,7 @@ class BookItemActionSheet extends StatelessWidget {
           icon: Icons.feed,
           onTap: () => Navigator.pop(
             context,
-            BookItemActionSheetResult.bookDetails,
+            BookItemActions.navigateToBookDetails,
           ),
         ),
         CustomActionSheetItem(

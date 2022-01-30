@@ -1,7 +1,9 @@
+import 'package:app/constants/route_paths/app_route_path.dart';
 import 'package:app/core/book/book_bloc.dart';
 import 'package:app/core/book/book_model.dart';
 import 'package:app/core/book/book_query.dart';
 import 'package:app/core/day/day_bloc.dart';
+import 'package:app/core/services/app_navigator_service.dart';
 import 'package:app/core/services/date_service.dart';
 import 'package:app/modules/home/bloc/home_actions.dart';
 import 'package:app/modules/home/bloc/home_bloc.dart';
@@ -14,6 +16,7 @@ void main() {
   BookQuery bookQuery = MockBookQuery();
   BookBloc bookBloc = MockBookBloc();
   DayBloc dayBloc = MockDayBloc();
+  AppNavigatorService appNavigatorService = MockAppNavigatorService();
   late HomeBloc bloc;
 
   setUp(() {
@@ -21,6 +24,7 @@ void main() {
       bookQuery: bookQuery,
       bookBloc: bookBloc,
       dayBloc: dayBloc,
+      appNavigatorService: appNavigatorService,
     );
   });
 
@@ -28,6 +32,7 @@ void main() {
     reset(bookQuery);
     reset(bookBloc);
     reset(dayBloc);
+    reset(appNavigatorService);
   });
 
   group('update book read pages', () {
@@ -41,10 +46,9 @@ void main() {
     blocTest(
       'new page number higher than the last page number',
       build: () => bloc,
-      act: (HomeBloc b) => b.add(HomeBlocUpdatePage(
-        bookId: 'b1',
-        newPage: 250,
-      )),
+      act: (HomeBloc b) {
+        b.add(HomeActionsUpdatePage(bookId: 'b1', newPage: 250));
+      },
       verify: (_) {
         verify(
           () => bookBloc.updateBook(
@@ -66,10 +70,9 @@ void main() {
     blocTest(
       'new page number lower than current page number',
       build: () => bloc,
-      act: (HomeBloc b) => b.add(HomeBlocUpdatePage(
-        bookId: 'b1',
-        newPage: 25,
-      )),
+      act: (HomeBloc b) {
+        b.add(HomeActionsUpdatePage(bookId: 'b1', newPage: 25));
+      },
       verify: (_) {
         verify(
           () => bookBloc.updateBook(
@@ -89,10 +92,9 @@ void main() {
     blocTest(
       'new page number higher than current page number',
       build: () => bloc,
-      act: (HomeBloc b) => b.add(HomeBlocUpdatePage(
-        bookId: 'b1',
-        newPage: 125,
-      )),
+      act: (HomeBloc b) {
+        b.add(HomeActionsUpdatePage(bookId: 'b1', newPage: 125));
+      },
       verify: (_) {
         verify(
           () => bookBloc.updateBook(
@@ -110,4 +112,20 @@ void main() {
       },
     );
   });
+
+  blocTest(
+    'navigate to book details',
+    build: () => bloc,
+    act: (HomeBloc homeBloc) {
+      homeBloc.add(HomeActionsNavigateToBookDetails(bookId: 'b1'));
+    },
+    verify: (_) {
+      verify(
+        () => appNavigatorService.pushNamed(
+          path: AppRoutePath.BOOK_DETAILS,
+          arguments: {'bookId': 'b1'},
+        ),
+      ).called(1);
+    },
+  );
 }

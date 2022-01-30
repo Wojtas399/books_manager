@@ -75,4 +75,30 @@ void main() {
 
     expect(readPages, b1AllPages + b2AllPages + b3AllPages);
   });
+
+  test('select book item details', () async {
+    Book book = createBook(
+      title: 'title',
+      author: 'author',
+      readPages: 50,
+      pages: 200,
+      imgUrl: 'img/url',
+    );
+    when(() => bookQuery.selectDetails('b1')).thenAnswer(
+      (_) => Stream.value(book),
+    );
+
+    BookItemDetails details = await query.selectBookItemDetails('b1').first;
+
+    expect(
+      details,
+      BookItemDetails(
+        title: 'title',
+        author: 'author',
+        readPages: 50,
+        pages: 200,
+        imgUrl: 'img/url',
+      ),
+    );
+  });
 }

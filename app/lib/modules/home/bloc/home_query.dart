@@ -1,5 +1,6 @@
 import 'package:app/core/book/book_model.dart';
 import 'package:app/core/book/book_query.dart';
+import 'package:equatable/equatable.dart';
 import 'package:rxdart/rxdart.dart';
 
 class HomeQuery {
@@ -35,4 +36,41 @@ class HomeQuery {
           (allPages) => allPages.reduce((value, element) => value + element),
         ),
       );
+
+  Stream<BookItemDetails> selectBookItemDetails(String bookId) {
+    return _bookQuery.selectDetails(bookId).map(
+          (details) => BookItemDetails(
+            title: details.title,
+            author: details.author,
+            readPages: details.readPages,
+            pages: details.pages,
+            imgUrl: details.imgUrl,
+          ),
+        );
+  }
+}
+
+class BookItemDetails extends Equatable {
+  final String title;
+  final String author;
+  final int readPages;
+  final int pages;
+  final String imgUrl;
+
+  BookItemDetails({
+    required this.title,
+    required this.author,
+    required this.readPages,
+    required this.pages,
+    required this.imgUrl,
+  });
+
+  @override
+  List<Object> get props => [
+        title,
+        author,
+        readPages,
+        pages,
+        imgUrl,
+      ];
 }

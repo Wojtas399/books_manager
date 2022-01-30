@@ -1,10 +1,15 @@
 import 'package:app/core/book/book_model.dart';
-import 'package:app/core/services/date_service.dart';
 
 class BookQuery {
   Stream<List<Book>> allBooks;
 
   BookQuery({required this.allBooks});
+
+  Stream<Book> selectDetails(String bookId) {
+    return allBooks.map(
+      (allBooks) => allBooks.firstWhere((book) => book.id == bookId),
+    );
+  }
 
   Stream<String> selectAuthor(String bookId) {
     return allBooks.map((allBooks) {
@@ -77,19 +82,6 @@ class BookQuery {
     return allBooks.map(
       (allBooks) => allBooks
           .where((book) => statuses.contains(book.status))
-          .map((book) => book.id)
-          .toList(),
-    );
-  }
-
-  Stream<List<String>> selectNewBooksIds() {
-    return allBooks.map(
-      (allBooks) => allBooks
-          .where((book) {
-            int daysBetween = DateService.daysBetween(
-                book.addDate, DateService.getCurrentDate());
-            return daysBetween <= 2;
-          })
           .map((book) => book.id)
           .toList(),
     );

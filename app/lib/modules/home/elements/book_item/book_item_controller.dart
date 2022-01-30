@@ -1,106 +1,101 @@
-import 'package:app/constants/route_paths/app_route_path.dart';
-import 'package:app/core/book/book_query.dart';
-import 'package:app/core/services/app_navigator_service.dart';
 import 'package:app/modules/home/bloc/home_actions.dart';
 import 'package:app/modules/home/bloc/home_bloc.dart';
+import 'package:app/modules/home/bloc/home_query.dart';
 import 'package:app/modules/home/elements/book_item/book_item_action_sheet.dart';
-import 'package:rxdart/rxdart.dart';
 import '../../home_screen_dialogs.dart';
-import 'book_item_model.dart';
 
 class BookItemController {
   late String _bookId;
-  late BookQuery _bookQuery;
-  late HomeScreenDialogs _homeScreenDialogs;
-  late AppNavigatorService _navigatorService;
-  late HomeBloc _homeBloc;
+  late HomeQuery _query;
+  late HomeBloc _bloc;
+  late HomeScreenDialogs _dialogs;
 
   BookItemController({
     required String bookId,
-    required BookQuery bookQuery,
-    required HomeScreenDialogs homeScreenDialogs,
-    required AppNavigatorService navigatorService,
+    required HomeQuery homeQuery,
     required HomeBloc homeBloc,
+    required HomeScreenDialogs homeScreenDialogs,
   }) {
     _bookId = bookId;
-    _bookQuery = bookQuery;
-    _homeScreenDialogs = homeScreenDialogs;
-    _navigatorService = navigatorService;
-    _homeBloc = homeBloc;
+    _query = homeQuery;
+    _bloc = homeBloc;
+    _dialogs = homeScreenDialogs;
   }
 
-  Stream<BookItemModel> get bookItemData$ => Rx.combineLatest5(
-        _bookQuery.selectTitle(_bookId),
-        _bookQuery.selectAuthor(_bookId),
-        _bookQuery.selectReadPages(_bookId),
-        _bookQuery.selectPages(_bookId),
-        _bookQuery.selectImgUrl(_bookId),
-        (
-          String title,
-          String author,
-          int readPages,
-          int pages,
-          String imgUrl,
-        ) =>
-            BookItemModel(
-          title: title,
-          author: author,
-          readPages: readPages,
-          pages: pages,
-          imgUrl: imgUrl,
-        ),
-      );
+  Stream<BookItemDetails> get bookItemDetails$ =>
+      _query.selectBookItemDetails(_bookId);
 
-  onClickBookItem(String bookTitle) async {
-    BookItemActionSheetResult? result =
-        await _homeScreenDialogs.askForBookItemOperation(bookTitle);
-    switch (result) {
-      case BookItemActionSheetResult.updatePage:
-        await _updatePage();
-        break;
-      case BookItemActionSheetResult.bookDetails:
-        _navigateToBookDetails();
-        break;
-      default:
-        break;
+  onClickBookItem() async {
+    BookItemDetails bookItemDetails = await bookItemDetails$.first;
+    Stream<BookItemActions> selectedAction$ =
+        _dialogs.askForBookItemAction(bookItemDetails.title);
+    await for (BookItemActions actionValue in selectedAction$) {
+      switch (actionValue) {
+        case BookItemActions.updatePage:
+          await _updatePage(bookItemDetails.readPages, bookItemDetails.pages);
+          break;
+        case BookItemActions.navigateToBookDetails:
+          _bloc.add(HomeActionsNavigateToBookDetails(bookId: _bookId));
+          break;
+        default:
+          break;
+      }
     }
   }
 
-  _updatePage() async {
-    int bookReadPages = await _bookQuery.selectReadPages(_bookId).first;
-    int bookPages = await _bookQuery.selectPages(_bookId).first;
-    int? newPage = await _homeScreenDialogs.askForNewPage(bookReadPages);
-    if (newPage != null &&
-        await _checkNewPage(newPage, bookReadPages, bookPages)) {
-      _homeBloc.add(HomeBlocUpdatePage(bookId: _bookId, newPage: newPage));
-      await _homeScreenDialogs.showSuccessfullyUpdatedInfo();
+  _updatePage(int readPages, int pages) async {
+    Stream<int> newSelectedPage$ = _dialogs.askForNewPage(readPages);
+    await for (int selectedPageValue in newSelectedPage$) {
+      bool confirmation = await _newPageConfirmation(
+        selectedPageValue,
+        readPages,
+        pages,
+      ).first;
+      if (confirmation) {
+        _bloc.add(HomeActionsUpdatePage(
+          bookId: _bookId,
+          newPage: selectedPageValue,
+        ));
+        _dialogs.showSuccessfullyUpdatedInfo();
+      }
     }
   }
 
-  _navigateToBookDetails() {
-    _navigatorService.pushNamed(path: AppRoutePath.BOOK_DETAILS, arguments: {
-      'bookId': _bookId,
-    });
-  }
-
-  Future<bool> _checkNewPage(
+  Stream<bool> _newPageConfirmation(
     int newPage,
     int currentPage,
     int allPages,
-  ) async {
-    if (newPage > currentPage && newPage < allPages) {
-      return true;
-    } else if (newPage < currentPage && newPage >= 0) {
-      bool? confirmation =
-          await _homeScreenDialogs.askForLowerPageConfirmation();
-      return confirmation == true;
-    } else if (newPage < 0) {
-      await _homeScreenDialogs.showWrongPageInfo();
-      return false;
-    } else if (newPage >= allPages) {
-      bool? confirmation = await _homeScreenDialogs.askForEndBookConfirmation();
-      return confirmation == true;
+  ) {
+    if (_isPageHigherThanCurrentPage(newPage, currentPage, allPages)) {
+      return Stream.value(true);
+    } else if (_isPageLowerThanCurrentPage(newPage, currentPage)) {
+      return _dialogs.askForLowerPageConfirmation();
+    } else if (_isWrongPageNumber(newPage)) {
+      _dialogs.showWrongPageInfo();
+      return Stream.value(false);
+    } else if (_isPageHigherThanOrEqualTheLastPage(newPage, allPages)) {
+      return _dialogs.askForEndBookConfirmation();
     }
-    return false;
+    return Stream.value(false);
+  }
+
+  bool _isPageHigherThanCurrentPage(
+    int newPage,
+    int currentPage,
+    int allPages,
+  ) {
+    return newPage > currentPage && newPage < allPages;
+  }
+
+  bool _isPageLowerThanCurrentPage(int newPage, int currentPage) {
+    return newPage < currentPage && newPage > 0;
+  }
+
+  bool _isWrongPageNumber(int newPage) {
+    return newPage < 0;
+  }
+
+  bool _isPageHigherThanOrEqualTheLastPage(int newPage, int allPages) {
+    return newPage > allPages;
   }
 }

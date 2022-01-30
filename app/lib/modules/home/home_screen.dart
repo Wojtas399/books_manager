@@ -1,6 +1,7 @@
 import 'package:app/core/book/book_bloc.dart';
 import 'package:app/core/book/book_query.dart';
 import 'package:app/core/day/day_bloc.dart';
+import 'package:app/core/services/app_navigator_service.dart';
 import 'package:app/modules/home/bloc/home_bloc.dart';
 import 'package:app/modules/home/bloc/home_query.dart';
 import 'package:flutter/material.dart';
@@ -18,9 +19,10 @@ class HomeScreen extends StatelessWidget {
         width: double.infinity,
         child: BlocProvider(
           create: (_) => HomeBloc(
-            bookQuery: Provider.of<BookQuery>(context),
-            bookBloc: Provider.of<BookBloc>(context),
-            dayBloc: Provider.of<DayBloc>(context),
+            bookQuery: context.read<BookQuery>(),
+            bookBloc: context.read<BookBloc>(),
+            dayBloc: context.read<DayBloc>(),
+            appNavigatorService: context.read<AppNavigatorService>(),
           ),
           child: Column(
             children: [

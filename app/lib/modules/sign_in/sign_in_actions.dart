@@ -1,18 +1,18 @@
-abstract class SignInEvent {}
+abstract class SignInAction {}
 
-class SignInEmailChanged extends SignInEvent {
+class SignInEmailChanged extends SignInAction {
   final String email;
 
   SignInEmailChanged({required this.email});
 }
 
-class SignInPasswordChanged extends SignInEvent {
+class SignInPasswordChanged extends SignInAction {
   final String password;
 
   SignInPasswordChanged({required this.password});
 }
 
-class SignInSubmitted extends SignInEvent {
+class SignInSubmitted extends SignInAction {
   final String email;
   final String password;
 

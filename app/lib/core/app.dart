@@ -20,17 +20,15 @@ import 'package:provider/provider.dart';
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return _AuthInterfaceProvider(
-      child: _UserBlocProvider(
-        child: _UserQueryProvider(
-          child: _BookInterfaceProvider(
-            child: _BookBlocProvider(
-              child: _BookQueryProvider(
-                child: _DayInterfaceProvider(
-                  child: _DayBlocProvider(
-                    child: _DayQueryProvider(
-                      child: _NavigatorServiceProvider(),
-                    ),
+    return _UserBlocProvider(
+      child: _UserQueryProvider(
+        child: _BookInterfaceProvider(
+          child: _BookBlocProvider(
+            child: _BookQueryProvider(
+              child: _DayInterfaceProvider(
+                child: _DayBlocProvider(
+                  child: _DayQueryProvider(
+                    child: _NavigatorServiceProvider(),
                   ),
                 ),
               ),
@@ -38,20 +36,6 @@ class App extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _AuthInterfaceProvider extends StatelessWidget {
-  final Widget child;
-
-  const _AuthInterfaceProvider({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (_) => BackendProvider.provideAuthInterface(),
-      child: child,
     );
   }
 }

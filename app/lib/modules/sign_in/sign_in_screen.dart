@@ -1,14 +1,13 @@
 import 'package:app/common/animations/rout_scale_animations.dart';
 import 'package:app/common/ui/dialogs.dart';
 import 'package:app/common/ui/snack_bars.dart';
-import 'package:app/injection/backend_provider.dart';
+import 'package:app/core/auth/auth_bloc.dart';
 import 'package:app/core/app.dart';
-import 'package:app/repositories/auth/auth_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:app/config/themes/button_theme.dart';
 import 'package:app/core/form_submission_status.dart';
 import 'package:app/modules/sign_in/sign_in_bloc.dart';
-import 'package:app/modules/sign_in/sign_in_event.dart';
+import 'package:app/modules/sign_in/sign_in_actions.dart';
 import 'package:app/modules/sign_in/sign_in_state.dart';
 import 'package:app/widgets/text_fields/basic_text_form_field.dart';
 import 'package:app/widgets/text_fields/password_text_form_field.dart';
@@ -29,17 +28,14 @@ class SignInScreen extends StatelessWidget {
         backgroundColor: AppColors.LIGHT_GREEN,
         centerTitle: true,
       ),
-      body: RepositoryProvider(
-        create: (context) => BackendProvider.provideAuthInterface(),
-        child: BlocProvider(
-          create: (context) => SignInBloc(
-            authInterface: context.read<AuthInterface>(),
-          ),
-          child: Container(
-            color: HexColor(AppColors.LIGHT_GREEN),
-            child: Center(
-              child: _loginFrom(),
-            ),
+      body: BlocProvider(
+        create: (context) => SignInBloc(
+          authBloc: context.read<AuthBloc>(),
+        ),
+        child: Container(
+          color: HexColor(AppColors.LIGHT_GREEN),
+          child: Center(
+            child: _loginFrom(),
           ),
         ),
       ),
@@ -59,7 +55,7 @@ class SignInScreen extends StatelessWidget {
           );
         } else if (formStatus is SubmissionFailed) {
           Navigator.of(context).pop();
-          SnackBars.showSnackBar('Niepoprawny adres e-mail lub hasło');
+          SnackBars.showSnackBar(formStatus.exception.toString());
         }
       },
       child: Form(

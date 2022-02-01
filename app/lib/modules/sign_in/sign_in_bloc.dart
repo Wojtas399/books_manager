@@ -48,7 +48,7 @@ class SignInBloc extends Bloc<SignInAction, SignInState> {
       } else {
         yield state.copyWith(
           formStatus: SubmissionFailed(
-            CustomException('Podano niepoprawny adres e-mail lub hasło'),
+            CustomException('Podano niepoprawny adres e-mail lub hasło...'),
           ),
         );
       }

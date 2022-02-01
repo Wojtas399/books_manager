@@ -1,4 +1,4 @@
-import 'package:app/models/operation_result.model.dart';
+import 'package:app/models/http_result.model.dart';
 import 'package:app/repositories/auth/auth_interface.dart';
 
 class AuthBloc {

@@ -1,7 +1,7 @@
 import 'package:app/core/auth/auth_bloc.dart';
 import 'package:app/core/form_submission_status.dart';
 import 'package:app/models/custom_exception.dart';
-import 'package:app/models/operation_result.model.dart';
+import 'package:app/models/http_result.model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app/modules/sign_in/sign_in_actions.dart';
 import 'package:app/modules/sign_in/sign_in_state.dart';

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 class StartRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
-    switch(settings.name) {
+    switch (settings.name) {
       case StartRoutePath.START:
         return MaterialPageRoute(builder: (_) => StartScreen());
       case StartRoutePath.SIGN_IN:

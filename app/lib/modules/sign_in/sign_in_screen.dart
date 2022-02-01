@@ -1,17 +1,13 @@
 import 'package:app/common/animations/rout_scale_animations.dart';
 import 'package:app/common/ui/dialogs.dart';
 import 'package:app/common/ui/snack_bars.dart';
-import 'package:app/injection/backend_provider.dart';
+import 'package:app/core/auth/auth_bloc.dart';
 import 'package:app/core/app.dart';
-import 'package:app/repositories/auth/auth_interface.dart';
+import 'package:app/modules/sign_in/sign_in_form.dart';
 import 'package:flutter/material.dart';
-import 'package:app/config/themes/button_theme.dart';
 import 'package:app/core/form_submission_status.dart';
 import 'package:app/modules/sign_in/sign_in_bloc.dart';
-import 'package:app/modules/sign_in/sign_in_event.dart';
 import 'package:app/modules/sign_in/sign_in_state.dart';
-import 'package:app/widgets/text_fields/basic_text_form_field.dart';
-import 'package:app/widgets/text_fields/password_text_form_field.dart';
 import 'package:app/widgets/app_bars/none_elevation_app_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -29,112 +25,58 @@ class SignInScreen extends StatelessWidget {
         backgroundColor: AppColors.LIGHT_GREEN,
         centerTitle: true,
       ),
-      body: RepositoryProvider(
-        create: (context) => BackendProvider.provideAuthInterface(),
-        child: BlocProvider(
-          create: (context) => SignInBloc(
-            authInterface: context.read<AuthInterface>(),
-          ),
-          child: Container(
-            color: HexColor(AppColors.LIGHT_GREEN),
-            child: Center(
-              child: _loginFrom(),
+      body: BlocProvider(
+        create: (context) => SignInBloc(
+          authBloc: context.read<AuthBloc>(),
+        ),
+        child: Container(
+          color: HexColor(AppColors.LIGHT_GREEN),
+          child: Center(
+            child: _SignInFormStatusListener(
+              formKey: _formKey,
+              child: SignInForm(
+                formKey: _formKey,
+              ),
             ),
           ),
         ),
       ),
     );
   }
+}
 
-  Widget _loginFrom() {
+class _SignInFormStatusListener extends StatelessWidget {
+  final GlobalKey<FormState> formKey;
+  final Widget child;
+
+  const _SignInFormStatusListener({required this.formKey, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
     return BlocListener<SignInBloc, SignInState>(
       listener: (context, state) {
         final formStatus = state.formStatus;
         if (formStatus is FormSubmitting) {
           Dialogs.showLoadingDialog();
         } else if (formStatus is SubmissionSuccess) {
-          Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
-            ScaleRoute(page: App()),
-            (Route<dynamic> route) => false,
-          );
+          _navigateToHome(context);
         } else if (formStatus is SubmissionFailed) {
-          Navigator.of(context).pop();
-          SnackBars.showSnackBar('Niepoprawny adres e-mail lub hasło');
+          _showErrorInfo(context, formStatus.exception.toString());
         }
       },
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _inputEmail(),
-            SizedBox(height: 25),
-            _inputPassword(),
-            SizedBox(height: 25),
-            _submitButton(),
-          ],
-        ),
-      ),
+      child: child,
     );
   }
 
-  Widget _inputEmail() {
-    return BlocBuilder<SignInBloc, SignInState>(
-      builder: (context, state) {
-        return Container(
-          width: 300,
-          child: BasicTextFormField(
-            label: 'Adres e-mail',
-            onChanged: (value) {
-              context.read<SignInBloc>().add(
-                    SignInEmailChanged(email: value),
-                  );
-            },
-          ),
-        );
-      },
+  _navigateToHome(BuildContext context) {
+    Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+      ScaleRoute(page: App()),
+      (Route<dynamic> route) => false,
     );
   }
 
-  Widget _inputPassword() {
-    return BlocBuilder<SignInBloc, SignInState>(
-      builder: (context, state) {
-        return Container(
-          width: 300,
-          child: PasswordTextFormField(
-            label: 'Hasło',
-            onChanged: (value) {
-              context.read<SignInBloc>().add(
-                    SignInPasswordChanged(password: value),
-                  );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _submitButton() {
-    return BlocBuilder<SignInBloc, SignInState>(
-      builder: (context, state) {
-        return ElevatedButton(
-          child: Text('ZALOGUJ'),
-          onPressed: state.isDisabledButton
-              ? null
-              : () {
-                  context.read<SignInBloc>().add(
-                        SignInSubmitted(
-                          email: state.email,
-                          password: state.password,
-                        ),
-                      );
-                },
-          style: ButtonStyles.bigButton(
-            color: AppColors.DARK_GREEN2,
-            context: context,
-          ),
-        );
-      },
-    );
+  _showErrorInfo(BuildContext context, String message) {
+    Navigator.of(context).pop();
+    SnackBars.showSnackBar(message);
   }
 }

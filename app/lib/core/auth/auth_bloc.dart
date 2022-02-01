@@ -8,15 +8,15 @@ class AuthBloc {
     _authInterface = authInterface;
   }
 
-  Stream<OperationResult> signIn({
+  Stream<HttpResult> signIn({
     required String email,
     required String password,
   }) async* {
     try {
       await _authInterface.signIn(email: email, password: password);
-      yield OperationResultSuccess();
+      yield HttpSuccess();
     } catch (error) {
-      yield OperationResultFailure();
+      yield HttpFailure();
     }
   }
 }

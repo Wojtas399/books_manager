@@ -1,13 +1,13 @@
-abstract class OperationResult {}
+abstract class HttpResult {}
 
-class OperationResultSuccess extends OperationResult {
+class HttpSuccess extends HttpResult {
   final String? message;
 
-  OperationResultSuccess({this.message});
+  HttpSuccess({this.message});
 }
 
-class OperationResultFailure extends OperationResult {
+class HttpFailure extends HttpResult {
   final String? message;
 
-  OperationResultFailure({this.message});
+  HttpFailure({this.message});
 }

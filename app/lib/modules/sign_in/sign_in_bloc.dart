@@ -38,12 +38,12 @@ class SignInBloc extends Bloc<SignInAction, SignInState> {
   }
 
   Stream<SignInState> _signIn(String email, String password) async* {
-    Stream<OperationResult> signInResult$ = authBloc.signIn(
+    Stream<HttpResult> signInResult$ = authBloc.signIn(
       email: email,
       password: password,
     );
     await for (final value in signInResult$) {
-      if (value is OperationResultSuccess) {
+      if (value is HttpSuccess) {
         yield state.copyWith(formStatus: SubmissionSuccess());
       } else {
         yield state.copyWith(

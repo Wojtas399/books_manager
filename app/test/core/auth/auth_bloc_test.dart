@@ -26,7 +26,7 @@ void main() {
     HttpResult result =
         await bloc.signIn(email: 'email', password: 'password').first;
 
-    expect(result, isA<HttpSuccess>());
+    expect(result, HttpSuccess());
   });
 
   test('sign in, failure', () async {
@@ -37,6 +37,50 @@ void main() {
     HttpResult result =
         await bloc.signIn(email: 'email', password: 'password').first;
 
-    expect(result, isA<HttpFailure>());
+    expect(result, HttpFailure(message: 'Error!'));
+  });
+
+  test('sign up, success', () async {
+    when(
+      () => authInterface.signUp(
+        username: 'username',
+        email: 'email',
+        password: 'password',
+        avatar: 'avatar',
+      ),
+    ).thenAnswer((_) async => '');
+
+    HttpResult result = await bloc
+        .signUp(
+          username: 'username',
+          email: 'email',
+          password: 'password',
+          avatarPath: 'avatar',
+        )
+        .first;
+
+    expect(result, HttpSuccess());
+  });
+
+  test('sign up, failure', () async {
+    when(
+      () => authInterface.signUp(
+        username: 'username',
+        email: 'email',
+        password: 'password',
+        avatar: 'avatar',
+      ),
+    ).thenAnswer((_) async => throw 'Error!');
+
+    HttpResult result = await bloc
+        .signUp(
+          username: 'username',
+          email: 'email',
+          password: 'password',
+          avatarPath: 'avatar',
+        )
+        .first;
+
+    expect(result, HttpFailure(message: 'Error!'));
   });
 }

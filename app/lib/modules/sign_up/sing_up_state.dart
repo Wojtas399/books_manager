@@ -1,4 +1,4 @@
-import 'package:app/core/form_submission_status.dart';
+import 'package:app/models/operation_status.dart';
 import 'package:app/common/enum/avatar_type.dart';
 
 class SignUpState {
@@ -6,15 +6,15 @@ class SignUpState {
   final String email;
   final String password;
   final String passwordConfirmation;
-  final AvatarType chosenAvatar;
-  final String customAvatar;
-  final FormSubmissionStatus formStatus;
+  final AvatarType avatarType;
+  final String customAvatarPath;
+  final OperationStatus signUpStatus;
 
   bool get isCorrectUsername => username.length >= 3;
 
   bool get isCorrectEmail => RegExp(
-          r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-      .hasMatch(email);
+        r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+      ).hasMatch(email);
 
   bool get isCorrectPassword => password.length >= 6;
 
@@ -31,9 +31,9 @@ class SignUpState {
     this.email = '',
     this.password = '',
     this.passwordConfirmation = '',
-    this.chosenAvatar = AvatarType.red,
-    this.customAvatar = '',
-    this.formStatus = const InitialFormStatus(),
+    this.avatarType = AvatarType.red,
+    this.customAvatarPath = '',
+    this.signUpStatus = const InitialStatusOfOperation(),
   });
 
   SignUpState copyWith({
@@ -41,18 +41,18 @@ class SignUpState {
     String? email,
     String? password,
     String? passwordConfirmation,
-    AvatarType? basicAvatar,
-    String? customAvatar,
-    FormSubmissionStatus? formStatus,
+    AvatarType? avatarType,
+    String? customAvatarPath,
+    OperationStatus? signUpStatus,
   }) {
     return SignUpState(
       username: username ?? this.username,
       email: email ?? this.email,
       password: password ?? this.password,
       passwordConfirmation: passwordConfirmation ?? this.passwordConfirmation,
-      chosenAvatar: basicAvatar ?? this.chosenAvatar,
-      customAvatar: customAvatar ?? this.customAvatar,
-      formStatus: formStatus ?? this.formStatus,
+      avatarType: avatarType ?? this.avatarType,
+      customAvatarPath: customAvatarPath ?? this.customAvatarPath,
+      signUpStatus: signUpStatus ?? InitialStatusOfOperation(),
     );
   }
 }

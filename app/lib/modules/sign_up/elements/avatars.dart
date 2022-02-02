@@ -27,11 +27,11 @@ class SignUpAvatars extends StatelessWidget {
                 children: [
                   BasicAvatar(
                     type: element,
-                    isChosen: state.chosenAvatar == element,
+                    isChosen: state.avatarType == element,
                     onClick: () {
                       context
                           .read<SignUpBloc>()
-                          .add(SignUpAvatarChanged(type: element));
+                          .add(SignUpAvatarTypeChanged(avatarType: element));
                     },
                   ),
                   SizedBox(width: 16),
@@ -40,19 +40,19 @@ class SignUpAvatars extends StatelessWidget {
             }).toList(),
           ),
           CustomAvatar(
-            isChosen: state.chosenAvatar == AvatarType.custom,
-            imgPath: state.customAvatar,
+            isChosen: state.avatarType == AvatarType.custom,
+            imgPath: state.customAvatarPath,
             onClick: () async {
               context
                   .read<SignUpBloc>()
-                  .add(SignUpAvatarChanged(type: AvatarType.custom));
-              if (state.chosenAvatar == AvatarType.custom ||
-                  state.customAvatar == '') {
+                  .add(SignUpAvatarTypeChanged(avatarType: AvatarType.custom));
+              if (state.avatarType == AvatarType.custom ||
+                  state.customAvatarPath == '') {
                 try {
                   String imgPath = await _getImageFromGallery();
                   context
                       .read<SignUpBloc>()
-                      .add(SignUpCustomAvatarChanged(image: imgPath));
+                      .add(SignUpCustomAvatarPathChanged(imagePath: imgPath));
                 } catch (error) {
                   print('Error while getting image: $error');
                 }
@@ -68,7 +68,7 @@ class SignUpAvatars extends StatelessWidget {
     final picker = ImagePicker();
     try {
       final XFile? pickedFile =
-      await picker.pickImage(source: ImageSource.gallery);
+          await picker.pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
         return pickedFile.path;
       }

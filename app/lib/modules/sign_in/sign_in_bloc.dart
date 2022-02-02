@@ -1,6 +1,5 @@
 import 'package:app/core/auth/auth_bloc.dart';
-import 'package:app/core/form_submission_status.dart';
-import 'package:app/models/custom_exception.dart';
+import 'package:app/models/operation_status.dart';
 import 'package:app/models/http_result.model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app/modules/sign_in/sign_in_actions.dart';
@@ -14,43 +13,39 @@ class SignInBloc extends Bloc<SignInAction, SignInState> {
   @override
   Stream<SignInState> mapEventToState(SignInAction event) async* {
     if (event is SignInEmailChanged) {
-      yield _emailChanged(event.email);
+      yield _getStateWithUpdatedEmail(event.email);
     } else if (event is SignInPasswordChanged) {
-      yield _passwordChanged(event.password);
+      yield _getStateWithUpdatedPassword(event.password);
     } else if (event is SignInSubmitted) {
-      yield state.copyWith(formStatus: FormSubmitting());
-      yield await _signIn(event.email.trim(), event.password.trim()).first;
+      yield state.copyWith(signInStatus: OperationLoading());
+      Stream<OperationStatus> signInResult$ = _signIn(
+        event.email.trim(),
+        event.password.trim(),
+      );
+      await for (final value in signInResult$) {
+        yield state.copyWith(signInStatus: value);
+      }
     }
   }
 
-  SignInState _emailChanged(String email) {
-    return state.copyWith(
-      email: email,
-      formStatus: InitialFormStatus(),
-    );
+  SignInState _getStateWithUpdatedEmail(String email) {
+    return state.copyWith(email: email);
   }
 
-  SignInState _passwordChanged(String password) {
-    return state.copyWith(
-      password: password,
-      formStatus: InitialFormStatus(),
-    );
+  SignInState _getStateWithUpdatedPassword(String password) {
+    return state.copyWith(password: password);
   }
 
-  Stream<SignInState> _signIn(String email, String password) async* {
-    Stream<HttpResult> signInResult$ = authBloc.signIn(
+  Stream<OperationStatus> _signIn(String email, String password) async* {
+    Stream<HttpResult> httpResult$ = authBloc.signIn(
       email: email,
       password: password,
     );
-    await for (final value in signInResult$) {
+    await for (final value in httpResult$) {
       if (value is HttpSuccess) {
-        yield state.copyWith(formStatus: SubmissionSuccess());
+        yield OperationSuccessful();
       } else {
-        yield state.copyWith(
-          formStatus: SubmissionFailed(
-            CustomException('Podano niepoprawny adres e-mail lub hasło...'),
-          ),
-        );
+        yield OperationFailed('Podano niepoprawny adres e-mail lub hasło...');
       }
     }
   }

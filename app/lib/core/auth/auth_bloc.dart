@@ -16,7 +16,26 @@ class AuthBloc {
       await _authInterface.signIn(email: email, password: password);
       yield HttpSuccess();
     } catch (error) {
-      yield HttpFailure();
+      yield HttpFailure(message: error.toString());
+    }
+  }
+
+  Stream<HttpResult> signUp({
+    required String username,
+    required String email,
+    required String password,
+    required String avatarPath,
+  }) async* {
+    try {
+      await _authInterface.signUp(
+        username: username,
+        email: email,
+        password: password,
+        avatar: avatarPath,
+      );
+      yield HttpSuccess();
+    } catch (error) {
+      yield HttpFailure(message: error.toString());
     }
   }
 }

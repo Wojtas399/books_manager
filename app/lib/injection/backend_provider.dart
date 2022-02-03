@@ -10,8 +10,8 @@ import 'package:app/core/services/book_category_service.dart';
 import 'package:app/core/services/book_status_service.dart';
 import 'package:app/backend/repositories/book_repository.dart';
 import 'package:app/backend/repositories/day_repository.dart';
-import 'package:app/repositories/user/user_interface.dart';
-import 'package:app/repositories/user/user_repository.dart';
+import 'package:app/repositories/user_interface.dart';
+import 'package:app/backend/repositories/user_repository.dart';
 
 class BackendProvider {
   static AuthInterface provideAuthInterface() {

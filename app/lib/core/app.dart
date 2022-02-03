@@ -11,7 +11,7 @@ import 'package:app/core/services/app_navigator_service.dart';
 import 'package:app/core/user/user_bloc.dart';
 import 'package:app/injection/backend_provider.dart';
 import 'package:app/repositories/day_interface.dart';
-import 'package:app/repositories/user/user_interface.dart';
+import 'package:app/repositories/user_interface.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

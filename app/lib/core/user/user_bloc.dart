@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:app/common/enum/avatar_type.dart';
 import 'package:app/core/services/avatar_book_service.dart';
 import 'package:app/core/user/user_model.dart';
-import 'package:app/repositories/user/user_interface.dart';
+import 'package:app/repositories/user_interface.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:rxdart/rxdart.dart';

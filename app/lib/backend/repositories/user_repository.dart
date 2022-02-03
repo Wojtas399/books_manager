@@ -1,5 +1,5 @@
 import 'package:app/backend/services/user_service.dart';
-import 'package:app/repositories/user/user_interface.dart';
+import 'package:app/repositories/user_interface.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserRepository extends UserInterface {

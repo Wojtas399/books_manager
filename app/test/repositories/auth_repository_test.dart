@@ -1,5 +1,5 @@
-import 'package:app/backend/auth_service.dart';
-import 'package:app/repositories/auth/auth_repository.dart';
+import 'package:app/backend/services/auth_service.dart';
+import 'package:app/backend/repositories/auth_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

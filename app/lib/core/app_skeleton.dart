@@ -1,6 +1,7 @@
 import 'package:app/common/ui/dialogs.dart';
 import 'package:app/config/themes/gradients.dart';
 import 'package:app/constants/route_paths/app_route_path.dart';
+import 'package:app/core/auth/auth_bloc.dart';
 import 'package:app/core/book/book_bloc.dart';
 import 'package:app/core/day/day_bloc.dart';
 import 'package:app/core/services/app_navigator_service.dart';
@@ -20,9 +21,6 @@ class AppSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     PageController pageController = PageController(initialPage: 0);
-    UserBloc userBloc = Provider.of<UserBloc>(context);
-    BookBloc bookBloc = Provider.of<BookBloc>(context);
-    DayBloc dayBloc = Provider.of<DayBloc>(context);
     AppNavigatorService appNavigatorService =
         Provider.of<AppNavigatorService>(context);
     ValueNotifier<int> currentIndex = ValueNotifier<int>(0);
@@ -57,7 +55,13 @@ class AppSkeleton extends StatelessWidget {
               ),
               RawMaterialIconButton(
                 onClick: () {
-                  _signOut(bookBloc, dayBloc, userBloc, context);
+                  _signOut(
+                    context.read<BookBloc>(),
+                    context.read<DayBloc>(),
+                    context.read<UserBloc>(),
+                    context.read<AuthBloc>(),
+                    context,
+                  );
                 },
                 icon: Icons.logout_rounded,
               ),
@@ -100,6 +104,7 @@ class AppSkeleton extends StatelessWidget {
     BookBloc bookBloc,
     DayBloc dayBloc,
     UserBloc userBloc,
+    AuthBloc authBloc,
     BuildContext context,
   ) async {
     bool? confirmation = await Dialogs.showConfirmationDialog(
@@ -109,7 +114,8 @@ class AppSkeleton extends StatelessWidget {
     if (confirmation == true) {
       bookBloc.dispose();
       dayBloc.dispose();
-      await userBloc.signOut();
+      userBloc.dispose();
+      await authBloc.signOut();
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => StartScreen()),
         (Route<dynamic> route) => false,

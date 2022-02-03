@@ -1,5 +1,4 @@
 import 'package:app/core/user/user_query.dart';
-import 'package:app/repositories/auth/auth_interface.dart';
 import 'package:app/repositories/book_repository/book_interface.dart';
 import 'package:app/config/routes/app_routes.dart';
 import 'package:app/constants/route_paths/app_route_path.dart';
@@ -12,6 +11,7 @@ import 'package:app/core/services/app_navigator_service.dart';
 import 'package:app/core/user/user_bloc.dart';
 import 'package:app/injection/backend_provider.dart';
 import 'package:app/repositories/day_repository/day_interface.dart';
+import 'package:app/repositories/user/user_interface.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,15 +20,17 @@ import 'package:provider/provider.dart';
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return _UserBlocProvider(
-      child: _UserQueryProvider(
-        child: _BookInterfaceProvider(
-          child: _BookBlocProvider(
-            child: _BookQueryProvider(
-              child: _DayInterfaceProvider(
-                child: _DayBlocProvider(
-                  child: _DayQueryProvider(
-                    child: _NavigatorServiceProvider(),
+    return _UserInterfaceProvider(
+      child: _UserBlocProvider(
+        child: _UserQueryProvider(
+          child: _BookInterfaceProvider(
+            child: _BookBlocProvider(
+              child: _BookQueryProvider(
+                child: _DayInterfaceProvider(
+                  child: _DayBlocProvider(
+                    child: _DayQueryProvider(
+                      child: _NavigatorServiceProvider(),
+                    ),
                   ),
                 ),
               ),
@@ -36,6 +38,36 @@ class App extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _UserInterfaceProvider extends StatelessWidget {
+  final Widget child;
+
+  const _UserInterfaceProvider({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return RepositoryProvider(
+      create: (_) => BackendProvider.provideUserInterface(),
+      child: child,
+    );
+  }
+}
+
+class _UserBlocProvider extends StatelessWidget {
+  final Widget child;
+
+  const _UserBlocProvider({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Provider<UserBloc>(
+      create: (context) => UserBloc(
+        userInterface: context.read<UserInterface>(),
+      )..subscribeUserData(),
+      child: child,
     );
   }
 }
@@ -54,36 +86,6 @@ class _BookInterfaceProvider extends StatelessWidget {
   }
 }
 
-class _DayInterfaceProvider extends StatelessWidget {
-  final Widget child;
-
-  const _DayInterfaceProvider({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (_) => BackendProvider.provideDayInterface(),
-      child: child,
-    );
-  }
-}
-
-class _UserBlocProvider extends StatelessWidget {
-  final Widget child;
-
-  const _UserBlocProvider({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Provider<UserBloc>(
-      create: (context) => UserBloc(
-        authInterface: context.read<AuthInterface>(),
-      )..subscribeUserData(),
-      child: child,
-    );
-  }
-}
-
 class _BookBlocProvider extends StatelessWidget {
   final Widget child;
 
@@ -97,6 +99,20 @@ class _BookBlocProvider extends StatelessWidget {
       )..subscribeBooks(),
       child: child,
       dispose: (_, value) => value.dispose(),
+    );
+  }
+}
+
+class _DayInterfaceProvider extends StatelessWidget {
+  final Widget child;
+
+  const _DayInterfaceProvider({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return RepositoryProvider(
+      create: (_) => BackendProvider.provideDayInterface(),
+      child: child,
     );
   }
 }

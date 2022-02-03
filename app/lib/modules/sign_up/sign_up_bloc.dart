@@ -68,19 +68,6 @@ class SignUpBloc extends Bloc<SignUpAction, SignUpState> {
     return state.copyWith(customAvatarPath: customAvatarPath);
   }
 
-  String _getAvatarFileName(AvatarType type, String customAvatarPath) {
-    switch (type) {
-      case AvatarType.red:
-        return 'RedBook.png';
-      case AvatarType.green:
-        return 'GreenBook.png';
-      case AvatarType.blue:
-        return 'BlueBook.png';
-      case AvatarType.custom:
-        return customAvatarPath;
-    }
-  }
-
   Stream<OperationStatus> _signUp({
     required String username,
     required String email,
@@ -92,7 +79,8 @@ class SignUpBloc extends Bloc<SignUpAction, SignUpState> {
       username: username,
       email: email,
       password: password,
-      avatarPath: _getAvatarFileName(avatarType, customAvatarPath),
+      avatarType: avatarType,
+      customAvatarPath: customAvatarPath,
     );
     await for (final value in httpResult$) {
       if (value is HttpSuccess) {

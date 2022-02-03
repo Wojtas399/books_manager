@@ -1,6 +1,6 @@
 import 'package:app/core/auth/auth_bloc.dart';
 import 'package:app/models/http_result.model.dart';
-import 'package:app/repositories/auth/auth_interface.dart';
+import 'package:app/repositories/auth_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

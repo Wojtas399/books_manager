@@ -1,54 +1,12 @@
-import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:io';
 
-class AuthService {
+class UserService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  Future<String> signIn({
-    required String email,
-    required String password,
-  }) async {
-    try {
-      await _firebaseAuth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      return 'Signed in';
-    } on FirebaseAuthException catch (error) {
-      throw error.message.toString();
-    }
-  }
-
-  Future<String> signUp({
-    required String username,
-    required String email,
-    required String password,
-    required String avatar,
-  }) async {
-    try {
-      UserCredential credential =
-          await _firebaseAuth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      String? userId = credential.user?.uid;
-      if (userId == null) {
-        throw 'Something went wrong with user registration.';
-      }
-      String newAvatarPath = await _addNewAvatar(avatar);
-      await _firestore
-          .collection('Users')
-          .doc(userId)
-          .set({'avatarPath': newAvatarPath, 'userName': username});
-      return 'success';
-    } on FirebaseAuthException catch (error) {
-      throw error.message.toString();
-    }
-  }
 
   Stream<DocumentSnapshot>? subscribeUserData() {
     final User? user = _firebaseAuth.currentUser;
@@ -141,15 +99,6 @@ class AuthService {
       }
     } else {
       throw 'User does not exist';
-    }
-  }
-
-  Future<String> logOut() async {
-    try {
-      await _firebaseAuth.signOut();
-      return 'success';
-    } on FirebaseAuthException catch (error) {
-      throw error.message.toString();
     }
   }
 

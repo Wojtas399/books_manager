@@ -1,7 +1,7 @@
 import 'package:app/common/enum/avatar_type.dart';
 import 'package:app/core/user/user_bloc.dart';
 import 'package:app/core/user/user_model.dart';
-import 'package:app/repositories/auth/auth_interface.dart';
+import 'package:app/repositories/auth_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

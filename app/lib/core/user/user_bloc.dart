@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:app/common/enum/avatar_type.dart';
 import 'package:app/core/services/avatar_book_service.dart';
 import 'package:app/core/user/user_model.dart';
-import 'package:app/repositories/auth/auth_interface.dart';
+import 'package:app/repositories/user/user_interface.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:rxdart/rxdart.dart';
@@ -18,27 +18,27 @@ class AvatarInfo extends Equatable {
 }
 
 class UserBloc {
-  AuthInterface _authInterface;
+  UserInterface _userInterface;
   AvatarBookService avatarBookService = AvatarBookService();
 
   StreamSubscription? _userSubscription;
   BehaviorSubject<LoggedUser?> _loggedUser =
       new BehaviorSubject<LoggedUser?>.seeded(null);
 
-  UserBloc({required AuthInterface authInterface})
-      : _authInterface = authInterface;
+  UserBloc({required UserInterface userInterface})
+      : _userInterface = userInterface;
 
   Stream<LoggedUser?> get loggedUser$ => _loggedUser.stream;
 
   subscribeUserData() {
-    Stream<DocumentSnapshot>? snapshot = _authInterface.subscribeUserData();
+    Stream<DocumentSnapshot>? snapshot = _userInterface.subscribeUserData();
     if (snapshot != null) {
       _userSubscription = snapshot.listen((event) async {
         Map<String, dynamic>? data = event.data() as Map<String, dynamic>?;
-        String? email = _authInterface.getEmail();
+        String? email = _userInterface.getEmail();
         if (data != null && email != null) {
           String avatarUrl =
-              await _authInterface.getAvatarUrl(avatarPath: data['avatarPath']);
+              await _userInterface.getAvatarUrl(avatarPath: data['avatarPath']);
           this.setUserData(
             username: data['userName'],
             email: email,
@@ -68,15 +68,15 @@ class UserBloc {
   }
 
   updateAvatar(String avatar) async {
-    await _authInterface.changeAvatar(avatar: avatar);
+    await _userInterface.changeAvatar(avatar: avatar);
   }
 
   updateUsername(String newUsername) async {
-    await _authInterface.changeUsername(newUsername: newUsername);
+    await _userInterface.changeUsername(newUsername: newUsername);
   }
 
   updateEmail(String newEmail, String password) async {
-    await _authInterface.changeEmail(newEmail: newEmail, password: password);
+    await _userInterface.changeEmail(newEmail: newEmail, password: password);
     _updateEmail(newEmail);
   }
 
@@ -84,15 +84,15 @@ class UserBloc {
     String currentPassword,
     String newPassword,
   ) async {
-    await _authInterface.changePassword(
+    await _userInterface.changePassword(
       currentPassword: currentPassword,
       newPassword: newPassword,
     );
   }
 
-  signOut() async {
-    _dispose();
-    await _authInterface.logOut();
+  dispose() {
+    _userSubscription?.cancel();
+    _loggedUser.close();
   }
 
   _updateEmail(String newEmail) {
@@ -106,10 +106,5 @@ class UserBloc {
       );
       _loggedUser.add(loggedUser);
     }
-  }
-
-  _dispose() {
-    _userSubscription?.cancel();
-    _loggedUser.close();
   }
 }

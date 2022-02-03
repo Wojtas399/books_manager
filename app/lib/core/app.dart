@@ -1,5 +1,5 @@
 import 'package:app/core/user/user_query.dart';
-import 'package:app/repositories/book_repository/book_interface.dart';
+import 'package:app/repositories/book_interface.dart';
 import 'package:app/config/routes/app_routes.dart';
 import 'package:app/constants/route_paths/app_route_path.dart';
 import 'package:app/core/book/book_bloc.dart';

@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'package:app/backend/book_service.dart';
+import 'package:app/backend/services/book_service.dart';
 import 'package:app/core/book/book_model.dart';
 import 'package:app/core/services/book_category_service.dart';
 import 'package:app/core/services/book_status_service.dart';
-import 'package:app/repositories/book_repository/book_repository.dart';
+import 'package:app/backend/repositories/book_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -241,8 +241,7 @@ void main() {
 
     group('failure', () {
       setUp(() {
-        when(() => bookService.deleteBook(bookId: 'b1'))
-            .thenThrow('Error...');
+        when(() => bookService.deleteBook(bookId: 'b1')).thenThrow('Error...');
       });
 
       test('Should throw error', () async {

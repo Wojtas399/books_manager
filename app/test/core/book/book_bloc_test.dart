@@ -1,6 +1,6 @@
 import 'package:app/core/book/book_bloc.dart';
 import 'package:app/core/book/book_model.dart';
-import 'package:app/repositories/book_repository/book_interface.dart';
+import 'package:app/repositories/book_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

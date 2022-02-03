@@ -4,12 +4,12 @@ import 'package:app/backend/services/auth_service.dart';
 import 'package:app/backend/repositories/auth_repository.dart';
 import 'package:app/repositories/book_interface.dart';
 import 'package:app/backend/services/book_service.dart';
-import 'package:app/repositories/day_repository/day_interface.dart';
-import 'package:app/backend/day_service.dart';
+import 'package:app/repositories/day_interface.dart';
+import 'package:app/backend/services/day_service.dart';
 import 'package:app/core/services/book_category_service.dart';
 import 'package:app/core/services/book_status_service.dart';
 import 'package:app/backend/repositories/book_repository.dart';
-import 'package:app/repositories/day_repository/day_repository.dart';
+import 'package:app/backend/repositories/day_repository.dart';
 import 'package:app/repositories/user/user_interface.dart';
 import 'package:app/repositories/user/user_repository.dart';
 

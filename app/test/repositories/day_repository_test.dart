@@ -1,5 +1,5 @@
-import 'package:app/backend/day_service.dart';
-import 'package:app/repositories/day_repository/day_repository.dart';
+import 'package:app/backend/services/day_service.dart';
+import 'package:app/backend/repositories/day_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

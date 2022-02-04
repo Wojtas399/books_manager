@@ -82,11 +82,11 @@ class SignUpBloc extends Bloc<SignUpAction, SignUpState> {
       avatarType: avatarType,
       customAvatarPath: customAvatarPath,
     );
-    await for (final value in httpResult$) {
-      if (value is HttpSuccess) {
+    await for (final result in httpResult$) {
+      if (result is HttpSuccess) {
         yield OperationSuccessful();
-      } else if (value is HttpFailure) {
-        yield OperationFailed(value.message ?? 'Unknown error...');
+      } else if (result is HttpFailure) {
+        yield OperationFailed(result.getMessage() ?? 'Unknown error...');
       }
     }
   }

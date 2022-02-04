@@ -1,21 +1,24 @@
 import 'package:equatable/equatable.dart';
 
-abstract class HttpResult extends Equatable {}
+abstract class HttpResult extends Equatable {
+  late final String? _message;
 
-class HttpSuccess extends HttpResult {
-  final String? message;
+  HttpResult(String? message) {
+    _message = message;
+  }
 
-  HttpSuccess({this.message});
+  String? getMessage() {
+    return _message;
+  }
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [_message ?? ''];
+}
+
+class HttpSuccess extends HttpResult {
+  HttpSuccess({String? message}) : super(message);
 }
 
 class HttpFailure extends HttpResult {
-  final String? message;
-
-  HttpFailure({this.message});
-
-  @override
-  List<Object> get props => [message ?? ''];
+  HttpFailure({String? message}) : super(message);
 }

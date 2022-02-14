@@ -1,4 +1,4 @@
-import 'package:app/repositories/day_interface.dart';
+import 'package:app/interfaces/day_interface.dart';
 import 'package:rxdart/rxdart.dart';
 import 'day_model.dart';
 import 'day_subscriber.dart';

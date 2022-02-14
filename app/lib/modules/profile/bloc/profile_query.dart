@@ -1,5 +1,5 @@
 import 'package:app/core/user/user_query.dart';
-import 'package:app/repositories/avatars/avatar_interface.dart';
+import 'package:app/interfaces/avatars/avatar_interface.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ProfileQuery {

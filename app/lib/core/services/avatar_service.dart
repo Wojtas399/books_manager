@@ -1,7 +1,7 @@
 import 'package:app/injection/backend_avatar_provider.dart';
 import 'package:app/models/avatar_model.dart';
-import 'package:app/repositories/avatars/avatar_interface.dart';
-import 'package:app/repositories/avatars/sign_up_backend_avatar_interface.dart';
+import 'package:app/interfaces/avatars/avatar_interface.dart';
+import 'package:app/interfaces/avatars/sign_up_backend_avatar_interface.dart';
 
 class AvatarService {
   static SignUpBackendAvatarInterface getBackendAvatar(

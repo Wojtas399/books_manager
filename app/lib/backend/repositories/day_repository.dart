@@ -1,5 +1,5 @@
 import 'package:app/backend/services/day_service.dart';
-import 'package:app/repositories/day_interface.dart';
+import 'package:app/interfaces/day_interface.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DayRepository implements DayInterface {

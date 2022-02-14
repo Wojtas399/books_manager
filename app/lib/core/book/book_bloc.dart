@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:app/repositories/book_interface.dart';
+import 'package:app/interfaces/book_interface.dart';
 import 'package:app/core/book/book_model.dart';
 import 'package:app/core/book/book_subscriber.dart';
 import 'package:rxdart/rxdart.dart';

@@ -3,7 +3,7 @@ import 'package:app/constants/route_paths/start_route_path.dart';
 import 'package:app/constants/theme.dart';
 import 'package:app/core/auth/auth_bloc.dart';
 import 'package:app/injection/backend_provider.dart';
-import 'package:app/repositories/auth_interface.dart';
+import 'package:app/interfaces/auth_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';

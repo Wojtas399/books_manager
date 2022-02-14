@@ -1,7 +1,7 @@
 import 'package:app/backend/services/auth_service.dart';
 import 'package:app/backend/services/avatar_service.dart';
-import 'package:app/repositories/auth_interface.dart';
-import 'package:app/repositories/avatars/sign_up_backend_avatar_interface.dart';
+import 'package:app/interfaces/auth_interface.dart';
+import 'package:app/interfaces/avatars/sign_up_backend_avatar_interface.dart';
 
 class AuthRepository implements AuthInterface {
   final AvatarService _avatarService = new AvatarService();

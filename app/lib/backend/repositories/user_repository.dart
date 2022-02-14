@@ -1,7 +1,7 @@
 import 'package:app/backend/services/avatar_service.dart';
 import 'package:app/backend/services/user_service.dart';
-import 'package:app/repositories/avatars/sign_up_backend_avatar_interface.dart';
-import 'package:app/repositories/user_interface.dart';
+import 'package:app/interfaces/avatars/sign_up_backend_avatar_interface.dart';
+import 'package:app/interfaces/user_interface.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserRepository extends UserInterface {

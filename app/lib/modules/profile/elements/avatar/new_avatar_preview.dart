@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:app/constants/theme.dart';
-import 'package:app/repositories/avatars/avatar_interface.dart';
+import 'package:app/interfaces/avatars/avatar_interface.dart';
 import 'package:app/widgets/app_bars/dialog_app_bar.dart';
 import 'package:app/widgets/avatars/avatar_background.dart';
 import 'package:app/widgets/buttons/medium_red_button.dart';

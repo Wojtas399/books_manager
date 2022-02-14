@@ -1,5 +1,5 @@
 import 'package:app/core/user/user_query.dart';
-import 'package:app/repositories/book_interface.dart';
+import 'package:app/interfaces/book_interface.dart';
 import 'package:app/config/routes/app_routes.dart';
 import 'package:app/constants/route_paths/app_route_path.dart';
 import 'package:app/core/book/book_bloc.dart';
@@ -10,8 +10,8 @@ import 'package:app/core/keys.dart';
 import 'package:app/core/services/app_navigator_service.dart';
 import 'package:app/core/user/user_bloc.dart';
 import 'package:app/injection/backend_provider.dart';
-import 'package:app/repositories/day_interface.dart';
-import 'package:app/repositories/user_interface.dart';
+import 'package:app/interfaces/day_interface.dart';
+import 'package:app/interfaces/user_interface.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

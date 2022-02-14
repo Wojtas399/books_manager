@@ -1,4 +1,4 @@
-import 'package:app/repositories/avatars/sign_up_backend_avatar_interface.dart';
+import 'package:app/interfaces/avatars/sign_up_backend_avatar_interface.dart';
 
 class StandardAvatarRed implements SignUpBackendStandardAvatarInterface {
   @override

@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:app/core/services/avatar_service.dart';
 import 'package:app/core/user/user_model.dart';
-import 'package:app/repositories/avatars/avatar_interface.dart';
-import 'package:app/repositories/user_interface.dart';
+import 'package:app/interfaces/avatars/avatar_interface.dart';
+import 'package:app/interfaces/user_interface.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rxdart/rxdart.dart';
 

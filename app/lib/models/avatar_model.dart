@@ -1,4 +1,4 @@
-import 'package:app/repositories/avatars/avatar_interface.dart';
+import 'package:app/interfaces/avatars/avatar_interface.dart';
 
 class StandardAvatarRed implements StandardAvatarInterface {
   @override

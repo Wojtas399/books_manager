@@ -3,7 +3,7 @@ import 'package:app/modules/profile/bloc/profile_bloc.dart';
 import 'package:app/modules/profile/bloc/profile_query.dart';
 import 'package:app/modules/profile/elements/avatar/avatar_controller.dart';
 import 'package:app/modules/profile/profile_screen_dialogs.dart';
-import 'package:app/repositories/avatars/avatar_interface.dart';
+import 'package:app/interfaces/avatars/avatar_interface.dart';
 import 'package:app/widgets/avatars/avatar_background.dart';
 import 'package:app/widgets/avatars/custom_avatar.dart';
 import 'package:flutter/material.dart';

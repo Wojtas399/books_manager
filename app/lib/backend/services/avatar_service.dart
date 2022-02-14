@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:app/backend/models/avatar_backend_model.dart';
-import 'package:app/repositories/avatars/sign_up_backend_avatar_interface.dart';
+import 'package:app/interfaces/avatars/sign_up_backend_avatar_interface.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 

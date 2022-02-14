@@ -2,7 +2,7 @@ import 'package:app/common/ui/action_sheet.dart';
 import 'package:app/common/ui/dialogs.dart';
 import 'package:app/core/services/validation_service.dart';
 import 'package:app/modules/profile/bloc/profile_bloc.dart';
-import 'package:app/repositories/avatars/avatar_interface.dart';
+import 'package:app/interfaces/avatars/avatar_interface.dart';
 import 'package:flutter/cupertino.dart';
 import 'elements/avatar/avatar_action_sheet.dart';
 import 'elements/avatar/avatar_controller.dart';

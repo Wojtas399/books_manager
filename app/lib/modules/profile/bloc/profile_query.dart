@@ -1,5 +1,6 @@
-import 'package:app/core/user/user_bloc.dart';
 import 'package:app/core/user/user_query.dart';
+import 'package:app/repositories/avatars/avatar_interface.dart';
+import 'package:rxdart/rxdart.dart';
 
 class ProfileQuery {
   late UserQuery _query;
@@ -13,5 +14,6 @@ class ProfileQuery {
 
   Stream<String> get email$ => _query.email$.map((email) => email ?? '');
 
-  Stream<AvatarInfo?> get avatarInfo$ => _query.avatarInfo$;
+  Stream<AvatarInterface> get avatar$ =>
+      _query.avatar$.whereType<AvatarInterface>();
 }

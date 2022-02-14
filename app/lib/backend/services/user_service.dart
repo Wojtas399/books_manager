@@ -1,9 +1,10 @@
+import 'package:app/backend/services/avatar_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'dart:io';
 
 class UserService {
+  final AvatarService _avatarService = new AvatarService();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -28,12 +29,18 @@ class UserService {
     return await _storage.ref(avatarPath).getDownloadURL();
   }
 
-  Future<String> changeAvatar({required String avatar}) async {
+  Future<String> changeAvatar({
+    required AvatarType type,
+    String? avatarImgPath,
+  }) async {
     final User? user = _firebaseAuth.currentUser;
     if (user != null) {
       try {
         await _deleteCurrentAvatar(user);
-        String newAvatarPath = await _addNewAvatar(avatar);
+        String newAvatarPath = await _avatarService.saveAvatarInDb(
+          type: type,
+          avatarImgFilePath: avatarImgPath,
+        );
         await _firestore
             .collection('Users')
             .doc(user.uid)
@@ -124,28 +131,6 @@ class UserService {
       }
     } else {
       throw 'user doc does not exist';
-    }
-  }
-
-  Future<String> _addNewAvatar(String avatar) async {
-    final User? user = _firebaseAuth.currentUser;
-    if (user != null) {
-      try {
-        String avatarPath = '';
-        List<String> imgFileArr = avatar.split('/');
-        if (imgFileArr.length > 1) {
-          avatarPath = user.uid + '/' + imgFileArr[imgFileArr.length - 1];
-          File imgFile = File(avatar);
-          await _storage.ref().child(avatarPath).putFile(imgFile);
-        } else {
-          avatarPath = 'avatars/' + avatar;
-        }
-        return avatarPath;
-      } catch (error) {
-        throw error.toString();
-      }
-    } else {
-      throw 'user does not exist';
     }
   }
 

@@ -3,13 +3,12 @@ import 'package:app/modules/sign_up/sign_up_bloc.dart';
 import 'package:app/modules/sign_up/sign_up_event.dart';
 import 'package:app/modules/sign_up/sing_up_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:app/common/enum/avatar_type.dart';
 import 'package:app/modules/sign_up/elements/basic_avatar.dart';
 import 'package:app/modules/sign_up/elements/custom_avatar.dart';
 import 'package:image_picker/image_picker.dart';
 
 class SignUpAvatars extends StatelessWidget {
-  final List avatarsOrder = [
+  final List<AvatarType> avatarsOrder = [
     AvatarType.red,
     AvatarType.green,
     AvatarType.blue,
@@ -22,16 +21,16 @@ class SignUpAvatars extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Row(
-            children: avatarsOrder.map((element) {
+            children: avatarsOrder.map((type) {
               return Row(
                 children: [
                   BasicAvatar(
-                    type: element,
-                    isChosen: state.avatarType == element,
+                    avatarType: type,
+                    isChosen: state.avatarType == type,
                     onClick: () {
                       context
                           .read<SignUpBloc>()
-                          .add(SignUpAvatarTypeChanged(avatarType: element));
+                          .add(SignUpAvatarTypeChanged(avatarType: type));
                     },
                   ),
                   SizedBox(width: 16),

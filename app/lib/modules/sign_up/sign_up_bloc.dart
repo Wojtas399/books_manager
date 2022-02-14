@@ -1,9 +1,10 @@
-import 'package:app/common/enum/avatar_type.dart';
 import 'package:app/core/auth/auth_bloc.dart';
-import 'package:app/models/operation_status.dart';
+import 'package:app/models/avatar_model.dart';
+import 'package:app/models/operation_status.model.dart';
 import 'package:app/models/http_result.model.dart';
 import 'package:app/modules/sign_up/sign_up_event.dart';
 import 'package:app/modules/sign_up/sing_up_state.dart';
+import 'package:app/repositories/avatars/avatar_interface.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SignUpBloc extends Bloc<SignUpAction, SignUpState> {
@@ -14,19 +15,19 @@ class SignUpBloc extends Bloc<SignUpAction, SignUpState> {
   @override
   Stream<SignUpState> mapEventToState(SignUpAction event) async* {
     if (event is SignUpUsernameChanged) {
-      yield _getStateWithUpdatedUsername(event.username);
+      yield _stateWithUpdatedUsername(event.username);
     } else if (event is SignUpEmailChanged) {
-      yield _getStateWithUpdatedEmail(event.email);
+      yield _stateWithUpdatedEmail(event.email);
     } else if (event is SignUpPasswordChanged) {
-      yield _getStateWithUpdatedPassword(event.password);
+      yield _stateWithUpdatedPassword(event.password);
     } else if (event is SignUpPasswordConfirmationChanged) {
-      yield _getStateWithUpdatedPasswordConfirmation(
+      yield _stateWithUpdatedPasswordConfirmation(
         event.passwordConfirmation,
       );
     } else if (event is SignUpAvatarTypeChanged) {
-      yield _getStateWithUpdatedAvatar(event.avatarType);
+      yield _stateWithUpdatedAvatar(event.avatarType);
     } else if (event is SignUpCustomAvatarPathChanged) {
-      yield _getStateWithUpdatedCustomAvatar(event.imagePath);
+      yield _stateWithUpdatedCustomAvatar(event.imagePath);
     } else if (event is SignUpSubmitted) {
       yield state.copyWith(signUpStatus: OperationLoading());
       Stream<OperationStatus> signUpResult$ = _signUp(
@@ -42,29 +43,29 @@ class SignUpBloc extends Bloc<SignUpAction, SignUpState> {
     }
   }
 
-  SignUpState _getStateWithUpdatedUsername(String username) {
+  SignUpState _stateWithUpdatedUsername(String username) {
     return state.copyWith(username: username);
   }
 
-  SignUpState _getStateWithUpdatedEmail(String email) {
+  SignUpState _stateWithUpdatedEmail(String email) {
     return state.copyWith(email: email);
   }
 
-  SignUpState _getStateWithUpdatedPassword(String password) {
+  SignUpState _stateWithUpdatedPassword(String password) {
     return state.copyWith(password: password);
   }
 
-  SignUpState _getStateWithUpdatedPasswordConfirmation(
+  SignUpState _stateWithUpdatedPasswordConfirmation(
     String passwordConfirmation,
   ) {
     return state.copyWith(passwordConfirmation: passwordConfirmation);
   }
 
-  SignUpState _getStateWithUpdatedAvatar(AvatarType avatarType) {
+  SignUpState _stateWithUpdatedAvatar(AvatarType avatarType) {
     return state.copyWith(avatarType: avatarType);
   }
 
-  SignUpState _getStateWithUpdatedCustomAvatar(String customAvatarPath) {
+  SignUpState _stateWithUpdatedCustomAvatar(String customAvatarPath) {
     return state.copyWith(customAvatarPath: customAvatarPath);
   }
 
@@ -75,19 +76,35 @@ class SignUpBloc extends Bloc<SignUpAction, SignUpState> {
     required AvatarType avatarType,
     required String customAvatarPath,
   }) async* {
-    Stream<HttpResult> httpResult$ = authBloc.signUp(
-      username: username,
-      email: email,
-      password: password,
-      avatarType: avatarType,
-      customAvatarPath: customAvatarPath,
-    );
-    await for (final result in httpResult$) {
-      if (result is HttpSuccess) {
-        yield OperationSuccessful();
-      } else if (result is HttpFailure) {
-        yield OperationFailed(result.getMessage() ?? 'Unknown error...');
+    AvatarInterface? avatar = _getAvatar(avatarType, customAvatarPath);
+    if (avatar != null) {
+      Stream<HttpResult> httpResult$ = authBloc.signUp(
+        username: username,
+        email: email,
+        password: password,
+        avatar: avatar,
+      );
+      await for (final result in httpResult$) {
+        if (result is HttpSuccess) {
+          yield OperationSuccessful();
+        } else if (result is HttpFailure) {
+          yield OperationFailed(result.getMessage() ?? 'Unknown error...');
+        }
       }
+    } else {
+      yield OperationFailed('Cannot get avatar model for type: $avatarType');
+    }
+  }
+
+  AvatarInterface? _getAvatar(AvatarType type, String customAvatarPath) {
+    if (type == AvatarType.custom) {
+      return new CustomAvatar(imgFilePathFromDevice: customAvatarPath);
+    } else if (type == AvatarType.red) {
+      return new StandardAvatarRed();
+    } else if (type == AvatarType.green) {
+      return new StandardAvatarGreen();
+    } else if (type == AvatarType.blue) {
+      return new StandardAvatarBlue();
     }
   }
 }

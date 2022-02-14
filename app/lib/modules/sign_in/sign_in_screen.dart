@@ -5,7 +5,7 @@ import 'package:app/core/auth/auth_bloc.dart';
 import 'package:app/core/app.dart';
 import 'package:app/modules/sign_in/sign_in_form.dart';
 import 'package:flutter/material.dart';
-import 'package:app/models/operation_status.dart';
+import 'package:app/models/operation_status.model.dart';
 import 'package:app/modules/sign_in/sign_in_bloc.dart';
 import 'package:app/modules/sign_in/sign_in_state.dart';
 import 'package:app/widgets/app_bars/none_elevation_app_bar.dart';

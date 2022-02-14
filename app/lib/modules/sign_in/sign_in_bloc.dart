@@ -1,5 +1,5 @@
 import 'package:app/core/auth/auth_bloc.dart';
-import 'package:app/models/operation_status.dart';
+import 'package:app/models/operation_status.model.dart';
 import 'package:app/models/http_result.model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app/modules/sign_in/sign_in_actions.dart';

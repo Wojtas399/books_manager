@@ -1,15 +1,13 @@
-import 'package:app/common/enum/avatar_type.dart';
+import 'package:app/repositories/avatars/avatar_interface.dart';
 
 class LoggedUser {
   String username;
   String email;
-  AvatarType avatarType;
-  String avatarUrl;
+  AvatarInterface avatar;
 
   LoggedUser({
     required this.username,
     required this.email,
-    required this.avatarType,
-    required this.avatarUrl,
+    required this.avatar,
   });
 }

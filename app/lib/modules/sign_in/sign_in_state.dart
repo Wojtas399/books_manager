@@ -1,4 +1,4 @@
-import 'package:app/models/operation_status.dart';
+import 'package:app/models/operation_status.model.dart';
 
 class SignInState {
   final String email;

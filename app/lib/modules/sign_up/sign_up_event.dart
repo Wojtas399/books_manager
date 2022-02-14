@@ -1,4 +1,4 @@
-import 'package:app/common/enum/avatar_type.dart';
+import 'package:app/modules/sign_up/sing_up_state.dart';
 
 abstract class SignUpAction {}
 

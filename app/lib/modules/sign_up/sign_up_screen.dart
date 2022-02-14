@@ -3,7 +3,7 @@ import 'package:app/common/ui/dialogs.dart';
 import 'package:app/common/ui/snack_bars.dart';
 import 'package:app/config/themes/button_theme.dart';
 import 'package:app/core/auth/auth_bloc.dart';
-import 'package:app/models/operation_status.dart';
+import 'package:app/models/operation_status.model.dart';
 import 'package:app/core/app.dart';
 import 'package:app/modules/sign_up/sign_up_bloc.dart';
 import 'package:app/modules/sign_up/sign_up_event.dart';

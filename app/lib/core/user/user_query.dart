@@ -1,5 +1,5 @@
-import 'package:app/core/user/user_bloc.dart';
 import 'package:app/core/user/user_model.dart';
+import 'package:app/repositories/avatars/avatar_interface.dart';
 
 class UserQuery {
   late Stream<LoggedUser?> _loggedUser$;
@@ -12,16 +12,6 @@ class UserQuery {
 
   Stream<String?> get email$ => _loggedUser$.map((event) => event?.email);
 
-  Stream<AvatarInfo?> get avatarInfo$ => _loggedUser$.map(
-        (event) {
-          LoggedUser? user = event;
-          if (user != null) {
-            return new AvatarInfo(
-              avatarUrl: user.avatarUrl,
-              avatarType: user.avatarType,
-            );
-          }
-          return null;
-        },
-      );
+  Stream<AvatarInterface?> get avatar$ =>
+      _loggedUser$.map((event) => event?.avatar);
 }

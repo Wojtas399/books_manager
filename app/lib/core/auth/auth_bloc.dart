@@ -1,11 +1,10 @@
-import 'package:app/common/enum/avatar_type.dart';
-import 'package:app/injection/avatar_provider.dart';
+import 'package:app/core/services/avatar_service.dart';
 import 'package:app/models/http_result.model.dart';
 import 'package:app/repositories/auth_interface.dart';
-import 'package:app/repositories/avatar_interface.dart';
+import 'package:app/repositories/avatars/avatar_interface.dart';
 
 class AuthBloc {
-  late AuthInterface _authInterface;
+  late final AuthInterface _authInterface;
 
   AuthBloc({required AuthInterface authInterface}) {
     _authInterface = authInterface;
@@ -27,15 +26,14 @@ class AuthBloc {
     required String username,
     required String email,
     required String password,
-    required AvatarType avatarType,
-    String? customAvatarPath,
+    required AvatarInterface avatar,
   }) async* {
     try {
       await _authInterface.signUp(
         username: username,
         email: email,
         password: password,
-        avatar: _getAvatar(avatarType, customAvatarPath ?? ''),
+        avatar: AvatarService.getBackendAvatar(avatar),
       );
       yield HttpSuccess();
     } catch (error) {
@@ -45,18 +43,5 @@ class AuthBloc {
 
   signOut() async {
     await _authInterface.logOut();
-  }
-
-  AvatarInterface _getAvatar(AvatarType type, String customAvatarFilePath) {
-    switch (type) {
-      case AvatarType.red:
-        return AvatarProvider.getAvatarDefaultRed();
-      case AvatarType.green:
-        return AvatarProvider.getAvatarDefaultGreen();
-      case AvatarType.blue:
-        return AvatarProvider.getAvatarDefaultBlue();
-      case AvatarType.custom:
-        return AvatarProvider.getAvatarCustom(customAvatarFilePath);
-    }
   }
 }

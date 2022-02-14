@@ -1,5 +1,6 @@
-import 'package:app/models/operation_status.dart';
-import 'package:app/common/enum/avatar_type.dart';
+import 'package:app/models/operation_status.model.dart';
+
+enum AvatarType { red, green, blue, custom }
 
 class SignUpState {
   final String username;

@@ -1,56 +1,48 @@
-import 'package:app/common/enum/avatar_type.dart';
+import 'package:app/models/avatar_model.dart';
+import 'package:app/modules/sign_up/sing_up_state.dart';
+import 'package:app/repositories/avatars/avatar_interface.dart';
 import 'package:app/widgets/avatars/avatar_background.dart';
 import 'package:flutter/material.dart';
 
 class BasicAvatar extends StatelessWidget {
-  final AvatarType type;
+  final AvatarType avatarType;
   final bool isChosen;
   final VoidCallback onClick;
 
   BasicAvatar({
-    required this.type,
+    required this.avatarType,
     required this.isChosen,
     required this.onClick,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onClick,
-      child: AvatarBackground(
-        isChosen: isChosen,
-        child: _avatarImage(),
-        size: 60,
-      ),
-    );
+    StandardAvatarInterface? avatar = _getAvatar(avatarType);
+    String? assetsPath = avatar?.imgAssetsPath;
+
+    if (assetsPath != null) {
+      return GestureDetector(
+        onTap: onClick,
+        child: AvatarBackground(
+          isChosen: isChosen,
+          child: Image.asset(
+            assetsPath,
+            scale: 13.5,
+          ),
+          size: 60,
+        ),
+      );
+    }
+    return Text('no avatar');
   }
 
-  Widget _avatarImage() {
-    String path = 'assets/images/';
-    String bookType = '';
-    switch (type) {
-      case AvatarType.red:
-        {
-          bookType = 'RedBook.png';
-        }
-        break;
-      case AvatarType.green:
-        {
-          bookType = 'GreenBook.png';
-        }
-        break;
-      case AvatarType.blue:
-        {
-          bookType = 'BlueBook.png';
-        }
-        break;
-      case AvatarType.custom:
-        {}
-        break;
+  StandardAvatarInterface? _getAvatar(AvatarType type) {
+    if (type == AvatarType.red) {
+      return new StandardAvatarRed();
+    } else if (type == AvatarType.blue) {
+      return new StandardAvatarBlue();
+    } else if (type == AvatarType.green) {
+      return new StandardAvatarGreen();
     }
-    return Image.asset(
-      path + bookType,
-      scale: 13.5,
-    );
   }
 }

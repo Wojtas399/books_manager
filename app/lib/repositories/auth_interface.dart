@@ -1,4 +1,4 @@
-import 'avatar_interface.dart';
+import 'package:app/repositories/avatars/sign_up_backend_avatar_interface.dart';
 
 abstract class AuthInterface {
   signIn({required String email, required String password});
@@ -7,7 +7,7 @@ abstract class AuthInterface {
     required String username,
     required String email,
     required String password,
-    required AvatarInterface avatar,
+    required SignUpBackendAvatarInterface avatar,
   });
 
   logOut();

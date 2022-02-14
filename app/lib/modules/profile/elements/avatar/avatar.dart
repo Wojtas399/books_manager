@@ -1,11 +1,9 @@
-import 'package:app/common/enum/avatar_type.dart';
-import 'package:app/core/services/avatar_book_service.dart';
 import 'package:app/core/services/image_service.dart';
-import 'package:app/core/user/user_bloc.dart';
 import 'package:app/modules/profile/bloc/profile_bloc.dart';
 import 'package:app/modules/profile/bloc/profile_query.dart';
 import 'package:app/modules/profile/elements/avatar/avatar_controller.dart';
 import 'package:app/modules/profile/profile_screen_dialogs.dart';
+import 'package:app/repositories/avatars/avatar_interface.dart';
 import 'package:app/widgets/avatars/avatar_background.dart';
 import 'package:app/widgets/avatars/custom_avatar.dart';
 import 'package:flutter/material.dart';
@@ -19,28 +17,26 @@ class Avatar extends StatelessWidget {
       builder: (context, query) {
         AvatarController controller = AvatarController(
           profileBloc: context.read<ProfileBloc>(),
-          avatarBookService: AvatarBookService(),
           imageService: ImageService(),
           profileScreenDialogs: ProfileScreenDialogs(),
         );
         return StreamBuilder(
-          stream: query.avatarInfo$,
-          builder: (context, AsyncSnapshot<AvatarInfo?> snapshot) {
-            AvatarInfo? avatarInfo = snapshot.data;
-
-            return GestureDetector(
-              child: AvatarBackground(
-                isChosen: false,
-                size: 160,
-                child: _Avatar(
-                  imageUrl: avatarInfo != null ? avatarInfo.avatarUrl : '',
-                  avatarType: avatarInfo != null
-                      ? avatarInfo.avatarType
-                      : AvatarType.custom,
+          stream: query.avatar$,
+          builder: (context, AsyncSnapshot<AvatarInterface> snapshot) {
+            AvatarInterface? avatar = snapshot.data;
+            if (avatar != null) {
+              return GestureDetector(
+                child: AvatarBackground(
+                  isChosen: false,
+                  size: 160,
+                  child: _Avatar(
+                    avatar: avatar,
+                  ),
                 ),
-              ),
-              onTap: () => controller.openAvatarActionSheet(),
-            );
+                onTap: () => controller.selectAvatarChoiceOption(),
+              );
+            }
+            return Text('no avatara');
           },
         );
       },
@@ -49,16 +45,29 @@ class Avatar extends StatelessWidget {
 }
 
 class _Avatar extends StatelessWidget {
-  final String imageUrl;
-  final AvatarType avatarType;
+  late final String? _imgUrl;
+  late final String? _assetsPath;
 
-  const _Avatar({required this.imageUrl, required this.avatarType});
+  _Avatar({required AvatarInterface avatar}) {
+    if (avatar is CustomAvatarInterface) {
+      _imgUrl = avatar.imgUrl;
+      _assetsPath = null;
+    } else if (avatar is StandardAvatarInterface) {
+      _imgUrl = null;
+      _assetsPath = avatar.imgAssetsPath;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return avatarType == AvatarType.custom
-        ? _CustomAvatar(imageUrl: imageUrl)
-        : _BasicAvatar(avatarType: avatarType);
+    String? imgUrl = _imgUrl;
+    String? assetsPath = _assetsPath;
+
+    return imgUrl != null
+        ? _CustomAvatar(imageUrl: imgUrl)
+        : assetsPath != null
+            ? _BasicAvatar(assetsPath: assetsPath)
+            : Text('no avatar');
   }
 }
 
@@ -69,28 +78,17 @@ class _CustomAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (imageUrl == '') {
-      return Text('');
-    }
     return CustomAvatar(imageUrl: imageUrl);
   }
 }
 
 class _BasicAvatar extends StatelessWidget {
-  final AvatarBookService avatarBookService = AvatarBookService();
-  final AvatarType? avatarType;
+  final String assetsPath;
 
-  _BasicAvatar({required this.avatarType});
+  const _BasicAvatar({required this.assetsPath});
 
   @override
   Widget build(BuildContext context) {
-    AvatarType? type = avatarType;
-    if (type == null) {
-      return Text('');
-    }
-    return Image.asset(
-      'assets/images/' + avatarBookService.getBookFileName(type),
-      scale: 4.5,
-    );
+    return Image.asset(assetsPath, scale: 4.5);
   }
 }

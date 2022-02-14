@@ -1,6 +1,6 @@
-import 'package:app/common/enum/avatar_type.dart';
 import 'package:app/constants/theme.dart';
-import 'package:app/core/services/avatar_book_service.dart';
+import 'package:app/models/avatar_model.dart';
+import 'package:app/repositories/avatars/avatar_interface.dart';
 import 'package:app/widgets/app_bars/dialog_app_bar.dart';
 import 'package:app/widgets/avatars/avatar_background.dart';
 import 'package:flutter/material.dart';
@@ -17,11 +17,11 @@ class ChoseBasicAvatarDialog extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _Avatar(type: AvatarType.red),
+            _Avatar(avatar: new StandardAvatarRed()),
             SizedBox(height: 32),
-            _Avatar(type: AvatarType.green),
+            _Avatar(avatar: new StandardAvatarGreen()),
             SizedBox(height: 32),
-            _Avatar(type: AvatarType.blue),
+            _Avatar(avatar: new StandardAvatarBlue()),
           ],
         ),
       ),
@@ -30,25 +30,26 @@ class ChoseBasicAvatarDialog extends StatelessWidget {
 }
 
 class _Avatar extends StatelessWidget {
-  final AvatarBookService avatarBookService = AvatarBookService();
-  final AvatarType type;
+  final StandardAvatarInterface avatar;
 
-  _Avatar({required this.type});
+  _Avatar({required this.avatar});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.pop(context, type);
-      },
-      child: AvatarBackground(
-        isChosen: false,
-        child: Image.asset(
-          'assets/images/' + avatarBookService.getBookFileName(type),
-          scale: 7,
+    String? assetsPath = avatar.imgAssetsPath;
+
+    if (assetsPath != null) {
+      return GestureDetector(
+        onTap: () {
+          Navigator.pop(context, avatar);
+        },
+        child: AvatarBackground(
+          isChosen: false,
+          child: Image.asset(assetsPath, scale: 7),
+          size: 100,
         ),
-        size: 100,
-      ),
-    );
+      );
+    }
+    return Text('No assets path...');
   }
 }

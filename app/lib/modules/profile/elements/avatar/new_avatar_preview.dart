@@ -1,8 +1,6 @@
 import 'dart:ui';
-import 'package:app/common/enum/avatar_type.dart';
 import 'package:app/constants/theme.dart';
-import 'package:app/core/services/avatar_book_service.dart';
-import 'package:app/core/user/user_bloc.dart';
+import 'package:app/repositories/avatars/avatar_interface.dart';
 import 'package:app/widgets/app_bars/dialog_app_bar.dart';
 import 'package:app/widgets/avatars/avatar_background.dart';
 import 'package:app/widgets/buttons/medium_red_button.dart';
@@ -12,12 +10,24 @@ import 'package:hexcolor/hexcolor.dart';
 import 'dart:io';
 
 class NewAvatarPreview extends StatelessWidget {
-  final AvatarInfo avatarInfo;
+  late final String? _imgFile;
+  late final String? _assetsPath;
 
-  NewAvatarPreview({required this.avatarInfo});
+  NewAvatarPreview({required AvatarInterface avatar}) {
+    if (avatar is CustomAvatarInterface) {
+      _imgFile = avatar.imgFilePathFromDevice;
+      _assetsPath = null;
+    } else if (avatar is StandardAvatarInterface) {
+      _imgFile = null;
+      _assetsPath = avatar.imgAssetsPath;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    String? imgFile = _imgFile;
+    String? assetsPath = _assetsPath;
+
     return Scaffold(
       appBar: DialogAppBar(title: "Podgląd nowego avatar'u"),
       body: Container(
@@ -29,9 +39,11 @@ class NewAvatarPreview extends StatelessWidget {
             AvatarBackground(
               isChosen: false,
               size: 250,
-              child: avatarInfo.avatarType == AvatarType.custom
-                  ? _CustomAvatar(imgFile: avatarInfo.avatarUrl)
-                  : _BasicAvatar(avatarType: avatarInfo.avatarType),
+              child: imgFile != null
+                  ? _CustomAvatar(imgFile: imgFile)
+                  : assetsPath != null
+                      ? _BasicAvatar(assetsPath: assetsPath)
+                      : Text('No avatar...'),
             ),
             SizedBox(height: 40),
             Row(
@@ -68,9 +80,6 @@ class _CustomAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (imgFile == '') {
-      return Text('');
-    }
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
@@ -102,20 +111,12 @@ class _CustomAvatar extends StatelessWidget {
 }
 
 class _BasicAvatar extends StatelessWidget {
-  final AvatarBookService avatarBookService = AvatarBookService();
-  final AvatarType? avatarType;
+  final String assetsPath;
 
-  _BasicAvatar({required this.avatarType});
+  _BasicAvatar({required this.assetsPath});
 
   @override
   Widget build(BuildContext context) {
-    AvatarType? type = avatarType;
-    if (type == null) {
-      return Text('');
-    }
-    return Image.asset(
-      'assets/images/' + avatarBookService.getBookFileName(type),
-      scale: 3,
-    );
+    return Image.asset(assetsPath, scale: 3);
   }
 }

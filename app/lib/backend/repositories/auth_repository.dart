@@ -1,13 +1,15 @@
 import 'package:app/backend/services/auth_service.dart';
+import 'package:app/backend/services/avatar_service.dart';
 import 'package:app/repositories/auth_interface.dart';
-
-import '../../repositories/avatar_interface.dart';
+import 'package:app/repositories/avatars/sign_up_backend_avatar_interface.dart';
 
 class AuthRepository implements AuthInterface {
-  AuthService _authService;
+  final AvatarService _avatarService = new AvatarService();
+  late final AuthService _authService;
 
-  AuthRepository({required AuthService authService})
-      : _authService = authService;
+  AuthRepository({required AuthService authService}) {
+    _authService = authService;
+  }
 
   @override
   signIn({
@@ -26,15 +28,21 @@ class AuthRepository implements AuthInterface {
     required String username,
     required String email,
     required String password,
-    required AvatarInterface avatar,
+    required SignUpBackendAvatarInterface avatar,
   }) async {
     try {
-      await _authService.signUp(
-        username: username,
-        email: email,
-        password: password,
-        avatar: avatar,
-      );
+      AvatarType? avatarType = _avatarService.getAvatarType(avatar);
+      if (avatarType != null) {
+        await _authService.signUp(
+          username: username,
+          email: email,
+          password: password,
+          avatarType: avatarType,
+          avatarImgFilePath: _avatarService.getImgFilePath(avatar),
+        );
+      } else {
+        throw 'The problem with avatar type conversion has occurred';
+      }
     } catch (error) {
       throw error;
     }

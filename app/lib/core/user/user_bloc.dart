@@ -1,32 +1,21 @@
 import 'dart:async';
-import 'package:app/common/enum/avatar_type.dart';
-import 'package:app/core/services/avatar_book_service.dart';
+import 'package:app/core/services/avatar_service.dart';
 import 'package:app/core/user/user_model.dart';
+import 'package:app/repositories/avatars/avatar_interface.dart';
 import 'package:app/repositories/user_interface.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:equatable/equatable.dart';
 import 'package:rxdart/rxdart.dart';
 
-class AvatarInfo extends Equatable {
-  final String avatarUrl;
-  final AvatarType avatarType;
-
-  AvatarInfo({required this.avatarUrl, required this.avatarType});
-
-  @override
-  List<Object> get props => [avatarUrl, avatarType];
-}
-
 class UserBloc {
-  UserInterface _userInterface;
-  AvatarBookService avatarBookService = AvatarBookService();
+  late final UserInterface _userInterface;
 
   StreamSubscription? _userSubscription;
   BehaviorSubject<LoggedUser?> _loggedUser =
       new BehaviorSubject<LoggedUser?>.seeded(null);
 
-  UserBloc({required UserInterface userInterface})
-      : _userInterface = userInterface;
+  UserBloc({required UserInterface userInterface}) {
+    _userInterface = userInterface;
+  }
 
   Stream<LoggedUser?> get loggedUser$ => _loggedUser.stream;
 
@@ -42,9 +31,9 @@ class UserBloc {
           this.setUserData(
             username: data['userName'],
             email: email,
-            avatarUrl: avatarUrl,
-            avatarType: avatarBookService.getBookType(
+            avatar: AvatarService.getViewAvatar(
               data['avatarPath'].split('/')[1],
+              avatarUrl,
             ),
           );
         }
@@ -55,20 +44,20 @@ class UserBloc {
   setUserData({
     required String username,
     required String email,
-    required String avatarUrl,
-    required AvatarType avatarType,
+    required AvatarInterface avatar,
   }) {
     LoggedUser loggedUser = new LoggedUser(
       username: username,
       email: email,
-      avatarType: avatarType,
-      avatarUrl: avatarUrl,
+      avatar: avatar,
     );
     _loggedUser.add(loggedUser);
   }
 
-  updateAvatar(String avatar) async {
-    await _userInterface.changeAvatar(avatar: avatar);
+  updateAvatar(AvatarInterface avatar) async {
+    await _userInterface.changeAvatar(
+      avatar: AvatarService.getBackendAvatar(avatar),
+    );
   }
 
   updateUsername(String newUsername) async {
@@ -101,8 +90,7 @@ class UserBloc {
       LoggedUser loggedUser = new LoggedUser(
         username: userData.username,
         email: newEmail,
-        avatarType: userData.avatarType,
-        avatarUrl: userData.avatarUrl,
+        avatar: userData.avatar,
       );
       _loggedUser.add(loggedUser);
     }

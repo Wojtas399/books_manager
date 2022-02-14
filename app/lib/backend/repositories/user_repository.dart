@@ -1,8 +1,11 @@
+import 'package:app/backend/services/avatar_service.dart';
 import 'package:app/backend/services/user_service.dart';
+import 'package:app/repositories/avatars/sign_up_backend_avatar_interface.dart';
 import 'package:app/repositories/user_interface.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserRepository extends UserInterface {
+  final AvatarService _avatarService = new AvatarService();
   UserService _userService;
 
   UserRepository({required UserService userService})
@@ -28,9 +31,15 @@ class UserRepository extends UserInterface {
   }
 
   @override
-  changeAvatar({required String avatar}) async {
+  changeAvatar({required SignUpBackendAvatarInterface avatar}) async {
     try {
-      await _userService.changeAvatar(avatar: avatar);
+      AvatarType? avatarType = _avatarService.getAvatarType(avatar);
+      if (avatarType != null) {
+        await _userService.changeAvatar(
+          type: avatarType,
+          avatarImgPath: _avatarService.getImgFilePath(avatar),
+        );
+      }
     } catch (error) {
       throw error;
     }

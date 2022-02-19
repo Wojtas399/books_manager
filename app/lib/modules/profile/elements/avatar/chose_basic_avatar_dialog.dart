@@ -43,8 +43,8 @@ class _Avatar extends StatelessWidget {
         onTap: () {
           Navigator.pop(context, avatar);
         },
-        child: AvatarBackground(
-          isChosen: false,
+        child: AvatarCircleShape(
+          isSelected: false,
           child: Image.asset(assetsPath, scale: 7),
           size: 100,
         ),

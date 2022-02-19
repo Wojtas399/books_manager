@@ -36,8 +36,8 @@ class NewAvatarPreview extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AvatarBackground(
-              isChosen: false,
+            AvatarCircleShape(
+              isSelected: false,
               size: 250,
               child: imgFile != null
                   ? _CustomAvatar(imgFile: imgFile)

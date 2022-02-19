@@ -26,8 +26,8 @@ class Avatar extends StatelessWidget {
             AvatarInterface? avatar = snapshot.data;
             if (avatar != null) {
               return GestureDetector(
-                child: AvatarBackground(
-                  isChosen: false,
+                child: AvatarCircleShape(
+                  isSelected: false,
                   size: 160,
                   child: _Avatar(
                     avatar: avatar,

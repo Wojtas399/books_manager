@@ -4,15 +4,15 @@ import 'package:app/interfaces/avatars/avatar_interface.dart';
 import 'package:app/widgets/avatars/avatar_background.dart';
 import 'package:flutter/material.dart';
 
-class BasicAvatar extends StatelessWidget {
+class StandardAvatar extends StatelessWidget {
   final AvatarType avatarType;
-  final bool isChosen;
-  final VoidCallback onClick;
+  final bool isSelected;
+  final VoidCallback onSelect;
 
-  BasicAvatar({
+  StandardAvatar({
     required this.avatarType,
-    required this.isChosen,
-    required this.onClick,
+    required this.isSelected,
+    required this.onSelect,
   });
 
   @override
@@ -22,9 +22,9 @@ class BasicAvatar extends StatelessWidget {
 
     if (assetsPath != null) {
       return GestureDetector(
-        onTap: onClick,
-        child: AvatarBackground(
-          isChosen: isChosen,
+        onTap: () => onSelect(),
+        child: AvatarCircleShape(
+          isSelected: isSelected,
           child: Image.asset(
             assetsPath,
             scale: 13.5,

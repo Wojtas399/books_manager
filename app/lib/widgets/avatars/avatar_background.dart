@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:app/constants/theme.dart';
 
-class AvatarBackground extends StatelessWidget {
-  final bool isChosen;
+class AvatarCircleShape extends StatelessWidget {
+  final bool isSelected;
   final double size;
   final Widget child;
 
-  AvatarBackground({
-    required this.isChosen,
+  AvatarCircleShape({
+    required this.isSelected,
     required this.child,
     required this.size,
   });
@@ -22,7 +22,9 @@ class AvatarBackground extends StatelessWidget {
         color: Colors.white,
         shape: BoxShape.circle,
         border: Border.all(
-            color: HexColor(AppColors.DARK_GREEN), width: isChosen ? 4 : 2),
+          color: HexColor(AppColors.DARK_GREEN),
+          width: isSelected ? 4 : 2,
+        ),
       ),
       child: child,
     );

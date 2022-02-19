@@ -3,7 +3,7 @@ import 'package:app/models/avatar_model.dart';
 import 'package:app/modules/profile/bloc/profile_actions.dart';
 import 'package:app/modules/profile/bloc/profile_bloc.dart';
 import 'package:app/modules/profile/profile_screen_dialogs.dart';
-import 'package:app/interfaces/avatars/avatar_interface.dart';
+import 'package:app/interfaces/avatar_interface.dart';
 
 enum AvatarChoiceOptions {
   fromGallery,

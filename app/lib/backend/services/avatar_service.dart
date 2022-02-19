@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'package:app/backend/models/avatar_backend_model.dart';
-import 'package:app/interfaces/avatars/sign_up_backend_avatar_interface.dart';
+import 'package:app/interfaces/avatar_interface.dart';
+import 'package:app/models/avatar_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
@@ -19,7 +19,7 @@ class AvatarService {
     }
   }
 
-  AvatarType? getAvatarType(SignUpBackendAvatarInterface avatar) {
+  AvatarType? getAvatarType(AvatarInterface avatar) {
     if (avatar is StandardAvatarRed) {
       return AvatarType.red;
     } else if (avatar is StandardAvatarGreen) {
@@ -31,8 +31,8 @@ class AvatarService {
     }
   }
 
-  String? getImgFilePath(SignUpBackendAvatarInterface avatar) {
-    if (avatar is CustomAvatar) {
+  String? getImgFilePath(AvatarInterface avatar) {
+    if (avatar is CustomAvatarInterface) {
       return avatar.imgFilePathFromDevice;
     }
   }

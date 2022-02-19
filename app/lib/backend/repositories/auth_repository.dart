@@ -1,7 +1,7 @@
 import 'package:app/backend/services/auth_service.dart';
 import 'package:app/backend/services/avatar_service.dart';
 import 'package:app/interfaces/auth_interface.dart';
-import 'package:app/interfaces/avatars/sign_up_backend_avatar_interface.dart';
+import 'package:app/interfaces/avatar_interface.dart';
 
 class AuthRepository implements AuthInterface {
   final AvatarService _avatarService = new AvatarService();
@@ -28,7 +28,7 @@ class AuthRepository implements AuthInterface {
     required String username,
     required String email,
     required String password,
-    required SignUpBackendAvatarInterface avatar,
+    required AvatarInterface avatar,
   }) async {
     try {
       AvatarType? avatarType = _avatarService.getAvatarType(avatar);

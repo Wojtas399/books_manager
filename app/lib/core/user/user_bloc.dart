@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:app/core/services/avatar_service.dart';
 import 'package:app/core/user/user_model.dart';
-import 'package:app/interfaces/avatars/avatar_interface.dart';
+import 'package:app/interfaces/avatar_interface.dart';
 import 'package:app/interfaces/user_interface.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rxdart/rxdart.dart';
@@ -31,7 +31,7 @@ class UserBloc {
           this.setUserData(
             username: data['userName'],
             email: email,
-            avatar: AvatarService.getViewAvatar(
+            avatar: AvatarService.getAvatarModel(
               data['avatarPath'].split('/')[1],
               avatarUrl,
             ),
@@ -55,9 +55,7 @@ class UserBloc {
   }
 
   updateAvatar(AvatarInterface avatar) async {
-    await _userInterface.changeAvatar(
-      avatar: AvatarService.getBackendAvatar(avatar),
-    );
+    await _userInterface.changeAvatar(avatar: avatar);
   }
 
   updateUsername(String newUsername) async {

@@ -1,6 +1,6 @@
 import 'package:app/models/avatar_model.dart';
 import 'package:app/modules/sign_up/sing_up_state.dart';
-import 'package:app/interfaces/avatars/avatar_interface.dart';
+import 'package:app/interfaces/avatar_interface.dart';
 import 'package:app/widgets/avatars/avatar_background.dart';
 import 'package:flutter/material.dart';
 

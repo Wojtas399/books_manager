@@ -1,7 +1,6 @@
-import 'package:app/core/services/avatar_service.dart';
 import 'package:app/models/http_result.model.dart';
 import 'package:app/interfaces/auth_interface.dart';
-import 'package:app/interfaces/avatars/avatar_interface.dart';
+import 'package:app/interfaces/avatar_interface.dart';
 
 class AuthBloc {
   late final AuthInterface _authInterface;
@@ -33,7 +32,7 @@ class AuthBloc {
         username: username,
         email: email,
         password: password,
-        avatar: AvatarService.getBackendAvatar(avatar),
+        avatar: avatar,
       );
       yield HttpSuccess();
     } catch (error) {

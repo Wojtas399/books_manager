@@ -1,6 +1,6 @@
 import 'package:app/constants/theme.dart';
 import 'package:app/models/avatar_model.dart';
-import 'package:app/interfaces/avatars/avatar_interface.dart';
+import 'package:app/interfaces/avatar_interface.dart';
 import 'package:app/widgets/app_bars/dialog_app_bar.dart';
 import 'package:app/widgets/avatars/avatar_background.dart';
 import 'package:flutter/material.dart';

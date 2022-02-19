@@ -4,7 +4,7 @@ import 'package:app/models/operation_status.model.dart';
 import 'package:app/models/http_result.model.dart';
 import 'package:app/modules/sign_up/sign_up_event.dart';
 import 'package:app/modules/sign_up/sing_up_state.dart';
-import 'package:app/interfaces/avatars/avatar_interface.dart';
+import 'package:app/interfaces/avatar_interface.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SignUpBloc extends Bloc<SignUpAction, SignUpState> {

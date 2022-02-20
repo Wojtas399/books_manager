@@ -1,50 +1,49 @@
-import 'package:app/common/enum/avatar_type.dart';
 import 'package:app/core/user/user_bloc.dart';
 import 'package:app/core/user/user_model.dart';
-import 'package:app/repositories/auth_interface.dart';
+import 'package:app/interfaces/user_interface.dart';
+import 'package:app/models/avatar_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockAuthInterface extends Mock implements AuthInterface {}
+class MockUserInterface extends Mock implements UserInterface {}
 
 void main() {
-  AuthInterface authInterface = MockAuthInterface();
+  UserInterface userInterface = MockUserInterface();
   late UserBloc bloc;
 
   setUp(() {
-    bloc = new UserBloc(authInterface: authInterface);
+    bloc = new UserBloc(userInterface: userInterface);
   });
 
   tearDown(() {
-    reset(authInterface);
+    reset(userInterface);
   });
 
   test('set user data', () async {
     bloc.setUserData(
       username: 'username',
       email: 'email@example.com',
-      avatarUrl: 'url',
-      avatarType: AvatarType.blue,
+      avatar: StandardAvatarRed(),
     );
 
     LoggedUser? loggedUser = await bloc.loggedUser$.first;
     expect(loggedUser?.username, 'username');
     expect(loggedUser?.email, 'email@example.com');
-    expect(loggedUser?.avatarUrl, 'url');
-    expect(loggedUser?.avatarType, AvatarType.blue);
+    expect(loggedUser?.avatar, isA<StandardAvatarRed>());
   });
 
   test('update avatar', () {
-    bloc.updateAvatar('new avatar');
+    bloc.updateAvatar(StandardAvatarBlue());
 
-    verify(() => authInterface.changeAvatar(avatar: 'new avatar')).called(1);
+    verify(() => userInterface.changeAvatar(avatar: StandardAvatarBlue()))
+        .called(1);
   });
 
   test('update username', () {
     bloc.updateUsername('new username');
 
     verify(
-      () => authInterface.changeUsername(newUsername: 'new username'),
+      () => userInterface.changeUsername(newUsername: 'new username'),
     ).called(1);
   });
 
@@ -52,7 +51,7 @@ void main() {
     bloc.updateEmail('newEmail@example.com', 'password');
 
     verify(
-      () => authInterface.changeEmail(
+      () => userInterface.changeEmail(
         newEmail: 'newEmail@example.com',
         password: 'password',
       ),
@@ -63,16 +62,10 @@ void main() {
     bloc.updatePassword('currentPassword', 'newPassword');
 
     verify(
-      () => authInterface.changePassword(
+      () => userInterface.changePassword(
         currentPassword: 'currentPassword',
         newPassword: 'newPassword',
       ),
     ).called(1);
-  });
-
-  test('sign out', () {
-    bloc.signOut();
-
-    verify(() => authInterface.logOut()).called(1);
   });
 }

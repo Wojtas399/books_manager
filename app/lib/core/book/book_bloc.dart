@@ -54,10 +54,12 @@ class BookBloc {
     required String bookId,
     required String newImgPath,
   }) {
-    Rx.fromCallable(() => _bookInterface.updateBookImage(
-          bookId: bookId,
-          newImgPath: newImgPath,
-        )).listen((_) => print('BOOK_BLOC update book img'));
+    Rx.fromCallable(
+      () => _bookInterface.updateBookImage(
+        bookId: bookId,
+        newImgPath: newImgPath,
+      ),
+    ).listen((_) => print('BOOK_BLOC update book img'));
   }
 
   updateBook({
@@ -69,20 +71,23 @@ class BookBloc {
     int? readPages,
     BookStatus? status,
   }) {
-    Rx.fromCallable(() => _bookInterface.updateBook(
-          bookId: bookId,
-          author: author,
-          title: title,
-          category: category != null ? category : null,
-          pages: pages,
-          readPages: readPages,
-          status: status != null ? status : null,
-        )).listen((_) => print('BOOK_BLOC update book'));
+    Rx.fromCallable(
+      () => _bookInterface.updateBook(
+        bookId: bookId,
+        author: author,
+        title: title,
+        category: category != null ? category : null,
+        pages: pages,
+        readPages: readPages,
+        status: status != null ? status : null,
+      ),
+    ).listen((_) => print('BOOK_BLOC update book'));
   }
 
   deleteBook({required String bookId}) {
-    Rx.fromCallable(() => _bookInterface.deleteBook(bookId: bookId))
-        .listen((_) => print('BOOK_BLOC delete book'));
+    Rx.fromCallable(
+      () => _bookInterface.deleteBook(bookId: bookId),
+    ).listen((_) => print('BOOK_BLOC delete book'));
   }
 
   dispose() {

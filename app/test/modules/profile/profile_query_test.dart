@@ -1,6 +1,6 @@
-import 'package:app/common/enum/avatar_type.dart';
-import 'package:app/core/user/user_bloc.dart';
 import 'package:app/core/user/user_query.dart';
+import 'package:app/interfaces/avatar_interface.dart';
+import 'package:app/models/avatar_model.dart';
 import 'package:app/modules/profile/bloc/profile_query.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -11,10 +11,6 @@ void main() {
   late ProfileQuery query;
   String fakeUsername = 'Jack Spark';
   String fakeEmail = 'jack@example.com';
-  AvatarInfo fakeAvatarInfo = AvatarInfo(
-    avatarUrl: 'avatar/url',
-    avatarType: AvatarType.custom,
-  );
 
   setUp(() {
     when(() => userQuery.username$).thenAnswer(
@@ -23,8 +19,8 @@ void main() {
     when(() => userQuery.email$).thenAnswer(
       (_) => Stream.value(fakeEmail),
     );
-    when(() => userQuery.avatarInfo$).thenAnswer(
-      (_) => Stream.value(fakeAvatarInfo),
+    when(() => userQuery.avatar$).thenAnswer(
+      (_) => Stream.value(StandardAvatarRed()),
     );
 
     query = ProfileQuery(userQuery: userQuery);
@@ -46,9 +42,9 @@ void main() {
     expect(email, fakeEmail);
   });
 
-  test('avatar info', () async {
-    AvatarInfo? avatarInfo = await query.avatarInfo$.first;
+  test('avatar', () async {
+    AvatarInterface? avatar = await query.avatar$.first;
 
-    expect(avatarInfo, fakeAvatarInfo);
+    expect(avatar, StandardAvatarRed());
   });
 }

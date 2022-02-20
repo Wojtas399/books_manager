@@ -1,9 +1,10 @@
-import 'package:app/common/enum/avatar_type.dart';
 import 'package:app/core/auth/auth_bloc.dart';
+import 'package:app/models/avatar_model.dart';
 import 'package:app/models/http_result.model.dart';
-import 'package:app/models/operation_status.dart';
+import 'package:app/models/operation_status.model.dart';
 import 'package:app/modules/sign_up/sign_up_bloc.dart';
 import 'package:app/modules/sign_up/sign_up_event.dart';
+import 'package:app/modules/sign_up/sing_up_state.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -56,17 +57,6 @@ void main() {
   );
 
   blocTest(
-    'password confirmation changed',
-    build: () => signUpBloc,
-    act: (SignUpBloc bloc) {
-      bloc.add(SignUpPasswordConfirmationChanged(passwordConfirmation: 'p123'));
-    },
-    verify: (SignUpBloc bloc) {
-      expect(bloc.state.passwordConfirmation, 'p123');
-    },
-  );
-
-  blocTest(
     'password changed',
     build: () => signUpBloc,
     act: (SignUpBloc bloc) {
@@ -74,6 +64,17 @@ void main() {
     },
     verify: (SignUpBloc bloc) {
       expect(bloc.state.password, 'password123');
+    },
+  );
+
+  blocTest(
+    'password confirmation changed',
+    build: () => signUpBloc,
+    act: (SignUpBloc bloc) {
+      bloc.add(SignUpPasswordConfirmationChanged(passwordConfirmation: 'p123'));
+    },
+    verify: (SignUpBloc bloc) {
+      expect(bloc.state.passwordConfirmation, 'p123');
     },
   );
 
@@ -108,7 +109,7 @@ void main() {
           username: 'username',
           email: 'email',
           password: 'password',
-          avatarPath: 'customAvatarPath',
+          avatar: CustomAvatar(imgFilePathFromDevice: 'custom/avatar/path'),
         ),
       ).thenAnswer((_) => Stream.value(HttpSuccess()));
     },
@@ -118,7 +119,7 @@ void main() {
         email: 'email',
         password: 'password',
         avatarType: AvatarType.custom,
-        customAvatarPath: 'customAvatarPath',
+        customAvatarPath: 'custom/avatar/path',
       ));
     },
     verify: (SignUpBloc bloc) {
@@ -127,7 +128,7 @@ void main() {
           username: 'username',
           email: 'email',
           password: 'password',
-          avatarPath: 'customAvatarPath',
+          avatar: CustomAvatar(imgFilePathFromDevice: 'custom/avatar/path'),
         ),
       ).called(1);
       expect(bloc.state.signUpStatus, OperationSuccessful());
@@ -143,7 +144,7 @@ void main() {
           username: 'username',
           email: 'email',
           password: 'password',
-          avatarPath: 'customAvatarPath',
+          avatar: CustomAvatar(imgFilePathFromDevice: 'custom/avatar/path'),
         ),
       ).thenAnswer((_) => Stream.value(HttpFailure(message: 'Error!')));
     },
@@ -153,7 +154,7 @@ void main() {
         email: 'email',
         password: 'password',
         avatarType: AvatarType.custom,
-        customAvatarPath: 'customAvatarPath',
+        customAvatarPath: 'custom/avatar/path',
       ));
     },
     verify: (SignUpBloc bloc) {
@@ -162,7 +163,7 @@ void main() {
           username: 'username',
           email: 'email',
           password: 'password',
-          avatarPath: 'customAvatarPath',
+          avatar: CustomAvatar(imgFilePathFromDevice: 'custom/avatar/path'),
         ),
       ).called(1);
       expect(bloc.state.signUpStatus, OperationFailed('Error!'));

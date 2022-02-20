@@ -1,6 +1,7 @@
 import 'package:app/core/auth/auth_bloc.dart';
+import 'package:app/interfaces/auth_interface.dart';
+import 'package:app/models/avatar_model.dart';
 import 'package:app/models/http_result.model.dart';
-import 'package:app/repositories/auth_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -23,8 +24,12 @@ void main() {
       () => authInterface.signIn(email: 'email', password: 'password'),
     ).thenAnswer((_) async => '');
 
-    HttpResult result =
-        await bloc.signIn(email: 'email', password: 'password').first;
+    HttpResult result = await bloc
+        .signIn(
+          email: 'email',
+          password: 'password',
+        )
+        .first;
 
     expect(result, HttpSuccess());
   });
@@ -34,8 +39,12 @@ void main() {
       () => authInterface.signIn(email: 'email', password: 'password'),
     ).thenAnswer((_) async => throw 'Error!');
 
-    HttpResult result =
-        await bloc.signIn(email: 'email', password: 'password').first;
+    HttpResult result = await bloc
+        .signIn(
+          email: 'email',
+          password: 'password',
+        )
+        .first;
 
     expect(result, HttpFailure(message: 'Error!'));
   });
@@ -46,7 +55,7 @@ void main() {
         username: 'username',
         email: 'email',
         password: 'password',
-        avatar: 'avatar',
+        avatar: StandardAvatarRed(),
       ),
     ).thenAnswer((_) async => '');
 
@@ -55,7 +64,7 @@ void main() {
           username: 'username',
           email: 'email',
           password: 'password',
-          avatarPath: 'avatar',
+          avatar: StandardAvatarRed(),
         )
         .first;
 
@@ -68,7 +77,7 @@ void main() {
         username: 'username',
         email: 'email',
         password: 'password',
-        avatar: 'avatar',
+        avatar: StandardAvatarRed(),
       ),
     ).thenAnswer((_) async => throw 'Error!');
 
@@ -77,7 +86,7 @@ void main() {
           username: 'username',
           email: 'email',
           password: 'password',
-          avatarPath: 'avatar',
+          avatar: StandardAvatarRed(),
         )
         .first;
 

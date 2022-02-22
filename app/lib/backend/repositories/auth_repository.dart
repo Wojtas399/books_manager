@@ -4,11 +4,15 @@ import 'package:app/interfaces/auth_interface.dart';
 import 'package:app/interfaces/avatar_interface.dart';
 
 class AuthRepository implements AuthInterface {
-  final AvatarService _avatarService = new AvatarService();
   late final AuthService _authService;
+  late final AvatarService _avatarService;
 
-  AuthRepository({required AuthService authService}) {
+  AuthRepository({
+    required AuthService authService,
+    required AvatarService avatarService,
+  }) {
     _authService = authService;
+    _avatarService = avatarService;
   }
 
   @override

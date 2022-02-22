@@ -5,11 +5,16 @@ import 'package:app/interfaces/user_interface.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserRepository extends UserInterface {
-  final AvatarService _avatarService = new AvatarService();
-  UserService _userService;
+  late final UserService _userService;
+  late final AvatarService _avatarService;
 
-  UserRepository({required UserService userService})
-      : _userService = userService;
+  UserRepository({
+    required UserService userService,
+    required AvatarService avatarService,
+  }) {
+    _userService = userService;
+    _avatarService = avatarService;
+  }
 
   @override
   Stream<DocumentSnapshot>? subscribeUserData() {

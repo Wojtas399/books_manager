@@ -92,4 +92,12 @@ void main() {
 
     expect(result, HttpFailure(message: 'Error!'));
   });
+
+  test('sign out', () async {
+    when(() => authInterface.logOut()).thenAnswer((_) async => '');
+
+    await bloc.signOut();
+
+    verify(() => authInterface.logOut()).called(1);
+  });
 }

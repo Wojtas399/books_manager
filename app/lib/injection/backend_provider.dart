@@ -1,3 +1,4 @@
+import 'package:app/backend/services/avatar_service.dart';
 import 'package:app/backend/services/user_service.dart';
 import 'package:app/interfaces/auth_interface.dart';
 import 'package:app/backend/services/auth_service.dart';
@@ -15,11 +16,17 @@ import 'package:app/backend/repositories/user_repository.dart';
 
 class BackendProvider {
   static AuthInterface provideAuthInterface() {
-    return AuthRepository(authService: AuthService());
+    return AuthRepository(
+      authService: AuthService(),
+      avatarService: AvatarService(),
+    );
   }
 
   static UserInterface provideUserInterface() {
-    return UserRepository(userService: UserService());
+    return UserRepository(
+      userService: UserService(),
+      avatarService: AvatarService(),
+    );
   }
 
   static BookInterface provideBookInterface() {

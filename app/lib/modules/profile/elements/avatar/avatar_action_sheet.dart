@@ -3,8 +3,8 @@ import 'package:app/widgets/action_sheet/custom_action_sheet_item.dart';
 import 'package:flutter/material.dart';
 import 'avatar_controller.dart';
 
-class AvatarActionSheet extends StatelessWidget {
-  const AvatarActionSheet();
+class AvatarChoiceOptionsActionSheet extends StatelessWidget {
+  const AvatarChoiceOptionsActionSheet();
 
   @override
   Widget build(BuildContext context) {
@@ -15,14 +15,14 @@ class AvatarActionSheet extends StatelessWidget {
           text: 'Z galerii',
           icon: Icons.image_outlined,
           onTap: () {
-            Navigator.pop(context, AvatarActionSheetResult.fromGallery);
+            Navigator.pop(context, AvatarChoiceOptions.fromGallery);
           },
         ),
         CustomActionSheetItem(
           text: 'Podstawowy avatar',
           icon: Icons.book_outlined,
           onTap: () {
-            Navigator.pop(context, AvatarActionSheetResult.basicAvatar);
+            Navigator.pop(context, AvatarChoiceOptions.basicAvatar);
           },
         ),
       ],

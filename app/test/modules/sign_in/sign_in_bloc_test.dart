@@ -1,6 +1,6 @@
 import 'package:app/core/auth/auth_bloc.dart';
-import 'package:app/core/form_submission_status.dart';
 import 'package:app/models/http_result.model.dart';
+import 'package:app/models/operation_status.model.dart';
 import 'package:app/modules/sign_in/sign_in_actions.dart';
 import 'package:app/modules/sign_in/sign_in_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';
@@ -44,7 +44,7 @@ void main() {
   );
 
   blocTest(
-    'sign in, success',
+    'sign in, successful',
     build: () => signInBloc,
     setUp: () {
       when(
@@ -58,17 +58,17 @@ void main() {
       verify(
         () => authBloc.signIn(email: 'email', password: 'password'),
       ).called(1);
-      expect(bloc.state.formStatus, isA<SubmissionSuccess>());
+      expect(bloc.state.signInStatus, OperationSuccessful());
     },
   );
 
   blocTest(
-    'sign in, failure',
+    'sign in, failed',
     build: () => signInBloc,
     setUp: () {
       when(
         () => authBloc.signIn(email: 'email', password: 'password'),
-      ).thenAnswer((_) => Stream.value(HttpFailure()));
+      ).thenAnswer((_) => Stream.value(HttpFailure(message: 'Error!')));
     },
     act: (SignInBloc bloc) {
       bloc.add(SignInSubmitted(email: 'email', password: 'password'));
@@ -77,7 +77,10 @@ void main() {
       verify(
         () => authBloc.signIn(email: 'email', password: 'password'),
       ).called(1);
-      expect(bloc.state.formStatus, isA<SubmissionFailed>());
+      expect(
+        bloc.state.signInStatus,
+        OperationFailed('Podano niepoprawny adres e-mail lub hasło...'),
+      );
     },
   );
 }

@@ -1,15 +1,14 @@
-import 'package:app/common/enum/avatar_type.dart';
-import 'package:app/core/user/user_bloc.dart';
 import 'package:app/core/user/user_model.dart';
 import 'package:app/core/user/user_query.dart';
+import 'package:app/interfaces/avatar_interface.dart';
+import 'package:app/models/avatar_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   LoggedUser loggedUser = LoggedUser(
     username: 'username',
     email: 'email',
-    avatarType: AvatarType.custom,
-    avatarUrl: 'avatarUrl',
+    avatar: StandardAvatarRed(),
   );
   late UserQuery query;
 
@@ -29,15 +28,9 @@ void main() {
     expect(email, loggedUser.email);
   });
 
-  test('avatar info', () async {
-    AvatarInfo? avatarInfo = await query.avatarInfo$.first;
+  test('avatar', () async {
+    AvatarInterface? avatar = await query.avatar$.first;
 
-    expect(
-      avatarInfo,
-      AvatarInfo(
-        avatarUrl: loggedUser.avatarUrl,
-        avatarType: loggedUser.avatarType,
-      ),
-    );
+    expect(avatar, StandardAvatarRed());
   });
 }

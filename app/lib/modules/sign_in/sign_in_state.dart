@@ -1,27 +1,27 @@
-import 'package:app/core/form_submission_status.dart';
+import 'package:app/models/operation_status.model.dart';
 
 class SignInState {
   final String email;
   final String password;
-  final FormSubmissionStatus formStatus;
+  final OperationStatus signInStatus;
 
   bool get isDisabledButton => email.length == 0 || password.length == 0;
 
   SignInState({
     this.email = '',
     this.password = '',
-    this.formStatus = const InitialFormStatus(),
+    this.signInStatus = const InitialStatusOfOperation(),
   });
 
   SignInState copyWith({
     String? email,
     String? password,
-    FormSubmissionStatus? formStatus,
+    OperationStatus? signInStatus,
   }) {
     return SignInState(
       email: email ?? this.email,
       password: password ?? this.password,
-      formStatus: formStatus ?? this.formStatus,
+      signInStatus: signInStatus ?? InitialStatusOfOperation(),
     );
   }
 }

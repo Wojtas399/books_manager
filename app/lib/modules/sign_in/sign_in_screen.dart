@@ -5,7 +5,7 @@ import 'package:app/core/auth/auth_bloc.dart';
 import 'package:app/core/app.dart';
 import 'package:app/modules/sign_in/sign_in_form.dart';
 import 'package:flutter/material.dart';
-import 'package:app/core/form_submission_status.dart';
+import 'package:app/models/operation_status.model.dart';
 import 'package:app/modules/sign_in/sign_in_bloc.dart';
 import 'package:app/modules/sign_in/sign_in_state.dart';
 import 'package:app/widgets/app_bars/none_elevation_app_bar.dart';
@@ -55,13 +55,13 @@ class _SignInFormStatusListener extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<SignInBloc, SignInState>(
       listener: (context, state) {
-        final formStatus = state.formStatus;
-        if (formStatus is FormSubmitting) {
+        final signInStatus = state.signInStatus;
+        if (signInStatus is OperationLoading) {
           Dialogs.showLoadingDialog();
-        } else if (formStatus is SubmissionSuccess) {
+        } else if (signInStatus is OperationSuccessful) {
           _navigateToHome(context);
-        } else if (formStatus is SubmissionFailed) {
-          _showErrorInfo(context, formStatus.exception.toString());
+        } else if (signInStatus is OperationFailed) {
+          _showErrorInfo(context, signInStatus.errorMessage);
         }
       },
       child: child,

@@ -1,5 +1,5 @@
 import 'package:app/core/day/day_bloc.dart';
-import 'package:app/repositories/day_repository/day_interface.dart';
+import 'package:app/interfaces/day_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -13,30 +13,22 @@ void main() {
 
   tearDown(() => reset(dayInterface));
 
-  group('addPages', () {
-    setUp(() async {
-      await dayBloc.addPages(dayId: 'd1', bookId: 'b1', pagesToAdd: 30);
-    });
+  test('add pages', () async {
+    await dayBloc.addPages(dayId: 'd1', bookId: 'b1', pagesToAdd: 30);
 
-    test('should call add pages method from day repo', () {
-      verify(() => dayInterface.addPages(
-        dayId: 'd1',
-        bookId: 'b1',
-        pagesToAdd: 30,
-      )).called(1);
-    });
+    verify(
+      () => dayInterface.addPages(dayId: 'd1', bookId: 'b1', pagesToAdd: 30),
+    ).called(1);
   });
 
-  group('deletePages', () {
-    setUp(() async {
-      await dayBloc.deletePages(bookId: 'b1', pagesToDelete: 30);
-    });
+  test('delete pages', () async {
+    await dayBloc.deletePages(bookId: 'b1', pagesToDelete: 30);
 
-    test('should call delete pages method from day repo', () {
-      verify(() => dayInterface.deletePages(
+    verify(
+      () => dayInterface.deletePages(
         bookId: 'b1',
         pagesToDelete: 30,
-      )).called(1);
-    });
+      ),
+    ).called(1);
   });
 }

@@ -1,9 +1,8 @@
-import 'package:app/common/enum/avatar_type.dart';
 import 'package:app/common/ui/action_sheet.dart';
 import 'package:app/common/ui/dialogs.dart';
 import 'package:app/core/services/validation_service.dart';
-import 'package:app/core/user/user_bloc.dart';
 import 'package:app/modules/profile/bloc/profile_bloc.dart';
+import 'package:app/interfaces/avatar_interface.dart';
 import 'package:flutter/cupertino.dart';
 import 'elements/avatar/avatar_action_sheet.dart';
 import 'elements/avatar/avatar_controller.dart';
@@ -13,19 +12,19 @@ import 'elements/user_info/email_dialog.dart';
 import 'elements/user_info/password_dialog.dart';
 
 class ProfileScreenDialogs {
-  Future<AvatarActionSheetResult?> askForAvatarOperation() async {
-    return await ActionSheet.showActionSheet(AvatarActionSheet());
+  Future<AvatarChoiceOptions?> askForAvatarChoiceOption() async {
+    return await ActionSheet.showActionSheet(AvatarChoiceOptionsActionSheet());
   }
 
   Future<bool?> askForNewAvatarConfirmation(
-    AvatarInfo avatarInfo,
+    AvatarInterface avatar,
   ) async {
     return await Dialogs.showCustomDialog(
-      child: NewAvatarPreview(avatarInfo: avatarInfo),
+      child: NewAvatarPreview(avatar: avatar),
     );
   }
 
-  Future<AvatarType?> askForBasicAvatar() async {
+  Future<StandardAvatarInterface?> askForStandardAvatar() async {
     return await Dialogs.showCustomDialog(child: ChoseBasicAvatarDialog());
   }
 

@@ -1,6 +1,7 @@
 import 'package:app/core/auth/auth_bloc.dart';
+import 'package:app/interfaces/auth_interface.dart';
+import 'package:app/models/avatar_model.dart';
 import 'package:app/models/http_result.model.dart';
-import 'package:app/repositories/auth/auth_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -23,10 +24,14 @@ void main() {
       () => authInterface.signIn(email: 'email', password: 'password'),
     ).thenAnswer((_) async => '');
 
-    HttpResult result =
-        await bloc.signIn(email: 'email', password: 'password').first;
+    HttpResult result = await bloc
+        .signIn(
+          email: 'email',
+          password: 'password',
+        )
+        .first;
 
-    expect(result, isA<HttpSuccess>());
+    expect(result, HttpSuccess());
   });
 
   test('sign in, failure', () async {
@@ -34,9 +39,65 @@ void main() {
       () => authInterface.signIn(email: 'email', password: 'password'),
     ).thenAnswer((_) async => throw 'Error!');
 
-    HttpResult result =
-        await bloc.signIn(email: 'email', password: 'password').first;
+    HttpResult result = await bloc
+        .signIn(
+          email: 'email',
+          password: 'password',
+        )
+        .first;
 
-    expect(result, isA<HttpFailure>());
+    expect(result, HttpFailure(message: 'Error!'));
+  });
+
+  test('sign up, success', () async {
+    when(
+      () => authInterface.signUp(
+        username: 'username',
+        email: 'email',
+        password: 'password',
+        avatar: StandardAvatarRed(),
+      ),
+    ).thenAnswer((_) async => '');
+
+    HttpResult result = await bloc
+        .signUp(
+          username: 'username',
+          email: 'email',
+          password: 'password',
+          avatar: StandardAvatarRed(),
+        )
+        .first;
+
+    expect(result, HttpSuccess());
+  });
+
+  test('sign up, failure', () async {
+    when(
+      () => authInterface.signUp(
+        username: 'username',
+        email: 'email',
+        password: 'password',
+        avatar: StandardAvatarRed(),
+      ),
+    ).thenAnswer((_) async => throw 'Error!');
+
+    HttpResult result = await bloc
+        .signUp(
+          username: 'username',
+          email: 'email',
+          password: 'password',
+          avatar: StandardAvatarRed(),
+        )
+        .first;
+
+    expect(result, HttpFailure(message: 'Error!'));
+  });
+
+  test('sign out', () async {
+    when(() => authInterface.logOut()).thenAnswer((_) async => '');
+
+    await bloc.signOut();
+
+    verify(() => authInterface.logOut()).called(1);
   });
 }

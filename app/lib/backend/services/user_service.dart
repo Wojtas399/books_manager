@@ -1,54 +1,13 @@
-import 'dart:io';
+import 'package:app/backend/services/avatar_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
-class AuthService {
+class UserService {
+  final AvatarService _avatarService = new AvatarService();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  Future<String> signIn({
-    required String email,
-    required String password,
-  }) async {
-    try {
-      await _firebaseAuth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      return 'Signed in';
-    } on FirebaseAuthException catch (error) {
-      throw error.message.toString();
-    }
-  }
-
-  Future<String> signUp({
-    required String username,
-    required String email,
-    required String password,
-    required String avatar,
-  }) async {
-    try {
-      UserCredential credential =
-          await _firebaseAuth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      String? userId = credential.user?.uid;
-      if (userId == null) {
-        throw 'Something went wrong with user registration.';
-      }
-      String newAvatarPath = await _addNewAvatar(avatar);
-      await _firestore
-          .collection('Users')
-          .doc(userId)
-          .set({'avatarPath': newAvatarPath, 'userName': username});
-      return 'success';
-    } on FirebaseAuthException catch (error) {
-      throw error.message.toString();
-    }
-  }
 
   Stream<DocumentSnapshot>? subscribeUserData() {
     final User? user = _firebaseAuth.currentUser;
@@ -70,12 +29,18 @@ class AuthService {
     return await _storage.ref(avatarPath).getDownloadURL();
   }
 
-  Future<String> changeAvatar({required String avatar}) async {
+  Future<String> changeAvatar({
+    required AvatarType type,
+    String? avatarImgPath,
+  }) async {
     final User? user = _firebaseAuth.currentUser;
     if (user != null) {
       try {
         await _deleteCurrentAvatar(user);
-        String newAvatarPath = await _addNewAvatar(avatar);
+        String newAvatarPath = await _avatarService.saveAvatarInDb(
+          type: type,
+          avatarImgFilePath: avatarImgPath,
+        );
         await _firestore
             .collection('Users')
             .doc(user.uid)
@@ -144,15 +109,6 @@ class AuthService {
     }
   }
 
-  Future<String> logOut() async {
-    try {
-      await _firebaseAuth.signOut();
-      return 'success';
-    } on FirebaseAuthException catch (error) {
-      throw error.message.toString();
-    }
-  }
-
   Future<String> _deleteCurrentAvatar(User user) async {
     final currentUserDoc =
         await _firestore.collection('Users').doc(user.uid).get();
@@ -175,28 +131,6 @@ class AuthService {
       }
     } else {
       throw 'user doc does not exist';
-    }
-  }
-
-  Future<String> _addNewAvatar(String avatar) async {
-    final User? user = _firebaseAuth.currentUser;
-    if (user != null) {
-      try {
-        String avatarPath = '';
-        List<String> imgFileArr = avatar.split('/');
-        if (imgFileArr.length > 1) {
-          avatarPath = user.uid + '/' + imgFileArr[imgFileArr.length - 1];
-          File imgFile = File(avatar);
-          await _storage.ref().child(avatarPath).putFile(imgFile);
-        } else {
-          avatarPath = 'avatars/' + avatar;
-        }
-        return avatarPath;
-      } catch (error) {
-        throw error.toString();
-      }
-    } else {
-      throw 'user does not exist';
     }
   }
 

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:app/core/book/book_bloc.dart';
-import 'package:app/repositories/book_repository/book_interface.dart';
+import 'package:app/interfaces/book_interface.dart';
 import 'package:app/core/book/book_model.dart';
 import 'package:app/core/services/book_category_service.dart';
 import 'package:app/core/services/book_status_service.dart';

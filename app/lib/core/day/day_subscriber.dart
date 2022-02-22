@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:app/repositories/day_repository/day_interface.dart';
+import 'package:app/interfaces/day_interface.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rxdart/rxdart.dart';
 import 'day_model.dart';

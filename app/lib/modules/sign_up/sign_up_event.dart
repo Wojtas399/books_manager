@@ -1,55 +1,55 @@
-import 'package:app/common/enum/avatar_type.dart';
+import 'package:app/modules/sign_up/sing_up_state.dart';
 
-abstract class SignUpEvent {}
+abstract class SignUpAction {}
 
-class SignUpUsernameChanged extends SignUpEvent {
+class SignUpUsernameChanged extends SignUpAction {
   final String username;
 
   SignUpUsernameChanged({required this.username});
 }
 
-class SignUpEmailChanged extends SignUpEvent {
+class SignUpEmailChanged extends SignUpAction {
   final String email;
 
   SignUpEmailChanged({required this.email});
 }
 
-class SignUpPasswordChanged extends SignUpEvent {
+class SignUpPasswordChanged extends SignUpAction {
   final String password;
 
   SignUpPasswordChanged({required this.password});
 }
 
-class SignUpPasswordConfirmationChanged extends SignUpEvent {
+class SignUpPasswordConfirmationChanged extends SignUpAction {
   final String passwordConfirmation;
 
   SignUpPasswordConfirmationChanged({required this.passwordConfirmation});
 }
 
-class SignUpAvatarChanged extends SignUpEvent {
-  final AvatarType type;
+class SignUpAvatarTypeChanged extends SignUpAction {
+  final AvatarType avatarType;
 
-  SignUpAvatarChanged({required this.type});
+  SignUpAvatarTypeChanged({required this.avatarType});
 }
 
-class SignUpCustomAvatarChanged extends SignUpEvent {
-  final String image;
+class SignUpCustomAvatarPathChanged extends SignUpAction {
+  final String imagePath;
 
-  SignUpCustomAvatarChanged({required this.image});
+  SignUpCustomAvatarPathChanged({required this.imagePath});
 }
 
-class SignUpSubmitted extends SignUpEvent {
+class SignUpSubmitted extends SignUpAction {
   final String username;
   final String email;
   final String password;
-  final AvatarType chosenAvatar;
-  final String customAvatar;
+  final AvatarType avatarType;
+  final String customAvatarPath;
 
   SignUpSubmitted({
     required this.username,
     required this.email,
     required this.password,
-    required this.chosenAvatar,
-    required this.customAvatar,
+    required this.avatarType,
+    required this.customAvatarPath,
   });
 }

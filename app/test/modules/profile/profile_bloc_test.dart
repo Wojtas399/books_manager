@@ -1,5 +1,6 @@
 import 'package:app/core/user/user_bloc.dart';
 import 'package:app/core/user/user_query.dart';
+import 'package:app/models/avatar_model.dart';
 import 'package:app/modules/profile/bloc/profile_actions.dart';
 import 'package:app/modules/profile/bloc/profile_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';
@@ -26,12 +27,12 @@ void main() {
     build: () => bloc,
     act: (ProfileBloc profileBloc) {
       profileBloc.add(ProfileActionsChangeAvatar(
-        avatar: 'new/avatar/file',
+        avatar: StandardAvatarBlue(),
       ));
     },
     verify: (_) {
       verify(
-        () => userBloc.updateAvatar('new/avatar/file'),
+        () => userBloc.updateAvatar(StandardAvatarBlue()),
       ).called(1);
     },
   );
@@ -40,7 +41,9 @@ void main() {
     'change username',
     build: () => bloc,
     act: (ProfileBloc profileBloc) {
-      profileBloc.add(ProfileActionsChangeUsername(newUsername: 'Michael Act'));
+      profileBloc.add(ProfileActionsChangeUsername(
+        newUsername: 'Michael Act',
+      ));
     },
     verify: (_) {
       verify(

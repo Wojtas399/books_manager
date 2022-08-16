@@ -8,7 +8,6 @@ import 'package:app/modules/library/library_controller.dart';
 import 'package:app/modules/library/library_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:provider/provider.dart';
 import 'bloc/library_query.dart';
 import 'books_list_item.dart';
@@ -63,34 +62,35 @@ class _SearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    FloatingSearchBarController searchBarController =
-        FloatingSearchBarController();
-
-    return FloatingSearchBar(
-      hint: 'Szukaj...',
-      controller: searchBarController,
-      onQueryChanged: (String value) {
-        controller.onQueryChanged(value);
-      },
-      onSubmitted: (String value) {
-        controller.onQuerySubmitted(value);
-        searchBarController.close();
-      },
-      clearQueryOnClose: false,
-      automaticallyImplyBackButton: true,
-      margins: EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
-      builder: (BuildContext context, Animation<double> transition) {
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Material(
-            color: Colors.white,
-            child: _MatchingBooksList(
-              booksInfo$: controller.matchingBooksInSearchEngine$,
-            ),
-          ),
-        );
-      },
-    );
+    // FloatingSearchBarController searchBarController =
+    //     FloatingSearchBarController();
+    //
+    // return FloatingSearchBar(
+    //   hint: 'Szukaj...',
+    //   controller: searchBarController,
+    //   onQueryChanged: (String value) {
+    //     controller.onQueryChanged(value);
+    //   },
+    //   onSubmitted: (String value) {
+    //     controller.onQuerySubmitted(value);
+    //     searchBarController.close();
+    //   },
+    //   clearQueryOnClose: false,
+    //   automaticallyImplyBackButton: true,
+    //   margins: EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
+    //   builder: (BuildContext context, Animation<double> transition) {
+    //     return ClipRRect(
+    //       borderRadius: BorderRadius.circular(8),
+    //       child: Material(
+    //         color: Colors.white,
+    //         child: _MatchingBooksList(
+    //           booksInfo$: controller.matchingBooksInSearchEngine$,
+    //         ),
+    //       ),
+    //     );
+    //   },
+    // );
+    return SizedBox();
   }
 }
 

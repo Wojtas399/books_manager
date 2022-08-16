@@ -3,7 +3,6 @@ import 'package:app/core/day/day_query.dart';
 import 'package:app/modules/calendar/elements/day_info/day_info_book_item.dart';
 import 'package:app/modules/calendar/elements/day_info/day_info_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:provider/provider.dart';
 
 class DayInfo extends StatelessWidget {
@@ -19,24 +18,26 @@ class DayInfo extends StatelessWidget {
       bookQuery: context.read<BookQuery>(),
     );
 
-    return SlidingUpPanel(
-      borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(24.0),
-        topRight: Radius.circular(24.0),
-      ),
-      minHeight: 96,
-      header: Container(
-        width: 390,
-        child: Column(
-          children: [
-            Icon(Icons.drag_handle_rounded),
-            SizedBox(height: 8),
-            _ShortInfo(dayId: dayId, booksAmount$: controller.booksAmount$),
-          ],
-        ),
-      ),
-      panel: _Panel(books$: controller.dayInfo$),
-    );
+    // return SlidingUpPanel(
+    //   borderRadius: BorderRadius.only(
+    //     topLeft: Radius.circular(24.0),
+    //     topRight: Radius.circular(24.0),
+    //   ),
+    //   minHeight: 96,
+    //   header: Container(
+    //     width: 390,
+    //     child: Column(
+    //       children: [
+    //         Icon(Icons.drag_handle_rounded),
+    //         SizedBox(height: 8),
+    //         _ShortInfo(dayId: dayId, booksAmount$: controller.booksAmount$),
+    //       ],
+    //     ),
+    //   ),
+    //   panel: _Panel(books$: controller.dayInfo$),
+    // );
+
+    return SizedBox();
   }
 }
 

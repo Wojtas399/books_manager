@@ -13,3 +13,5 @@ class SignInEventPasswordChanged extends SignInEvent {
 
   SignInEventPasswordChanged({required this.password});
 }
+
+class SignInEventSubmit extends SignInEvent {}

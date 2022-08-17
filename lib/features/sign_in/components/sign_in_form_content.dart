@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../config/themes/app_colors.dart';
 import '../../../interfaces/factories/text_factory_interface.dart';
+import '../../initial_home/bloc/initial_home_bloc.dart';
 import 'sign_in_inputs.dart';
 import 'sign_in_submit_button.dart';
 
@@ -47,22 +48,38 @@ class _AlternativeOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textStyle = TextStyle(
+      fontSize: 12,
+      color: AppColors.grey,
+    );
     return Column(
       children: [
-        Text(
-          'Zapomniałeś hasła?',
-          style: TextStyle(
-            fontSize: 12,
-            color: AppColors.grey,
+        GestureDetector(
+          onTap: () => _onForgotPasswordPressed(context),
+          child: Text(
+            'Zapomniałeś hasła?',
+            style: textStyle,
           ),
         ),
         const SizedBox(height: 12),
-        Text('Nie masz jeszcze konta? Zarejestruj się!',
-            style: TextStyle(
-              fontSize: 12,
-              color: AppColors.grey,
-            )),
+        GestureDetector(
+          onTap: () => _onSignUpPressed(context),
+          child: Text(
+            'Nie masz jeszcze konta? Zarejestruj się!',
+            style: textStyle,
+          ),
+        ),
       ],
     );
+  }
+
+  void _onForgotPasswordPressed(BuildContext context) {
+    //TODO
+  }
+
+  void _onSignUpPressed(BuildContext context) {
+    context.read<InitialHomeBloc>().add(
+          InitialHomeEventChangeMode(mode: InitialHomeMode.signUp),
+        );
   }
 }

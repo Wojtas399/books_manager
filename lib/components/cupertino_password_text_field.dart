@@ -7,12 +7,14 @@ class CupertinoPasswordTextField extends StatefulWidget {
   final String? placeholder;
   final Icon? icon;
   final Color? backgroundColor;
+  final Function(String)? onChanged;
 
   const CupertinoPasswordTextField({
     super.key,
     this.placeholder,
     this.icon,
     this.backgroundColor,
+    this.onChanged,
   });
 
   @override
@@ -31,7 +33,7 @@ class _CupertinoPasswordTextFieldState
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(
+          Expanded(
             child: CupertinoTextFormFieldRow(
               placeholder: widget.placeholder,
               prefix: widget.icon,
@@ -39,10 +41,12 @@ class _CupertinoPasswordTextFieldState
               obscureText: !isVisible,
               obscuringCharacter: '*',
               placeholderStyle: TextStyle(color: AppColors.grey),
+              onChanged: widget.onChanged,
             ),
           ),
           CupertinoButton(
             onPressed: _onVisibilityIconPressed,
+            padding: const EdgeInsets.only(right: 8),
             child: Icon(
               isVisible ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
             ),

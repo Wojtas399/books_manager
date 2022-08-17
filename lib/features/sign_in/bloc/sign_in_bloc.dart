@@ -17,6 +17,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         ) {
     on<SignInEventEmailChanged>(_emailChanged);
     on<SignInEventPasswordChanged>(_passwordChanged);
+    on<SignInEventSubmit>(_submit);
   }
 
   void _emailChanged(
@@ -35,5 +36,12 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     emit(state.copyWith(
       password: event.password,
     ));
+  }
+
+  void _submit(
+    SignInEventSubmit event,
+    Emitter<SignInState> emit,
+  ) {
+    //TODO
   }
 }

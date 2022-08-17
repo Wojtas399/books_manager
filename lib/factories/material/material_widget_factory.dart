@@ -31,12 +31,14 @@ class MaterialWidgetFactory implements WidgetFactoryInterface {
     Color? backgroundColor,
     bool isPassword = false,
     TextInputType? keyboardType,
+    Function(String)? onChanged,
   }) {
     if (isPassword) {
       return MaterialPasswordTextField(
         placeholder: placeholder,
         icon: icon,
         backgroundColor: backgroundColor,
+        onChanged: onChanged,
       );
     }
     return MaterialTextFieldBackground(
@@ -47,13 +49,14 @@ class MaterialWidgetFactory implements WidgetFactoryInterface {
           placeholder: placeholder,
         ),
         keyboardType: keyboardType,
+        onChanged: onChanged,
       ),
     );
   }
 
   @override
   Widget createButton({
-    required VoidCallback onPressed,
+    required VoidCallback? onPressed,
     required String text,
   }) {
     return SizedBox(

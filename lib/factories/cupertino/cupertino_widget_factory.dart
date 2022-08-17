@@ -31,12 +31,14 @@ class CupertinoWidgetFactory implements WidgetFactoryInterface {
     Color? backgroundColor,
     bool isPassword = false,
     TextInputType? keyboardType,
+    Function(String)? onChanged,
   }) {
     if (isPassword) {
       return CupertinoPasswordTextField(
         placeholder: placeholder,
         icon: icon,
         backgroundColor: backgroundColor,
+        onChanged: onChanged,
       );
     }
     return CupertinoTextFieldBackground(
@@ -47,13 +49,14 @@ class CupertinoWidgetFactory implements WidgetFactoryInterface {
         padding: const EdgeInsets.all(10),
         placeholderStyle: TextStyle(color: AppColors.grey),
         keyboardType: keyboardType,
+        onChanged: onChanged,
       ),
     );
   }
 
   @override
   Widget createButton({
-    required VoidCallback onPressed,
+    required VoidCallback? onPressed,
     required String text,
   }) {
     return SizedBox(

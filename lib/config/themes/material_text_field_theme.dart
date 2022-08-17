@@ -13,7 +13,10 @@ class MaterialTextFieldTheme {
     return InputDecoration(
       hintText: placeholder,
       prefixIcon: icon,
-      contentPadding: const EdgeInsets.all(16),
+      contentPadding: const EdgeInsets.symmetric(
+        vertical: 16,
+        horizontal: 4,
+      ),
       border: UnderlineInputBorder(
         borderSide: BorderSide(
           color: Colors.black.withOpacity(0.3),
@@ -28,13 +31,16 @@ class MaterialTextFieldTheme {
       focusColor: AppColors.darkGreen,
       errorMaxLines: 2,
       suffixIcon: isPassword
-          ? IconButton(
-              icon: Icon(
-                isVisiblePassword == false
-                    ? Icons.visibility
-                    : Icons.visibility_off,
+          ? SizedBox(
+              width: 50,
+              child: IconButton(
+                icon: Icon(
+                  isVisiblePassword == false
+                      ? Icons.visibility
+                      : Icons.visibility_off,
+                ),
+                onPressed: onVisibilityIconPressed,
               ),
-              onPressed: onVisibilityIconPressed,
             )
           : null,
     );

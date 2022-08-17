@@ -14,10 +14,11 @@ abstract class WidgetFactoryInterface {
     Color? backgroundColor,
     bool isPassword = false,
     TextInputType? keyboardType,
+    Function(String)? onChanged,
   });
 
   Widget createButton({
-    required VoidCallback onPressed,
+    required VoidCallback? onPressed,
     required String text,
   });
 }

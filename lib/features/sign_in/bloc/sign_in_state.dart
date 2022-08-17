@@ -15,6 +15,8 @@ class SignInState extends Equatable {
         password,
       ];
 
+  bool get isButtonDisabled => email.isEmpty || password.isEmpty;
+
   SignInState copyWith({
     String? email,
     String? password,

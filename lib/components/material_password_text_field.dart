@@ -7,12 +7,14 @@ class MaterialPasswordTextField extends StatefulWidget {
   final String? placeholder;
   final Icon? icon;
   final Color? backgroundColor;
+  final Function(String)? onChanged;
 
   const MaterialPasswordTextField({
     super.key,
     this.placeholder,
     this.icon,
     this.backgroundColor,
+    this.onChanged,
   });
 
   @override
@@ -37,6 +39,7 @@ class _MaterialPasswordTextFieldState extends State<MaterialPasswordTextField> {
           isVisiblePassword: isVisible,
           onVisibilityIconPressed: _onVisibilityIconPressed,
         ),
+        onChanged: widget.onChanged,
       ),
     );
   }

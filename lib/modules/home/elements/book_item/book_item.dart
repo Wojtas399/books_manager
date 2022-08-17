@@ -1,4 +1,4 @@
-import 'package:app/constants/theme.dart';
+import 'package:app/config/themes/app_colors.dart';
 import 'package:app/modules/home/bloc/home_bloc.dart';
 import 'package:app/modules/home/bloc/home_query.dart';
 import 'package:app/modules/home/elements/book_item/book_item_content.dart';

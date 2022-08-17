@@ -1,4 +1,4 @@
-import 'package:app/constants/theme.dart';
+import 'package:app/config/themes/app_colors.dart';
 import 'package:app/widgets/icons/large_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';

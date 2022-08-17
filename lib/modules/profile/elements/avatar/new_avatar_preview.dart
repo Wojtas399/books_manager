@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:app/constants/theme.dart';
+import 'package:app/config/themes/app_colors.dart';
 import 'package:app/interfaces/avatar_interface.dart';
 import 'package:app/widgets/app_bars/dialog_app_bar.dart';
 import 'package:app/widgets/avatars/avatar_background.dart';

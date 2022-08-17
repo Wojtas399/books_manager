@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:app/constants/theme.dart';
+import 'package:app/config/themes/app_colors.dart';
 
 class LoadingDialog extends StatelessWidget {
   @override

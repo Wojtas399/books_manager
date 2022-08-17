@@ -6,8 +6,5 @@ abstract class WidgetFactory {
     required Widget home,
   });
 
-  Widget createScaffold({
-    required Widget child,
-    String? appBarTitle,
-  });
+  Widget createScaffold({required Widget child});
 }

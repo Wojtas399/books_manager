@@ -1,5 +1,5 @@
 import 'package:app/common/ui/snack_bars.dart';
-import 'package:app/constants/theme.dart';
+import 'package:app/config/themes/app_colors.dart';
 import 'package:app/widgets/app_bars/dialog_app_bar.dart';
 import 'package:app/widgets/buttons/medium_red_button.dart';
 import 'package:app/widgets/buttons/medium_green_button.dart';

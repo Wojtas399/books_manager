@@ -1,5 +1,5 @@
 import 'package:app/constants/book_categories.dart';
-import 'package:app/constants/theme.dart';
+import 'package:app/config/themes/app_colors.dart';
 import 'package:app/core/book/book_model.dart';
 import 'package:app/core/services/book_category_service.dart';
 import 'package:app/modules/home/bloc/home_query.dart';

@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:app/config/themes/button_theme.dart';
-import 'package:app/constants/theme.dart';
+import 'package:app/config/themes/app_colors.dart';
 import 'package:app/widgets/buttons/medium_green_button.dart';
 import 'package:flutter/material.dart';
 

@@ -1,5 +1,5 @@
 import 'package:app/config/themes/button_theme.dart';
-import 'package:app/constants/theme.dart';
+import 'package:app/config/themes/app_colors.dart';
 import 'package:app/modules/sign_up/elements/inputs.dart';
 import 'package:app/modules/sign_up/sign_up_screen.dart';
 import 'package:flutter/material.dart';

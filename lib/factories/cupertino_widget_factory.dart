@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
+import '../config/themes/global_cupertino_theme.dart';
 import '../interfaces/widget_factory.dart';
 
 class CupertinoWidgetFactory implements WidgetFactory {
@@ -9,19 +10,12 @@ class CupertinoWidgetFactory implements WidgetFactory {
   }) {
     return CupertinoApp(
       title: title,
+      theme: GlobalCupertinoTheme.lightTheme,
       home: home,
     );
   }
 
-  Widget createScaffold({
-    required Widget child,
-    String? appBarTitle,
-  }) {
-    return CupertinoPageScaffold(
-      child: child,
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(appBarTitle ?? ''),
-      ),
-    );
+  Widget createScaffold({required Widget child}) {
+    return CupertinoPageScaffold(child: child);
   }
 }

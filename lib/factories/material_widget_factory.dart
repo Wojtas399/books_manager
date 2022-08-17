@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../config/themes/global_material_theme.dart';
 import '../interfaces/widget_factory.dart';
 
 class MaterialWidgetFactory implements WidgetFactory {
@@ -9,19 +10,12 @@ class MaterialWidgetFactory implements WidgetFactory {
   }) {
     return MaterialApp(
       title: title,
+      theme: GlobalMaterialTheme.lightTheme,
       home: home,
     );
   }
 
-  Widget createScaffold({
-    required Widget child,
-    String? appBarTitle,
-  }) {
-    return Scaffold(
-      body: child,
-      appBar: AppBar(
-        title: Text(appBarTitle ?? ''),
-      ),
-    );
+  Widget createScaffold({required Widget child}) {
+    return Scaffold(body: child);
   }
 }

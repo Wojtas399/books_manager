@@ -1,6 +1,6 @@
 import 'package:app/config/routes/start_routes.dart';
 import 'package:app/constants/route_paths/start_route_path.dart';
-import 'package:app/constants/theme.dart';
+import 'package:app/config/themes/app_colors.dart';
 import 'package:app/core/auth/auth_bloc.dart';
 import 'package:app/injection/backend_provider.dart';
 import 'package:app/interfaces/auth_interface.dart';

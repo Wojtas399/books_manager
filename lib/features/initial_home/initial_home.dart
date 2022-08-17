@@ -10,7 +10,6 @@ class InitialHome extends StatelessWidget {
   Widget build(BuildContext context) {
     final WidgetFactory widgetFactory = context.read<WidgetFactory>();
     return widgetFactory.createScaffold(
-      appBarTitle: 'Witaj w domu!',
       child: Center(
         child: Text('WOW'),
       ),

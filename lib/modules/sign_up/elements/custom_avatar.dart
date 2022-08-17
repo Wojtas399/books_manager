@@ -4,7 +4,7 @@ import 'package:app/core/services/image_service.dart';
 import 'package:app/widgets/avatars/avatar_background.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:app/constants/theme.dart';
+import 'package:app/config/themes/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../sign_up_bloc.dart';
 import '../sign_up_event.dart';

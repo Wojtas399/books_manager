@@ -10,7 +10,7 @@ import 'package:app/modules/book_details/elements/book_details_footer.dart';
 import 'package:app/modules/book_details/elements/book_details_info.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:app/constants/theme.dart';
+import 'package:app/config/themes/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';

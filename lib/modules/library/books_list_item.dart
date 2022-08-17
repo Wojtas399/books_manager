@@ -1,5 +1,5 @@
 import 'package:app/constants/route_paths/app_route_path.dart';
-import 'package:app/constants/theme.dart';
+import 'package:app/config/themes/app_colors.dart';
 import 'package:app/core/book/book_query.dart';
 import 'package:app/core/services/app_navigator_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';

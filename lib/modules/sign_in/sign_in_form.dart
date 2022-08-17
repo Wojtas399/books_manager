@@ -1,5 +1,5 @@
 import 'package:app/config/themes/button_theme.dart';
-import 'package:app/constants/theme.dart';
+import 'package:app/config/themes/app_colors.dart';
 import 'package:app/modules/sign_in/sign_in_actions.dart';
 import 'package:app/modules/sign_in/sign_in_bloc.dart';
 import 'package:app/modules/sign_in/sign_in_state.dart';

@@ -1,7 +1,7 @@
 import 'package:app/config/themes/button_theme.dart';
 import 'package:app/constants/route_paths/start_route_path.dart';
 import 'package:flutter/material.dart';
-import 'package:app/constants/theme.dart';
+import 'package:app/config/themes/app_colors.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 class StartScreen extends StatelessWidget {

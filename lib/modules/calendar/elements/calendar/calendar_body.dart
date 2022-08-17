@@ -1,5 +1,5 @@
 import 'package:app/constants/date_constants.dart';
-import 'package:app/constants/theme.dart';
+import 'package:app/config/themes/app_colors.dart';
 import 'package:app/core/services/date_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';

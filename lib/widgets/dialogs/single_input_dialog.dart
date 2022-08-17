@@ -1,4 +1,4 @@
-import 'package:app/constants/theme.dart';
+import 'package:app/config/themes/app_colors.dart';
 import 'package:app/widgets/buttons/small_green_button.dart';
 import 'package:app/widgets/buttons/small_red_button.dart';
 import 'package:app/widgets/text_fields/basic_text_form_field.dart';

@@ -7,7 +7,7 @@ import 'package:app/widgets/app_bars/none_elevation_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:app/constants/theme.dart';
+import 'package:app/config/themes/app_colors.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatelessWidget {

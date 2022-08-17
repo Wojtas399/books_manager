@@ -11,7 +11,7 @@ import 'package:app/modules/sign_in/sign_in_state.dart';
 import 'package:app/widgets/app_bars/none_elevation_app_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:app/constants/theme.dart';
+import 'package:app/config/themes/app_colors.dart';
 
 class SignInScreen extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();

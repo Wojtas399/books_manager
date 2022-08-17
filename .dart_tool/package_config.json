@@ -797,10 +797,10 @@
       "name": "app",
       "rootUri": "../",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "2.17"
     }
   ],
-  "generated": "2022-08-16T20:55:50.413157Z",
+  "generated": "2022-08-16T21:22:28.112534Z",
   "generator": "pub",
   "generatorVersion": "2.17.6"
 }

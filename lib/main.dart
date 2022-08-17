@@ -1,39 +1,42 @@
-import 'dart:async';
-import 'package:app/core/app_core.dart';
-import 'package:app/core/services/error_handler_service.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    FlutterError.onError = (FlutterErrorDetails details) {
-      FlutterError.dumpErrorToConsole(details);
-      ErrorHandlerService.displayFlutterError(details.toString());
-    };
-    runApp(MyApp());
-  }, (Object error, StackTrace stack) {
-    ErrorHandlerService.displayError(error.toString());
-  });
+import 'features/initial_home/initial_home.dart';
+import 'interfaces/widget_factory.dart';
+import 'providers/widget_factory_provider.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final Future<FirebaseApp> _fbApp = Firebase.initializeApp();
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _fbApp,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          print('You have an error! ${snapshot.error.toString()}');
-        } else if (snapshot.hasData) {
-          return AppCore();
-        }
-        return Center(
-          child: CircularProgressIndicator(),
-        );
-      },
+    return Provider(
+      create: (_) => _getWidgetFactory(),
+      child: Builder(
+        builder: (BuildContext context) {
+          final WidgetFactory widgetFactory = context.read<WidgetFactory>();
+          return widgetFactory.createApp(
+            title: 'BooksManager',
+            home: InitialHome(),
+          );
+        },
+      ),
     );
+  }
+
+  WidgetFactory _getWidgetFactory() {
+    if (Platform.isIOS) {
+      return WidgetFactoryProvider.providerCupertinoWidgetFactory();
+    } else {
+      return WidgetFactoryProvider.provideMaterialWidgetFactory();
+    }
   }
 }

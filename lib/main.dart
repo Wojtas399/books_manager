@@ -1,11 +1,10 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 
 import 'features/initial_home/initial_home.dart';
-import 'interfaces/widget_factory.dart';
-import 'providers/widget_factory_provider.dart';
+import 'global_provider.dart';
+import 'interfaces/factories/widget_factory_interface.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,25 +17,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Provider(
-      create: (_) => _getWidgetFactory(),
+    return GlobalProvider(
       child: Builder(
         builder: (BuildContext context) {
-          final WidgetFactory widgetFactory = context.read<WidgetFactory>();
+          final widgetFactory = context.read<WidgetFactoryInterface>();
           return widgetFactory.createApp(
             title: 'BooksManager',
-            home: InitialHome(),
+            home: const InitialHome(),
           );
         },
       ),
     );
-  }
-
-  WidgetFactory _getWidgetFactory() {
-    if (Platform.isIOS) {
-      return WidgetFactoryProvider.providerCupertinoWidgetFactory();
-    } else {
-      return WidgetFactoryProvider.provideMaterialWidgetFactory();
-    }
   }
 }

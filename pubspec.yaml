@@ -27,17 +27,16 @@ dependencies:
   cached_network_image: ^3.1.0
   mocktail: ^0.3.0
   equatable: ^2.0.3
+  cupertino_icons: ^1.0.5
 
 dev_dependencies:
   build_runner: ^2.0.5
   flutter_test:
     sdk: flutter
   test: ^1.16.8
+  flutter_lints: ^2.0.1
 
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/Logo.png
-    - assets/images/BlueBook.png
-    - assets/images/GreenBook.png
-    - assets/images/RedBook.png
+    - assets/images/

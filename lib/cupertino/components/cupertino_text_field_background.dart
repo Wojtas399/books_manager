@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
-import '../config/themes/app_colors.dart';
+import '../../config/themes/app_colors.dart';
 
-class MaterialTextFieldBackground extends StatelessWidget {
+class CupertinoTextFieldBackground extends StatelessWidget {
   final Widget child;
   final Color? backgroundColor;
 
-  const MaterialTextFieldBackground({
+  const CupertinoTextFieldBackground({
     super.key,
     required this.child,
     this.backgroundColor,
@@ -15,13 +15,13 @@ class MaterialTextFieldBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
       decoration: BoxDecoration(
         color: backgroundColor ?? AppColors.lightGrey,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(4),
-          topRight: Radius.circular(4),
+        border: Border.all(
+          width: 0,
+          color: AppColors.grey,
         ),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: child,
     );

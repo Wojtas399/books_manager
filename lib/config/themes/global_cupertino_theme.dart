@@ -4,7 +4,10 @@ import 'app_colors.dart';
 
 class GlobalCupertinoTheme {
   static CupertinoThemeData get lightTheme => CupertinoThemeData(
-        scaffoldBackgroundColor: AppColors.lightBlue,
-        primaryColor: AppColors.green,
+        scaffoldBackgroundColor: AppColors.background,
+        primaryColor: AppColors.primary,
+        textTheme: CupertinoTextThemeData(
+          primaryColor: AppColors.black,
+        ),
       );
 }

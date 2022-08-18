@@ -1,10 +1,7 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../config/themes/app_colors.dart';
 import '../../sign_in/sign_in_form.dart';
-import '../../sign_up/sign_up_form.dart';
-import '../bloc/initial_home_bloc.dart';
 
 class InitialHomeFormCard extends StatelessWidget {
   const InitialHomeFormCard({super.key});
@@ -25,24 +22,7 @@ class InitialHomeFormCard extends StatelessWidget {
           ),
         ],
       ),
-      child: const _Form(),
+      child: const SignInForm(),
     );
-  }
-}
-
-class _Form extends StatelessWidget {
-  const _Form();
-
-  @override
-  Widget build(BuildContext context) {
-    final InitialHomeMode mode = context.select(
-      (InitialHomeBloc bloc) => bloc.state.mode,
-    );
-    switch (mode) {
-      case InitialHomeMode.signIn:
-        return const SignInForm();
-      case InitialHomeMode.signUp:
-        return const SignUpForm();
-    }
   }
 }

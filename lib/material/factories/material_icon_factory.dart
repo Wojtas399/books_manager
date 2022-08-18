@@ -12,4 +12,14 @@ class MaterialIconFactory implements IconFactoryInterface {
   Icon createLockIcon() {
     return const Icon(Icons.lock_outline_rounded);
   }
+
+  @override
+  Icon createEnvelopeIcon() {
+    return const Icon(Icons.email_outlined);
+  }
+
+  @override
+  Icon createCloseIcon() {
+    return const Icon(Icons.close);
+  }
 }

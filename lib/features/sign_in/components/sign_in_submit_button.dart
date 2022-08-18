@@ -14,8 +14,8 @@ class SignInSubmitButton extends StatelessWidget {
       (SignInBloc bloc) => bloc.state.isButtonDisabled,
     );
     return widgetFactory.createButton(
+      label: 'Zaloguj',
       onPressed: isDisabled ? null : () => _onPressed(context),
-      text: 'Zaloguj',
     );
   }
 

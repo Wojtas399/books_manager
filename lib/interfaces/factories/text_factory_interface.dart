@@ -6,4 +6,9 @@ abstract class TextFactoryInterface {
     required BuildContext context,
     Color? color,
   });
+
+  Widget createSubtitleText({
+    required String text,
+    required BuildContext context,
+  });
 }

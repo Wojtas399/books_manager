@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../components/material_password_text_field.dart';
-import '../../components/material_text_field_background.dart';
+import '../components/material_custom_button.dart';
+import '../components/material_custom_text_field.dart';
+import '../components/material_password_text_field.dart';
+import '../components/material_scaffold.dart';
 import '../../config/themes/global_material_theme.dart';
-import '../../config/themes/material_text_field_theme.dart';
 import '../../interfaces/factories/widget_factory_interface.dart';
 
 class MaterialWidgetFactory implements WidgetFactoryInterface {
@@ -20,8 +21,22 @@ class MaterialWidgetFactory implements WidgetFactoryInterface {
   }
 
   @override
-  Widget createScaffold({required Widget child}) {
-    return Scaffold(body: child);
+  Widget createScaffold({
+    required Widget child,
+    bool withAppBar = true,
+    String? appBarTitle,
+    Color? appBarBackgroundColor,
+    bool appBarWithElevation = true,
+    Icon? leadingIcon,
+  }) {
+    return MaterialScaffold(
+      withAppBar: withAppBar,
+      appBarTitle: appBarTitle,
+      appBarBackgroundColor: appBarBackgroundColor,
+      appBarWithElevation: appBarWithElevation,
+      leadingIcon: leadingIcon,
+      child: child,
+    );
   }
 
   @override
@@ -41,31 +56,23 @@ class MaterialWidgetFactory implements WidgetFactoryInterface {
         onChanged: onChanged,
       );
     }
-    return MaterialTextFieldBackground(
+    return MaterialCustomTextField(
+      placeholder: placeholder,
+      icon: icon,
       backgroundColor: backgroundColor,
-      child: TextFormField(
-        decoration: MaterialTextFieldTheme.basic(
-          icon: icon,
-          placeholder: placeholder,
-        ),
-        keyboardType: keyboardType,
-        onChanged: onChanged,
-      ),
+      keyboardType: keyboardType,
+      onChanged: onChanged,
     );
   }
 
   @override
   Widget createButton({
+    required String label,
     required VoidCallback? onPressed,
-    required String text,
   }) {
-    return SizedBox(
-      width: 280,
-      height: 46,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        child: Text(text),
-      ),
+    return MaterialCustomButton(
+      label: label,
+      onPressed: onPressed,
     );
   }
 }

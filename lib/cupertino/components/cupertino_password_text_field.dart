@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-import '../config/themes/app_colors.dart';
+import '../../config/themes/app_colors.dart';
 import 'cupertino_text_field_background.dart';
 
 class CupertinoPasswordTextField extends StatefulWidget {

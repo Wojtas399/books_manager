@@ -1,14 +1,14 @@
 import 'dart:io';
 
-import '../factories/cupertino/cupertino_icon_factory.dart';
-import '../factories/cupertino/cupertino_text_factory.dart';
-import '../factories/cupertino/cupertino_widget_factory.dart';
-import '../factories/material/material_icon_factory.dart';
-import '../factories/material/material_text_factory.dart';
-import '../factories/material/material_widget_factory.dart';
+import '../cupertino/factories/cupertino_icon_factory.dart';
+import '../cupertino/factories/cupertino_text_factory.dart';
+import '../cupertino/factories/cupertino_widget_factory.dart';
 import '../interfaces/factories/icon_factory_interface.dart';
 import '../interfaces/factories/text_factory_interface.dart';
 import '../interfaces/factories/widget_factory_interface.dart';
+import '../material/factories/material_icon_factory.dart';
+import '../material/factories/material_text_factory.dart';
+import '../material/factories/material_widget_factory.dart';
 
 class FactoryProvider {
   static WidgetFactoryInterface provideWidgetFactory() {

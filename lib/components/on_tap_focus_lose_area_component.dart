@@ -2,10 +2,10 @@ import 'package:flutter/widgets.dart';
 
 import '../config/themes/app_colors.dart';
 
-class OnTapFocusLoseArea extends StatelessWidget {
+class OnTapFocusLoseAreaComponent extends StatelessWidget {
   final Widget child;
 
-  const OnTapFocusLoseArea({
+  const OnTapFocusLoseAreaComponent({
     super.key,
     required this.child,
   });

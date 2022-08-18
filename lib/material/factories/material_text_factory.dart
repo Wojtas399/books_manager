@@ -14,4 +14,15 @@ class MaterialTextFactory implements TextFactoryInterface {
       style: Theme.of(context).textTheme.headline4?.copyWith(color: color),
     );
   }
+
+  @override
+  Widget createSubtitleText({
+    required String text,
+    required BuildContext context,
+  }) {
+    return Text(
+      text,
+      style: Theme.of(context).textTheme.subtitle1,
+    );
+  }
 }

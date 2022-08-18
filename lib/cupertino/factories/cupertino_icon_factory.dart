@@ -12,4 +12,14 @@ class CupertinoIconFactory implements IconFactoryInterface {
   Icon createLockIcon() {
     return const Icon(CupertinoIcons.lock);
   }
+
+  @override
+  Icon createEnvelopeIcon() {
+    return const Icon(CupertinoIcons.envelope);
+  }
+
+  @override
+  Icon createCloseIcon() {
+    return const Icon(CupertinoIcons.clear);
+  }
 }

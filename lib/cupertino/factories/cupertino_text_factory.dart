@@ -17,4 +17,15 @@ class CupertinoTextFactory extends TextFactoryInterface {
           .copyWith(color: color),
     );
   }
+
+  @override
+  Widget createSubtitleText({
+    required String text,
+    required BuildContext context,
+  }) {
+    return Text(
+      text,
+      style: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
+    );
+  }
 }

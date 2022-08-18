@@ -17,18 +17,15 @@ class MaterialTextFieldTheme {
         vertical: 16,
         horizontal: 4,
       ),
-      border: UnderlineInputBorder(
-        borderSide: BorderSide(
-          color: Colors.black.withOpacity(0.3),
-        ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: AppColors.grey.withOpacity(0.4)),
+        borderRadius: BorderRadius.circular(10),
       ),
-      focusedBorder: UnderlineInputBorder(
-        borderSide: BorderSide(
-          width: 2.0,
-          color: AppColors.darkGreen,
-        ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: AppColors.primary),
+        borderRadius: BorderRadius.circular(10),
       ),
-      focusColor: AppColors.darkGreen,
+      focusColor: AppColors.primary,
       errorMaxLines: 2,
       suffixIcon: isPassword
           ? SizedBox(

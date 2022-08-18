@@ -6,7 +6,14 @@ abstract class WidgetFactoryInterface {
     required Widget home,
   });
 
-  Widget createScaffold({required Widget child});
+  Widget createScaffold({
+    required Widget child,
+    String? appBarTitle,
+    bool withAppBar = true,
+    Color? appBarBackgroundColor,
+    bool appBarWithElevation = true,
+    Icon? leadingIcon,
+  });
 
   Widget createTextFormField({
     String? placeholder,
@@ -18,7 +25,7 @@ abstract class WidgetFactoryInterface {
   });
 
   Widget createButton({
+    required String label,
     required VoidCallback? onPressed,
-    required String text,
   });
 }

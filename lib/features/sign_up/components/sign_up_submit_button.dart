@@ -2,16 +2,25 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../interfaces/factories/widget_factory_interface.dart';
+import '../bloc/sign_up_bloc.dart';
 
 class SignUpSubmitButton extends StatelessWidget {
   const SignUpSubmitButton({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final widgetFactory = context.read<WidgetFactoryInterface>();
+    final WidgetFactoryInterface widgetFactory =
+        context.read<WidgetFactoryInterface>();
+    final bool isDisabled = context.select(
+      (SignUpBloc bloc) => bloc.state.isButtonDisabled,
+    );
     return widgetFactory.createButton(
       label: 'Zarejestruj',
-      onPressed: () {},
+      onPressed: isDisabled ? null : _onPressed,
     );
+  }
+
+  void _onPressed() {
+    //TODO
   }
 }

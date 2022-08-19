@@ -1,12 +1,14 @@
 import 'dart:io';
 import 'package:equatable/equatable.dart';
 
-abstract class Avatar extends Equatable {}
+abstract class Avatar extends Equatable {
+  const Avatar();
+}
 
 class UrlAvatar extends Avatar {
   final String url;
 
-  UrlAvatar({required this.url});
+  const UrlAvatar({required this.url});
 
   @override
   List<Object> get props => [url];
@@ -15,7 +17,7 @@ class UrlAvatar extends Avatar {
 class FileAvatar extends Avatar {
   final File file;
 
-  FileAvatar({required this.file});
+  const FileAvatar({required this.file});
 
   @override
   List<Object> get props => [file];
@@ -24,7 +26,7 @@ class FileAvatar extends Avatar {
 class BasicAvatar extends Avatar {
   final BasicAvatarType type;
 
-  BasicAvatar({required this.type});
+  const BasicAvatar({required this.type});
 
   @override
   List<Object> get props => [type];

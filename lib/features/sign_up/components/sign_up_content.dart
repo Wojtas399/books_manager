@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../config/themes/app_colors.dart';
 import '../../../interfaces/factories/icon_factory_interface.dart';
 import '../../../interfaces/factories/widget_factory_interface.dart';
-import '../../initial_home/bloc/initial_home_bloc.dart';
 import 'sign_up_avatar.dart';
 import 'sign_up_inputs.dart';
 import 'sign_up_submit_button.dart';
@@ -62,7 +61,7 @@ class _AlternativeOptions extends StatelessWidget {
         GestureDetector(
           onTap: () => _onSignInPressed(context),
           child: Text(
-            'Masz już konto? Zaloguj się!',
+            'Masz już konto? Wróć do logowania!',
             style: textStyle,
           ),
         ),
@@ -71,8 +70,6 @@ class _AlternativeOptions extends StatelessWidget {
   }
 
   void _onSignInPressed(BuildContext context) {
-    context.read<InitialHomeBloc>().add(
-          InitialHomeEventChangeMode(mode: InitialHomeMode.signIn),
-        );
+    Navigator.pop(context);
   }
 }

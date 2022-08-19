@@ -22,4 +22,19 @@ class CupertinoIconFactory implements IconFactoryInterface {
   Icon createCloseIcon() {
     return const Icon(CupertinoIcons.clear);
   }
+
+  @override
+  Icon createBookIcon() {
+    return const Icon(CupertinoIcons.book);
+  }
+
+  @override
+  Icon createImageIcon() {
+    return const Icon(CupertinoIcons.photo);
+  }
+
+  @override
+  Icon createCameraIcon() {
+    return const Icon(CupertinoIcons.camera);
+  }
 }

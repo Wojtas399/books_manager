@@ -8,4 +8,10 @@ abstract class IconFactoryInterface {
   Icon createEnvelopeIcon();
 
   Icon createCloseIcon();
+
+  Icon createBookIcon();
+
+  Icon createImageIcon();
+
+  Icon createCameraIcon();
 }

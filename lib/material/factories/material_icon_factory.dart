@@ -22,4 +22,19 @@ class MaterialIconFactory implements IconFactoryInterface {
   Icon createCloseIcon() {
     return const Icon(Icons.close);
   }
+
+  @override
+  Icon createBookIcon() {
+    return const Icon(Icons.library_books_outlined);
+  }
+
+  @override
+  Icon createImageIcon() {
+    return const Icon(Icons.image_outlined);
+  }
+
+  @override
+  Icon createCameraIcon() {
+    return const Icon(Icons.camera_alt_outlined);
+  }
 }

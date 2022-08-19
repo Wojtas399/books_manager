@@ -1,6 +1,10 @@
 import 'dart:io';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../interfaces/dialog_interface.dart';
+import '../interfaces/factories/icon_factory_interface.dart';
+import '../models/action_sheet_action.dart';
 import '../models/avatar.dart';
 import 'avatar_component.dart';
 
@@ -30,6 +34,32 @@ class _AvatarSelectionComponentState extends State<AvatarSelectionComponent> {
             )
           : BasicAvatar(type: BasicAvatarType.red),
       size: widget.size ?? 48,
+      onPressed: () => _onAvatarPressed(context),
     );
+  }
+
+  Future<void> _onAvatarPressed(BuildContext context) async {
+    final DialogInterface dialogInterface = context.read<DialogInterface>();
+    final IconFactoryInterface iconFactoryInterface =
+        context.read<IconFactoryInterface>();
+    final int? selectedOption = await dialogInterface.askForAction(
+      context: context,
+      title: 'Nowy avatar',
+      actions: [
+        ActionSheetAction(
+          label: 'Domyślny',
+          icon: iconFactoryInterface.createBookIcon(),
+        ),
+        ActionSheetAction(
+          label: 'Z galerii',
+          icon: iconFactoryInterface.createImageIcon(),
+        ),
+        ActionSheetAction(
+          label: 'Z aparatu',
+          icon: iconFactoryInterface.createCameraIcon(),
+        ),
+      ],
+    );
+    print(selectedOption);
   }
 }

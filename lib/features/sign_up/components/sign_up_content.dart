@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../components/section_component.dart';
 import '../../../config/themes/app_colors.dart';
 import '../../../interfaces/factories/icon_factory_interface.dart';
 import '../../../interfaces/factories/widget_factory_interface.dart';
@@ -34,12 +33,9 @@ class SignUpContent extends StatelessWidget {
             child: Column(
               children: const [
                 SignUpAvatar(),
-                SizedBox(height: 16),
-                SectionComponent(
-                  sectionName: 'Dane',
-                  withBottomDivider: false,
-                  child: SignUpInputs(),
-                ),
+                SizedBox(height: 32),
+                SignUpInputs(),
+                SizedBox(height: 32),
                 SignUpSubmitButton(),
                 SizedBox(height: 16),
                 _AlternativeOptions(),

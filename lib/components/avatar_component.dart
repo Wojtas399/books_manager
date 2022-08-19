@@ -20,8 +20,6 @@ class AvatarComponent extends StatelessWidget {
   Widget build(BuildContext context) {
     final ImageProvider<Object>? imageProvider = _getImageProvider();
     return Container(
-      width: size,
-      height: size,
       decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [
         BoxShadow(
           color: AppColors.grey.withOpacity(0.3),
@@ -33,6 +31,7 @@ class AvatarComponent extends StatelessWidget {
       child: GestureDetector(
         onTap: onPressed,
         child: CircleAvatar(
+          radius: size,
           backgroundImage: imageProvider,
           backgroundColor: AppColors.white,
         ),
@@ -46,6 +45,8 @@ class AvatarComponent extends StatelessWidget {
       return CachedNetworkImageProvider(avatar.url);
     } else if (avatar is FileAvatar) {
       return FileImage(avatar.file);
+    } else if (avatar is BasicAvatar) {
+      return AssetImage(avatar.type.toAssetsPath());
     }
     return null;
   }

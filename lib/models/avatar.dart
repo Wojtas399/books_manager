@@ -31,3 +31,16 @@ class BasicAvatar extends Avatar {
 }
 
 enum BasicAvatarType { red, green, blue }
+
+extension BasicAvatarTypeExtensions on BasicAvatarType {
+  String toAssetsPath() {
+    switch (this) {
+      case BasicAvatarType.red:
+        return 'assets/images/RedBook.png';
+      case BasicAvatarType.green:
+        return 'assets/images/GreenBook.png';
+      case BasicAvatarType.blue:
+        return 'assets/images/BlueBook.png';
+    }
+  }
+}

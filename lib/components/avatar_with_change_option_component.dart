@@ -2,26 +2,29 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../config/animations/slide_up_route_animation.dart';
 import '../interfaces/dialog_interface.dart';
 import '../interfaces/factories/icon_factory_interface.dart';
 import '../models/action_sheet_action.dart';
 import '../models/avatar.dart';
 import 'avatar_component.dart';
+import 'basic_avatar_selection_component.dart';
 
-class AvatarSelectionComponent extends StatefulWidget {
+class AvatarWithChangeOptionComponent extends StatefulWidget {
   final double? size;
 
-  const AvatarSelectionComponent({
+  const AvatarWithChangeOptionComponent({
     super.key,
     this.size,
   });
 
   @override
-  State<AvatarSelectionComponent> createState() =>
-      _AvatarSelectionComponentState();
+  State<AvatarWithChangeOptionComponent> createState() =>
+      _AvatarWithChangeOptionComponentState();
 }
 
-class _AvatarSelectionComponentState extends State<AvatarSelectionComponent> {
+class _AvatarWithChangeOptionComponentState
+    extends State<AvatarWithChangeOptionComponent> {
   String? _chosenAvatarPath;
 
   @override
@@ -34,11 +37,11 @@ class _AvatarSelectionComponentState extends State<AvatarSelectionComponent> {
             )
           : BasicAvatar(type: BasicAvatarType.red),
       size: widget.size ?? 48,
-      onPressed: () => _onAvatarPressed(context),
+      onPressed: () => _onAvatarPressed(),
     );
   }
 
-  Future<void> _onAvatarPressed(BuildContext context) async {
+  Future<void> _onAvatarPressed() async {
     final DialogInterface dialogInterface = context.read<DialogInterface>();
     final IconFactoryInterface iconFactoryInterface =
         context.read<IconFactoryInterface>();
@@ -60,6 +63,16 @@ class _AvatarSelectionComponentState extends State<AvatarSelectionComponent> {
         ),
       ],
     );
-    print(selectedOption);
+    await _askForBasicAvatar();
+  }
+
+  Future<void> _askForBasicAvatar() async {
+    final BasicAvatarType? selectedAvatarType =
+        await Navigator.of(context).push(
+      SlideUpRouteAnimation(
+        page: const BasicAvatarSelectionComponent(),
+      ),
+    );
+    print(selectedAvatarType);
   }
 }

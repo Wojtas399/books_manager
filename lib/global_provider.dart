@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'providers/dialog_provider.dart';
 import 'providers/factory_provider.dart';
+import 'providers/firebase_provider.dart';
 
 class GlobalProvider extends StatelessWidget {
   final Widget child;
@@ -24,6 +25,9 @@ class GlobalProvider extends StatelessWidget {
         ),
         RepositoryProvider(
           create: (_) => DialogProvider.provideDialogInterface(),
+        ),
+        RepositoryProvider(
+          create: (_) => FirebaseProvider.provideAuthInterface(),
         ),
       ],
       child: child,

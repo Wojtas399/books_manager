@@ -45,7 +45,9 @@ class MaterialWidgetFactory implements WidgetFactoryInterface {
     Icon? icon,
     Color? backgroundColor,
     bool isPassword = false,
+    bool isRequired = false,
     TextInputType? keyboardType,
+    String? Function(String? value)? validator,
     Function(String)? onChanged,
   }) {
     if (isPassword) {
@@ -53,6 +55,8 @@ class MaterialWidgetFactory implements WidgetFactoryInterface {
         placeholder: placeholder,
         icon: icon,
         backgroundColor: backgroundColor,
+        isRequired: isRequired,
+        validator: validator,
         onChanged: onChanged,
       );
     }
@@ -60,7 +64,9 @@ class MaterialWidgetFactory implements WidgetFactoryInterface {
       placeholder: placeholder,
       icon: icon,
       backgroundColor: backgroundColor,
+      isRequired: isRequired,
       keyboardType: keyboardType,
+      validator: validator,
       onChanged: onChanged,
     );
   }

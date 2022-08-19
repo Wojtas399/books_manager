@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../config/themes/material_text_field_theme.dart';
-import 'material_text_field_background.dart';
+import '../../validators/validators_messages.dart';
 
 class MaterialPasswordTextField extends StatefulWidget {
   final String? placeholder;
   final Icon? icon;
   final Color? backgroundColor;
+  final bool isRequired;
+  final String? Function(String? value)? validator;
   final Function(String)? onChanged;
 
   const MaterialPasswordTextField({
@@ -14,6 +16,8 @@ class MaterialPasswordTextField extends StatefulWidget {
     this.placeholder,
     this.icon,
     this.backgroundColor,
+    this.isRequired = false,
+    this.validator,
     this.onChanged,
   });
 
@@ -27,20 +31,19 @@ class _MaterialPasswordTextFieldState extends State<MaterialPasswordTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialTextFieldBackground(
-      backgroundColor: widget.backgroundColor,
-      child: TextFormField(
-        obscureText: !isVisible,
-        obscuringCharacter: '*',
-        decoration: MaterialTextFieldTheme.basic(
-          icon: widget.icon,
-          placeholder: widget.placeholder,
-          isPassword: true,
-          isVisiblePassword: isVisible,
-          onVisibilityIconPressed: _onVisibilityIconPressed,
-        ),
-        onChanged: widget.onChanged,
+    return TextFormField(
+      obscureText: !isVisible,
+      obscuringCharacter: '*',
+      decoration: MaterialTextFieldTheme.basic(
+        icon: widget.icon,
+        placeholder: widget.placeholder,
+        isPassword: true,
+        isVisiblePassword: isVisible,
+        onVisibilityIconPressed: _onVisibilityIconPressed,
       ),
+      validator: _validate,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      onChanged: widget.onChanged,
     );
   }
 
@@ -48,5 +51,16 @@ class _MaterialPasswordTextFieldState extends State<MaterialPasswordTextField> {
     setState(() {
       isVisible = !isVisible;
     });
+  }
+
+  String? _validate(String? value) {
+    if (widget.isRequired && value == '') {
+      return ValidatorsMessages.requiredValueMessage;
+    }
+    final String? Function(String? value)? customValidator = widget.validator;
+    if (customValidator != null) {
+      return customValidator(value);
+    }
+    return null;
   }
 }

@@ -6,6 +6,9 @@ class SignUpState extends Equatable {
   final String email;
   final String password;
   final String passwordConfirmation;
+  final bool isUsernameValid;
+  final bool isEmailValid;
+  final bool isPasswordValid;
 
   const SignUpState({
     required this.avatar,
@@ -13,6 +16,9 @@ class SignUpState extends Equatable {
     required this.email,
     required this.password,
     required this.passwordConfirmation,
+    required this.isUsernameValid,
+    required this.isEmailValid,
+    required this.isPasswordValid,
   });
 
   @override
@@ -22,13 +28,18 @@ class SignUpState extends Equatable {
         email,
         password,
         passwordConfirmation,
+        isUsernameValid,
+        isEmailValid,
+        isPasswordValid,
       ];
 
+  bool get isPasswordConfirmationValid => password == passwordConfirmation;
+
   bool get isButtonDisabled =>
-      username.isEmpty ||
-      email.isEmpty ||
-      password.isEmpty ||
-      passwordConfirmation.isEmpty;
+      !isUsernameValid ||
+      !isEmailValid ||
+      !isPasswordValid ||
+      password != passwordConfirmation;
 
   SignUpState copyWith({
     Avatar? avatar,
@@ -36,6 +47,9 @@ class SignUpState extends Equatable {
     String? email,
     String? password,
     String? passwordConfirmation,
+    bool? isUsernameValid,
+    bool? isEmailValid,
+    bool? isPasswordValid,
   }) {
     return SignUpState(
       avatar: avatar ?? this.avatar,
@@ -43,6 +57,9 @@ class SignUpState extends Equatable {
       email: email ?? this.email,
       password: password ?? this.password,
       passwordConfirmation: passwordConfirmation ?? this.passwordConfirmation,
+      isUsernameValid: isUsernameValid ?? this.isUsernameValid,
+      isEmailValid: isEmailValid ?? this.isEmailValid,
+      isPasswordValid: isPasswordValid ?? this.isPasswordValid,
     );
   }
 }

@@ -1,12 +1,15 @@
 import 'package:flutter/cupertino.dart';
 
 import '../../config/themes/app_colors.dart';
+import '../../validators/validators_messages.dart';
 import 'cupertino_text_field_background.dart';
 
 class CupertinoPasswordTextField extends StatefulWidget {
   final String? placeholder;
   final Icon? icon;
   final Color? backgroundColor;
+  final bool isRequired;
+  final String? Function(String? value)? validator;
   final Function(String)? onChanged;
 
   const CupertinoPasswordTextField({
@@ -14,6 +17,8 @@ class CupertinoPasswordTextField extends StatefulWidget {
     this.placeholder,
     this.icon,
     this.backgroundColor,
+    this.isRequired = false,
+    this.validator,
     this.onChanged,
   });
 
@@ -41,6 +46,8 @@ class _CupertinoPasswordTextFieldState
               obscureText: !isVisible,
               obscuringCharacter: '*',
               placeholderStyle: TextStyle(color: AppColors.grey),
+              validator: _validate,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               onChanged: widget.onChanged,
             ),
           ),
@@ -60,5 +67,16 @@ class _CupertinoPasswordTextFieldState
     setState(() {
       isVisible = !isVisible;
     });
+  }
+
+  String? _validate(String? value) {
+    if (widget.isRequired && value == '') {
+      return ValidatorsMessages.requiredValueMessage;
+    }
+    final String? Function(String? value)? customValidator = widget.validator;
+    if (customValidator != null) {
+      return customValidator(value);
+    }
+    return null;
   }
 }

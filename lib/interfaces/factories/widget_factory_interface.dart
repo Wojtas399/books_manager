@@ -20,7 +20,9 @@ abstract class WidgetFactoryInterface {
     Icon? icon,
     Color? backgroundColor,
     bool isPassword = false,
+    bool isRequired = false,
     TextInputType? keyboardType,
+    String? Function(String? value)? validator,
     Function(String)? onChanged,
   });
 

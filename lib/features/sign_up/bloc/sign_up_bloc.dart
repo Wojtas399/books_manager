@@ -2,18 +2,31 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../models/avatar.dart';
+import '../../../validators/email_validator.dart';
+import '../../../validators/password_validator.dart';
+import '../../../validators/username_validator.dart';
 
 part 'sign_up_event.dart';
 
 part 'sign_up_state.dart';
 
 class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
+  late final UsernameValidator _usernameValidator;
+  late final EmailValidator _emailValidator;
+  late final PasswordValidator _passwordValidator;
+
   SignUpBloc({
+    required UsernameValidator usernameValidator,
+    required EmailValidator emailValidator,
+    required PasswordValidator passwordValidator,
     Avatar avatar = const BasicAvatar(type: BasicAvatarType.red),
     String username = '',
     String email = '',
     String password = '',
     String passwordConfirmation = '',
+    bool isUsernameValid = false,
+    bool isEmailValid = false,
+    bool isPasswordValid = false,
   }) : super(
           SignUpState(
             avatar: avatar,
@@ -21,8 +34,14 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
             email: email,
             password: password,
             passwordConfirmation: passwordConfirmation,
+            isUsernameValid: isUsernameValid,
+            isEmailValid: isEmailValid,
+            isPasswordValid: isPasswordValid,
           ),
         ) {
+    _usernameValidator = usernameValidator;
+    _emailValidator = emailValidator;
+    _passwordValidator = passwordValidator;
     on<SignUpEventAvatarChanged>(_avatarChanged);
     on<SignUpEventUsernameChanged>(_usernameChanged);
     on<SignUpEventEmailChanged>(_emailChanged);
@@ -45,6 +64,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
   ) {
     emit(state.copyWith(
       username: event.username,
+      isUsernameValid: _usernameValidator.isValid(event.username),
     ));
   }
 
@@ -54,6 +74,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
   ) {
     emit(state.copyWith(
       email: event.email,
+      isEmailValid: _emailValidator.isValid(event.email),
     ));
   }
 
@@ -63,6 +84,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
   ) {
     emit(state.copyWith(
       password: event.password,
+      isPasswordValid: _passwordValidator.isValid(event.password),
     ));
   }
 

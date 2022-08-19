@@ -6,6 +6,7 @@ class MaterialTextFieldTheme {
   static InputDecoration basic({
     Icon? icon,
     String? placeholder,
+    Color? backgroundColor,
     bool isPassword = false,
     bool isVisiblePassword = false,
     VoidCallback? onVisibilityIconPressed,
@@ -13,16 +14,26 @@ class MaterialTextFieldTheme {
     return InputDecoration(
       hintText: placeholder,
       prefixIcon: icon,
+      filled: true,
+      fillColor: backgroundColor ?? AppColors.lightGrey,
       contentPadding: const EdgeInsets.symmetric(
         vertical: 16,
         horizontal: 4,
       ),
       enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: AppColors.grey.withOpacity(0.4)),
+        borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
         borderRadius: BorderRadius.circular(10),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: AppColors.primary),
+        borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderSide: const BorderSide(color: Colors.red),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderSide: const BorderSide(color: Colors.red),
         borderRadius: BorderRadius.circular(10),
       ),
       focusColor: AppColors.primary,

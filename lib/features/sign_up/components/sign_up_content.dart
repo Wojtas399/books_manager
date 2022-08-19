@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../components/on_tap_focus_lose_area_component.dart';
 import '../../../config/themes/app_colors.dart';
 import '../../../interfaces/factories/icon_factory_interface.dart';
 import '../../../interfaces/factories/widget_factory_interface.dart';
@@ -21,24 +22,26 @@ class SignUpContent extends StatelessWidget {
       appBarWithElevation: false,
       leadingIcon: iconFactory.createCloseIcon(),
       child: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.only(
-              left: 24,
-              right: 24,
-              bottom: 24,
-              top: 16,
-            ),
-            child: Column(
-              children: const [
-                SignUpAvatar(),
-                SizedBox(height: 32),
-                SignUpInputs(),
-                SizedBox(height: 32),
-                SignUpSubmitButton(),
-                SizedBox(height: 16),
-                _AlternativeOptions(),
-              ],
+        child: OnTapFocusLoseAreaComponent(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.only(
+                left: 24,
+                right: 24,
+                bottom: 24,
+                top: 16,
+              ),
+              child: Column(
+                children: const [
+                  SignUpAvatar(),
+                  SizedBox(height: 32),
+                  SignUpInputs(),
+                  SizedBox(height: 32),
+                  SignUpSubmitButton(),
+                  SizedBox(height: 16),
+                  _AlternativeOptions(),
+                ],
+              ),
             ),
           ),
         ),

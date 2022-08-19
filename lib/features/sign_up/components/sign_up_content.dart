@@ -1,12 +1,12 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../components/avatar_with_change_option_component.dart';
 import '../../../components/section_component.dart';
 import '../../../config/themes/app_colors.dart';
 import '../../../interfaces/factories/icon_factory_interface.dart';
 import '../../../interfaces/factories/widget_factory_interface.dart';
 import '../../initial_home/bloc/initial_home_bloc.dart';
+import 'sign_up_avatar.dart';
 import 'sign_up_inputs.dart';
 import 'sign_up_submit_button.dart';
 
@@ -33,7 +33,7 @@ class SignUpContent extends StatelessWidget {
             ),
             child: Column(
               children: const [
-                AvatarWithChangeOptionComponent(size: 100),
+                SignUpAvatar(),
                 SizedBox(height: 16),
                 SectionComponent(
                   sectionName: 'Dane',

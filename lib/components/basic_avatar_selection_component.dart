@@ -16,6 +16,8 @@ class BasicAvatarSelectionComponent extends StatelessWidget {
         context.read<WidgetFactoryInterface>();
     final IconFactoryInterface iconFactory =
         context.read<IconFactoryInterface>();
+    const double avatarSize = 80;
+    const Widget gap = SizedBox(height: 32);
     return widgetFactory.createScaffold(
       appBarTitle: 'Wybierz avatar',
       appBarBackgroundColor: AppColors.background,
@@ -27,37 +29,35 @@ class BasicAvatarSelectionComponent extends StatelessWidget {
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: BasicAvatarType.values
-                  .map(
-                    (BasicAvatarType type) => _BasicAvatarTypeItem(type: type),
-                  )
-                  .toList(),
+              children: [
+                AvatarComponent(
+                  avatar: BasicAvatar(type: BasicAvatarType.red),
+                  size: avatarSize,
+                  onPressed: () {
+                    Navigator.pop(context, BasicAvatarType.red);
+                  },
+                ),
+                gap,
+                AvatarComponent(
+                  avatar: BasicAvatar(type: BasicAvatarType.green),
+                  size: avatarSize,
+                  onPressed: () {
+                    Navigator.pop(context, BasicAvatarType.green);
+                  },
+                ),
+                gap,
+                AvatarComponent(
+                  avatar: BasicAvatar(type: BasicAvatarType.blue),
+                  size: avatarSize,
+                  onPressed: () {
+                    Navigator.pop(context, BasicAvatarType.blue);
+                  },
+                ),
+              ],
             ),
           ),
         ),
       ),
-    );
-  }
-}
-
-class _BasicAvatarTypeItem extends StatelessWidget {
-  final BasicAvatarType type;
-
-  const _BasicAvatarTypeItem({required this.type});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        AvatarComponent(
-          avatar: BasicAvatar(type: type),
-          size: 80,
-          onPressed: () {
-            Navigator.pop(context, type);
-          },
-        ),
-        const SizedBox(height: 32),
-      ],
     );
   }
 }

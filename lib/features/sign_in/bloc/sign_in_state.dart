@@ -51,6 +51,6 @@ enum SignInBlocInfo {
 
 enum SignInBlocError {
   invalidEmail,
-  invalidPassword,
+  wrongPassword,
   userNotFound,
 }

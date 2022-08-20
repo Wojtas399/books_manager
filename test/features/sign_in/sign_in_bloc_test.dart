@@ -161,7 +161,7 @@ void main() {
               email: email,
               password: password,
             ),
-          ).thenThrow(AuthError.invalidPassword);
+          ).thenThrow(AuthError.wrongPassword);
         },
         act: (SignInBloc bloc) {
           bloc.add(
@@ -176,7 +176,7 @@ void main() {
           ),
           createState(
             status: const BlocStatusError<SignInBlocError>(
-              error: SignInBlocError.invalidPassword,
+              error: SignInBlocError.wrongPassword,
             ),
             email: email,
             password: password,

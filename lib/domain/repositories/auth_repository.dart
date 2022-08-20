@@ -33,8 +33,8 @@ class AuthRepository implements AuthInterface {
     switch (code) {
       case 'invalid-email':
         return AuthError.invalidEmail;
-      case 'invalid-password':
-        return AuthError.invalidPassword;
+      case 'wrong-password':
+        return AuthError.wrongPassword;
       case 'user-not-found':
         return AuthError.userNotFound;
       case 'email-is-already-in-use':

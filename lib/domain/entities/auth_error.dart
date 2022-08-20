@@ -1,6 +1,6 @@
 enum AuthError {
   invalidEmail,
-  invalidPassword,
+  wrongPassword,
   userNotFound,
   emailIsAlreadyInUse,
   unknown,

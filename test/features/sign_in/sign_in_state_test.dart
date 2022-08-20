@@ -115,7 +115,7 @@ void main() {
   test(
     'copy with error',
     () {
-      const SignInBlocError expectedError = SignInBlocError.invalidPassword;
+      const SignInBlocError expectedError = SignInBlocError.wrongPassword;
 
       state = state.copyWithError(expectedError);
 

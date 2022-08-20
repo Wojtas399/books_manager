@@ -81,7 +81,7 @@ void main() {
   );
 
   test(
-    'sign in, should throw appropriate auth error if password is invalid',
+    'sign in, should throw appropriate auth error if password is wrong',
     () async {
       const String email = 'email@example.com';
       const String password = 'password123';
@@ -90,12 +90,12 @@ void main() {
           email: email,
           password: password,
         ),
-      ).thenThrow(FirebaseAuthException(code: 'invalid-password'));
+      ).thenThrow(FirebaseAuthException(code: 'wrong-password'));
 
       try {
         await repository.signIn(email: email, password: password);
       } on AuthError catch (error) {
-        expect(error, AuthError.invalidPassword);
+        expect(error, AuthError.wrongPassword);
       }
     },
   );

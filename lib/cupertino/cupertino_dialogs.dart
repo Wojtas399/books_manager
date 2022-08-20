@@ -2,9 +2,13 @@ import 'package:flutter/cupertino.dart';
 
 import '../interfaces/dialog_interface.dart';
 import '../models/action_sheet_action.dart';
+import 'components/cupertino_info_dialog.dart';
 import 'components/cupertino_custom_action_sheet.dart';
+import 'components/cupertino_loading_dialog.dart';
 
 class CupertinoDialogs implements DialogInterface {
+  bool _isLoadingDialogOpened = false;
+
   @override
   Future<int?> askForAction({
     required BuildContext context,
@@ -20,6 +24,40 @@ class CupertinoDialogs implements DialogInterface {
               (ActionSheetAction action) => action.label,
             )
             .toList(),
+      ),
+    );
+  }
+
+  @override
+  void showLoadingDialog({required BuildContext context}) {
+    if (!_isLoadingDialogOpened) {
+      showCupertinoDialog(
+        context: context,
+        builder: (_) => const CupertinoLoadingDialog(),
+      );
+      _isLoadingDialogOpened = true;
+    }
+  }
+
+  @override
+  void closeLoadingDialog({required BuildContext context}) {
+    if (_isLoadingDialogOpened) {
+      Navigator.of(context, rootNavigator: true).pop();
+      _isLoadingDialogOpened = false;
+    }
+  }
+
+  @override
+  void showInfoDialog({
+    required BuildContext context,
+    required String title,
+    required String info,
+  }) {
+    showCupertinoDialog(
+      context: context,
+      builder: (_) => CupertinoInfoDialog(
+        title: title,
+        info: info,
       ),
     );
   }

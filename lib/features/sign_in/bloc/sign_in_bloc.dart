@@ -78,8 +78,8 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   SignInBlocError? _convertAuthErrorToSignInBlocError(AuthError authError) {
     if (authError == AuthError.invalidEmail) {
       return SignInBlocError.invalidEmail;
-    } else if (authError == AuthError.invalidPassword) {
-      return SignInBlocError.invalidPassword;
+    } else if (authError == AuthError.wrongPassword) {
+      return SignInBlocError.wrongPassword;
     } else if (authError == AuthError.userNotFound) {
       return SignInBlocError.userNotFound;
     }

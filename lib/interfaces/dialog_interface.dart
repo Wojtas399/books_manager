@@ -8,4 +8,14 @@ abstract class DialogInterface {
     required String title,
     required List<ActionSheetAction> actions,
   });
+
+  void showLoadingDialog({required BuildContext context});
+
+  void closeLoadingDialog({required BuildContext context});
+
+  void showInfoDialog({
+    required BuildContext context,
+    required String title,
+    required String info,
+  });
 }

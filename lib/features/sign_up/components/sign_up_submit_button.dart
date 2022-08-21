@@ -16,11 +16,13 @@ class SignUpSubmitButton extends StatelessWidget {
     );
     return widgetFactory.createButton(
       label: 'Zarejestruj',
-      onPressed: isDisabled ? null : _onPressed,
+      onPressed: isDisabled ? null : () => _onPressed(context),
     );
   }
 
-  void _onPressed() {
-    //TODO
+  void _onPressed(BuildContext context) {
+    context.read<SignUpBloc>().add(
+          SignUpEventSubmit(),
+        );
   }
 }

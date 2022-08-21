@@ -29,6 +29,21 @@ class AuthRepository implements AuthInterface {
     }
   }
 
+  @override
+  Future<void> signUp({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      await _fireAuthService.signUp(
+        email: email,
+        password: password,
+      );
+    } on FirebaseAuthException catch (exception) {
+      throw _convertFirebaseCodeToAuthError(exception.code);
+    }
+  }
+
   AuthError _convertFirebaseCodeToAuthError(String code) {
     switch (code) {
       case 'invalid-email':
@@ -37,8 +52,8 @@ class AuthRepository implements AuthInterface {
         return AuthError.wrongPassword;
       case 'user-not-found':
         return AuthError.userNotFound;
-      case 'email-is-already-in-use':
-        return AuthError.emailIsAlreadyInUse;
+      case 'email-already-in-use':
+        return AuthError.emailAlreadyInUse;
       default:
         return AuthError.unknown;
     }

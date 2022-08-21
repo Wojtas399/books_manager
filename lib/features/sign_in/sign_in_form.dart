@@ -73,7 +73,11 @@ class _SignInBlocListener extends StatelessWidget {
     context.read<DialogInterface>().closeLoadingDialog(context: context);
     final SignInBlocInfo? blocInfo = completeStatus.info;
     if (blocInfo != null) {
-      _manageBlocInfo(blocInfo, context);
+      switch (blocInfo) {
+        case SignInBlocInfo.userHasBeenSignedIn:
+          Navigation.navigateToHome(context: context);
+          break;
+      }
     }
   }
 
@@ -81,48 +85,33 @@ class _SignInBlocListener extends StatelessWidget {
     BlocStatusError errorStatus,
     BuildContext context,
   ) {
-    context.read<DialogInterface>().closeLoadingDialog(context: context);
+    final DialogInterface dialogInterface = context.read<DialogInterface>();
+    dialogInterface.closeLoadingDialog(context: context);
     final SignInBlocError? blocError = errorStatus.error;
     if (blocError != null) {
-      _manageBlocErrorType(blocError, context);
-    }
-  }
-
-  void _manageBlocInfo(SignInBlocInfo blocInfo, BuildContext context) {
-    switch (blocInfo) {
-      case SignInBlocInfo.userHasBeenSignedIn:
-        Navigation.navigateToHome(context: context);
-        break;
-    }
-  }
-
-  void _manageBlocErrorType(
-    SignInBlocError blocError,
-    BuildContext context,
-  ) {
-    final DialogInterface dialogInterface = context.read<DialogInterface>();
-    switch (blocError) {
-      case SignInBlocError.invalidEmail:
-        dialogInterface.showInfoDialog(
-          context: context,
-          title: 'Niepoprawny adres e-mail',
-          info: 'Wprowadzony adres e-mail jest niepoprawny.',
-        );
-        break;
-      case SignInBlocError.wrongPassword:
-        dialogInterface.showInfoDialog(
-          context: context,
-          title: 'Błędne hasło',
-          info: 'Podano błędne hasło dla tego użytkownika.',
-        );
-        break;
-      case SignInBlocError.userNotFound:
-        dialogInterface.showInfoDialog(
-          context: context,
-          title: 'Brak użytkownika',
-          info: 'Nie znaleziono użytkownika o podanym adresie e-mail.',
-        );
-        break;
+      switch (blocError) {
+        case SignInBlocError.invalidEmail:
+          dialogInterface.showInfoDialog(
+            context: context,
+            title: 'Niepoprawny adres e-mail',
+            info: 'Wprowadzony adres e-mail jest niepoprawny.',
+          );
+          break;
+        case SignInBlocError.wrongPassword:
+          dialogInterface.showInfoDialog(
+            context: context,
+            title: 'Błędne hasło',
+            info: 'Podano błędne hasło dla tego użytkownika.',
+          );
+          break;
+        case SignInBlocError.userNotFound:
+          dialogInterface.showInfoDialog(
+            context: context,
+            title: 'Brak użytkownika',
+            info: 'Nie znaleziono użytkownika o podanym adresie e-mail.',
+          );
+          break;
+      }
     }
   }
 }

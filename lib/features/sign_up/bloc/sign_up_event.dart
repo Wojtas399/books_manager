@@ -31,3 +31,5 @@ class SignUpEventPasswordConfirmationChanged extends SignUpEvent {
 
   SignUpEventPasswordConfirmationChanged({required this.passwordConfirmation});
 }
+
+class SignUpEventSubmit extends SignUpEvent {}

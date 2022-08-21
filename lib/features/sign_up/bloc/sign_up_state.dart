@@ -1,6 +1,7 @@
 part of 'sign_up_bloc.dart';
 
 class SignUpState extends Equatable {
+  final BlocStatus status;
   final Avatar avatar;
   final String username;
   final String email;
@@ -11,6 +12,7 @@ class SignUpState extends Equatable {
   final bool isPasswordValid;
 
   const SignUpState({
+    required this.status,
     required this.avatar,
     required this.username,
     required this.email,
@@ -23,6 +25,7 @@ class SignUpState extends Equatable {
 
   @override
   List<Object> get props => [
+        status,
         avatar,
         username,
         email,
@@ -39,9 +42,10 @@ class SignUpState extends Equatable {
       !isUsernameValid ||
       !isEmailValid ||
       !isPasswordValid ||
-      password != passwordConfirmation;
+      !isPasswordConfirmationValid;
 
   SignUpState copyWith({
+    BlocStatus? status,
     Avatar? avatar,
     String? username,
     String? email,
@@ -52,6 +56,7 @@ class SignUpState extends Equatable {
     bool? isPasswordValid,
   }) {
     return SignUpState(
+      status: status ?? const BlocStatusInProgress(),
       avatar: avatar ?? this.avatar,
       username: username ?? this.username,
       email: email ?? this.email,
@@ -62,4 +67,24 @@ class SignUpState extends Equatable {
       isPasswordValid: isPasswordValid ?? this.isPasswordValid,
     );
   }
+
+  SignUpState copyWithInfo(SignUpBlocInfo info) {
+    return copyWith(
+      status: BlocStatusComplete<SignUpBlocInfo>(info: info),
+    );
+  }
+
+  SignUpState copyWithError(SignUpBlocError error) {
+    return copyWith(
+      status: BlocStatusError<SignUpBlocError>(error: error),
+    );
+  }
+}
+
+enum SignUpBlocInfo {
+  userHasBeenSignedUp,
+}
+
+enum SignUpBlocError {
+  emailIsAlreadyTaken,
 }

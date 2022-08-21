@@ -119,4 +119,47 @@ void main() {
       }
     },
   );
+
+  test(
+    'sign up, should call method responsible for signing up user',
+    () async {
+      const String email = 'email@example.com';
+      const String password = 'password123';
+      when(
+        () => fireAuthService.signUp(
+          email: email,
+          password: password,
+        ),
+      ).thenAnswer((_) async => '');
+
+      await repository.signUp(email: email, password: password);
+
+      verify(
+        () => fireAuthService.signUp(
+          email: email,
+          password: password,
+        ),
+      ).called(1);
+    },
+  );
+
+  test(
+    'sign up, should throw appropriate auth error if email is already in use',
+    () async {
+      const String email = 'email@example.com';
+      const String password = 'password123';
+      when(
+        () => fireAuthService.signUp(
+          email: email,
+          password: password,
+        ),
+      ).thenThrow(FirebaseAuthException(code: 'email-already-in-use'));
+
+      try {
+        await repository.signUp(email: email, password: password);
+      } on AuthError catch (error) {
+        expect(error, AuthError.emailAlreadyInUse);
+      }
+    },
+  );
 }

@@ -64,12 +64,12 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         SignInBlocInfo.userHasBeenSignedIn,
       ));
     } on AuthError catch (authError) {
-      SignInBlocError? signInBlocError = _convertAuthErrorToSignInBlocError(
+      SignInBlocError? blocError = _convertAuthErrorToSignInBlocError(
         authError,
       );
-      if (signInBlocError != null) {
+      if (blocError != null) {
         emit(state.copyWithError(
-          signInBlocError,
+          blocError,
         ));
       }
     }

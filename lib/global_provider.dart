@@ -29,6 +29,9 @@ class GlobalProvider extends StatelessWidget {
         RepositoryProvider(
           create: (_) => FirebaseProvider.provideAuthInterface(),
         ),
+        RepositoryProvider(
+          create: (_) => FirebaseProvider.provideUserInterface(),
+        ),
       ],
       child: child,
     );

@@ -115,7 +115,7 @@ void main() {
       );
 
       blocTest(
-        'should emit appropriate info if email is invalid',
+        'should emit appropriate error if email is invalid',
         build: () => createBloc(
           email: email,
           password: password,
@@ -150,7 +150,7 @@ void main() {
       );
 
       blocTest(
-        'should emit appropriate info if password is invalid',
+        'should emit appropriate error if password is invalid',
         build: () => createBloc(
           email: email,
           password: password,
@@ -185,7 +185,7 @@ void main() {
       );
 
       blocTest(
-        'should emit appropriate info if user has not been found',
+        'should emit appropriate error if user has not been found',
         build: () => createBloc(
           email: email,
           password: password,

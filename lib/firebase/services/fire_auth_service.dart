@@ -16,4 +16,14 @@ class FireAuthService {
       password: password,
     );
   }
+
+  Future<void> signUp({
+    required String email,
+    required String password,
+  }) async {
+    await FireInstances.auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+  }
 }

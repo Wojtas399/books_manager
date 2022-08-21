@@ -1,10 +1,11 @@
 import 'package:flutter/widgets.dart';
 
 import '../../../config/themes/app_colors.dart';
-import '../../sign_in/sign_in_form.dart';
 
-class InitialHomeFormCard extends StatelessWidget {
-  const InitialHomeFormCard({super.key});
+class SignInFormCard extends StatelessWidget {
+  final Widget child;
+
+  const SignInFormCard({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -18,11 +19,14 @@ class InitialHomeFormCard extends StatelessWidget {
             color: AppColors.grey.withOpacity(0.2),
             spreadRadius: 5,
             blurRadius: 7,
-            offset: const Offset(0, 4), // changes position of shadow
-          ),
+            offset: const Offset(0, 4),
+          )
         ],
       ),
-      child: const SignInForm(),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: child,
+      ),
     );
   }
 }

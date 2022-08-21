@@ -7,16 +7,16 @@ import '../../interfaces/auth_interface.dart';
 import '../../interfaces/dialog_interface.dart';
 import '../../models/bloc_status.dart';
 import 'bloc/sign_in_bloc.dart';
-import 'components/sign_in_form_content.dart';
+import 'components/sign_in_content.dart';
 
-class SignInForm extends StatelessWidget {
-  const SignInForm({super.key});
+class SignInScreen extends StatelessWidget {
+  const SignInScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return const _SignInBlocProvider(
       child: _SignInBlocListener(
-        child: SignInFormContent(),
+        child: SignInContent(),
       ),
     );
   }

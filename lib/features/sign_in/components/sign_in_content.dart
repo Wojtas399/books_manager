@@ -1,30 +1,66 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../components/on_tap_focus_lose_area_component.dart';
 import '../../../config/navigation.dart';
 import '../../../config/themes/app_colors.dart';
 import '../../../interfaces/factories/text_factory_interface.dart';
+import '../../../interfaces/factories/widget_factory_interface.dart';
+import 'sign_in_background.dart';
+import 'sign_in_form_card.dart';
 import 'sign_in_inputs.dart';
 import 'sign_in_submit_button.dart';
 
-class SignInFormContent extends StatelessWidget {
-  const SignInFormContent({super.key});
+class SignInContent extends StatelessWidget {
+  const SignInContent({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        children: const [
-          _Title(),
-          SizedBox(height: 32),
-          SignInInputs(),
-          SizedBox(height: 32),
-          SignInSubmitButton(),
-          SizedBox(height: 16),
-          _AlternativeOptions(),
-        ],
+    final WidgetFactoryInterface widgetFactory =
+        context.read<WidgetFactoryInterface>();
+    return widgetFactory.createScaffold(
+      withAppBar: false,
+      child: SignInBackground(
+        child: SafeArea(
+          child: OnTapFocusLoseAreaComponent(
+            child: Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const _Logo(),
+                    const SizedBox(height: 32),
+                    SignInFormCard(
+                      child: Column(
+                        children: const [
+                          _Title(),
+                          SizedBox(height: 32),
+                          SignInInputs(),
+                          SizedBox(height: 32),
+                          SignInSubmitButton(),
+                          SizedBox(height: 16),
+                          _AlternativeOptions(),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
+    );
+  }
+}
+
+class _Logo extends StatelessWidget {
+  const _Logo();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 320,
+      child: Image.asset('assets/images/Logo.png'),
     );
   }
 }

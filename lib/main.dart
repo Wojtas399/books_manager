@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 
-import 'features/initial_home/initial_home.dart';
+import 'features/sign_in/sign_in_screen.dart';
 import 'global_provider.dart';
 import 'interfaces/factories/widget_factory_interface.dart';
 
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
           final widgetFactory = context.read<WidgetFactoryInterface>();
           return widgetFactory.createApp(
             title: 'BooksManager',
-            home: const InitialHome(),
+            home: const SignInScreen(),
           );
         },
       ),

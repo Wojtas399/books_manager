@@ -31,7 +31,7 @@ class BasicAvatarSelectionComponent extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 AvatarComponent(
-                  avatar: BasicAvatar(type: BasicAvatarType.red),
+                  avatar: const BasicAvatar(type: BasicAvatarType.red),
                   size: avatarSize,
                   onPressed: () {
                     Navigator.pop(context, BasicAvatarType.red);
@@ -39,7 +39,7 @@ class BasicAvatarSelectionComponent extends StatelessWidget {
                 ),
                 gap,
                 AvatarComponent(
-                  avatar: BasicAvatar(type: BasicAvatarType.green),
+                  avatar: const BasicAvatar(type: BasicAvatarType.green),
                   size: avatarSize,
                   onPressed: () {
                     Navigator.pop(context, BasicAvatarType.green);
@@ -47,7 +47,7 @@ class BasicAvatarSelectionComponent extends StatelessWidget {
                 ),
                 gap,
                 AvatarComponent(
-                  avatar: BasicAvatar(type: BasicAvatarType.blue),
+                  avatar: const BasicAvatar(type: BasicAvatarType.blue),
                   size: avatarSize,
                   onPressed: () {
                     Navigator.pop(context, BasicAvatarType.blue);

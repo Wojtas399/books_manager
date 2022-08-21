@@ -34,7 +34,7 @@ class _AvatarWithChangeOptionComponentState
   @override
   Widget build(BuildContext context) {
     return AvatarComponent(
-      avatar: _chosenAvatar ?? BasicAvatar(type: BasicAvatarType.red),
+      avatar: _chosenAvatar ?? const BasicAvatar(type: BasicAvatarType.red),
       size: widget.size ?? 80,
       onPressed: () => _onAvatarPressed(),
     );

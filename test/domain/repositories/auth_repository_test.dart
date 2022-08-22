@@ -1,3 +1,4 @@
+import 'package:app/database/firebase/services/fire_auth_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -5,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:app/domain/entities/auth_state.dart';
 import 'package:app/domain/entities/auth_error.dart';
 import 'package:app/domain/repositories/auth_repository.dart';
-import 'package:app/firebase/services/fire_auth_service.dart';
 
 class MockFireAuthService extends Mock implements FireAuthService {}
 

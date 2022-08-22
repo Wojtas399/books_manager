@@ -2,10 +2,10 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:app/database/firebase/services/fire_avatar_service.dart';
+import 'package:app/database/firebase/services/fire_user_service.dart';
+import 'package:app/database/firebase/fire_extensions.dart';
 import 'package:app/domain/repositories/user_repository.dart';
-import 'package:app/firebase/fire_extensions.dart';
-import 'package:app/firebase/services/fire_avatar_service.dart';
-import 'package:app/firebase/services/fire_user_service.dart';
 import 'package:app/models/avatar.dart';
 
 class MockFireUserService extends Mock implements FireUserService {}

@@ -1,6 +1,6 @@
-import '../../firebase/fire_extensions.dart';
-import '../../firebase/services/fire_avatar_service.dart';
-import '../../firebase/services/fire_user_service.dart';
+import '../../database/firebase/fire_extensions.dart';
+import '../../database/firebase/services/fire_avatar_service.dart';
+import '../../database/firebase/services/fire_user_service.dart';
 import '../../interfaces/user_interface.dart';
 import '../../models/avatar.dart';
 

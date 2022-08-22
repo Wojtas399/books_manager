@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../../firebase/services/fire_auth_service.dart';
+import '../../database/firebase/services/fire_auth_service.dart';
 import '../../interfaces/auth_interface.dart';
 import '../entities/auth_error.dart';
 import '../entities/auth_state.dart';

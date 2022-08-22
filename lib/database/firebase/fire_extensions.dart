@@ -1,4 +1,4 @@
-import '../models/avatar.dart';
+import '../../models/avatar.dart';
 
 extension FireBasicAvatarTypeExtensions on BasicAvatarType {
   String toFirebaseString() {

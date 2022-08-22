@@ -9,6 +9,7 @@ class CupertinoScaffold extends StatelessWidget {
   final Color? appBarBackgroundColor;
   final bool appBarWithElevation;
   final Icon? leadingIcon;
+  final bool automaticallyImplyLeading;
 
   const CupertinoScaffold({
     super.key,
@@ -18,6 +19,7 @@ class CupertinoScaffold extends StatelessWidget {
     this.appBarBackgroundColor,
     this.appBarWithElevation = true,
     this.leadingIcon,
+    this.automaticallyImplyLeading = true,
   });
 
   @override
@@ -25,6 +27,7 @@ class CupertinoScaffold extends StatelessWidget {
     return CupertinoPageScaffold(
       navigationBar: withAppBar
           ? CupertinoNavigationBar(
+        automaticallyImplyLeading: automaticallyImplyLeading,
               backgroundColor: appBarBackgroundColor ?? AppColors.secondary,
               middle: Text(appBarTitle ?? ''),
               border: appBarWithElevation == false

@@ -13,6 +13,7 @@ abstract class WidgetFactory {
     Color? appBarBackgroundColor,
     bool appBarWithElevation = true,
     Icon? leadingIcon,
+    bool automaticallyImplyLeading = true,
   });
 
   Widget createTextFormField({

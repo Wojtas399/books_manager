@@ -7,6 +7,7 @@ class MaterialScaffold extends StatelessWidget {
   final Color? appBarBackgroundColor;
   final bool appBarWithElevation;
   final Icon? leadingIcon;
+  final bool automaticallyImplyLeading;
 
   const MaterialScaffold({
     super.key,
@@ -16,6 +17,7 @@ class MaterialScaffold extends StatelessWidget {
     this.appBarBackgroundColor,
     this.appBarWithElevation = true,
     this.leadingIcon,
+    this.automaticallyImplyLeading = true,
   });
 
   @override
@@ -23,6 +25,7 @@ class MaterialScaffold extends StatelessWidget {
     return Scaffold(
       appBar: withAppBar
           ? AppBar(
+              automaticallyImplyLeading: automaticallyImplyLeading,
               title: Text(appBarTitle ?? ''),
               centerTitle: true,
               backgroundColor: appBarBackgroundColor,

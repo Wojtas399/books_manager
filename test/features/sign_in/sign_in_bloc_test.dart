@@ -2,14 +2,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:bloc_test/bloc_test.dart';
 
+import 'package:app/domain/entities/auth_state.dart';
 import 'package:app/domain/entities/auth_error.dart';
+import 'package:app/domain/use_cases/auth/get_auth_state_use_case.dart';
 import 'package:app/domain/use_cases/auth/sign_in_use_case.dart';
 import 'package:app/features/sign_in/bloc/sign_in_bloc.dart';
 import 'package:app/models/bloc_status.dart';
 
+class MockGetAuthStateUseCase extends Mock implements GetAuthStateUseCase {}
+
 class MockSignInUseCase extends Mock implements SignInUseCase {}
 
 void main() {
+  final getAuthStateUseCase = MockGetAuthStateUseCase();
   final signInUseCase = MockSignInUseCase();
 
   SignInBloc createBloc({
@@ -17,6 +22,7 @@ void main() {
     String password = '',
   }) {
     return SignInBloc(
+      getAuthStateUseCase: getAuthStateUseCase,
       signInUseCase: signInUseCase,
       email: email,
       password: password,
@@ -38,6 +44,28 @@ void main() {
   tearDown(() {
     reset(signInUseCase);
   });
+
+  blocTest(
+    'initialize, should emit appropriate info if auth state is set to signed in',
+    build: () => createBloc(),
+    setUp: () {
+      when(
+        () => getAuthStateUseCase.execute(),
+      ).thenAnswer((_) => Stream.value(AuthState.signedIn));
+    },
+    act: (SignInBloc bloc) {
+      bloc.add(
+        SignInEventInitialize(),
+      );
+    },
+    expect: () => [
+      createState(
+        status: const BlocStatusComplete<SignInBlocInfo>(
+          info: SignInBlocInfo.userHasBeenSignedIn,
+        ),
+      ),
+    ],
+  );
 
   blocTest(
     'email changed, should update email in state',

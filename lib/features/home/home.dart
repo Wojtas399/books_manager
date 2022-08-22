@@ -11,6 +11,7 @@ class Home extends StatelessWidget {
     final WidgetFactory widgetFactory = context.read<WidgetFactory>();
 
     return widgetFactory.createScaffold(
+      automaticallyImplyLeading: false,
       child: const Center(
         child: Text('Welcome home!'),
       ),

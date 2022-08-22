@@ -28,6 +28,7 @@ class MaterialWidgetFactory implements WidgetFactory {
     Color? appBarBackgroundColor,
     bool appBarWithElevation = true,
     Icon? leadingIcon,
+    bool automaticallyImplyLeading = true,
   }) {
     return MaterialScaffold(
       withAppBar: withAppBar,
@@ -35,6 +36,7 @@ class MaterialWidgetFactory implements WidgetFactory {
       appBarBackgroundColor: appBarBackgroundColor,
       appBarWithElevation: appBarWithElevation,
       leadingIcon: leadingIcon,
+      automaticallyImplyLeading: automaticallyImplyLeading,
       child: child,
     );
   }

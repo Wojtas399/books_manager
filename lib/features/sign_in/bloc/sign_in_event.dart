@@ -2,6 +2,8 @@ part of 'sign_in_bloc.dart';
 
 abstract class SignInEvent {}
 
+class SignInEventInitialize extends SignInEvent {}
+
 class SignInEventEmailChanged extends SignInEvent {
   final String email;
 

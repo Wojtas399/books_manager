@@ -2,6 +2,8 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../domain/entities/auth_error.dart';
+import '../../../domain/entities/auth_state.dart';
+import '../../../domain/use_cases/auth/get_auth_state_use_case.dart';
 import '../../../domain/use_cases/auth/sign_in_use_case.dart';
 import '../../../models/bloc_status.dart';
 
@@ -10,9 +12,11 @@ part 'sign_in_event.dart';
 part 'sign_in_state.dart';
 
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
+  late final GetAuthStateUseCase _getAuthStateUseCase;
   late final SignInUseCase _signInUseCase;
 
   SignInBloc({
+    required GetAuthStateUseCase getAuthStateUseCase,
     required SignInUseCase signInUseCase,
     BlocStatus status = const BlocStatusInitial(),
     String email = '',
@@ -24,10 +28,24 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
             password: password,
           ),
         ) {
+    _getAuthStateUseCase = getAuthStateUseCase;
     _signInUseCase = signInUseCase;
+    on<SignInEventInitialize>(_initialize);
     on<SignInEventEmailChanged>(_emailChanged);
     on<SignInEventPasswordChanged>(_passwordChanged);
     on<SignInEventSubmit>(_submit);
+  }
+
+  Future<void> _initialize(
+    SignInEventInitialize event,
+    Emitter<SignInState> emit,
+  ) async {
+    final AuthState authState = await _getAuthStateUseCase.execute().first;
+    if (authState == AuthState.signedIn) {
+      emit(state.copyWithInfo(
+        SignInBlocInfo.userHasBeenSignedIn,
+      ));
+    }
   }
 
   void _emailChanged(

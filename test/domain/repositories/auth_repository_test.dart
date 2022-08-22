@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:app/domain/entities/auth_state.dart';
 import 'package:app/domain/entities/auth_error.dart';
 import 'package:app/domain/repositories/auth_repository.dart';
 import 'package:app/firebase/services/fire_auth_service.dart';
@@ -21,19 +22,16 @@ void main() {
   });
 
   test(
-    'is user signed in, should return stream which contains user login status',
+    'auth state',
     () async {
-      const bool expectedValue = true;
+      const AuthState expectedState = AuthState.signedIn;
       when(
         () => fireAuthService.isUserSignedIn,
-      ).thenAnswer((_) => Stream.value(expectedValue));
+      ).thenAnswer((_) => Stream.value(true));
 
-      final Stream<bool> isUserSignedIn$ = repository.isUserSignedIn$;
+      final Stream<AuthState> authState$ = repository.authState$;
 
-      expect(
-        await isUserSignedIn$.first,
-        expectedValue,
-      );
+      expect(await authState$.first, expectedState);
     },
   );
 

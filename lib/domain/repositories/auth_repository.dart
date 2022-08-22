@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../firebase/services/fire_auth_service.dart';
 import '../../interfaces/auth_interface.dart';
 import '../entities/auth_error.dart';
+import '../entities/auth_state.dart';
 
 class AuthRepository implements AuthInterface {
   late final FireAuthService _fireAuthService;
@@ -12,7 +13,10 @@ class AuthRepository implements AuthInterface {
   }
 
   @override
-  Stream<bool> get isUserSignedIn$ => _fireAuthService.isUserSignedIn;
+  Stream<AuthState> get authState$ => _fireAuthService.isUserSignedIn.map(
+        (bool isSignedIn) =>
+            isSignedIn ? AuthState.signedIn : AuthState.signedOut,
+      );
 
   @override
   Future<void> signIn({

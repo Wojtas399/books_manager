@@ -1,5 +1,7 @@
+import '../domain/entities/auth_state.dart';
+
 abstract class AuthInterface {
-  Stream<bool> get isUserSignedIn$;
+  Stream<AuthState> get authState$;
 
   Future<void> signIn({
     required String email,

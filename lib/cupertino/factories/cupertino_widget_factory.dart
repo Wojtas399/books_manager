@@ -28,6 +28,7 @@ class CupertinoWidgetFactory implements WidgetFactory {
     Color? appBarBackgroundColor,
     bool appBarWithElevation = true,
     Icon? leadingIcon,
+    bool automaticallyImplyLeading = true,
   }) {
     return CupertinoScaffold(
       withAppBar: withAppBar,
@@ -35,6 +36,7 @@ class CupertinoWidgetFactory implements WidgetFactory {
       appBarBackgroundColor: appBarBackgroundColor,
       appBarWithElevation: appBarWithElevation,
       leadingIcon: leadingIcon,
+      automaticallyImplyLeading: automaticallyImplyLeading,
       child: child,
     );
   }

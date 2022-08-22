@@ -1,17 +1,17 @@
 import 'package:flutter/widgets.dart';
 
 abstract class IconFactoryInterface {
-  Icon createAccountIcon();
+  Icon createAccountIcon({double? size, Color? color});
 
-  Icon createLockIcon();
+  Icon createLockIcon({double? size, Color? color});
 
-  Icon createEnvelopeIcon();
+  Icon createEnvelopeIcon({double? size, Color? color});
 
-  Icon createCloseIcon();
+  Icon createCloseIcon({double? size, Color? color});
 
-  Icon createBookIcon();
+  Icon createBookIcon({double? size, Color? color});
 
-  Icon createImageIcon();
+  Icon createImageIcon({double? size, Color? color});
 
-  Icon createCameraIcon();
+  Icon createCameraIcon({double? size, Color? color});
 }

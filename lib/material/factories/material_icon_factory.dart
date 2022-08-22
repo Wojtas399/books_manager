@@ -3,38 +3,68 @@ import 'package:flutter/material.dart';
 import '../../interfaces/factories/icon_factory_interface.dart';
 
 class MaterialIconFactory implements IconFactoryInterface {
+  final double defaultIconSize = 24;
+
   @override
-  Icon createAccountIcon() {
-    return const Icon(Icons.person_outline_rounded);
+  Icon createAccountIcon({double? size, Color? color}) {
+    return Icon(
+      Icons.person_outline_rounded,
+      size: size ?? defaultIconSize,
+      color: color,
+    );
   }
 
   @override
-  Icon createLockIcon() {
-    return const Icon(Icons.lock_outline_rounded);
+  Icon createLockIcon({double? size, Color? color}) {
+    return Icon(
+      Icons.lock_outline_rounded,
+      size: size ?? defaultIconSize,
+      color: color,
+    );
   }
 
   @override
-  Icon createEnvelopeIcon() {
-    return const Icon(Icons.email_outlined);
+  Icon createEnvelopeIcon({double? size, Color? color}) {
+    return Icon(
+      Icons.email_outlined,
+      size: size ?? defaultIconSize,
+      color: color,
+    );
   }
 
   @override
-  Icon createCloseIcon() {
-    return const Icon(Icons.close);
+  Icon createCloseIcon({double? size, Color? color}) {
+    return Icon(
+      Icons.close,
+      size: size ?? defaultIconSize,
+      color: color,
+    );
   }
 
   @override
-  Icon createBookIcon() {
-    return const Icon(Icons.library_books_outlined);
+  Icon createBookIcon({double? size, Color? color}) {
+    return Icon(
+      Icons.library_books_outlined,
+      size: size ?? defaultIconSize,
+      color: color,
+    );
   }
 
   @override
-  Icon createImageIcon() {
-    return const Icon(Icons.image_outlined);
+  Icon createImageIcon({double? size, Color? color}) {
+    return Icon(
+      Icons.image_outlined,
+      size: size ?? defaultIconSize,
+      color: color,
+    );
   }
 
   @override
-  Icon createCameraIcon() {
-    return const Icon(Icons.camera_alt_outlined);
+  Icon createCameraIcon({double? size, Color? color}) {
+    return Icon(
+      Icons.camera_alt_outlined,
+      size: size ?? defaultIconSize,
+      color: color,
+    );
   }
 }

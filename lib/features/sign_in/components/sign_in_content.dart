@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../components/on_tap_focus_lose_area_component.dart';
 import '../../../config/navigation.dart';
 import '../../../config/themes/app_colors.dart';
-import '../../../interfaces/factories/text_factory_interface.dart';
+import '../../../config/themes/text_theme.dart';
 import '../../../interfaces/factories/widget_factory_interface.dart';
 import 'sign_in_background.dart';
 import 'sign_in_form_card.dart';
@@ -70,11 +70,9 @@ class _Title extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textFactory = context.read<TextFactoryInterface>();
-    return textFactory.createTitleText(
-      text: 'Logowanie',
-      color: AppColors.primary,
-      context: context,
+    return Text(
+      'Logowanie',
+      style: TextTheme.titleBig.copyWith(color: AppColors.primary),
     );
   }
 }
@@ -93,7 +91,7 @@ class _AlternativeOptions extends StatelessWidget {
         GestureDetector(
           onTap: () => _onForgotPasswordPressed(context),
           child: Text(
-            'Zapomniałeś hasła?',
+            'Nie pamiętasz hasła?',
             style: textStyle,
           ),
         ),
@@ -110,7 +108,7 @@ class _AlternativeOptions extends StatelessWidget {
   }
 
   void _onForgotPasswordPressed(BuildContext context) {
-    //TODO
+    Navigation.navigateToResetPasswordScreen(context: context);
   }
 
   void _onSignUpPressed(BuildContext context) {

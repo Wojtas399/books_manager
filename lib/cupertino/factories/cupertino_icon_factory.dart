@@ -3,38 +3,68 @@ import 'package:flutter/cupertino.dart';
 import '../../interfaces/factories/icon_factory_interface.dart';
 
 class CupertinoIconFactory implements IconFactoryInterface {
+  final double defaultIconSize = 24;
+
   @override
-  Icon createAccountIcon() {
-    return const Icon(CupertinoIcons.person);
+  Icon createAccountIcon({double? size, Color? color}) {
+    return Icon(
+      CupertinoIcons.person,
+      size: size ?? defaultIconSize,
+      color: color,
+    );
   }
 
   @override
-  Icon createLockIcon() {
-    return const Icon(CupertinoIcons.lock);
+  Icon createLockIcon({double? size, Color? color}) {
+    return Icon(
+      CupertinoIcons.lock,
+      size: size ?? defaultIconSize,
+      color: color,
+    );
   }
 
   @override
-  Icon createEnvelopeIcon() {
-    return const Icon(CupertinoIcons.envelope);
+  Icon createEnvelopeIcon({double? size, Color? color}) {
+    return Icon(
+      CupertinoIcons.envelope,
+      size: size ?? defaultIconSize,
+      color: color,
+    );
   }
 
   @override
-  Icon createCloseIcon() {
-    return const Icon(CupertinoIcons.clear);
+  Icon createCloseIcon({double? size, Color? color}) {
+    return Icon(
+      CupertinoIcons.clear,
+      size: size ?? defaultIconSize,
+      color: color,
+    );
   }
 
   @override
-  Icon createBookIcon() {
-    return const Icon(CupertinoIcons.book);
+  Icon createBookIcon({double? size, Color? color}) {
+    return Icon(
+      CupertinoIcons.book,
+      size: size ?? defaultIconSize,
+      color: color,
+    );
   }
 
   @override
-  Icon createImageIcon() {
-    return const Icon(CupertinoIcons.photo);
+  Icon createImageIcon({double? size, Color? color}) {
+    return Icon(
+      CupertinoIcons.photo,
+      size: size ?? defaultIconSize,
+      color: color,
+    );
   }
 
   @override
-  Icon createCameraIcon() {
-    return const Icon(CupertinoIcons.camera);
+  Icon createCameraIcon({double? size, Color? color}) {
+    return Icon(
+      CupertinoIcons.camera,
+      size: size ?? defaultIconSize,
+      color: color,
+    );
   }
 }

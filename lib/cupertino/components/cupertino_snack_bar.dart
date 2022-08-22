@@ -35,7 +35,7 @@ class _CupertinoSnackBarState extends State<CupertinoSnackBar> {
       child: Stack(
         children: [
           AnimatedPositioned(
-            top: _show ? 8.0 : -50.0,
+            bottom: _show ? 8.0 : -50.0,
             left: 8.0,
             right: 8.0,
             curve: _show ? Curves.linearToEaseOut : Curves.easeInToLinear,

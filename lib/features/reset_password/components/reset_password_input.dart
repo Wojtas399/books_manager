@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../interfaces/factories/icon_factory.dart';
 import '../../../interfaces/factories/widget_factory.dart';
+import '../bloc/reset_password_bloc.dart';
 
 class ResetPasswordInput extends StatelessWidget {
   const ResetPasswordInput({super.key});
@@ -15,6 +16,13 @@ class ResetPasswordInput extends StatelessWidget {
     return widgetFactory.createTextFormField(
       placeholder: 'Adres email',
       icon: iconFactory.createEnvelopeIcon(),
+      onChanged: (String email) => _onEmailChanged(email, context),
     );
+  }
+
+  void _onEmailChanged(String email, BuildContext context) {
+    context.read<ResetPasswordBloc>().add(
+          ResetPasswordEventEmailChanged(email: email),
+        );
   }
 }

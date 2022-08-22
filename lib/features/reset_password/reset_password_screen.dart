@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../domain/use_cases/auth/send_reset_password_email_use_case.dart';
+import '../../interfaces/auth_interface.dart';
 import '../../interfaces/dialog_interface.dart';
 import '../../models/bloc_status.dart';
 import 'bloc/reset_password_bloc.dart';
@@ -27,7 +29,11 @@ class _ResetPasswordBlocProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => ResetPasswordBloc(),
+      create: (BuildContext context) => ResetPasswordBloc(
+        sendResetPasswordEmailUseCase: SendResetPasswordEmailUseCase(
+          authInterface: context.read<AuthInterface>(),
+        ),
+      ),
       child: child,
     );
   }
@@ -92,6 +98,13 @@ class _ResetPasswordBlocListener extends StatelessWidget {
             context: context,
             title: 'Brak użytkownika',
             info: 'Nie znaleziono użytkownika o podanym adresie email.',
+          );
+          break;
+        case ResetPasswordBlocError.invalidEmail:
+          dialogInterface.showInfoDialog(
+            context: context,
+            title: 'Niepoprawny adres email',
+            info: 'Nie można wysłać wiadomości, ponieważ podany adres email jest niepoprawny.',
           );
           break;
       }

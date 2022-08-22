@@ -26,4 +26,8 @@ class FireAuthService {
       password: password,
     );
   }
+
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    await FireInstances.auth.sendPasswordResetEmail(email: email);
+  }
 }

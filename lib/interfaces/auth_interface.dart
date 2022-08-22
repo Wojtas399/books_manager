@@ -10,4 +10,6 @@ abstract class AuthInterface {
     required String email,
     required String password,
   });
+
+  Future<void> sendPasswordResetEmail({required String email});
 }

@@ -12,6 +12,8 @@ class ResetPasswordState extends Equatable {
   @override
   List<Object> get props => [status, email];
 
+  bool get isButtonDisabled => email.isEmpty;
+
   ResetPasswordState copyWith({
     BlocStatus? status,
     String? email,
@@ -40,5 +42,6 @@ enum ResetPasswordBlocInfo {
 }
 
 enum ResetPasswordBlocError {
+  invalidEmail,
   userNotFound,
 }

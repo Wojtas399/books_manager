@@ -25,7 +25,7 @@ class AuthRepository implements AuthInterface {
         password: password,
       );
     } on FirebaseAuthException catch (exception) {
-      throw _convertFirebaseCodeToAuthError(exception.code);
+      throw _convertFirebaseAuthExceptionCodeToAuthError(exception.code);
     }
   }
 
@@ -40,11 +40,20 @@ class AuthRepository implements AuthInterface {
         password: password,
       );
     } on FirebaseAuthException catch (exception) {
-      throw _convertFirebaseCodeToAuthError(exception.code);
+      throw _convertFirebaseAuthExceptionCodeToAuthError(exception.code);
     }
   }
 
-  AuthError _convertFirebaseCodeToAuthError(String code) {
+  @override
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    try {
+      await _fireAuthService.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (exception) {
+      throw _convertFirebaseAuthExceptionCodeToAuthError(exception.code);
+    }
+  }
+
+  AuthError _convertFirebaseAuthExceptionCodeToAuthError(String code) {
     switch (code) {
       case 'invalid-email':
         return AuthError.invalidEmail;

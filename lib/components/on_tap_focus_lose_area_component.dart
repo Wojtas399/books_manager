@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../config/themes/app_colors.dart';
+import '../utils/utils.dart';
 
 class OnTapFocusLoseAreaComponent extends StatelessWidget {
   final Widget child;
@@ -22,6 +23,6 @@ class OnTapFocusLoseAreaComponent extends StatelessWidget {
   }
 
   void _unfocusElements() {
-    FocusManager.instance.primaryFocus?.unfocus();
+    Utils.unfocusInputs();
   }
 }

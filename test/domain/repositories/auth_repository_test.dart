@@ -162,4 +162,52 @@ void main() {
       }
     },
   );
+
+  test(
+    'send password reset email, should call method responsible for sending password reset email',
+    () async {
+      const String email = 'email@example.com';
+      when(
+        () => fireAuthService.sendPasswordResetEmail(email: email),
+      ).thenAnswer((_) async => '');
+
+      await repository.sendPasswordResetEmail(email: email);
+
+      verify(
+        () => fireAuthService.sendPasswordResetEmail(email: email),
+      ).called(1);
+    },
+  );
+
+  test(
+    'send reset password email, should throw auth error if email is invalid',
+    () async {
+      const String email = 'email';
+      when(
+        () => fireAuthService.sendPasswordResetEmail(email: email),
+      ).thenThrow(FirebaseAuthException(code: 'invalid-email'));
+
+      try {
+        await repository.sendPasswordResetEmail(email: email);
+      } on AuthError catch (error) {
+        expect(error, AuthError.invalidEmail);
+      }
+    },
+  );
+
+  test(
+    'send reset password email, should throw auth error if user has not been found',
+    () async {
+      const String email = 'email';
+      when(
+        () => fireAuthService.sendPasswordResetEmail(email: email),
+      ).thenThrow(FirebaseAuthException(code: 'user-not-found'));
+
+      try {
+        await repository.sendPasswordResetEmail(email: email);
+      } on AuthError catch (error) {
+        expect(error, AuthError.userNotFound);
+      }
+    },
+  );
 }

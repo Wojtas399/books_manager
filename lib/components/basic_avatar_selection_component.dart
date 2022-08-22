@@ -2,8 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../config/themes/app_colors.dart';
-import '../interfaces/factories/icon_factory_interface.dart';
-import '../interfaces/factories/widget_factory_interface.dart';
+import '../interfaces/factories/icon_factory.dart';
+import '../interfaces/factories/widget_factory.dart';
 import '../models/avatar.dart';
 import 'avatar_component.dart';
 
@@ -12,12 +12,11 @@ class BasicAvatarSelectionComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WidgetFactoryInterface widgetFactory =
-        context.read<WidgetFactoryInterface>();
-    final IconFactoryInterface iconFactory =
-        context.read<IconFactoryInterface>();
+    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
+    final IconFactory iconFactory = context.read<IconFactory>();
     const double avatarSize = 80;
     const Widget gap = SizedBox(height: 32);
+
     return widgetFactory.createScaffold(
       appBarTitle: 'Wybierz avatar',
       appBarBackgroundColor: AppColors.background,

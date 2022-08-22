@@ -5,7 +5,7 @@ import '../../../components/on_tap_focus_lose_area_component.dart';
 import '../../../config/navigation.dart';
 import '../../../config/themes/app_colors.dart';
 import '../../../config/themes/text_theme.dart';
-import '../../../interfaces/factories/widget_factory_interface.dart';
+import '../../../interfaces/factories/widget_factory.dart';
 import 'sign_in_background.dart';
 import 'sign_in_form_card.dart';
 import 'sign_in_inputs.dart';
@@ -16,8 +16,8 @@ class SignInContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WidgetFactoryInterface widgetFactory =
-        context.read<WidgetFactoryInterface>();
+    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
+
     return widgetFactory.createScaffold(
       withAppBar: false,
       child: SignInBackground(

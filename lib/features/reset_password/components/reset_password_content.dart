@@ -2,8 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../config/themes/app_colors.dart';
-import '../../../interfaces/factories/icon_factory_interface.dart';
-import '../../../interfaces/factories/widget_factory_interface.dart';
+import '../../../interfaces/factories/icon_factory.dart';
+import '../../../interfaces/factories/widget_factory.dart';
 import 'reset_password_description.dart';
 import 'reset_password_input.dart';
 import 'reset_password_submit_button.dart';
@@ -13,10 +13,9 @@ class ResetPasswordContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WidgetFactoryInterface widgetFactory =
-        context.read<WidgetFactoryInterface>();
-    final IconFactoryInterface iconFactory =
-        context.read<IconFactoryInterface>();
+    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
+    final IconFactory iconFactory = context.read<IconFactory>();
+
     return widgetFactory.createScaffold(
       leadingIcon: iconFactory.createCloseIcon(),
       appBarTitle: 'Resetowanie hasła',

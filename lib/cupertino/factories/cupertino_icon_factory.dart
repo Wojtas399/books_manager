@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 
-import '../../interfaces/factories/icon_factory_interface.dart';
+import '../../interfaces/factories/icon_factory.dart';
 
-class CupertinoIconFactory implements IconFactoryInterface {
+class CupertinoIconFactory implements IconFactory {
   final double defaultIconSize = 24;
 
   @override

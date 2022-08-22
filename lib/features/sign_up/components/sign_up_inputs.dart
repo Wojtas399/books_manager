@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../interfaces/factories/icon_factory_interface.dart';
-import '../../../interfaces/factories/widget_factory_interface.dart';
+import '../../../interfaces/factories/icon_factory.dart';
+import '../../../interfaces/factories/widget_factory.dart';
 import '../../../validators/validators_messages.dart';
 import '../bloc/sign_up_bloc.dart';
 
@@ -31,13 +31,12 @@ class _Username extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WidgetFactoryInterface widgetFactory =
-        context.read<WidgetFactoryInterface>();
-    final IconFactoryInterface iconFactory =
-        context.read<IconFactoryInterface>();
+    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
+    final IconFactory iconFactory = context.read<IconFactory>();
     final bool isUsernameValid = context.select(
       (SignUpBloc bloc) => bloc.state.isUsernameValid,
     );
+
     return widgetFactory.createTextFormField(
       placeholder: 'Nazwa użytkownika',
       icon: iconFactory.createAccountIcon(),
@@ -66,13 +65,12 @@ class _Email extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WidgetFactoryInterface widgetFactory =
-        context.read<WidgetFactoryInterface>();
-    final IconFactoryInterface iconFactory =
-        context.read<IconFactoryInterface>();
+    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
+    final IconFactory iconFactory = context.read<IconFactory>();
     final bool isEmailValid = context.select(
       (SignUpBloc bloc) => bloc.state.isEmailValid,
     );
+
     return widgetFactory.createTextFormField(
       placeholder: 'Adres email',
       icon: iconFactory.createEnvelopeIcon(),
@@ -100,13 +98,12 @@ class _Password extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WidgetFactoryInterface widgetFactory =
-        context.read<WidgetFactoryInterface>();
-    final IconFactoryInterface iconFactory =
-        context.read<IconFactoryInterface>();
+    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
+    final IconFactory iconFactory = context.read<IconFactory>();
     final bool isPasswordValid = context.select(
       (SignUpBloc bloc) => bloc.state.isPasswordValid,
     );
+
     return widgetFactory.createTextFormField(
       placeholder: 'Hasło',
       icon: iconFactory.createLockIcon(),
@@ -136,13 +133,12 @@ class _PasswordConfirmation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WidgetFactoryInterface widgetFactory =
-        context.read<WidgetFactoryInterface>();
-    final IconFactoryInterface iconFactory =
-        context.read<IconFactoryInterface>();
+    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
+    final IconFactory iconFactory = context.read<IconFactory>();
     final bool isPasswordConfirmationValid = context.select(
       (SignUpBloc bloc) => bloc.state.isPasswordConfirmationValid,
     );
+
     return widgetFactory.createTextFormField(
       placeholder: 'Powtórz hasło',
       icon: iconFactory.createLockIcon(),

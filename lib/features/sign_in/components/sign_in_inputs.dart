@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
-import '../../../interfaces/factories/icon_factory_interface.dart';
-import '../../../interfaces/factories/widget_factory_interface.dart';
+import '../../../interfaces/factories/icon_factory.dart';
+import '../../../interfaces/factories/widget_factory.dart';
 import '../bloc/sign_in_bloc.dart';
 
 class SignInInputs extends StatelessWidget {
@@ -10,8 +10,9 @@ class SignInInputs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final widgetFactory = context.read<WidgetFactoryInterface>();
-    final iconFactory = context.read<IconFactoryInterface>();
+    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
+    final IconFactory iconFactory = context.read<IconFactory>();
+
     return Column(
       children: [
         widgetFactory.createTextFormField(

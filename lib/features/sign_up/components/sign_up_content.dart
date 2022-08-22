@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../components/on_tap_focus_lose_area_component.dart';
 import '../../../config/themes/app_colors.dart';
-import '../../../interfaces/factories/icon_factory_interface.dart';
-import '../../../interfaces/factories/widget_factory_interface.dart';
+import '../../../interfaces/factories/icon_factory.dart';
+import '../../../interfaces/factories/widget_factory.dart';
 import 'sign_up_avatar.dart';
 import 'sign_up_inputs.dart';
 import 'sign_up_submit_button.dart';
@@ -14,8 +14,9 @@ class SignUpContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final widgetFactory = context.read<WidgetFactoryInterface>();
-    final iconFactory = context.read<IconFactoryInterface>();
+    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
+    final IconFactory iconFactory = context.read<IconFactory>();
+
     return widgetFactory.createScaffold(
       appBarTitle: 'Rejestracja',
       appBarBackgroundColor: AppColors.background,

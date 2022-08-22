@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../config/animations/slide_up_route_animation.dart';
 import '../interfaces/dialog_interface.dart';
-import '../interfaces/factories/icon_factory_interface.dart';
+import '../interfaces/factories/icon_factory.dart';
 import '../models/action_sheet_action.dart';
 import '../models/avatar.dart';
 import 'avatar_component.dart';
@@ -42,23 +42,22 @@ class _AvatarWithChangeOptionComponentState
 
   Future<void> _onAvatarPressed() async {
     final DialogInterface dialogInterface = context.read<DialogInterface>();
-    final IconFactoryInterface iconFactoryInterface =
-        context.read<IconFactoryInterface>();
+    final IconFactory iconFactory = context.read<IconFactory>();
     final int? selectedActionIndex = await dialogInterface.askForAction(
       context: context,
       title: 'Nowy avatar',
       actions: [
         ActionSheetAction(
           label: 'Domyślny',
-          icon: iconFactoryInterface.createBookIcon(),
+          icon: iconFactory.createBookIcon(),
         ),
         ActionSheetAction(
           label: 'Z galerii',
-          icon: iconFactoryInterface.createImageIcon(),
+          icon: iconFactory.createImageIcon(),
         ),
         ActionSheetAction(
           label: 'Z aparatu',
-          icon: iconFactoryInterface.createCameraIcon(),
+          icon: iconFactory.createCameraIcon(),
         ),
       ],
     );

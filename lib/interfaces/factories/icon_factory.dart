@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-abstract class IconFactoryInterface {
+abstract class IconFactory {
   Icon createAccountIcon({double? size, Color? color});
 
   Icon createLockIcon({double? size, Color? color});

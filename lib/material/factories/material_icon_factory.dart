@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../interfaces/factories/icon_factory_interface.dart';
+import '../../interfaces/factories/icon_factory.dart';
 
-class MaterialIconFactory implements IconFactoryInterface {
+class MaterialIconFactory implements IconFactory {
   final double defaultIconSize = 24;
 
   @override

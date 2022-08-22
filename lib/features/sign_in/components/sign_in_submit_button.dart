@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
-import '../../../interfaces/factories/widget_factory_interface.dart';
+import '../../../interfaces/factories/widget_factory.dart';
 import '../bloc/sign_in_bloc.dart';
 
 class SignInSubmitButton extends StatelessWidget {
@@ -9,10 +9,11 @@ class SignInSubmitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final widgetFactory = context.read<WidgetFactoryInterface>();
+    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
     final bool isDisabled = context.select(
       (SignInBloc bloc) => bloc.state.isButtonDisabled,
     );
+
     return widgetFactory.createButton(
       label: 'Zaloguj',
       onPressed: isDisabled ? null : () => _onPressed(context),

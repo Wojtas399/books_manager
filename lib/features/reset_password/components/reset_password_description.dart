@@ -3,15 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../config/themes/app_colors.dart';
 import '../../../config/themes/text_theme.dart';
-import '../../../interfaces/factories/icon_factory_interface.dart';
+import '../../../interfaces/factories/icon_factory.dart';
 
 class ResetPasswordDescription extends StatelessWidget {
-  const ResetPasswordDescription();
+  const ResetPasswordDescription({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final IconFactoryInterface iconFactory =
-        context.read<IconFactoryInterface>();
+    final IconFactory iconFactory = context.read<IconFactory>();
+
     return Column(
       children: [
         iconFactory.createLockIcon(

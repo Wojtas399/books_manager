@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-abstract class WidgetFactoryInterface {
+abstract class WidgetFactory {
   Widget createApp({
     required String title,
     required Widget home,

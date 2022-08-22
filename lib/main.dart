@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'features/sign_in/sign_in_screen.dart';
 import 'global_provider.dart';
-import 'interfaces/factories/widget_factory_interface.dart';
+import 'interfaces/factories/widget_factory.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
     return GlobalProvider(
       child: Builder(
         builder: (BuildContext context) {
-          final widgetFactory = context.read<WidgetFactoryInterface>();
+          final WidgetFactory widgetFactory = context.read<WidgetFactory>();
           return widgetFactory.createApp(
             title: 'BooksManager',
             home: const SignInScreen(),

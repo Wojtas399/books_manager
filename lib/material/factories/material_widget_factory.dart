@@ -5,9 +5,9 @@ import '../components/material_custom_text_field.dart';
 import '../components/material_password_text_field.dart';
 import '../components/material_scaffold.dart';
 import '../../config/themes/global_material_theme.dart';
-import '../../interfaces/factories/widget_factory_interface.dart';
+import '../../interfaces/factories/widget_factory.dart';
 
-class MaterialWidgetFactory implements WidgetFactoryInterface {
+class MaterialWidgetFactory implements WidgetFactory {
   @override
   Widget createApp({
     required String title,

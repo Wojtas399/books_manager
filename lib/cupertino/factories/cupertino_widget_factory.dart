@@ -5,9 +5,9 @@ import '../components/cupertino_custom_text_field.dart';
 import '../components/cupertino_password_text_field.dart';
 import '../components/cupertino_scaffold.dart';
 import '../../config/themes/global_cupertino_theme.dart';
-import '../../interfaces/factories/widget_factory_interface.dart';
+import '../../interfaces/factories/widget_factory.dart';
 
-class CupertinoWidgetFactory implements WidgetFactoryInterface {
+class CupertinoWidgetFactory implements WidgetFactory {
   @override
   Widget createApp({
     required String title,

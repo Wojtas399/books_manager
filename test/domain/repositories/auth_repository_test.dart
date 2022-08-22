@@ -1,49 +1,76 @@
-import 'package:app/database/firebase/services/fire_auth_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:app/database/firebase/services/fire_auth_service.dart';
+import 'package:app/database/shared_preferences/shared_preferences_service.dart';
 import 'package:app/domain/entities/auth_state.dart';
 import 'package:app/domain/entities/auth_error.dart';
 import 'package:app/domain/repositories/auth_repository.dart';
 
 class MockFireAuthService extends Mock implements FireAuthService {}
 
+class MockSharedPreferencesService extends Mock
+    implements SharedPreferencesService {}
+
 void main() {
   final fireAuthService = MockFireAuthService();
+  final sharedPreferencesService = MockSharedPreferencesService();
   late AuthRepository repository;
 
   setUp(() {
-    repository = AuthRepository(fireAuthService: fireAuthService);
+    repository = AuthRepository(
+      fireAuthService: fireAuthService,
+      sharedPreferencesService: sharedPreferencesService,
+    );
   });
 
   tearDown(() {
     reset(fireAuthService);
+    reset(sharedPreferencesService);
   });
 
   test(
-    'auth state',
+    'auth state, should return stream with auth state set to signed in if loaded user id is not null',
     () async {
-      const AuthState expectedState = AuthState.signedIn;
       when(
-        () => fireAuthService.isUserSignedIn,
-      ).thenAnswer((_) => Stream.value(true));
+        () => sharedPreferencesService.loadLoggedUserId(),
+      ).thenAnswer((_) async => 'userId');
 
       final Stream<AuthState> authState$ = repository.authState$;
 
-      expect(await authState$.first, expectedState);
+      expect(await authState$.first, AuthState.signedIn);
     },
   );
 
   test(
-    'sign in, should call method responsible for signing in user',
+    'auth state, should return stream with auth state set to signed out if loaded user id is null',
+    () async {
+      when(
+        () => sharedPreferencesService.loadLoggedUserId(),
+      ).thenAnswer((_) async => null);
+
+      final Stream<AuthState> authState$ = repository.authState$;
+
+      expect(await authState$.first, AuthState.signedOut);
+    },
+  );
+
+  test(
+    'sign in, should call methods responsible for signing in user and for saving logged user id in shared preferences',
     () async {
       const String email = 'email@example.com';
       const String password = 'password123';
+      const String loggedUserId = 'userId';
       when(
         () => fireAuthService.signIn(
           email: email,
           password: password,
+        ),
+      ).thenAnswer((_) async => loggedUserId);
+      when(
+        () => sharedPreferencesService.saveLoggedUserId(
+          loggedUserId: loggedUserId,
         ),
       ).thenAnswer((_) async => '');
 
@@ -53,6 +80,11 @@ void main() {
         () => fireAuthService.signIn(
           email: email,
           password: password,
+        ),
+      ).called(1);
+      verify(
+        () => sharedPreferencesService.saveLoggedUserId(
+          loggedUserId: loggedUserId,
         ),
       ).called(1);
     },
@@ -119,14 +151,20 @@ void main() {
   );
 
   test(
-    'sign up, should call method responsible for signing up user',
+    'sign up, should call methods responsible for signing up user and for saving logged user id in shared preferences',
     () async {
       const String email = 'email@example.com';
       const String password = 'password123';
+      const String loggedUserId = 'userId';
       when(
         () => fireAuthService.signUp(
           email: email,
           password: password,
+        ),
+      ).thenAnswer((_) async => loggedUserId);
+      when(
+        () => sharedPreferencesService.saveLoggedUserId(
+          loggedUserId: loggedUserId,
         ),
       ).thenAnswer((_) async => '');
 
@@ -136,6 +174,11 @@ void main() {
         () => fireAuthService.signUp(
           email: email,
           password: password,
+        ),
+      ).called(1);
+      verify(
+        () => sharedPreferencesService.saveLoggedUserId(
+          loggedUserId: loggedUserId,
         ),
       ).called(1);
     },

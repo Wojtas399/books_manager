@@ -16,7 +16,7 @@ class SignInInputs extends StatelessWidget {
     return Column(
       children: [
         widgetFactory.createTextFormField(
-          placeholder: 'Adres e-mail',
+          placeholder: 'Adres email',
           icon: iconFactory.createAccountIcon(),
           keyboardType: TextInputType.emailAddress,
           onChanged: (String email) => _onEmailChanged(email, context),

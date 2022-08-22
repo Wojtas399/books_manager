@@ -57,4 +57,16 @@ class MaterialDialogs implements DialogInterface {
       ),
     );
   }
+
+  @override
+  void showSnackbar({
+    required BuildContext context,
+    required String message,
+  }) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
 }

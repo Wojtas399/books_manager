@@ -5,6 +5,7 @@ import '../models/action_sheet_action.dart';
 import 'components/cupertino_info_dialog.dart';
 import 'components/cupertino_custom_action_sheet.dart';
 import 'components/cupertino_loading_dialog.dart';
+import 'components/cupertino_snack_bar.dart';
 
 class CupertinoDialogs implements DialogInterface {
   bool _isLoadingDialogOpened = false;
@@ -60,5 +61,20 @@ class CupertinoDialogs implements DialogInterface {
         info: info,
       ),
     );
+  }
+
+  @override
+  void showSnackbar({
+    required BuildContext context,
+    required String message,
+  }) {
+    final overlayEntry = OverlayEntry(
+      builder: (BuildContext context) => CupertinoSnackBar(message: message),
+    );
+    Future.delayed(
+      const Duration(milliseconds: 4300),
+      overlayEntry.remove,
+    );
+    Overlay.of(context)?.insert(overlayEntry);
   }
 }

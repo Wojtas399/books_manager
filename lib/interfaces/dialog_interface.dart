@@ -18,4 +18,9 @@ abstract class DialogInterface {
     required String title,
     required String info,
   });
+
+  void showSnackbar({
+    required BuildContext context,
+    required String message,
+  });
 }

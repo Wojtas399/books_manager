@@ -20,7 +20,10 @@ class CupertinoCustomButton extends StatelessWidget {
         onPressed: onPressed,
         color: AppColors.primary,
         borderRadius: BorderRadius.circular(10),
-        child: Text(label),
+        child: Text(
+          label,
+          style: const TextStyle(color: CupertinoColors.white),
+        ),
       ),
     );
   }

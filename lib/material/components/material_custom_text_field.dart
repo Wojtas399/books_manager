@@ -10,6 +10,7 @@ class MaterialCustomTextField extends StatelessWidget {
   final bool isRequired;
   final TextInputType? keyboardType;
   final String? Function(String? value)? validator;
+  final TextEditingController? controller;
   final Function(String)? onChanged;
 
   const MaterialCustomTextField({
@@ -20,6 +21,7 @@ class MaterialCustomTextField extends StatelessWidget {
     this.isRequired = false,
     this.keyboardType,
     this.validator,
+    this.controller,
     this.onChanged,
   });
 
@@ -33,6 +35,7 @@ class MaterialCustomTextField extends StatelessWidget {
       ),
       keyboardType: keyboardType,
       validator: _validate,
+      controller: controller,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: onChanged,
     );

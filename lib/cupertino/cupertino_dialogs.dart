@@ -2,9 +2,11 @@ import 'package:flutter/cupertino.dart';
 
 import '../interfaces/dialog_interface.dart';
 import '../models/action_sheet_action.dart';
+import '../providers/navigator_key_provider.dart';
 import 'components/cupertino_info_dialog.dart';
 import 'components/cupertino_custom_action_sheet.dart';
 import 'components/cupertino_loading_dialog.dart';
+import 'components/cupertino_single_input_dialog.dart';
 import 'components/cupertino_snack_bar.dart';
 
 class CupertinoDialogs implements DialogInterface {
@@ -12,28 +14,52 @@ class CupertinoDialogs implements DialogInterface {
 
   @override
   Future<int?> askForAction({
-    required BuildContext context,
     required String title,
     required List<ActionSheetAction> actions,
+    BuildContext? context,
   }) async {
-    return await showCupertinoModalPopup(
-      context: context,
-      builder: (_) => CupertinoCustomActionSheet(
-        title: title,
-        actionsLabels: actions
-            .map(
-              (ActionSheetAction action) => action.label,
-            )
-            .toList(),
-      ),
-    );
+    final BuildContext? buildContext = context ?? _getNavigatorContext();
+    if (buildContext != null) {
+      return await showCupertinoModalPopup(
+        context: buildContext,
+        builder: (_) => CupertinoCustomActionSheet(
+          title: title,
+          actionsLabels:
+              actions.map((ActionSheetAction action) => action.label).toList(),
+        ),
+      );
+    }
+    return null;
   }
 
   @override
-  void showLoadingDialog({required BuildContext context}) {
-    if (!_isLoadingDialogOpened) {
+  Future<String?> askForValue({
+    required String title,
+    String? message,
+    String? placeholder,
+    bool obscureText = false,
+  }) async {
+    final BuildContext? buildContext = _getNavigatorContext();
+    if (buildContext != null) {
+      return await showCupertinoDialog(
+        context: buildContext,
+        builder: (_) => CupertinoSingleInputDialog(
+          title: title,
+          message: message,
+          placeholder: placeholder,
+          obscureText: obscureText,
+        ),
+      );
+    }
+    return null;
+  }
+
+  @override
+  void showLoadingDialog({BuildContext? context}) {
+    final BuildContext? buildContext = context ?? _getNavigatorContext();
+    if (!_isLoadingDialogOpened && buildContext != null) {
       showCupertinoDialog(
-        context: context,
+        context: buildContext,
         builder: (_) => const CupertinoLoadingDialog(),
       );
       _isLoadingDialogOpened = true;
@@ -41,40 +67,51 @@ class CupertinoDialogs implements DialogInterface {
   }
 
   @override
-  void closeLoadingDialog({required BuildContext context}) {
-    if (_isLoadingDialogOpened) {
-      Navigator.of(context, rootNavigator: true).pop();
+  void closeLoadingDialog({BuildContext? context}) {
+    final BuildContext? buildContext = context ?? _getNavigatorContext();
+    if (_isLoadingDialogOpened && buildContext != null) {
+      Navigator.of(buildContext, rootNavigator: true).pop();
       _isLoadingDialogOpened = false;
     }
   }
 
   @override
   void showInfoDialog({
-    required BuildContext context,
     required String title,
     required String info,
+    BuildContext? context,
   }) {
-    showCupertinoDialog(
-      context: context,
-      builder: (_) => CupertinoInfoDialog(
-        title: title,
-        info: info,
-      ),
-    );
+    final BuildContext? buildContext = context ?? _getNavigatorContext();
+    if (buildContext != null) {
+      showCupertinoDialog(
+        context: buildContext,
+        builder: (_) => CupertinoInfoDialog(
+          title: title,
+          info: info,
+        ),
+      );
+    }
   }
 
   @override
   void showSnackbar({
-    required BuildContext context,
     required String message,
+    BuildContext? context,
   }) {
-    final overlayEntry = OverlayEntry(
-      builder: (BuildContext context) => CupertinoSnackBar(message: message),
-    );
-    Future.delayed(
-      const Duration(milliseconds: 4300),
-      overlayEntry.remove,
-    );
-    Overlay.of(context)?.insert(overlayEntry);
+    final BuildContext? buildContext = context ?? _getNavigatorContext();
+    if (buildContext != null) {
+      final overlayEntry = OverlayEntry(
+        builder: (BuildContext context) => CupertinoSnackBar(message: message),
+      );
+      Future.delayed(
+        const Duration(milliseconds: 4300),
+        overlayEntry.remove,
+      );
+      Overlay.of(buildContext)?.insert(overlayEntry);
+    }
+  }
+
+  BuildContext? _getNavigatorContext() {
+    return NavigatorKeyProvider.getContext();
   }
 }

@@ -22,10 +22,7 @@ class AuthRepository implements AuthInterface {
   @override
   Stream<AuthState> get authState$ => Rx.fromCallable(
         () async => await _sharedPreferencesService.loadLoggedUserId(),
-      ).map(
-        (String? loggedUserId) =>
-            loggedUserId != null ? AuthState.signedIn : AuthState.signedOut,
-      );
+      ).map(_getAuthStateDependsOnUserId);
 
   @override
   Future<void> signIn({
@@ -70,6 +67,29 @@ class AuthRepository implements AuthInterface {
     } on FirebaseAuthException catch (exception) {
       throw _convertFirebaseAuthExceptionCodeToAuthError(exception.code);
     }
+  }
+
+  @override
+  Future<void> signOut() async {
+    await _fireAuthService.signOut();
+    await _sharedPreferencesService.removeLoggedUserId();
+  }
+
+  @override
+  Future<void> deleteLoggedUser({required String password}) async {
+    try {
+      await _fireAuthService.deleteLoggedUser(password: password);
+      await _sharedPreferencesService.removeLoggedUserId();
+    } on FirebaseAuthException catch (exception) {
+      throw _convertFirebaseAuthExceptionCodeToAuthError(exception.code);
+    }
+  }
+
+  AuthState _getAuthStateDependsOnUserId(String? userId) {
+    if (userId != null) {
+      return AuthState.signedIn;
+    }
+    return AuthState.signedOut;
   }
 
   AuthError _convertFirebaseAuthExceptionCodeToAuthError(String code) {

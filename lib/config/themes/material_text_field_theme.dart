@@ -16,9 +16,9 @@ class MaterialTextFieldTheme {
       prefixIcon: icon,
       filled: true,
       fillColor: backgroundColor ?? AppColors.lightGrey,
-      contentPadding: const EdgeInsets.symmetric(
+      contentPadding: EdgeInsets.symmetric(
         vertical: 16,
-        horizontal: 4,
+        horizontal: icon != null ? 4 : 16,
       ),
       enabledBorder: OutlineInputBorder(
         borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),

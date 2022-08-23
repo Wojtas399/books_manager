@@ -11,6 +11,7 @@ class CupertinoCustomTextField extends StatelessWidget {
   final bool isRequired;
   final TextInputType? keyboardType;
   final String? Function(String? value)? validator;
+  final TextEditingController? controller;
   final Function(String)? onChanged;
 
   const CupertinoCustomTextField({
@@ -21,6 +22,7 @@ class CupertinoCustomTextField extends StatelessWidget {
     this.isRequired = false,
     this.keyboardType,
     this.validator,
+    this.controller,
     this.onChanged,
   });
 
@@ -29,12 +31,14 @@ class CupertinoCustomTextField extends StatelessWidget {
     return CupertinoTextFieldBackground(
       backgroundColor: backgroundColor,
       child: CupertinoTextFormFieldRow(
+        style: const TextStyle(color: CupertinoColors.black),
         placeholder: placeholder,
         prefix: icon,
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(8),
         placeholderStyle: TextStyle(color: AppColors.grey),
         keyboardType: keyboardType,
         validator: _validate,
+        controller: controller,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         onChanged: onChanged,
       ),

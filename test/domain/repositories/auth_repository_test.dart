@@ -251,4 +251,63 @@ void main() {
       }
     },
   );
+
+  test(
+    'sign out, should call methods responsible for signing out user and for removing user id from shared preferences',
+    () async {
+      when(
+        () => fireAuthService.signOut(),
+      ).thenAnswer((_) async => '');
+      when(
+        () => sharedPreferencesService.removeLoggedUserId(),
+      ).thenAnswer((_) async => '');
+
+      await repository.signOut();
+
+      verify(
+        () => fireAuthService.signOut(),
+      ).called(1);
+      verify(
+        () => sharedPreferencesService.removeLoggedUserId(),
+      ).called(1);
+    },
+  );
+
+  test(
+    'delete logged user, should call methods responsible for deleting user and for removing user id from shared preferences',
+    () async {
+      const String password = 'password';
+      when(
+        () => fireAuthService.deleteLoggedUser(password: password),
+      ).thenAnswer((_) async => '');
+      when(
+        () => sharedPreferencesService.removeLoggedUserId(),
+      ).thenAnswer((_) async => '');
+
+      await repository.deleteLoggedUser(password: password);
+
+      verify(
+        () => fireAuthService.deleteLoggedUser(password: password),
+      ).called(1);
+      verify(
+        () => sharedPreferencesService.removeLoggedUserId(),
+      ).called(1);
+    },
+  );
+
+  test(
+    'delete logged user, should throw auth error if password is wrong',
+    () async {
+      const String password = 'password';
+      when(
+        () => fireAuthService.deleteLoggedUser(password: password),
+      ).thenThrow(FirebaseAuthException(code: 'wrong-password'));
+
+      try {
+        await repository.deleteLoggedUser(password: password);
+      } on AuthError catch (error) {
+        expect(error, AuthError.wrongPassword);
+      }
+    },
+  );
 }

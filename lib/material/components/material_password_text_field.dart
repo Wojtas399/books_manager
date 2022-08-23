@@ -9,6 +9,7 @@ class MaterialPasswordTextField extends StatefulWidget {
   final Color? backgroundColor;
   final bool isRequired;
   final String? Function(String? value)? validator;
+  final TextEditingController? controller;
   final Function(String)? onChanged;
 
   const MaterialPasswordTextField({
@@ -18,6 +19,7 @@ class MaterialPasswordTextField extends StatefulWidget {
     this.backgroundColor,
     this.isRequired = false,
     this.validator,
+    this.controller,
     this.onChanged,
   });
 
@@ -42,6 +44,7 @@ class _MaterialPasswordTextFieldState extends State<MaterialPasswordTextField> {
         onVisibilityIconPressed: _onVisibilityIconPressed,
       ),
       validator: _validate,
+      controller: widget.controller,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: widget.onChanged,
     );

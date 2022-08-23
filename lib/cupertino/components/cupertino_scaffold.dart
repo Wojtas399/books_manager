@@ -36,7 +36,10 @@ class CupertinoScaffold extends StatelessWidget {
           ? CupertinoNavigationBar(
               automaticallyImplyLeading: automaticallyImplyLeading,
               backgroundColor: appBarBackgroundColor ?? AppColors.secondary,
-              middle: Text(appBarTitle ?? ''),
+              middle: Text(
+                appBarTitle ?? '',
+                style: const TextStyle(color: CupertinoColors.black),
+              ),
               border: appBarWithElevation == false
                   ? Border.all(color: AppColors.transparent)
                   : null,

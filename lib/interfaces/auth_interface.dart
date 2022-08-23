@@ -14,4 +14,8 @@ abstract class AuthInterface {
   });
 
   Future<void> sendPasswordResetEmail({required String email});
+
+  Future<void> signOut();
+
+  Future<void> deleteLoggedUser({required String password});
 }

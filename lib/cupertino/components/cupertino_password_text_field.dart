@@ -10,6 +10,7 @@ class CupertinoPasswordTextField extends StatefulWidget {
   final Color? backgroundColor;
   final bool isRequired;
   final String? Function(String? value)? validator;
+  final TextEditingController? controller;
   final Function(String)? onChanged;
 
   const CupertinoPasswordTextField({
@@ -19,6 +20,7 @@ class CupertinoPasswordTextField extends StatefulWidget {
     this.backgroundColor,
     this.isRequired = false,
     this.validator,
+    this.controller,
     this.onChanged,
   });
 
@@ -40,13 +42,15 @@ class _CupertinoPasswordTextFieldState
         children: [
           Expanded(
             child: CupertinoTextFormFieldRow(
+              style: const TextStyle(color: CupertinoColors.black),
               placeholder: widget.placeholder,
               prefix: widget.icon,
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(8),
               obscureText: !isVisible,
               obscuringCharacter: '*',
               placeholderStyle: TextStyle(color: AppColors.grey),
               validator: _validate,
+              controller: widget.controller,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onChanged: widget.onChanged,
             ),

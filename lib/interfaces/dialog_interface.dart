@@ -4,23 +4,30 @@ import '../models/action_sheet_action.dart';
 
 abstract class DialogInterface {
   Future<int?> askForAction({
-    required BuildContext context,
     required String title,
     required List<ActionSheetAction> actions,
+    BuildContext? context,
   });
 
-  void showLoadingDialog({required BuildContext context});
+  Future<String?> askForValue({
+    required String title,
+    String? message,
+    String? placeholder,
+    bool obscureText = false,
+  });
 
-  void closeLoadingDialog({required BuildContext context});
+  void showLoadingDialog({BuildContext? context});
+
+  void closeLoadingDialog({BuildContext? context});
 
   void showInfoDialog({
-    required BuildContext context,
     required String title,
     required String info,
+    BuildContext? context,
   });
 
   void showSnackbar({
-    required BuildContext context,
     required String message,
+    BuildContext? context,
   });
 }

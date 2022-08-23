@@ -36,7 +36,7 @@ class HomeContent extends StatelessWidget {
       automaticallyImplyLeading: false,
       appBarTitle: pagesTitles[pageIndex],
       trailing: GestureDetector(
-        onTap: () => _onSettingsPressed(context),
+        onTap: _onSettingsPressed,
         child: iconFactory.createGearIcon(color: AppColors.black),
       ),
       bottomNavigationBar: BottomNavBar(
@@ -62,8 +62,8 @@ class HomeContent extends StatelessWidget {
     );
   }
   
-  void _onSettingsPressed(BuildContext context) {
-    Navigation.navigateToSettings(context: context);
+  void _onSettingsPressed() {
+    Navigation.navigateToSettings();
   }
   
   void _onBottomNavigationBarItemPressed(

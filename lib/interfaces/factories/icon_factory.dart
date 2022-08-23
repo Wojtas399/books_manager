@@ -18,4 +18,6 @@ abstract class IconFactory {
   Icon createCameraIcon({double? size, Color? color});
 
   Icon createCalendarIcon({double? size, Color? color});
+
+  Icon createGearIcon({double? size, Color? color});
 }

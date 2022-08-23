@@ -84,4 +84,13 @@ class MaterialIconFactory implements IconFactory {
       color: color,
     );
   }
+
+  @override
+  Icon createGearIcon({double? size, Color? color}) {
+    return Icon(
+      Icons.settings,
+      size: size,
+      color: color,
+    );
+  }
 }

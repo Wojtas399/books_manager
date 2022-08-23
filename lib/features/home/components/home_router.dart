@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../config/routes.dart';
 import '../../../interfaces/factories/navigation_factory.dart';
-import '../../profile/profile_screen.dart';
+import '../../settings/settings_screen.dart';
 import 'home_content.dart';
 
 class HomeRouter extends StatelessWidget {
@@ -31,9 +31,9 @@ class HomeRouter extends StatelessWidget {
         return navigationFactory.createPageRoute(
           page: const HomeContent(),
         );
-      case Routes.profile:
+      case Routes.settings:
         return navigationFactory.createPageRoute(
-          page: const ProfileScreen(),
+          page: const SettingsScreen(),
         );
       default:
         return navigationFactory.createPageRoute(

@@ -1,11 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../components/avatar_component.dart';
 import '../../../config/navigation.dart';
+import '../../../config/themes/app_colors.dart';
 import '../../../interfaces/factories/icon_factory.dart';
 import '../../../interfaces/factories/widget_factory.dart';
-import '../../../models/avatar.dart';
 import '../../../models/bottom_nav_bar.dart';
 import '../../calendar/calendar_screen.dart';
 import '../../library/library_screen.dart';
@@ -36,10 +35,9 @@ class HomeContent extends StatelessWidget {
     return widgetFactory.createScaffold(
       automaticallyImplyLeading: false,
       appBarTitle: pagesTitles[pageIndex],
-      trailing: AvatarComponent(
-        avatar: const BasicAvatar(type: BasicAvatarType.red),
-        size: 32,
-        onPressed: () => _onAvatarPressed(context),
+      trailing: GestureDetector(
+        onTap: () => _onSettingsPressed(context),
+        child: iconFactory.createGearIcon(color: AppColors.black),
       ),
       bottomNavigationBar: BottomNavBar(
         items: [
@@ -64,10 +62,10 @@ class HomeContent extends StatelessWidget {
     );
   }
   
-  void _onAvatarPressed(BuildContext context) {
-    Navigation.navigateToProfile(context: context);
+  void _onSettingsPressed(BuildContext context) {
+    Navigation.navigateToSettings(context: context);
   }
-
+  
   void _onBottomNavigationBarItemPressed(
     int pressedItemIndex,
     BuildContext context,

@@ -14,8 +14,6 @@ class SignUpInputs extends StatelessWidget {
     const Widget gap = SizedBox(height: 24.0);
     return Column(
       children: const [
-        _Username(),
-        gap,
         _Email(),
         gap,
         _Password(),
@@ -23,40 +21,6 @@ class SignUpInputs extends StatelessWidget {
         _PasswordConfirmation(),
       ],
     );
-  }
-}
-
-class _Username extends StatelessWidget {
-  const _Username();
-
-  @override
-  Widget build(BuildContext context) {
-    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
-    final IconFactory iconFactory = context.read<IconFactory>();
-    final bool isUsernameValid = context.select(
-      (SignUpBloc bloc) => bloc.state.isUsernameValid,
-    );
-
-    return widgetFactory.createTextFormField(
-      placeholder: 'Nazwa użytkownika',
-      icon: iconFactory.createAccountIcon(),
-      isRequired: true,
-      validator: (_) => _validate(isUsernameValid),
-      onChanged: (String username) => _onUsernameChanged(username, context),
-    );
-  }
-
-  String? _validate(bool isUsernameValid) {
-    if (isUsernameValid) {
-      return null;
-    }
-    return ValidatorsMessages.invalidUsernameMessage;
-  }
-
-  void _onUsernameChanged(String username, BuildContext context) {
-    context.read<SignUpBloc>().add(
-          SignUpEventUsernameChanged(username: username),
-        );
   }
 }
 

@@ -1,8 +1,6 @@
-import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:app/features/sign_up/bloc/sign_up_bloc.dart';
-import 'package:app/models/avatar.dart';
 import 'package:app/models/bloc_status.dart';
 
 void main() {
@@ -11,12 +9,9 @@ void main() {
   setUp(() {
     state = const SignUpState(
       status: BlocStatusInitial(),
-      avatar: BasicAvatar(type: BasicAvatarType.red),
-      username: '',
       email: '',
       password: '',
       passwordConfirmation: '',
-      isUsernameValid: false,
       isEmailValid: false,
       isPasswordValid: false,
     );
@@ -53,27 +48,11 @@ void main() {
   );
 
   test(
-    'is button disabled, should be true if username is invalid',
-    () {
-      state = state.copyWith(
-        password: 'password',
-        passwordConfirmation: 'password',
-        isUsernameValid: false,
-        isEmailValid: true,
-        isPasswordValid: true,
-      );
-
-      expect(state.isButtonDisabled, true);
-    },
-  );
-
-  test(
     'is button disabled, should be true if email is invalid',
     () {
       state = state.copyWith(
         password: 'password',
         passwordConfirmation: 'password',
-        isUsernameValid: true,
         isEmailValid: false,
         isPasswordValid: true,
       );
@@ -88,7 +67,6 @@ void main() {
       state = state.copyWith(
         password: 'password',
         passwordConfirmation: 'password',
-        isUsernameValid: true,
         isEmailValid: true,
         isPasswordValid: false,
       );
@@ -103,7 +81,6 @@ void main() {
       state = state.copyWith(
         password: 'password123',
         passwordConfirmation: 'password',
-        isUsernameValid: true,
         isEmailValid: true,
         isPasswordValid: true,
       );
@@ -118,7 +95,6 @@ void main() {
       state = state.copyWith(
         password: 'password',
         passwordConfirmation: 'password',
-        isUsernameValid: true,
         isEmailValid: true,
         isPasswordValid: true,
       );
@@ -137,32 +113,6 @@ void main() {
 
       expect(state.status, expectedStatus);
       expect(state2.status, const BlocStatusInProgress());
-    },
-  );
-
-  test(
-    'copy with avatar',
-    () {
-      final Avatar expectedAvatar = FileAvatar(file: File('path'));
-
-      state = state.copyWith(avatar: expectedAvatar);
-      final state2 = state.copyWith();
-
-      expect(state.avatar, expectedAvatar);
-      expect(state2.avatar, expectedAvatar);
-    },
-  );
-
-  test(
-    'copy with username',
-    () {
-      const String expectedUsername = 'username';
-
-      state = state.copyWith(username: expectedUsername);
-      final state2 = state.copyWith();
-
-      expect(state.username, expectedUsername);
-      expect(state2.username, expectedUsername);
     },
   );
 
@@ -204,19 +154,6 @@ void main() {
 
       expect(state.passwordConfirmation, expectedPasswordConfirmation);
       expect(state2.passwordConfirmation, expectedPasswordConfirmation);
-    },
-  );
-
-  test(
-    'copy with is username valid',
-    () {
-      const bool expectedValue = true;
-
-      state = state.copyWith(isUsernameValid: expectedValue);
-      final state2 = state.copyWith();
-
-      expect(state.isUsernameValid, expectedValue);
-      expect(state2.isUsernameValid, expectedValue);
     },
   );
 

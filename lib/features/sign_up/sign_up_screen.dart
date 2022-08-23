@@ -5,11 +5,9 @@ import '../../config/navigation.dart';
 import '../../domain/use_cases/auth/sign_up_use_case.dart';
 import '../../interfaces/auth_interface.dart';
 import '../../interfaces/dialog_interface.dart';
-import '../../interfaces/user_interface.dart';
 import '../../models/bloc_status.dart';
 import '../../validators/email_validator.dart';
 import '../../validators/password_validator.dart';
-import '../../validators/username_validator.dart';
 import 'bloc/sign_up_bloc.dart';
 import 'components/sign_up_content.dart';
 
@@ -35,12 +33,10 @@ class _SignUpBlocProvider extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => SignUpBloc(
-        usernameValidator: UsernameValidator(),
         emailValidator: EmailValidator(),
         passwordValidator: PasswordValidator(),
         signUpUseCase: SignUpUseCase(
           authInterface: context.read<AuthInterface>(),
-          userInterface: context.read<UserInterface>(),
         ),
       ),
       child: child,

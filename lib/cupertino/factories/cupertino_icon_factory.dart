@@ -83,4 +83,13 @@ class CupertinoIconFactory implements IconFactory {
       color: color,
     );
   }
+
+  @override
+  Icon createGearIcon({double? size, Color? color}) {
+    return Icon(
+      CupertinoIcons.gear_alt_fill,
+      size: size,
+      color: color,
+    );
+  }
 }

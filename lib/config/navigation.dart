@@ -35,7 +35,7 @@ class Navigation {
     );
   }
 
-  static void navigateToProfile({required BuildContext context}) {
-    Navigator.of(context).pushNamed(Routes.profile);
+  static void navigateToSettings({required BuildContext context}) {
+    Navigator.of(context).pushNamed(Routes.settings);
   }
 }

@@ -3,15 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../interfaces/factories/widget_factory.dart';
 
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final WidgetFactory widgetFactory = context.read<WidgetFactory>();
     return widgetFactory.createScaffold(
       child: const Center(
-        child: Text('Profile screen'),
+        child: Text('Settings screen'),
       ),
     );
   }

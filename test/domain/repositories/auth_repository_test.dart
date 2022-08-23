@@ -6,6 +6,7 @@ import 'package:app/database/firebase/services/fire_auth_service.dart';
 import 'package:app/database/shared_preferences/shared_preferences_service.dart';
 import 'package:app/domain/entities/auth_state.dart';
 import 'package:app/domain/entities/auth_error.dart';
+import 'package:app/domain/entities/network_error.dart';
 import 'package:app/domain/repositories/auth_repository.dart';
 
 class MockFireAuthService extends Mock implements FireAuthService {}
@@ -56,97 +57,100 @@ void main() {
     },
   );
 
-  test(
-    'sign in, should call methods responsible for signing in user and for saving logged user id in shared preferences',
-    () async {
+  group(
+    'sign in',
+    () {
       const String email = 'email@example.com';
       const String password = 'password123';
-      const String loggedUserId = 'userId';
-      when(
-        () => fireAuthService.signIn(
-          email: email,
-          password: password,
-        ),
-      ).thenAnswer((_) async => loggedUserId);
-      when(
-        () => sharedPreferencesService.saveLoggedUserId(
-          loggedUserId: loggedUserId,
-        ),
-      ).thenAnswer((_) async => '');
 
-      await repository.signIn(email: email, password: password);
+      test(
+        'sign in, should call methods responsible for signing in user and for saving logged user id in shared preferences',
+        () async {
+          const String loggedUserId = 'userId';
+          when(
+            () => fireAuthService.signIn(email: email, password: password),
+          ).thenAnswer((_) async => loggedUserId);
+          when(
+            () => sharedPreferencesService.saveLoggedUserId(
+              loggedUserId: loggedUserId,
+            ),
+          ).thenAnswer((_) async => '');
 
-      verify(
-        () => fireAuthService.signIn(
-          email: email,
-          password: password,
-        ),
-      ).called(1);
-      verify(
-        () => sharedPreferencesService.saveLoggedUserId(
-          loggedUserId: loggedUserId,
-        ),
-      ).called(1);
-    },
-  );
+          await repository.signIn(email: email, password: password);
 
-  test(
-    'sign in, should throw appropriate auth error if email is invalid',
-    () async {
-      const String email = 'email.com';
-      const String password = 'password123';
-      when(
-        () => fireAuthService.signIn(
-          email: email,
-          password: password,
-        ),
-      ).thenThrow(FirebaseAuthException(code: 'invalid-email'));
+          verify(
+            () => fireAuthService.signIn(
+              email: email,
+              password: password,
+            ),
+          ).called(1);
+          verify(
+            () => sharedPreferencesService.saveLoggedUserId(
+              loggedUserId: loggedUserId,
+            ),
+          ).called(1);
+        },
+      );
 
-      try {
-        await repository.signIn(email: email, password: password);
-      } on AuthError catch (error) {
-        expect(error, AuthError.invalidEmail);
-      }
-    },
-  );
+      test(
+        'sign in, should throw appropriate auth error if email is invalid',
+        () async {
+          when(
+            () => fireAuthService.signIn(email: email, password: password),
+          ).thenThrow(FirebaseAuthException(code: 'invalid-email'));
 
-  test(
-    'sign in, should throw appropriate auth error if password is wrong',
-    () async {
-      const String email = 'email@example.com';
-      const String password = 'password123';
-      when(
-        () => fireAuthService.signIn(
-          email: email,
-          password: password,
-        ),
-      ).thenThrow(FirebaseAuthException(code: 'wrong-password'));
+          try {
+            await repository.signIn(email: email, password: password);
+          } on AuthError catch (error) {
+            expect(error, AuthError.invalidEmail);
+          }
+        },
+      );
 
-      try {
-        await repository.signIn(email: email, password: password);
-      } on AuthError catch (error) {
-        expect(error, AuthError.wrongPassword);
-      }
-    },
-  );
+      test(
+        'sign in, should throw appropriate auth error if password is wrong',
+        () async {
+          when(
+            () => fireAuthService.signIn(email: email, password: password),
+          ).thenThrow(FirebaseAuthException(code: 'wrong-password'));
 
-  test(
-    'sign in, should throw appropriate auth error if user has not been found',
-    () async {
-      const String email = 'email@example.com';
-      const String password = 'password123';
-      when(
-        () => fireAuthService.signIn(
-          email: email,
-          password: password,
-        ),
-      ).thenThrow(FirebaseAuthException(code: 'user-not-found'));
+          try {
+            await repository.signIn(email: email, password: password);
+          } on AuthError catch (error) {
+            expect(error, AuthError.wrongPassword);
+          }
+        },
+      );
 
-      try {
-        await repository.signIn(email: email, password: password);
-      } on AuthError catch (error) {
-        expect(error, AuthError.userNotFound);
-      }
+      test(
+        'sign in, should throw appropriate auth error if user has not been found',
+        () async {
+          when(
+            () => fireAuthService.signIn(email: email, password: password),
+          ).thenThrow(FirebaseAuthException(code: 'user-not-found'));
+
+          try {
+            await repository.signIn(email: email, password: password);
+          } on AuthError catch (error) {
+            expect(error, AuthError.userNotFound);
+          }
+        },
+      );
+
+      test(
+        'sign in, should throw appropriate network error if network connection has been lost',
+        () async {
+          when(
+            () => fireAuthService.signIn(email: email, password: password),
+          ).thenThrow(FirebaseAuthException(code: 'network-request-failed'));
+
+          try {
+            await repository.signIn(email: email, password: password);
+          } on NetworkError catch (error) {
+            expect(error, NetworkError.lossOfConnection);
+          }
+        },
+      );
     },
   );
 

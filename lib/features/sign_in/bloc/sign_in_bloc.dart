@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../domain/entities/auth_error.dart';
 import '../../../domain/entities/auth_state.dart';
+import '../../../domain/entities/network_error.dart';
 import '../../../domain/use_cases/auth/get_auth_state_use_case.dart';
 import '../../../domain/use_cases/auth/sign_in_use_case.dart';
 import '../../../models/bloc_status.dart';
@@ -40,8 +42,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     SignInEventInitialize event,
     Emitter<SignInState> emit,
   ) async {
-    final AuthState authState = await _getAuthStateUseCase.execute().first;
-    if (authState == AuthState.signedIn) {
+    if (await _isUserSignedIn()) {
       emit(state.copyWithInfo(
         SignInBlocInfo.userHasBeenSignedIn,
       ));
@@ -71,25 +72,45 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     Emitter<SignInState> emit,
   ) async {
     try {
-      emit(state.copyWith(
-        status: const BlocStatusLoading(),
-      ));
-      await _signInUseCase.execute(
-        email: state.email,
-        password: state.password,
-      );
-      emit(state.copyWithInfo(
-        SignInBlocInfo.userHasBeenSignedIn,
-      ));
+      await _signIn(emit);
     } on AuthError catch (authError) {
-      SignInBlocError? blocError = _convertAuthErrorToSignInBlocError(
-        authError,
-      );
-      if (blocError != null) {
-        emit(state.copyWithError(
-          blocError,
-        ));
-      }
+      _manageAuthError(authError, emit);
+    } on NetworkError catch (_) {
+      emit(state.copyWithError(
+        SignInBlocError.noInternetConnection,
+      ));
+    } on TimeoutException catch (_) {
+      emit(state.copyWithError(
+        SignInBlocError.timeoutException,
+      ));
+    }
+  }
+
+  Future<bool> _isUserSignedIn() async {
+    final AuthState authState = await _getAuthStateUseCase.execute().first;
+    return authState == AuthState.signedIn;
+  }
+
+  Future<void> _signIn(Emitter<SignInState> emit) async {
+    emit(state.copyWith(
+      status: const BlocStatusLoading(),
+    ));
+    await _signInUseCase
+        .execute(email: state.email, password: state.password)
+        .timeout(const Duration(seconds: 10));
+    emit(state.copyWithInfo(
+      SignInBlocInfo.userHasBeenSignedIn,
+    ));
+  }
+
+  void _manageAuthError(AuthError authError, Emitter<SignInState> emit) {
+    SignInBlocError? blocError = _convertAuthErrorToSignInBlocError(
+      authError,
+    );
+    if (blocError != null) {
+      emit(state.copyWithError(
+        blocError,
+      ));
     }
   }
 

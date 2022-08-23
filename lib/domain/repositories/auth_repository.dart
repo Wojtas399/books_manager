@@ -6,6 +6,7 @@ import '../../database/shared_preferences/shared_preferences_service.dart';
 import '../../interfaces/auth_interface.dart';
 import '../entities/auth_error.dart';
 import '../entities/auth_state.dart';
+import '../entities/network_error.dart';
 
 class AuthRepository implements AuthInterface {
   late final FireAuthService _fireAuthService;
@@ -38,7 +39,7 @@ class AuthRepository implements AuthInterface {
         loggedUserId: loggedUserId,
       );
     } on FirebaseAuthException catch (exception) {
-      throw _convertFirebaseAuthExceptionCodeToAuthError(exception.code);
+      _manageFirebaseAuthException(exception.code);
     }
   }
 
@@ -56,7 +57,7 @@ class AuthRepository implements AuthInterface {
         loggedUserId: loggedUserId,
       );
     } on FirebaseAuthException catch (exception) {
-      throw _convertFirebaseAuthExceptionCodeToAuthError(exception.code);
+      _manageFirebaseAuthException(exception.code);
     }
   }
 
@@ -65,7 +66,7 @@ class AuthRepository implements AuthInterface {
     try {
       await _fireAuthService.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (exception) {
-      throw _convertFirebaseAuthExceptionCodeToAuthError(exception.code);
+      _manageFirebaseAuthException(exception.code);
     }
   }
 
@@ -81,7 +82,7 @@ class AuthRepository implements AuthInterface {
       await _fireAuthService.deleteLoggedUser(password: password);
       await _sharedPreferencesService.removeLoggedUserId();
     } on FirebaseAuthException catch (exception) {
-      throw _convertFirebaseAuthExceptionCodeToAuthError(exception.code);
+      _manageFirebaseAuthException(exception.code);
     }
   }
 
@@ -92,18 +93,20 @@ class AuthRepository implements AuthInterface {
     return AuthState.signedOut;
   }
 
-  AuthError _convertFirebaseAuthExceptionCodeToAuthError(String code) {
+  AuthError _manageFirebaseAuthException(String code) {
     switch (code) {
       case 'invalid-email':
-        return AuthError.invalidEmail;
+        throw AuthError.invalidEmail;
       case 'wrong-password':
-        return AuthError.wrongPassword;
+        throw AuthError.wrongPassword;
       case 'user-not-found':
-        return AuthError.userNotFound;
+        throw AuthError.userNotFound;
       case 'email-already-in-use':
-        return AuthError.emailAlreadyInUse;
+        throw AuthError.emailAlreadyInUse;
+      case 'network-request-failed':
+        throw NetworkError.lossOfConnection;
       default:
-        return AuthError.unknown;
+        throw AuthError.unknown;
     }
   }
 }

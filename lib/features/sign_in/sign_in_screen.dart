@@ -74,14 +74,10 @@ class _SignInBlocListener extends StatelessWidget {
     BlocStatusComplete completeStatus,
     BuildContext context,
   ) {
-    context.read<DialogInterface>().closeLoadingDialog(context: context);
+    _closeLoadingDialog(context);
     final SignInBlocInfo? blocInfo = completeStatus.info;
     if (blocInfo != null) {
-      switch (blocInfo) {
-        case SignInBlocInfo.userHasBeenSignedIn:
-          Navigation.navigateToHome(context: context);
-          break;
-      }
+      _manageBlocInfo(blocInfo, context);
     }
   }
 
@@ -89,33 +85,87 @@ class _SignInBlocListener extends StatelessWidget {
     BlocStatusError errorStatus,
     BuildContext context,
   ) {
-    final DialogInterface dialogInterface = context.read<DialogInterface>();
-    dialogInterface.closeLoadingDialog(context: context);
+    _closeLoadingDialog(context);
     final SignInBlocError? blocError = errorStatus.error;
     if (blocError != null) {
-      switch (blocError) {
-        case SignInBlocError.invalidEmail:
-          dialogInterface.showInfoDialog(
-            context: context,
-            title: 'Niepoprawny adres e-mail',
-            info: 'Wprowadzony adres e-mail jest niepoprawny.',
-          );
-          break;
-        case SignInBlocError.wrongPassword:
-          dialogInterface.showInfoDialog(
-            context: context,
-            title: 'Błędne hasło',
-            info: 'Podano błędne hasło dla tego użytkownika.',
-          );
-          break;
-        case SignInBlocError.userNotFound:
-          dialogInterface.showInfoDialog(
-            context: context,
-            title: 'Brak użytkownika',
-            info: 'Nie znaleziono użytkownika o podanym adresie e-mail.',
-          );
-          break;
-      }
+      _manageBlocError(blocError, context);
     }
+  }
+
+  void _closeLoadingDialog(BuildContext context) {
+    context.read<DialogInterface>().closeLoadingDialog(context: context);
+  }
+
+  void _manageBlocInfo(SignInBlocInfo blocInfo, BuildContext context) {
+    switch (blocInfo) {
+      case SignInBlocInfo.userHasBeenSignedIn:
+        _onUserSigningIn(context);
+        break;
+    }
+  }
+
+  void _manageBlocError(SignInBlocError blocError, BuildContext context) {
+    switch (blocError) {
+      case SignInBlocError.invalidEmail:
+        _onInvalidEmail(context);
+        break;
+      case SignInBlocError.wrongPassword:
+        _onWrongPassword(context);
+        break;
+      case SignInBlocError.userNotFound:
+        _onLackOfUser(context);
+        break;
+      case SignInBlocError.noInternetConnection:
+        _onLossOfInternetConnection(context);
+        break;
+      case SignInBlocError.timeoutException:
+        _onTimeoutException(context);
+        break;
+    }
+  }
+
+  void _onUserSigningIn(BuildContext context) {
+    Navigation.navigateToHome(context: context);
+  }
+
+  void _onInvalidEmail(BuildContext context) {
+    context.read<DialogInterface>().showInfoDialog(
+          context: context,
+          title: 'Niepoprawny adres e-mail',
+          info: 'Wprowadzony adres e-mail jest niepoprawny.',
+        );
+  }
+
+  void _onWrongPassword(BuildContext context) {
+    context.read<DialogInterface>().showInfoDialog(
+          context: context,
+          title: 'Błędne hasło',
+          info: 'Podano błędne hasło dla tego użytkownika.',
+        );
+  }
+
+  void _onLackOfUser(BuildContext context) {
+    context.read<DialogInterface>().showInfoDialog(
+          context: context,
+          title: 'Brak użytkownika',
+          info: 'Nie znaleziono użytkownika o podanym adresie e-mail.',
+        );
+  }
+
+  void _onLossOfInternetConnection(BuildContext context) {
+    context.read<DialogInterface>().showInfoDialog(
+          context: context,
+          title: 'Brak połączenia internetowego',
+          info:
+              'Nie można przeprowadzić operacji logowania, ponieważ nie masz połączenia internetowego...',
+        );
+  }
+
+  void _onTimeoutException(BuildContext context) {
+    context.read<DialogInterface>().showInfoDialog(
+          context: context,
+          title: 'Nieoczekiwany błąd...',
+          info: 'Wystąpił nieoczekiwany błąd, spróbuj ponownie później.',
+        );
   }
 }

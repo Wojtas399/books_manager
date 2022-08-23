@@ -53,4 +53,6 @@ enum SignInBlocError {
   invalidEmail,
   wrongPassword,
   userNotFound,
+  noInternetConnection,
+  timeoutException,
 }

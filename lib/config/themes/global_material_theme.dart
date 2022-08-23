@@ -28,5 +28,10 @@ class GlobalMaterialTheme {
             letterSpacing: 0.15,
           ),
         ),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          backgroundColor: AppColors.secondary,
+          unselectedItemColor: Colors.black.withOpacity(0.3),
+          selectedItemColor: Colors.black,
+        ),
       );
 }

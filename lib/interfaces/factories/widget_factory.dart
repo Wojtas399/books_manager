@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
 
+import '../../models/bottom_nav_bar.dart';
+
 abstract class WidgetFactory {
   Widget createApp({
     required String title,
@@ -13,7 +15,9 @@ abstract class WidgetFactory {
     Color? appBarBackgroundColor,
     bool appBarWithElevation = true,
     Icon? leadingIcon,
+    Widget? trailing,
     bool automaticallyImplyLeading = true,
+    BottomNavBar? bottomNavigationBar,
   });
 
   Widget createTextFormField({

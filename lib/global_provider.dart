@@ -21,6 +21,9 @@ class GlobalProvider extends StatelessWidget {
           create: (_) => FactoryProvider.provideIconFactory(),
         ),
         RepositoryProvider(
+          create: (_) => FactoryProvider.provideNavigationFactory(),
+        ),
+        RepositoryProvider(
           create: (_) => DialogProvider.provideDialogInterface(),
         ),
         RepositoryProvider(

@@ -14,7 +14,7 @@ class BasicAvatarSelectionComponent extends StatelessWidget {
   Widget build(BuildContext context) {
     final WidgetFactory widgetFactory = context.read<WidgetFactory>();
     final IconFactory iconFactory = context.read<IconFactory>();
-    const double avatarSize = 80;
+    const double avatarSize = 140;
     const Widget gap = SizedBox(height: 32);
 
     return widgetFactory.createScaffold(

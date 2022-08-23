@@ -19,22 +19,28 @@ class AvatarComponent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ImageProvider<Object>? imageProvider = _getImageProvider();
+
     return Container(
-      decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [
-        BoxShadow(
-          color: AppColors.grey.withOpacity(0.3),
-          spreadRadius: 3,
-          blurRadius: 6,
-          offset: const Offset(0, 3),
-        ),
-      ]),
+      height: size,
+      width: size,
+      clipBehavior: Clip.hardEdge,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: AppColors.white,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.grey.withOpacity(0.3),
+            spreadRadius: 3,
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
       child: GestureDetector(
         onTap: onPressed,
-        child: CircleAvatar(
-          radius: size,
-          backgroundImage: imageProvider,
-          backgroundColor: AppColors.white,
-        ),
+        child: imageProvider != null
+            ? Image(image: imageProvider)
+            : Container(color: AppColors.white),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../models/bottom_nav_bar.dart';
 import '../components/material_custom_button.dart';
 import '../components/material_custom_text_field.dart';
 import '../components/material_password_text_field.dart';
@@ -28,7 +29,9 @@ class MaterialWidgetFactory implements WidgetFactory {
     Color? appBarBackgroundColor,
     bool appBarWithElevation = true,
     Icon? leadingIcon,
+    Widget? trailing,
     bool automaticallyImplyLeading = true,
+    BottomNavBar? bottomNavigationBar,
   }) {
     return MaterialScaffold(
       withAppBar: withAppBar,
@@ -36,7 +39,9 @@ class MaterialWidgetFactory implements WidgetFactory {
       appBarBackgroundColor: appBarBackgroundColor,
       appBarWithElevation: appBarWithElevation,
       leadingIcon: leadingIcon,
+      trailing: trailing,
       automaticallyImplyLeading: automaticallyImplyLeading,
+      bottomNavigationBar: bottomNavigationBar,
       child: child,
     );
   }

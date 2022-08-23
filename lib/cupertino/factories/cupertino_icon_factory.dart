@@ -3,13 +3,11 @@ import 'package:flutter/cupertino.dart';
 import '../../interfaces/factories/icon_factory.dart';
 
 class CupertinoIconFactory implements IconFactory {
-  final double defaultIconSize = 24;
-
   @override
   Icon createAccountIcon({double? size, Color? color}) {
     return Icon(
       CupertinoIcons.person,
-      size: size ?? defaultIconSize,
+      size: size,
       color: color,
     );
   }
@@ -18,7 +16,7 @@ class CupertinoIconFactory implements IconFactory {
   Icon createLockIcon({double? size, Color? color}) {
     return Icon(
       CupertinoIcons.lock,
-      size: size ?? defaultIconSize,
+      size: size,
       color: color,
     );
   }
@@ -27,7 +25,7 @@ class CupertinoIconFactory implements IconFactory {
   Icon createEnvelopeIcon({double? size, Color? color}) {
     return Icon(
       CupertinoIcons.envelope,
-      size: size ?? defaultIconSize,
+      size: size,
       color: color,
     );
   }
@@ -36,7 +34,7 @@ class CupertinoIconFactory implements IconFactory {
   Icon createCloseIcon({double? size, Color? color}) {
     return Icon(
       CupertinoIcons.clear,
-      size: size ?? defaultIconSize,
+      size: size,
       color: color,
     );
   }
@@ -45,7 +43,16 @@ class CupertinoIconFactory implements IconFactory {
   Icon createBookIcon({double? size, Color? color}) {
     return Icon(
       CupertinoIcons.book,
-      size: size ?? defaultIconSize,
+      size: size,
+      color: color,
+    );
+  }
+
+  @override
+  Icon createLibraryIcon({double? size, Color? color}) {
+    return Icon(
+      CupertinoIcons.collections,
+      size: size,
       color: color,
     );
   }
@@ -54,7 +61,7 @@ class CupertinoIconFactory implements IconFactory {
   Icon createImageIcon({double? size, Color? color}) {
     return Icon(
       CupertinoIcons.photo,
-      size: size ?? defaultIconSize,
+      size: size,
       color: color,
     );
   }
@@ -63,7 +70,16 @@ class CupertinoIconFactory implements IconFactory {
   Icon createCameraIcon({double? size, Color? color}) {
     return Icon(
       CupertinoIcons.camera,
-      size: size ?? defaultIconSize,
+      size: size,
+      color: color,
+    );
+  }
+
+  @override
+  Icon createCalendarIcon({double? size, Color? color}) {
+    return Icon(
+      CupertinoIcons.calendar,
+      size: size,
       color: color,
     );
   }

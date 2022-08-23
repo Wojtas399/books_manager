@@ -11,7 +11,7 @@ class SignUpAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AvatarWithChangeOptionComponent(
-      size: 100,
+      size: 200,
       onAvatarChanged: (Avatar avatar) => _onAvatarChanged(avatar, context),
     );
   }

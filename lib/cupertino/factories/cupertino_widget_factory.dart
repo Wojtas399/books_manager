@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
+import '../../models/bottom_nav_bar.dart';
 import '../components/cupertino_custom_button.dart';
 import '../components/cupertino_custom_text_field.dart';
 import '../components/cupertino_password_text_field.dart';
@@ -28,7 +29,9 @@ class CupertinoWidgetFactory implements WidgetFactory {
     Color? appBarBackgroundColor,
     bool appBarWithElevation = true,
     Icon? leadingIcon,
+    Widget? trailing,
     bool automaticallyImplyLeading = true,
+    BottomNavBar? bottomNavigationBar,
   }) {
     return CupertinoScaffold(
       withAppBar: withAppBar,
@@ -36,7 +39,9 @@ class CupertinoWidgetFactory implements WidgetFactory {
       appBarBackgroundColor: appBarBackgroundColor,
       appBarWithElevation: appBarWithElevation,
       leadingIcon: leadingIcon,
+      trailing: trailing,
       automaticallyImplyLeading: automaticallyImplyLeading,
+      bottomNavigationBar: bottomNavigationBar,
       child: child,
     );
   }

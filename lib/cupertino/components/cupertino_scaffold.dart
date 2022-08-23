@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 import '../../config/themes/app_colors.dart';
+import '../../models/bottom_nav_bar.dart';
 
 class CupertinoScaffold extends StatelessWidget {
   final Widget child;
@@ -9,7 +10,9 @@ class CupertinoScaffold extends StatelessWidget {
   final Color? appBarBackgroundColor;
   final bool appBarWithElevation;
   final Icon? leadingIcon;
+  final Widget? trailing;
   final bool automaticallyImplyLeading;
+  final BottomNavBar? bottomNavigationBar;
 
   const CupertinoScaffold({
     super.key,
@@ -19,15 +22,19 @@ class CupertinoScaffold extends StatelessWidget {
     this.appBarBackgroundColor,
     this.appBarWithElevation = true,
     this.leadingIcon,
+    this.trailing,
     this.automaticallyImplyLeading = true,
+    this.bottomNavigationBar,
   });
 
   @override
   Widget build(BuildContext context) {
+    final BottomNavBar? bottomNavigationBar = this.bottomNavigationBar;
+
     return CupertinoPageScaffold(
       navigationBar: withAppBar
           ? CupertinoNavigationBar(
-        automaticallyImplyLeading: automaticallyImplyLeading,
+              automaticallyImplyLeading: automaticallyImplyLeading,
               backgroundColor: appBarBackgroundColor ?? AppColors.secondary,
               middle: Text(appBarTitle ?? ''),
               border: appBarWithElevation == false
@@ -45,9 +52,42 @@ class CupertinoScaffold extends StatelessWidget {
                       ),
                     )
                   : null,
+              trailing: trailing,
             )
           : null,
-      child: child,
+      child: bottomNavigationBar != null
+          ? _CupertinoBottomNavigationBar(
+              bottomNavigationBar: bottomNavigationBar,
+              page: child,
+            )
+          : child,
+    );
+  }
+}
+
+class _CupertinoBottomNavigationBar extends StatelessWidget {
+  final BottomNavBar bottomNavigationBar;
+  final Widget page;
+
+  const _CupertinoBottomNavigationBar({
+    required this.bottomNavigationBar,
+    required this.page,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoTabScaffold(
+      tabBar: CupertinoTabBar(
+        currentIndex: bottomNavigationBar.selectedItemIndex,
+        items: bottomNavigationBar.items,
+        onTap: bottomNavigationBar.onItemPressed,
+        backgroundColor: AppColors.secondary,
+        inactiveColor: CupertinoColors.black.withOpacity(0.3),
+        activeColor: CupertinoColors.black,
+      ),
+      tabBuilder: (_, int index) {
+        return page;
+      },
     );
   }
 }

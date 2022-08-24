@@ -111,7 +111,12 @@ class MaterialDialogs implements DialogInterface {
   void showLossOfConnectionDialog({BuildContext? context}) {
     final BuildContext? buildContext = context ?? _getNavigatorContext();
     if (buildContext != null) {
-      showInfoDialog(title: ErrorsMessages.lossOfConnection, info: '');
+      showDialog(
+        context: buildContext,
+        builder: (_) => const MaterialInfoDialog(
+          title: ErrorsMessages.lossOfConnection,
+        ),
+      );
     }
   }
 

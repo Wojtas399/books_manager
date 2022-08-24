@@ -116,7 +116,12 @@ class CupertinoDialogs implements DialogInterface {
   void showLossOfConnectionDialog({BuildContext? context}) {
     final BuildContext? buildContext = context ?? _getNavigatorContext();
     if (buildContext != null) {
-      showInfoDialog(title: ErrorsMessages.lossOfConnection, info: '');
+      showCupertinoDialog(
+        context: buildContext,
+        builder: (_) => const CupertinoInfoDialog(
+          title: ErrorsMessages.lossOfConnection,
+        ),
+      );
     }
   }
 

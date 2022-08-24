@@ -1,9 +1,10 @@
+import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../domain/entities/auth_error.dart';
 import '../../../domain/use_cases/auth/sign_up_use_case.dart';
 import '../../../models/bloc_status.dart';
+import '../../../models/error.dart';
 import '../../../validators/email_validator.dart';
 import '../../../validators/password_validator.dart';
 
@@ -20,7 +21,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     required EmailValidator emailValidator,
     required PasswordValidator passwordValidator,
     required SignUpUseCase signUpUseCase,
-    BlocStatus status =  const BlocStatusInitial(),
+    BlocStatus status = const BlocStatusInitial(),
     String email = '',
     String password = '',
     String passwordConfirmation = '',
@@ -79,32 +80,46 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     Emitter<SignUpState> emit,
   ) async {
     try {
-      emit(state.copyWith(
-        status: const BlocStatusLoading(),
-      ));
-      await _signUpUseCase.execute(
-        email: state.email,
-        password: state.password,
-      );
-      emit(state.copyWithInfo(
-        SignUpBlocInfo.userHasBeenSignedUp,
-      ));
+      await _signUp(emit);
     } on AuthError catch (authError) {
-      final SignUpBlocError? blocError = _convertAuthErrorToSignUpBlocError(
-        authError,
-      );
-      if (blocError != null) {
-        emit(state.copyWithError(
-          blocError,
-        ));
-      }
+      _manageAuthError(authError, emit);
+    } on NetworkError catch (networkError) {
+      _manageNetworkError(networkError, emit);
+    } on TimeoutException catch (_) {
+      emit(state.copyWithError(
+        SignUpBlocError.loadingTimeExceeded,
+      ));
     }
   }
 
-  SignUpBlocError? _convertAuthErrorToSignUpBlocError(AuthError authError) {
-    if (authError == AuthError.emailAlreadyInUse) {
-      return SignUpBlocError.emailIsAlreadyTaken;
+  Future<void> _signUp(Emitter<SignUpState> emit) async {
+    emit(state.copyWith(
+      status: const BlocStatusLoading(),
+    ));
+    await _signUpUseCase
+        .execute(email: state.email, password: state.password)
+        .timeout(const Duration(seconds: 10));
+    emit(state.copyWithInfo(
+      SignUpBlocInfo.userHasBeenSignedUp,
+    ));
+  }
+
+  void _manageAuthError(AuthError authError, Emitter<SignUpState> emit) {
+    if (authError.code == AuthErrorCode.emailAlreadyInUse.name) {
+      emit(state.copyWithError(
+        SignUpBlocError.emailIsAlreadyTaken,
+      ));
     }
-    return null;
+  }
+
+  void _manageNetworkError(
+    NetworkError networkError,
+    Emitter<SignUpState> emit,
+  ) {
+    if (networkError.code == NetworkErrorCode.lossOfConnection.name) {
+      emit(state.copyWithError(
+        SignUpBlocError.lossOfConnection,
+      ));
+    }
   }
 }

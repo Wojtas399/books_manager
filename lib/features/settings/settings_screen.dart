@@ -112,7 +112,7 @@ class _SettingsBlocListener extends StatelessWidget {
   ) {
     switch (blocError) {
       case SettingsBlocError.wrongPassword:
-        _onWrongPassword(context);
+        _wrongPasswordInfo(context);
         break;
     }
   }
@@ -123,6 +123,10 @@ class _SettingsBlocListener extends StatelessWidget {
 
   void _onUserAccountDeletion(BuildContext context) {
     Navigation.navigateToSignInScreen();
+    _accountDeletionInfo(context);
+  }
+
+  void _accountDeletionInfo(BuildContext context) {
     context.read<DialogInterface>().showInfoDialog(
           context: context,
           title: 'Pomyślne usunięcie konta',
@@ -131,7 +135,7 @@ class _SettingsBlocListener extends StatelessWidget {
         );
   }
 
-  void _onWrongPassword(BuildContext context) {
+  void _wrongPasswordInfo(BuildContext context) {
     context.read<DialogInterface>().showInfoDialog(
           context: context,
           title: 'Błędne hasło',

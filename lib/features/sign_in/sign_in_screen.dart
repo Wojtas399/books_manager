@@ -107,19 +107,19 @@ class _SignInBlocListener extends StatelessWidget {
   void _manageBlocError(SignInBlocError blocError, BuildContext context) {
     switch (blocError) {
       case SignInBlocError.invalidEmail:
-        _onInvalidEmail(context);
+        _invalidEmailInfo(context);
         break;
       case SignInBlocError.wrongPassword:
-        _onWrongPassword(context);
+        _wrongPasswordInfo(context);
         break;
       case SignInBlocError.userNotFound:
-        _onLackOfUser(context);
+        _noUserFoundInfo(context);
         break;
       case SignInBlocError.noInternetConnection:
-        _onLossOfInternetConnection(context);
+        _lossOfInternetConnectionInfo(context);
         break;
       case SignInBlocError.timeoutException:
-        _onTimeoutException(context);
+        _timeoutExceptionInfo(context);
         break;
     }
   }
@@ -128,7 +128,7 @@ class _SignInBlocListener extends StatelessWidget {
     Navigation.navigateToHome(context: context);
   }
 
-  void _onInvalidEmail(BuildContext context) {
+  void _invalidEmailInfo(BuildContext context) {
     context.read<DialogInterface>().showInfoDialog(
           context: context,
           title: 'Niepoprawny adres e-mail',
@@ -136,7 +136,7 @@ class _SignInBlocListener extends StatelessWidget {
         );
   }
 
-  void _onWrongPassword(BuildContext context) {
+  void _wrongPasswordInfo(BuildContext context) {
     context.read<DialogInterface>().showInfoDialog(
           context: context,
           title: 'Błędne hasło',
@@ -144,7 +144,7 @@ class _SignInBlocListener extends StatelessWidget {
         );
   }
 
-  void _onLackOfUser(BuildContext context) {
+  void _noUserFoundInfo(BuildContext context) {
     context.read<DialogInterface>().showInfoDialog(
           context: context,
           title: 'Brak użytkownika',
@@ -152,20 +152,13 @@ class _SignInBlocListener extends StatelessWidget {
         );
   }
 
-  void _onLossOfInternetConnection(BuildContext context) {
-    context.read<DialogInterface>().showInfoDialog(
+  void _lossOfInternetConnectionInfo(BuildContext context) {
+    context.read<DialogInterface>().showLossOfConnectionDialog(
           context: context,
-          title: 'Brak połączenia internetowego',
-          info:
-              'Nie można przeprowadzić operacji logowania, ponieważ nie masz połączenia internetowego...',
         );
   }
 
-  void _onTimeoutException(BuildContext context) {
-    context.read<DialogInterface>().showInfoDialog(
-          context: context,
-          title: 'Nieoczekiwany błąd...',
-          info: 'Wystąpił nieoczekiwany błąd, spróbuj ponownie później.',
-        );
+  void _timeoutExceptionInfo(BuildContext context) {
+    context.read<DialogInterface>().showTimeoutDialog(context: context);
   }
 }

@@ -2,10 +2,10 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'package:app/domain/entities/auth_error.dart';
 import 'package:app/domain/use_cases/auth/sign_up_use_case.dart';
 import 'package:app/features/sign_up/bloc/sign_up_bloc.dart';
 import 'package:app/models/bloc_status.dart';
+import 'package:app/models/error.dart';
 import 'package:app/validators/email_validator.dart';
 import 'package:app/validators/password_validator.dart';
 
@@ -124,16 +124,10 @@ void main() {
 
       blocTest(
         'should call use case responsible for signing up user',
-        build: () => createBloc(
-          email: email,
-          password: password,
-        ),
+        build: () => createBloc(email: email, password: password),
         setUp: () {
           when(
-            () => signUpUseCase.execute(
-              email: email,
-              password: password,
-            ),
+            () => signUpUseCase.execute(email: email, password: password),
           ).thenAnswer((_) async => '');
         },
         act: (SignUpBloc bloc) {
@@ -157,27 +151,20 @@ void main() {
         ],
         verify: (_) {
           verify(
-            () => signUpUseCase.execute(
-              email: email,
-              password: password,
-            ),
+            () => signUpUseCase.execute(email: email, password: password),
           ).called(1);
         },
       );
 
       blocTest(
         'should emit appropriate error if email is already in use',
-        build: () => createBloc(
-          email: email,
-          password: password,
-        ),
+        build: () => createBloc(email: email, password: password),
         setUp: () {
           when(
-            () => signUpUseCase.execute(
-              email: email,
-              password: password,
-            ),
-          ).thenThrow(AuthError.emailAlreadyInUse);
+            () => signUpUseCase.execute(email: email, password: password),
+          ).thenThrow(
+            AuthError(authErrorCode: AuthErrorCode.emailAlreadyInUse),
+          );
         },
         act: (SignUpBloc bloc) {
           bloc.add(
@@ -193,6 +180,37 @@ void main() {
           createState(
             status: const BlocStatusError<SignUpBlocError>(
               error: SignUpBlocError.emailIsAlreadyTaken,
+            ),
+            email: email,
+            password: password,
+          ),
+        ],
+      );
+
+      blocTest(
+        'should emit appropriate error if internet connection has been lost',
+        build: () => createBloc(email: email, password: password),
+        setUp: () {
+          when(
+            () => signUpUseCase.execute(email: email, password: password),
+          ).thenThrow(
+            NetworkError(networkErrorCode: NetworkErrorCode.lossOfConnection),
+          );
+        },
+        act: (SignUpBloc bloc) {
+          bloc.add(
+            SignUpEventSubmit(),
+          );
+        },
+        expect: () => [
+          createState(
+            status: const BlocStatusLoading(),
+            email: email,
+            password: password,
+          ),
+          createState(
+            status: const BlocStatusError<SignUpBlocError>(
+              error: SignUpBlocError.lossOfConnection,
             ),
             email: email,
             password: password,

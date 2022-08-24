@@ -1,4 +1,4 @@
-import '../domain/entities/auth_state.dart';
+import '../models/auth_state.dart';
 
 abstract class AuthInterface {
   Stream<AuthState> get authState$;

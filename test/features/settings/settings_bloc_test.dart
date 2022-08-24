@@ -2,11 +2,11 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'package:app/domain/entities/auth_error.dart';
 import 'package:app/domain/use_cases/auth/delete_user_use_case.dart';
 import 'package:app/domain/use_cases/auth/sign_out_use_case.dart';
 import 'package:app/features/settings/bloc/settings_bloc.dart';
 import 'package:app/models/bloc_status.dart';
+import 'package:app/models/error.dart';
 
 class MockSignOutUseCase extends Mock implements SignOutUseCase {}
 
@@ -102,7 +102,7 @@ void main() {
     setUp: () {
       when(
         () => deleteUserUseCase.execute(password: 'password'),
-      ).thenThrow(AuthError.wrongPassword);
+      ).thenThrow(AuthError(authErrorCode: AuthErrorCode.wrongPassword));
     },
     act: (SettingsBloc bloc) {
       bloc.add(

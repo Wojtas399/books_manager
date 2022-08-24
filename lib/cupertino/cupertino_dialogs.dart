@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import '../interfaces/dialog_interface.dart';
 import '../models/action_sheet_action.dart';
 import '../providers/navigator_key_provider.dart';
+import '../ui/errors_messages.dart';
 import 'components/cupertino_info_dialog.dart';
 import 'components/cupertino_custom_action_sheet.dart';
 import 'components/cupertino_loading_dialog.dart';
@@ -108,6 +109,25 @@ class CupertinoDialogs implements DialogInterface {
         overlayEntry.remove,
       );
       Overlay.of(buildContext)?.insert(overlayEntry);
+    }
+  }
+
+  @override
+  void showLossOfConnectionDialog({BuildContext? context}) {
+    final BuildContext? buildContext = context ?? _getNavigatorContext();
+    if (buildContext != null) {
+      showInfoDialog(title: ErrorsMessages.lossOfConnection, info: '');
+    }
+  }
+
+  @override
+  void showTimeoutDialog({BuildContext? context}) {
+    final BuildContext? buildContext = context ?? _getNavigatorContext();
+    if (buildContext != null) {
+      showInfoDialog(
+        title: 'Przekroczony czas wykonania operacji',
+        info: ErrorsMessages.timeoutMessage,
+      );
     }
   }
 

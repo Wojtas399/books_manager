@@ -2,12 +2,11 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../domain/entities/auth_error.dart';
-import '../../../domain/entities/auth_state.dart';
-import '../../../domain/entities/network_error.dart';
+import '../../../models/auth_state.dart';
 import '../../../domain/use_cases/auth/get_auth_state_use_case.dart';
 import '../../../domain/use_cases/auth/sign_in_use_case.dart';
 import '../../../models/bloc_status.dart';
+import '../../../models/error.dart';
 
 part 'sign_in_event.dart';
 
@@ -88,7 +87,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
 
   Future<bool> _isUserSignedIn() async {
     final AuthState authState = await _getAuthStateUseCase.execute().first;
-    return authState == AuthState.signedIn;
+    return authState is AuthStateSignedIn;
   }
 
   Future<void> _signIn(Emitter<SignInState> emit) async {
@@ -104,24 +103,18 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   }
 
   void _manageAuthError(AuthError authError, Emitter<SignInState> emit) {
-    SignInBlocError? blocError = _convertAuthErrorToSignInBlocError(
-      authError,
-    );
-    if (blocError != null) {
+    if (authError.code == AuthErrorCode.invalidEmail.name) {
       emit(state.copyWithError(
-        blocError,
+        SignInBlocError.invalidEmail,
+      ));
+    } else if (authError.code == AuthErrorCode.wrongPassword.name) {
+      emit(state.copyWithError(
+        SignInBlocError.wrongPassword,
+      ));
+    } else if (authError.code == AuthErrorCode.userNotFound.name) {
+      emit(state.copyWithError(
+        SignInBlocError.userNotFound,
       ));
     }
-  }
-
-  SignInBlocError? _convertAuthErrorToSignInBlocError(AuthError authError) {
-    if (authError == AuthError.invalidEmail) {
-      return SignInBlocError.invalidEmail;
-    } else if (authError == AuthError.wrongPassword) {
-      return SignInBlocError.wrongPassword;
-    } else if (authError == AuthError.userNotFound) {
-      return SignInBlocError.userNotFound;
-    }
-    return null;
   }
 }

@@ -69,18 +69,10 @@ class _ResetPasswordBlocListener extends StatelessWidget {
     BlocStatusComplete blocStatus,
     BuildContext context,
   ) {
-    final DialogInterface dialogInterface = context.read<DialogInterface>();
-    dialogInterface.closeLoadingDialog(context: context);
+    _closeLoadingDialog(context);
     final ResetPasswordBlocInfo? blocInfo = blocStatus.info;
     if (blocInfo != null) {
-      switch (blocInfo) {
-        case ResetPasswordBlocInfo.emailHasBeenSent:
-          dialogInterface.showSnackbar(
-            context: context,
-            message: 'Pomyślnie wysłano wiadomość na podany adres email.',
-          );
-          break;
-      }
+      _manageBlocInfo(blocInfo, context);
     }
   }
 
@@ -88,26 +80,79 @@ class _ResetPasswordBlocListener extends StatelessWidget {
     BlocStatusError blocStatus,
     BuildContext context,
   ) {
-    final DialogInterface dialogInterface = context.read<DialogInterface>();
-    dialogInterface.closeLoadingDialog(context: context);
+    _closeLoadingDialog(context);
     final ResetPasswordBlocError? blocError = blocStatus.error;
     if (blocError != null) {
-      switch (blocError) {
-        case ResetPasswordBlocError.userNotFound:
-          dialogInterface.showInfoDialog(
-            context: context,
-            title: 'Brak użytkownika',
-            info: 'Nie znaleziono użytkownika o podanym adresie email.',
-          );
-          break;
-        case ResetPasswordBlocError.invalidEmail:
-          dialogInterface.showInfoDialog(
-            context: context,
-            title: 'Niepoprawny adres email',
-            info: 'Nie można wysłać wiadomości, ponieważ podany adres email jest niepoprawny.',
-          );
-          break;
-      }
+      _manageBlocError(blocError, context);
     }
+  }
+
+  void _closeLoadingDialog(BuildContext context) {
+    context.read<DialogInterface>().closeLoadingDialog(context: context);
+  }
+
+  void _manageBlocInfo(
+    ResetPasswordBlocInfo blocInfo,
+    BuildContext context,
+  ) {
+    switch (blocInfo) {
+      case ResetPasswordBlocInfo.emailHasBeenSent:
+        _emailHasBeenSentInfo(context);
+        break;
+    }
+  }
+
+  void _manageBlocError(
+    ResetPasswordBlocError blocError,
+    BuildContext context,
+  ) {
+    switch (blocError) {
+      case ResetPasswordBlocError.userNotFound:
+        _userNotFoundInfo(context);
+        break;
+      case ResetPasswordBlocError.invalidEmail:
+        _invalidEmailInfo(context);
+        break;
+      case ResetPasswordBlocError.lossOfConnection:
+        _lossOfConnectionInfo(context);
+        break;
+      case ResetPasswordBlocError.timeoutException:
+        _timeoutInfo(context);
+        break;
+    }
+  }
+
+  void _emailHasBeenSentInfo(BuildContext context) {
+    context.read<DialogInterface>().showSnackbar(
+          context: context,
+          message: 'Pomyślnie wysłano wiadomość na podany adres email.',
+        );
+  }
+
+  void _userNotFoundInfo(BuildContext context) {
+    context.read<DialogInterface>().showInfoDialog(
+          context: context,
+          title: 'Brak użytkownika',
+          info: 'Nie znaleziono użytkownika o podanym adresie email.',
+        );
+  }
+
+  void _invalidEmailInfo(BuildContext context) {
+    context.read<DialogInterface>().showInfoDialog(
+          context: context,
+          title: 'Niepoprawny adres email',
+          info:
+              'Nie można wysłać wiadomości, ponieważ podany adres email jest niepoprawny.',
+        );
+  }
+
+  void _lossOfConnectionInfo(BuildContext context) {
+    context.read<DialogInterface>().showLossOfConnectionDialog(
+          context: context,
+        );
+  }
+
+  void _timeoutInfo(BuildContext context) {
+    context.read<DialogInterface>().showTimeoutDialog(context: context);
   }
 }

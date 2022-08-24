@@ -4,9 +4,8 @@ import 'package:rxdart/rxdart.dart';
 import '../../database/firebase/services/fire_auth_service.dart';
 import '../../database/shared_preferences/shared_preferences_service.dart';
 import '../../interfaces/auth_interface.dart';
-import '../entities/auth_error.dart';
-import '../entities/auth_state.dart';
-import '../entities/network_error.dart';
+import '../../models/auth_state.dart';
+import '../../models/error.dart';
 
 class AuthRepository implements AuthInterface {
   late final FireAuthService _fireAuthService;
@@ -88,25 +87,25 @@ class AuthRepository implements AuthInterface {
 
   AuthState _getAuthStateDependsOnUserId(String? userId) {
     if (userId != null) {
-      return AuthState.signedIn;
+      return AuthStateSignedIn(userId: userId);
     }
-    return AuthState.signedOut;
+    return AuthStateSignedOut();
   }
 
-  AuthError _manageFirebaseAuthException(String code) {
+  void _manageFirebaseAuthException(String code) {
     switch (code) {
       case 'invalid-email':
-        throw AuthError.invalidEmail;
+        throw AuthError(authErrorCode: AuthErrorCode.invalidEmail);
       case 'wrong-password':
-        throw AuthError.wrongPassword;
+        throw AuthError(authErrorCode: AuthErrorCode.wrongPassword);
       case 'user-not-found':
-        throw AuthError.userNotFound;
+        throw AuthError(authErrorCode: AuthErrorCode.userNotFound);
       case 'email-already-in-use':
-        throw AuthError.emailAlreadyInUse;
+        throw AuthError(authErrorCode: AuthErrorCode.emailAlreadyInUse);
       case 'network-request-failed':
-        throw NetworkError.lossOfConnection;
+        throw NetworkError(networkErrorCode: NetworkErrorCode.lossOfConnection);
       default:
-        throw AuthError.unknown;
+        throw AuthError(authErrorCode: AuthErrorCode.unknown);
     }
   }
 }

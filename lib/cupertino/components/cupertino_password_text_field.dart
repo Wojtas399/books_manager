@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 import '../../config/themes/app_colors.dart';
-import '../../validators/validators_messages.dart';
+import '../../ui/errors_messages.dart';
 import 'cupertino_text_field_background.dart';
 
 class CupertinoPasswordTextField extends StatefulWidget {
@@ -75,7 +75,7 @@ class _CupertinoPasswordTextFieldState
 
   String? _validate(String? value) {
     if (widget.isRequired && value == '') {
-      return ValidatorsMessages.requiredValueMessage;
+      return ErrorsMessages.requiredValue;
     }
     final String? Function(String? value)? customValidator = widget.validator;
     if (customValidator != null) {

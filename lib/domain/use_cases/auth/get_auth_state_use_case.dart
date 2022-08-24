@@ -1,5 +1,5 @@
 import '../../../interfaces/auth_interface.dart';
-import '../../entities/auth_state.dart';
+import '../../../models/auth_state.dart';
 
 class GetAuthStateUseCase {
   late final AuthInterface _authInterface;

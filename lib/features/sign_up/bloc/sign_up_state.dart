@@ -71,4 +71,6 @@ enum SignUpBlocInfo {
 
 enum SignUpBlocError {
   emailIsAlreadyTaken,
+  lossOfConnection,
+  loadingTimeExceeded,
 }

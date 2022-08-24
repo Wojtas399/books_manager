@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 import '../../config/themes/app_colors.dart';
-import '../../validators/validators_messages.dart';
+import '../../ui/errors_messages.dart';
 import 'cupertino_text_field_background.dart';
 
 class CupertinoCustomTextField extends StatelessWidget {
@@ -47,7 +47,7 @@ class CupertinoCustomTextField extends StatelessWidget {
 
   String? _validate(String? value) {
     if (isRequired && value == '') {
-      return ValidatorsMessages.requiredValueMessage;
+      return ErrorsMessages.requiredValue;
     }
     final String? Function(String? value)? customValidator = validator;
     if (customValidator != null) {

@@ -2,13 +2,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:bloc_test/bloc_test.dart';
 
-import 'package:app/domain/entities/auth_state.dart';
-import 'package:app/domain/entities/auth_error.dart';
-import 'package:app/domain/entities/network_error.dart';
+import 'package:app/models/auth_state.dart';
 import 'package:app/domain/use_cases/auth/get_auth_state_use_case.dart';
 import 'package:app/domain/use_cases/auth/sign_in_use_case.dart';
 import 'package:app/features/sign_in/bloc/sign_in_bloc.dart';
 import 'package:app/models/bloc_status.dart';
+import 'package:app/models/error.dart';
 
 class MockGetAuthStateUseCase extends Mock implements GetAuthStateUseCase {}
 
@@ -52,7 +51,9 @@ void main() {
     setUp: () {
       when(
         () => getAuthStateUseCase.execute(),
-      ).thenAnswer((_) => Stream.value(AuthState.signedIn));
+      ).thenAnswer(
+        (_) => Stream.value(const AuthStateSignedIn(userId: 'userId')),
+      );
     },
     act: (SignInBloc bloc) {
       bloc.add(
@@ -143,7 +144,7 @@ void main() {
         setUp: () {
           when(
             () => signInUseCase.execute(email: email, password: password),
-          ).thenThrow(AuthError.invalidEmail);
+          ).thenThrow(AuthError(authErrorCode: AuthErrorCode.invalidEmail));
         },
         act: (SignInBloc bloc) {
           bloc.add(
@@ -172,7 +173,7 @@ void main() {
         setUp: () {
           when(
             () => signInUseCase.execute(email: email, password: password),
-          ).thenThrow(AuthError.wrongPassword);
+          ).thenThrow(AuthError(authErrorCode: AuthErrorCode.wrongPassword));
         },
         act: (SignInBloc bloc) {
           bloc.add(
@@ -201,7 +202,7 @@ void main() {
         setUp: () {
           when(
             () => signInUseCase.execute(email: email, password: password),
-          ).thenThrow(AuthError.userNotFound);
+          ).thenThrow(AuthError(authErrorCode: AuthErrorCode.userNotFound));
         },
         act: (SignInBloc bloc) {
           bloc.add(
@@ -230,7 +231,9 @@ void main() {
         setUp: () {
           when(
             () => signInUseCase.execute(email: email, password: password),
-          ).thenThrow(NetworkError.lossOfConnection);
+          ).thenThrow(
+            NetworkError(networkErrorCode: NetworkErrorCode.lossOfConnection),
+          );
         },
         act: (SignInBloc bloc) {
           bloc.add(

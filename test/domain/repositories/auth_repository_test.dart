@@ -4,9 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:app/database/firebase/services/fire_auth_service.dart';
 import 'package:app/database/shared_preferences/shared_preferences_service.dart';
-import 'package:app/domain/entities/auth_state.dart';
-import 'package:app/domain/entities/auth_error.dart';
-import 'package:app/domain/entities/network_error.dart';
+import 'package:app/models/auth_state.dart';
+import 'package:app/models/error.dart';
 import 'package:app/domain/repositories/auth_repository.dart';
 
 class MockFireAuthService extends Mock implements FireAuthService {}
@@ -40,7 +39,10 @@ void main() {
 
       final Stream<AuthState> authState$ = repository.authState$;
 
-      expect(await authState$.first, AuthState.signedIn);
+      expect(
+        await authState$.first,
+        const AuthStateSignedIn(userId: 'userId'),
+      );
     },
   );
 
@@ -53,7 +55,10 @@ void main() {
 
       final Stream<AuthState> authState$ = repository.authState$;
 
-      expect(await authState$.first, AuthState.signedOut);
+      expect(
+        await authState$.first,
+        const AuthStateSignedOut(),
+      );
     },
   );
 
@@ -64,7 +69,7 @@ void main() {
       const String password = 'password123';
 
       test(
-        'sign in, should call methods responsible for signing in user and for saving logged user id in shared preferences',
+        'should call methods responsible for signing in user and for saving logged user id in shared preferences',
         () async {
           const String loggedUserId = 'userId';
           when(
@@ -93,7 +98,7 @@ void main() {
       );
 
       test(
-        'sign in, should throw appropriate auth error if email is invalid',
+        'should throw appropriate auth error if email is invalid',
         () async {
           when(
             () => fireAuthService.signIn(email: email, password: password),
@@ -102,13 +107,16 @@ void main() {
           try {
             await repository.signIn(email: email, password: password);
           } on AuthError catch (error) {
-            expect(error, AuthError.invalidEmail);
+            expect(
+              error,
+              AuthError(authErrorCode: AuthErrorCode.invalidEmail),
+            );
           }
         },
       );
 
       test(
-        'sign in, should throw appropriate auth error if password is wrong',
+        'should throw appropriate auth error if password is wrong',
         () async {
           when(
             () => fireAuthService.signIn(email: email, password: password),
@@ -117,13 +125,16 @@ void main() {
           try {
             await repository.signIn(email: email, password: password);
           } on AuthError catch (error) {
-            expect(error, AuthError.wrongPassword);
+            expect(
+              error,
+              AuthError(authErrorCode: AuthErrorCode.wrongPassword),
+            );
           }
         },
       );
 
       test(
-        'sign in, should throw appropriate auth error if user has not been found',
+        'should throw appropriate auth error if user has not been found',
         () async {
           when(
             () => fireAuthService.signIn(email: email, password: password),
@@ -132,13 +143,16 @@ void main() {
           try {
             await repository.signIn(email: email, password: password);
           } on AuthError catch (error) {
-            expect(error, AuthError.userNotFound);
+            expect(
+              error,
+              AuthError(authErrorCode: AuthErrorCode.userNotFound),
+            );
           }
         },
       );
 
       test(
-        'sign in, should throw appropriate network error if network connection has been lost',
+        'should throw appropriate network error if network connection has been lost',
         () async {
           when(
             () => fireAuthService.signIn(email: email, password: password),
@@ -147,112 +161,126 @@ void main() {
           try {
             await repository.signIn(email: email, password: password);
           } on NetworkError catch (error) {
-            expect(error, NetworkError.lossOfConnection);
+            expect(
+              error,
+              NetworkError(networkErrorCode: NetworkErrorCode.lossOfConnection),
+            );
           }
         },
       );
     },
   );
 
-  test(
-    'sign up, should call methods responsible for signing up user and for saving logged user id in shared preferences',
-    () async {
+  group(
+    'sign up',
+    () {
       const String email = 'email@example.com';
       const String password = 'password123';
-      const String loggedUserId = 'userId';
-      when(
-        () => fireAuthService.signUp(
-          email: email,
-          password: password,
-        ),
-      ).thenAnswer((_) async => loggedUserId);
-      when(
-        () => sharedPreferencesService.saveLoggedUserId(
-          loggedUserId: loggedUserId,
-        ),
-      ).thenAnswer((_) async => '');
 
-      await repository.signUp(email: email, password: password);
+      test(
+        'should call methods responsible for signing up user and for saving logged user id in shared preferences',
+        () async {
+          const String loggedUserId = 'userId';
+          when(
+            () => fireAuthService.signUp(
+              email: email,
+              password: password,
+            ),
+          ).thenAnswer((_) async => loggedUserId);
+          when(
+            () => sharedPreferencesService.saveLoggedUserId(
+              loggedUserId: loggedUserId,
+            ),
+          ).thenAnswer((_) async => '');
 
-      verify(
-        () => fireAuthService.signUp(
-          email: email,
-          password: password,
-        ),
-      ).called(1);
-      verify(
-        () => sharedPreferencesService.saveLoggedUserId(
-          loggedUserId: loggedUserId,
-        ),
-      ).called(1);
+          await repository.signUp(email: email, password: password);
+
+          verify(
+            () => fireAuthService.signUp(email: email, password: password),
+          ).called(1);
+          verify(
+            () => sharedPreferencesService.saveLoggedUserId(
+              loggedUserId: loggedUserId,
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'should throw appropriate auth error if email is already in use',
+        () async {
+          when(
+            () => fireAuthService.signUp(email: email, password: password),
+          ).thenThrow(FirebaseAuthException(code: 'email-already-in-use'));
+
+          try {
+            await repository.signUp(email: email, password: password);
+          } on AuthError catch (error) {
+            expect(
+              error,
+              AuthError(authErrorCode: AuthErrorCode.emailAlreadyInUse),
+            );
+          }
+        },
+      );
     },
   );
 
-  test(
-    'sign up, should throw appropriate auth error if email is already in use',
-    () async {
+  group(
+    'send password reset email',
+    () {
       const String email = 'email@example.com';
-      const String password = 'password123';
-      when(
-        () => fireAuthService.signUp(
-          email: email,
-          password: password,
-        ),
-      ).thenThrow(FirebaseAuthException(code: 'email-already-in-use'));
 
-      try {
-        await repository.signUp(email: email, password: password);
-      } on AuthError catch (error) {
-        expect(error, AuthError.emailAlreadyInUse);
-      }
-    },
-  );
+      test(
+        'should call method responsible for sending password reset email',
+        () async {
+          when(
+            () => fireAuthService.sendPasswordResetEmail(email: email),
+          ).thenAnswer((_) async => '');
 
-  test(
-    'send password reset email, should call method responsible for sending password reset email',
-    () async {
-      const String email = 'email@example.com';
-      when(
-        () => fireAuthService.sendPasswordResetEmail(email: email),
-      ).thenAnswer((_) async => '');
+          await repository.sendPasswordResetEmail(email: email);
 
-      await repository.sendPasswordResetEmail(email: email);
+          verify(
+            () => fireAuthService.sendPasswordResetEmail(email: email),
+          ).called(1);
+        },
+      );
 
-      verify(
-        () => fireAuthService.sendPasswordResetEmail(email: email),
-      ).called(1);
-    },
-  );
+      test(
+        'should throw auth error if email is invalid',
+        () async {
+          when(
+            () => fireAuthService.sendPasswordResetEmail(email: email),
+          ).thenThrow(FirebaseAuthException(code: 'invalid-email'));
 
-  test(
-    'send reset password email, should throw auth error if email is invalid',
-    () async {
-      const String email = 'email';
-      when(
-        () => fireAuthService.sendPasswordResetEmail(email: email),
-      ).thenThrow(FirebaseAuthException(code: 'invalid-email'));
+          try {
+            await repository.sendPasswordResetEmail(email: email);
+          } on AuthError catch (error) {
+            expect(
+              error,
+              AuthError(authErrorCode: AuthErrorCode.invalidEmail),
+            );
+          }
+        },
+      );
 
-      try {
-        await repository.sendPasswordResetEmail(email: email);
-      } on AuthError catch (error) {
-        expect(error, AuthError.invalidEmail);
-      }
-    },
-  );
+      test(
+        'should throw auth error if user has not been found',
+        () async {
+          when(
+            () => fireAuthService.sendPasswordResetEmail(email: email),
+          ).thenThrow(FirebaseAuthException(code: 'user-not-found'));
 
-  test(
-    'send reset password email, should throw auth error if user has not been found',
-    () async {
-      const String email = 'email';
-      when(
-        () => fireAuthService.sendPasswordResetEmail(email: email),
-      ).thenThrow(FirebaseAuthException(code: 'user-not-found'));
-
-      try {
-        await repository.sendPasswordResetEmail(email: email);
-      } on AuthError catch (error) {
-        expect(error, AuthError.userNotFound);
-      }
+          try {
+            await repository.sendPasswordResetEmail(email: email);
+          } on AuthError catch (error) {
+            expect(
+              error,
+              AuthError(authErrorCode: AuthErrorCode.userNotFound),
+            );
+          }
+        },
+      );
     },
   );
 
@@ -310,7 +338,10 @@ void main() {
       try {
         await repository.deleteLoggedUser(password: password);
       } on AuthError catch (error) {
-        expect(error, AuthError.wrongPassword);
+        expect(
+          error,
+          AuthError(authErrorCode: AuthErrorCode.wrongPassword),
+        );
       }
     },
   );

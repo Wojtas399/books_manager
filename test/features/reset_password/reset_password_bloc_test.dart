@@ -2,10 +2,10 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'package:app/domain/entities/auth_error.dart';
 import 'package:app/domain/use_cases/auth/send_reset_password_email_use_case.dart';
 import 'package:app/features/reset_password/bloc/reset_password_bloc.dart';
 import 'package:app/models/bloc_status.dart';
+import 'package:app/models/error.dart';
 
 class MockSendResetPasswordEmailUseCase extends Mock
     implements SendResetPasswordEmailUseCase {}
@@ -41,7 +41,7 @@ void main() {
     build: () => createBloc(),
     act: (ResetPasswordBloc bloc) {
       bloc.add(
-        ResetPasswordEventEmailChanged(email: 'email'),
+        const ResetPasswordEventEmailChanged(email: 'email'),
       );
     },
     expect: () => [
@@ -66,7 +66,7 @@ void main() {
         },
         act: (ResetPasswordBloc bloc) {
           bloc.add(
-            ResetPasswordEventSubmit(),
+            const ResetPasswordEventSubmit(),
           );
         },
         expect: () => [
@@ -94,11 +94,11 @@ void main() {
         setUp: () {
           when(
             () => sendResetPasswordEmailUseCase.execute(email: email),
-          ).thenThrow(AuthError.invalidEmail);
+          ).thenThrow(AuthError(authErrorCode: AuthErrorCode.invalidEmail));
         },
         act: (ResetPasswordBloc bloc) {
           bloc.add(
-            ResetPasswordEventSubmit(),
+            const ResetPasswordEventSubmit(),
           );
         },
         expect: () => [
@@ -121,11 +121,11 @@ void main() {
         setUp: () {
           when(
             () => sendResetPasswordEmailUseCase.execute(email: email),
-          ).thenThrow(AuthError.userNotFound);
+          ).thenThrow(AuthError(authErrorCode: AuthErrorCode.userNotFound));
         },
         act: (ResetPasswordBloc bloc) {
           bloc.add(
-            ResetPasswordEventSubmit(),
+            const ResetPasswordEventSubmit(),
           );
         },
         expect: () => [
@@ -136,6 +136,35 @@ void main() {
           createState(
             status: const BlocStatusError<ResetPasswordBlocError>(
               error: ResetPasswordBlocError.userNotFound,
+            ),
+            email: email,
+          ),
+        ],
+      );
+
+      blocTest(
+        'should emit appropriate info if connection has been lost',
+        build: () => createBloc(email: email),
+        setUp: () {
+          when(
+            () => sendResetPasswordEmailUseCase.execute(email: email),
+          ).thenThrow(
+            NetworkError(networkErrorCode: NetworkErrorCode.lossOfConnection),
+          );
+        },
+        act: (ResetPasswordBloc bloc) {
+          bloc.add(
+            const ResetPasswordEventSubmit(),
+          );
+        },
+        expect: () => [
+          createState(
+            status: const BlocStatusLoading(),
+            email: email,
+          ),
+          createState(
+            status: const BlocStatusError<ResetPasswordBlocError>(
+              error: ResetPasswordBlocError.lossOfConnection,
             ),
             email: email,
           ),

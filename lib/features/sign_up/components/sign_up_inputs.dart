@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../interfaces/factories/icon_factory.dart';
 import '../../../interfaces/factories/widget_factory.dart';
-import '../../../validators/validators_messages.dart';
+import '../../../ui/errors_messages.dart';
 import '../bloc/sign_up_bloc.dart';
 
 class SignUpInputs extends StatelessWidget {
@@ -47,7 +47,7 @@ class _Email extends StatelessWidget {
     if (isEmailValid) {
       return null;
     }
-    return ValidatorsMessages.invalidEmailMessage;
+    return ErrorsMessages.invalidEmail;
   }
 
   void _onEmailChanged(String email, BuildContext context) {
@@ -82,7 +82,7 @@ class _Password extends StatelessWidget {
     if (isPasswordValid) {
       return null;
     }
-    return ValidatorsMessages.invalidPasswordMessage;
+    return ErrorsMessages.invalidPassword;
   }
 
   void _onPasswordChanged(String password, BuildContext context) {

@@ -1,4 +1,0 @@
-enum AuthState {
-  signedIn,
-  signedOut,
-}

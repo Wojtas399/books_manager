@@ -74,14 +74,10 @@ class _SignUpBlocListener extends StatelessWidget {
     BlocStatusComplete completeStatus,
     BuildContext context,
   ) {
-    context.read<DialogInterface>().closeLoadingDialog(context: context);
+    _closeLoadingDialog(context);
     final SignUpBlocInfo? blocInfo = completeStatus.info;
     if (blocInfo != null) {
-      switch (blocInfo) {
-        case SignUpBlocInfo.userHasBeenSignedUp:
-          Navigation.navigateToHome(context: context);
-          break;
-      }
+      _manageBlocInfo(blocInfo, context);
     }
   }
 
@@ -89,19 +85,58 @@ class _SignUpBlocListener extends StatelessWidget {
     BlocStatusError errorStatus,
     BuildContext context,
   ) {
-    final DialogInterface dialogInterface = context.read<DialogInterface>();
-    dialogInterface.closeLoadingDialog(context: context);
+    _closeLoadingDialog(context);
     final SignUpBlocError? blocError = errorStatus.error;
     if (blocError != null) {
-      switch (blocError) {
-        case SignUpBlocError.emailIsAlreadyTaken:
-          dialogInterface.showInfoDialog(
-            context: context,
-            title: 'Zajęty email',
-            info: 'Ten adres email jest już zajęty przez innego użytkownika.',
-          );
-          break;
-      }
+      _manageBlocError(blocError, context);
     }
+  }
+
+  void _closeLoadingDialog(BuildContext context) {
+    context.read<DialogInterface>().closeLoadingDialog(context: context);
+  }
+
+  void _manageBlocInfo(SignUpBlocInfo blocInfo, BuildContext context) {
+    switch (blocInfo) {
+      case SignUpBlocInfo.userHasBeenSignedUp:
+        _onUserSigningUp(context);
+        break;
+    }
+  }
+
+  void _manageBlocError(SignUpBlocError blocError, BuildContext context) {
+    switch (blocError) {
+      case SignUpBlocError.emailIsAlreadyTaken:
+        _emailIsAlreadyTakenInfo(context);
+        break;
+      case SignUpBlocError.lossOfConnection:
+        _lossOfConnectionInfo(context);
+        break;
+      case SignUpBlocError.loadingTimeExceeded:
+        _loadingTimeExceededInfo(context);
+        break;
+    }
+  }
+
+  void _onUserSigningUp(BuildContext context) {
+    Navigation.navigateToHome(context: context);
+  }
+
+  void _emailIsAlreadyTakenInfo(BuildContext context) {
+    context.read<DialogInterface>().showInfoDialog(
+          context: context,
+          title: 'Zajęty email',
+          info: 'Ten adres email jest już zajęty przez innego użytkownika.',
+        );
+  }
+
+  void _lossOfConnectionInfo(BuildContext context) {
+    context.read<DialogInterface>().showLossOfConnectionDialog(
+          context: context,
+        );
+  }
+
+  void _loadingTimeExceededInfo(BuildContext context) {
+    context.read<DialogInterface>().showTimeoutDialog(context: context);
   }
 }

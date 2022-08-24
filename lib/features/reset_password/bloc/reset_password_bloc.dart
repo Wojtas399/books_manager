@@ -1,9 +1,10 @@
+import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../domain/entities/auth_error.dart';
 import '../../../domain/use_cases/auth/send_reset_password_email_use_case.dart';
 import '../../../models/bloc_status.dart';
+import '../../../models/error.dart';
 
 part 'reset_password_event.dart';
 
@@ -41,32 +42,59 @@ class ResetPasswordBloc extends Bloc<ResetPasswordEvent, ResetPasswordState> {
     Emitter<ResetPasswordState> emit,
   ) async {
     try {
-      emit(state.copyWith(
-        status: const BlocStatusLoading(),
-      ));
-      await _sendResetPasswordEmailUseCase.execute(email: state.email);
-      emit(state.copyWithInfo(
-        ResetPasswordBlocInfo.emailHasBeenSent,
-      ));
+      await _manageSendingResetPasswordEmail(emit);
     } on AuthError catch (authError) {
-      final ResetPasswordBlocError? blocError =
-          _convertAuthErrorToResetPasswordBlocError(authError);
-      if (blocError != null) {
-        emit(state.copyWithError(
-          blocError,
-        ));
-      }
+      _onAuthError(authError, emit);
+    } on NetworkError catch (networkError) {
+      _onNetworkError(networkError, emit);
+    } on TimeoutException catch (_) {
+      _onTimeoutException(emit);
     }
   }
 
-  ResetPasswordBlocError? _convertAuthErrorToResetPasswordBlocError(
+  Future<void> _manageSendingResetPasswordEmail(
+    Emitter<ResetPasswordState> emit,
+  ) async {
+    emit(state.copyWith(
+      status: const BlocStatusLoading(),
+    ));
+    await _sendResetPasswordEmailUseCase
+        .execute(email: state.email)
+        .timeout(const Duration(seconds: 10));
+    emit(state.copyWithInfo(
+      ResetPasswordBlocInfo.emailHasBeenSent,
+    ));
+  }
+
+  void _onAuthError(
     AuthError authError,
+    Emitter<ResetPasswordState> emit,
   ) {
-    if (authError == AuthError.invalidEmail) {
-      return ResetPasswordBlocError.invalidEmail;
-    } else if (authError == AuthError.userNotFound) {
-      return ResetPasswordBlocError.userNotFound;
+    if (authError.code == AuthErrorCode.invalidEmail.name) {
+      emit(state.copyWithError(
+        ResetPasswordBlocError.invalidEmail,
+      ));
+    } else if (authError.code == AuthErrorCode.userNotFound.name) {
+      emit(state.copyWithError(
+        ResetPasswordBlocError.userNotFound,
+      ));
     }
-    return null;
+  }
+
+  void _onNetworkError(
+    NetworkError networkError,
+    Emitter<ResetPasswordState> emit,
+  ) {
+    if (networkError.code == NetworkErrorCode.lossOfConnection.name) {
+      emit(state.copyWithError(
+        ResetPasswordBlocError.lossOfConnection,
+      ));
+    }
+  }
+
+  void _onTimeoutException(Emitter<ResetPasswordState> emit) {
+    emit(state.copyWithError(
+      ResetPasswordBlocError.timeoutException,
+    ));
   }
 }

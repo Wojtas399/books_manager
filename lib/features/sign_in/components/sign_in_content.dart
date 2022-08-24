@@ -81,7 +81,7 @@ class _AlternativeOptions extends StatelessWidget {
   Widget build(BuildContext context) {
     final textStyle = TextStyle(
       fontSize: 12,
-      color: AppColors.grey,
+      color: Colors.black.withOpacity(0.5),
     );
     return Column(
       children: [

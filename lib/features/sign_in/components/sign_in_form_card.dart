@@ -1,6 +1,4 @@
-import 'package:flutter/widgets.dart';
-
-import '../../../config/themes/app_colors.dart';
+import 'package:flutter/material.dart';
 
 class SignInFormCard extends StatelessWidget {
   final Widget child;
@@ -12,11 +10,11 @@ class SignInFormCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: AppColors.grey.withOpacity(0.2),
+            color: Colors.grey.withOpacity(0.2),
             spreadRadius: 5,
             blurRadius: 7,
             offset: const Offset(0, 4),

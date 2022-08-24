@@ -1,7 +1,5 @@
 import 'package:flutter/cupertino.dart';
 
-import '../../config/themes/app_colors.dart';
-
 class CupertinoCustomActionSheet extends StatelessWidget {
   final String title;
   final List<String> actionsLabels;
@@ -25,7 +23,7 @@ class CupertinoCustomActionSheet extends StatelessWidget {
           style: CupertinoTheme.of(context)
               .textTheme
               .actionTextStyle
-              .copyWith(color: AppColors.red),
+              .copyWith(color: CupertinoColors.destructiveRed),
         ),
       ),
       actions: actionsLabels

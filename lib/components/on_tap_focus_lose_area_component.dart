@@ -1,6 +1,5 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
-import '../config/themes/app_colors.dart';
 import '../utils/utils.dart';
 
 class OnTapFocusLoseAreaComponent extends StatelessWidget {
@@ -16,7 +15,7 @@ class OnTapFocusLoseAreaComponent extends StatelessWidget {
     return GestureDetector(
       onTap: () => _unfocusElements(),
       child: Container(
-        color: AppColors.transparent,
+        color: Colors.transparent,
         child: child,
       ),
     );

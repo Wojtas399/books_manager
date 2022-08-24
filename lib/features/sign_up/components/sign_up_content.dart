@@ -62,17 +62,16 @@ class _AlternativeOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = TextStyle(
-      fontSize: 12,
-      color: AppColors.grey,
-    );
     return Column(
       children: [
         GestureDetector(
           onTap: () => _onSignInPressed(context),
           child: Text(
             'Masz już konto? Wróć do logowania!',
-            style: textStyle,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.black.withOpacity(0.5),
+            ),
           ),
         ),
       ],

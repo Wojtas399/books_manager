@@ -1,8 +1,5 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-
-import '../../../config/themes/app_colors.dart';
-import '../../../config/themes/text_theme.dart';
 
 class ResetPasswordDescription extends StatelessWidget {
   const ResetPasswordDescription({super.key});
@@ -11,18 +8,23 @@ class ResetPasswordDescription extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(
+        const Icon(
           MdiIcons.lockOutline,
           size: 120,
-          color: AppColors.black,
+          color: Colors.black,
         ),
         const SizedBox(height: 16),
-        Text('Nie pamiętasz hasła?', style: TextTheme.titleMedium),
+        Text(
+          'Nie pamiętasz hasła?',
+          style: Theme.of(context).textTheme.headline5,
+        ),
         const SizedBox(height: 16),
         Text(
           'Podaj adres email, na który wyślemy wiadomość z instrukcją dotyczącą resetowania hasła.',
           textAlign: TextAlign.center,
-          style: TextTheme.greyText,
+          style: TextStyle(
+            color: Colors.black.withOpacity(0.5),
+          ),
         )
       ],
     );

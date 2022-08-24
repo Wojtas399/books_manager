@@ -1,8 +1,9 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
-import '../../../interfaces/factories/icon_factory.dart';
-import '../../../interfaces/factories/widget_factory.dart';
+import '../../../components/custom_text_field.dart';
+import '../../../components/password_text_field.dart';
 import '../bloc/sign_in_bloc.dart';
 
 class SignInInputs extends StatelessWidget {
@@ -10,22 +11,17 @@ class SignInInputs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
-    final IconFactory iconFactory = context.read<IconFactory>();
-
     return Column(
       children: [
-        widgetFactory.createTextFormField(
+        CustomTextField(
           placeholder: 'Adres email',
-          icon: iconFactory.createAccountIcon(),
+          iconData: MdiIcons.account,
           keyboardType: TextInputType.emailAddress,
           onChanged: (String email) => _onEmailChanged(email, context),
         ),
         const SizedBox(height: 24.0),
-        widgetFactory.createTextFormField(
+        PasswordTextField(
           placeholder: 'Hasło',
-          icon: iconFactory.createLockIcon(),
-          isPassword: true,
           onChanged: (String password) => _onPasswordChanged(password, context),
         ),
       ],

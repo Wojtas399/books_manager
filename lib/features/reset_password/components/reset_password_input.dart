@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import '../../../interfaces/factories/icon_factory.dart';
-import '../../../interfaces/factories/widget_factory.dart';
+import '../../../components/custom_text_field.dart';
 import '../bloc/reset_password_bloc.dart';
 
 class ResetPasswordInput extends StatelessWidget {
@@ -10,12 +10,10 @@ class ResetPasswordInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
-    final IconFactory iconFactory = context.read<IconFactory>();
 
-    return widgetFactory.createTextFormField(
+    return CustomTextField(
       placeholder: 'Adres email',
-      icon: iconFactory.createEnvelopeIcon(),
+      iconData: MdiIcons.email,
       onChanged: (String email) => _onEmailChanged(email, context),
     );
   }

@@ -1,10 +1,9 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
+import '../../../components/custom_scaffold.dart';
 import '../../../components/on_tap_focus_lose_area_component.dart';
 import '../../../config/themes/app_colors.dart';
-import '../../../interfaces/factories/icon_factory.dart';
-import '../../../interfaces/factories/widget_factory.dart';
 import 'reset_password_description.dart';
 import 'reset_password_input.dart';
 import 'reset_password_submit_button.dart';
@@ -14,15 +13,13 @@ class ResetPasswordContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
-    final IconFactory iconFactory = context.read<IconFactory>();
 
-    return widgetFactory.createScaffold(
-      leadingIcon: iconFactory.createCloseIcon(),
+    return CustomScaffold(
       appBarTitle: 'Resetowanie hasła',
-      appBarBackgroundColor: AppColors.background,
+      leadingIcon: MdiIcons.close,
       appBarWithElevation: false,
-      child: OnTapFocusLoseAreaComponent(
+      appBarColor: AppColors.background,
+      body: OnTapFocusLoseAreaComponent(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: SafeArea(

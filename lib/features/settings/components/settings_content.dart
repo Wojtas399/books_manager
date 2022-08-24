@@ -1,8 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../components/custom_button.dart';
+import '../../../components/custom_scaffold.dart';
 import '../../../interfaces/dialog_interface.dart';
-import '../../../interfaces/factories/widget_factory.dart';
 import '../bloc/settings_bloc.dart';
 
 class SettingsContent extends StatelessWidget {
@@ -10,20 +11,18 @@ class SettingsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
-
-    return widgetFactory.createScaffold(
+    return CustomScaffold(
       appBarTitle: 'Ustawienia',
-      child: Center(
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            widgetFactory.createButton(
+            CustomButton(
               label: 'Wyloguj',
               onPressed: () => _onSignOutButtonPressed(context),
             ),
             const SizedBox(height: 16),
-            widgetFactory.createButton(
+            CustomButton(
               label: 'Usuń konto',
               onPressed: () => _onDeleteAccountPressed(context),
             ),

@@ -1,12 +1,11 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
-import '../../config/themes/app_colors.dart';
-import '../../ui/errors_messages.dart';
-import 'cupertino_text_field_background.dart';
+import '../config/themes/material_text_field_theme.dart';
+import '../ui/errors_messages.dart';
 
-class CupertinoCustomTextField extends StatelessWidget {
+class CustomTextField extends StatelessWidget {
   final String? placeholder;
-  final Icon? icon;
+  final IconData? iconData;
   final Color? backgroundColor;
   final bool isRequired;
   final TextInputType? keyboardType;
@@ -14,10 +13,10 @@ class CupertinoCustomTextField extends StatelessWidget {
   final TextEditingController? controller;
   final Function(String)? onChanged;
 
-  const CupertinoCustomTextField({
+  const CustomTextField({
     super.key,
     this.placeholder,
-    this.icon,
+    this.iconData,
     this.backgroundColor,
     this.isRequired = false,
     this.keyboardType,
@@ -28,20 +27,17 @@ class CupertinoCustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoTextFieldBackground(
-      backgroundColor: backgroundColor,
-      child: CupertinoTextFormFieldRow(
-        style: const TextStyle(color: CupertinoColors.black),
+    return TextFormField(
+      decoration: MaterialTextFieldTheme.basic(
+        icon: Icon(iconData),
         placeholder: placeholder,
-        prefix: icon,
-        padding: const EdgeInsets.all(8),
-        placeholderStyle: TextStyle(color: AppColors.grey),
-        keyboardType: keyboardType,
-        validator: _validate,
-        controller: controller,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        onChanged: onChanged,
+        backgroundColor: backgroundColor,
       ),
+      keyboardType: keyboardType,
+      validator: _validate,
+      controller: controller,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      onChanged: onChanged,
     );
   }
 

@@ -21,6 +21,7 @@ class GlobalMaterialTheme {
         appBarTheme: AppBarTheme(
           backgroundColor: AppColors.secondary,
           foregroundColor: Colors.black,
+          centerTitle: true,
           titleTextStyle: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w500,

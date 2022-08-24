@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import '../interfaces/dialog_interface.dart';
 import '../models/action_sheet_action.dart';
@@ -8,7 +9,6 @@ import 'components/cupertino_info_dialog.dart';
 import 'components/cupertino_custom_action_sheet.dart';
 import 'components/cupertino_loading_dialog.dart';
 import 'components/cupertino_single_input_dialog.dart';
-import 'components/cupertino_snack_bar.dart';
 
 class CupertinoDialogs implements DialogInterface {
   bool _isLoadingDialogOpened = false;
@@ -101,14 +101,11 @@ class CupertinoDialogs implements DialogInterface {
   }) {
     final BuildContext? buildContext = context ?? _getNavigatorContext();
     if (buildContext != null) {
-      final overlayEntry = OverlayEntry(
-        builder: (BuildContext context) => CupertinoSnackBar(message: message),
+      ScaffoldMessenger.of(buildContext).showSnackBar(
+        SnackBar(
+          content: Text(message),
+        ),
       );
-      Future.delayed(
-        const Duration(milliseconds: 4300),
-        overlayEntry.remove,
-      );
-      Overlay.of(buildContext)?.insert(overlayEntry);
     }
   }
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'material_custom_text_field.dart';
-import 'material_password_text_field.dart';
+import '../../components/custom_text_field.dart';
+import '../../components/password_text_field.dart';
 
 class MaterialSingleInputDialog extends StatelessWidget {
   final String title;
@@ -76,11 +76,11 @@ class _Content extends StatelessWidget {
         Text(message ?? ''),
         const SizedBox(height: 16),
         obscureText
-            ? MaterialPasswordTextField(
+            ? PasswordTextField(
                 placeholder: placeholder,
                 controller: controller,
               )
-            : MaterialCustomTextField(
+            : CustomTextField(
                 placeholder: placeholder,
                 controller: controller,
               ),

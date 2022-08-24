@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import '../../config/themes/material_text_field_theme.dart';
-import '../../ui/errors_messages.dart';
+import '../config/themes/material_text_field_theme.dart';
+import '../ui/errors_messages.dart';
 
-class MaterialPasswordTextField extends StatefulWidget {
+class PasswordTextField extends StatefulWidget {
   final String? placeholder;
-  final Icon? icon;
   final Color? backgroundColor;
   final bool isRequired;
   final String? Function(String? value)? validator;
   final TextEditingController? controller;
   final Function(String)? onChanged;
 
-  const MaterialPasswordTextField({
+  const PasswordTextField({
     super.key,
     this.placeholder,
-    this.icon,
     this.backgroundColor,
     this.isRequired = false,
     this.validator,
@@ -24,11 +23,10 @@ class MaterialPasswordTextField extends StatefulWidget {
   });
 
   @override
-  State<MaterialPasswordTextField> createState() =>
-      _MaterialPasswordTextFieldState();
+  State<PasswordTextField> createState() => _PasswordTextFieldState();
 }
 
-class _MaterialPasswordTextFieldState extends State<MaterialPasswordTextField> {
+class _PasswordTextFieldState extends State<PasswordTextField> {
   bool isVisible = false;
 
   @override
@@ -37,7 +35,7 @@ class _MaterialPasswordTextFieldState extends State<MaterialPasswordTextField> {
       obscureText: !isVisible,
       obscuringCharacter: '*',
       decoration: MaterialTextFieldTheme.basic(
-        icon: widget.icon,
+        icon: const Icon(MdiIcons.lock),
         placeholder: widget.placeholder,
         isPassword: true,
         isVisiblePassword: isVisible,

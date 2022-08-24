@@ -1,8 +1,6 @@
-import 'package:flutter/widgets.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/material.dart';
 
 import '../../../config/routes.dart';
-import '../../../interfaces/factories/navigation_factory.dart';
 import '../../../providers/navigator_key_provider.dart';
 import '../../settings/settings_screen.dart';
 import 'home_content.dart';
@@ -26,31 +24,23 @@ class _HomeRouterState extends State<HomeRouter> {
     return Navigator(
       key: NavigatorKeyProvider.getKey(),
       initialRoute: Routes.home,
-      onGenerateRoute: (RouteSettings routeSettings) => _onGenerateRoute(
-        routeSettings,
-        context,
-      ),
+      onGenerateRoute: _onGenerateRoute,
     );
   }
 
-  Route<dynamic> _onGenerateRoute(
-    RouteSettings routeSettings,
-    BuildContext context,
-  ) {
-    final NavigationFactory navigationFactory =
-        context.read<NavigationFactory>();
+  Route<dynamic> _onGenerateRoute(RouteSettings routeSettings) {
     switch (routeSettings.name) {
       case Routes.home:
-        return navigationFactory.createPageRoute(
-          page: const HomeContent(),
+        return MaterialPageRoute(
+          builder: (_) => const HomeContent(),
         );
       case Routes.settings:
-        return navigationFactory.createPageRoute(
-          page: const SettingsScreen(),
+        return MaterialPageRoute(
+          builder: (_) => const SettingsScreen(),
         );
       default:
-        return navigationFactory.createPageRoute(
-          page: const HomeContent(),
+        return MaterialPageRoute(
+          builder: (_) => const HomeContent(),
         );
     }
   }

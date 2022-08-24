@@ -1,8 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import '../../../interfaces/factories/icon_factory.dart';
-import '../../../interfaces/factories/widget_factory.dart';
+import '../../../components/custom_text_field.dart';
+import '../../../components/password_text_field.dart';
 import '../../../ui/errors_messages.dart';
 import '../bloc/sign_up_bloc.dart';
 
@@ -29,15 +30,13 @@ class _Email extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
-    final IconFactory iconFactory = context.read<IconFactory>();
     final bool isEmailValid = context.select(
       (SignUpBloc bloc) => bloc.state.isEmailValid,
     );
 
-    return widgetFactory.createTextFormField(
+    return CustomTextField(
       placeholder: 'Adres email',
-      icon: iconFactory.createEnvelopeIcon(),
+      iconData: MdiIcons.email,
       validator: (_) => _validate(isEmailValid),
       onChanged: (String email) => _onEmailChanged(email, context),
     );
@@ -62,16 +61,12 @@ class _Password extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
-    final IconFactory iconFactory = context.read<IconFactory>();
     final bool isPasswordValid = context.select(
       (SignUpBloc bloc) => bloc.state.isPasswordValid,
     );
 
-    return widgetFactory.createTextFormField(
+    return PasswordTextField(
       placeholder: 'Hasło',
-      icon: iconFactory.createLockIcon(),
-      isPassword: true,
       isRequired: true,
       validator: (_) => _validate(isPasswordValid),
       onChanged: (String password) => _onPasswordChanged(password, context),
@@ -97,16 +92,12 @@ class _PasswordConfirmation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
-    final IconFactory iconFactory = context.read<IconFactory>();
     final bool isPasswordConfirmationValid = context.select(
       (SignUpBloc bloc) => bloc.state.isPasswordConfirmationValid,
     );
 
-    return widgetFactory.createTextFormField(
+    return PasswordTextField(
       placeholder: 'Powtórz hasło',
-      icon: iconFactory.createLockIcon(),
-      isPassword: true,
       isRequired: true,
       validator: (_) => _validate(isPasswordConfirmationValid),
       onChanged: (String password) => _onPasswordConfirmationChanged(

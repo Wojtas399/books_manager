@@ -1,8 +1,5 @@
 import 'package:flutter/cupertino.dart';
 
-import 'cupertino_custom_text_field.dart';
-import 'cupertino_password_text_field.dart';
-
 class CupertinoSingleInputDialog extends StatelessWidget {
   final String title;
   final String? message;
@@ -71,15 +68,12 @@ class _Content extends StatelessWidget {
         SizedBox(height: message != null ? 4 : 0),
         Text(message ?? ''),
         const SizedBox(height: 16),
-        obscureText
-            ? CupertinoPasswordTextField(
-                placeholder: placeholder,
-                controller: controller,
-              )
-            : CupertinoCustomTextField(
-                placeholder: placeholder,
-                controller: controller,
-              ),
+        CupertinoTextField(
+          obscureText: obscureText,
+          obscuringCharacter: '*',
+          placeholder: placeholder,
+          controller: controller,
+        ),
       ],
     );
   }

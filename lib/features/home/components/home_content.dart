@@ -1,11 +1,9 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
+import '../../../components/custom_scaffold.dart';
 import '../../../config/navigation.dart';
-import '../../../config/themes/app_colors.dart';
-import '../../../interfaces/factories/icon_factory.dart';
-import '../../../interfaces/factories/widget_factory.dart';
-import '../../../models/bottom_nav_bar.dart';
 import '../../calendar/calendar_screen.dart';
 import '../../library/library_screen.dart';
 import '../../reading/reading_screen.dart';
@@ -16,8 +14,6 @@ class HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
-    final IconFactory iconFactory = context.read<IconFactory>();
     final int pageIndex = context.select(
       (HomeBloc bloc) => bloc.state.currentPageIndex,
     );
@@ -32,40 +28,41 @@ class HomeContent extends StatelessWidget {
       CalendarScreen(),
     ];
 
-    return widgetFactory.createScaffold(
+    return CustomScaffold(
       automaticallyImplyLeading: false,
       appBarTitle: pagesTitles[pageIndex],
-      trailing: GestureDetector(
-        onTap: _onSettingsPressed,
-        child: iconFactory.createGearIcon(color: AppColors.black),
+      trailing: IconButton(
+        splashRadius: 24,
+        onPressed: _onSettingsPressed,
+        icon: const Icon(MdiIcons.cog),
       ),
-      bottomNavigationBar: BottomNavBar(
-        items: [
+      bottomNavigationBar: BottomNavigationBar(
+        items: const [
           BottomNavigationBarItem(
-            icon: iconFactory.createBookIcon(),
+            icon: Icon(MdiIcons.bookOpen),
             label: 'Czytanie',
           ),
           BottomNavigationBarItem(
-            icon: iconFactory.createLibraryIcon(),
+            icon: Icon(MdiIcons.bookshelf),
             label: 'Biblioteka',
           ),
           BottomNavigationBarItem(
-            icon: iconFactory.createCalendarIcon(),
+            icon: Icon(MdiIcons.calendarMonth),
             label: 'Kalendarz',
           ),
         ],
-        selectedItemIndex: pageIndex,
-        onItemPressed: (int pressedItemIndex) =>
+        currentIndex: pageIndex,
+        onTap: (int pressedItemIndex) =>
             _onBottomNavigationBarItemPressed(pressedItemIndex, context),
       ),
-      child: pages[pageIndex],
+      body: pages[pageIndex],
     );
   }
-  
+
   void _onSettingsPressed() {
     Navigation.navigateToSettings();
   }
-  
+
   void _onBottomNavigationBarItemPressed(
     int pressedItemIndex,
     BuildContext context,

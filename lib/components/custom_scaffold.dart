@@ -1,5 +1,3 @@
-import 'dart:io';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -106,16 +104,7 @@ class _LeadingIcon extends StatelessWidget {
   }
 
   Icon _createLeadingIcon() {
-    return leadingIcon != null
-        ? Icon(leadingIcon)
-        : _createDefaultLeadingIcon();
-  }
-
-  Icon _createDefaultLeadingIcon() {
-    if (Platform.isIOS) {
-      return const Icon(CupertinoIcons.chevron_back, size: 32);
-    }
-    return const Icon(MdiIcons.arrowLeft);
+    return Icon(leadingIcon ?? MdiIcons.arrowLeft);
   }
 
   void _onLeadingIconPressed(BuildContext context) {

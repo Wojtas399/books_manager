@@ -21,7 +21,7 @@ class SignInSubmitButton extends StatelessWidget {
 
   void _onPressed(BuildContext context) {
     context.read<SignInBloc>().add(
-          SignInEventSubmit(),
+          const SignInEventSubmit(),
         );
   }
 }

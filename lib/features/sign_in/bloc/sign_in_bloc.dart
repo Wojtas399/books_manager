@@ -35,6 +35,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     on<SignInEventEmailChanged>(_emailChanged);
     on<SignInEventPasswordChanged>(_passwordChanged);
     on<SignInEventSubmit>(_submit);
+    on<SignInEventCleanForm>(_cleanForm);
   }
 
   Future<void> _initialize(
@@ -83,6 +84,16 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         SignInBlocError.timeoutException,
       ));
     }
+  }
+
+  void _cleanForm(
+    SignInEventCleanForm event,
+    Emitter<SignInState> emit,
+  ) {
+    emit(state.copyWith(
+      email: '',
+      password: '',
+    ));
   }
 
   Future<bool> _isUserSignedIn() async {

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../components/on_tap_focus_lose_area_component.dart';
 import '../../../config/navigation.dart';
 import '../../../config/themes/app_colors.dart';
+import '../../../utils/utils.dart';
+import '../bloc/sign_in_bloc.dart';
 import 'sign_in_background.dart';
 import 'sign_in_form_card.dart';
 import 'sign_in_inputs.dart';
@@ -106,9 +109,23 @@ class _AlternativeOptions extends StatelessWidget {
 
   void _onForgotPasswordPressed(BuildContext context) {
     Navigation.navigateToResetPasswordScreen(context: context);
+    _cleanForm(context);
+    _unfocusInputs();
   }
 
   void _onSignUpPressed(BuildContext context) {
     Navigation.navigateToSignUpScreen(context: context);
+    _cleanForm(context);
+    _unfocusInputs();
+  }
+
+  void _cleanForm(BuildContext context) {
+    context.read<SignInBloc>().add(
+          const SignInEventCleanForm(),
+        );
+  }
+
+  void _unfocusInputs() {
+    Utils.unfocusInputs();
   }
 }

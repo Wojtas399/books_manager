@@ -57,7 +57,7 @@ void main() {
     },
     act: (SignInBloc bloc) {
       bloc.add(
-        SignInEventInitialize(),
+        const SignInEventInitialize(),
       );
     },
     expect: () => [
@@ -74,7 +74,7 @@ void main() {
     build: () => createBloc(),
     act: (SignInBloc bloc) {
       bloc.add(
-        SignInEventEmailChanged(email: 'email'),
+        const SignInEventEmailChanged(email: 'email'),
       );
     },
     expect: () => [
@@ -87,7 +87,7 @@ void main() {
     build: () => createBloc(),
     act: (SignInBloc bloc) {
       bloc.add(
-        SignInEventPasswordChanged(password: 'password'),
+        const SignInEventPasswordChanged(password: 'password'),
       );
     },
     expect: () => [
@@ -111,7 +111,7 @@ void main() {
         },
         act: (SignInBloc bloc) {
           bloc.add(
-            SignInEventSubmit(),
+            const SignInEventSubmit(),
           );
         },
         expect: () => [
@@ -148,7 +148,7 @@ void main() {
         },
         act: (SignInBloc bloc) {
           bloc.add(
-            SignInEventSubmit(),
+            const SignInEventSubmit(),
           );
         },
         expect: () => [
@@ -177,7 +177,7 @@ void main() {
         },
         act: (SignInBloc bloc) {
           bloc.add(
-            SignInEventSubmit(),
+            const SignInEventSubmit(),
           );
         },
         expect: () => [
@@ -206,7 +206,7 @@ void main() {
         },
         act: (SignInBloc bloc) {
           bloc.add(
-            SignInEventSubmit(),
+            const SignInEventSubmit(),
           );
         },
         expect: () => [
@@ -237,7 +237,7 @@ void main() {
         },
         act: (SignInBloc bloc) {
           bloc.add(
-            SignInEventSubmit(),
+            const SignInEventSubmit(),
           );
         },
         expect: () => [
@@ -256,5 +256,18 @@ void main() {
         ],
       );
     },
+  );
+
+  blocTest(
+    'clean form, should clean email and password',
+    build: () => createBloc(email: 'email', password: 'password'),
+    act: (SignInBloc bloc) {
+      bloc.add(
+        const SignInEventCleanForm(),
+      );
+    },
+    expect: () => [
+      createState(email: '', password: ''),
+    ],
   );
 }

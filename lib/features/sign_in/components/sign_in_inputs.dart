@@ -13,18 +13,32 @@ class SignInInputs extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CustomTextField(
-          placeholder: 'Adres email',
-          iconData: MdiIcons.account,
-          keyboardType: TextInputType.emailAddress,
-          onChanged: (String email) => _onEmailChanged(email, context),
-        ),
+        _Email(),
         const SizedBox(height: 24.0),
-        PasswordTextField(
-          placeholder: 'Hasło',
-          onChanged: (String password) => _onPasswordChanged(password, context),
-        ),
+        _Password(),
       ],
+    );
+  }
+}
+
+class _Email extends StatelessWidget {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    final String email = context.select(
+      (SignInBloc bloc) => bloc.state.email,
+    );
+    if (email == '') {
+      _controller.clear();
+    }
+
+    return CustomTextField(
+      controller: _controller,
+      placeholder: 'Adres email',
+      iconData: MdiIcons.account,
+      keyboardType: TextInputType.emailAddress,
+      onChanged: (String email) => _onEmailChanged(email, context),
     );
   }
 
@@ -32,6 +46,26 @@ class SignInInputs extends StatelessWidget {
     context.read<SignInBloc>().add(
           SignInEventEmailChanged(email: value),
         );
+  }
+}
+
+class _Password extends StatelessWidget {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    final String password = context.select(
+      (SignInBloc bloc) => bloc.state.password,
+    );
+    if (password == '') {
+      _controller.clear();
+    }
+
+    return PasswordTextField(
+      controller: _controller,
+      placeholder: 'Hasło',
+      onChanged: (String password) => _onPasswordChanged(password, context),
+    );
   }
 
   void _onPasswordChanged(String value, BuildContext context) {

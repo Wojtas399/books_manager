@@ -38,7 +38,7 @@ class _SignInBlocProvider extends StatelessWidget {
         signInUseCase: SignInUseCase(
           authInterface: context.read<AuthInterface>(),
         ),
-      )..add(SignInEventInitialize()),
+      )..add(const SignInEventInitialize()),
       child: child,
     );
   }

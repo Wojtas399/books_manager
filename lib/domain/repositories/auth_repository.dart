@@ -89,7 +89,7 @@ class AuthRepository implements AuthInterface {
     if (userId != null) {
       return AuthStateSignedIn(userId: userId);
     }
-    return AuthStateSignedOut();
+    return const AuthStateSignedOut();
   }
 
   void _manageFirebaseAuthException(String code) {

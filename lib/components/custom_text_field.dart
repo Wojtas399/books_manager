@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/themes/material_text_field_theme.dart';
-import '../ui/errors_messages.dart';
+import '../ui/validator_messages.dart';
 
 class CustomTextField extends StatelessWidget {
   final String? placeholder;
@@ -43,7 +43,7 @@ class CustomTextField extends StatelessWidget {
 
   String? _validate(String? value) {
     if (isRequired && value == '') {
-      return ErrorsMessages.requiredValue;
+      return ValidatorMessages.requiredValue;
     }
     final String? Function(String? value)? customValidator = validator;
     if (customValidator != null) {

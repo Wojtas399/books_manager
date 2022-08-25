@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../config/themes/material_text_field_theme.dart';
-import '../ui/errors_messages.dart';
+import '../ui/validator_messages.dart';
 
 class PasswordTextField extends StatefulWidget {
   final String? placeholder;
@@ -56,7 +56,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
 
   String? _validate(String? value) {
     if (widget.isRequired && value == '') {
-      return ErrorsMessages.requiredValue;
+      return ValidatorMessages.requiredValue;
     }
     final String? Function(String? value)? customValidator = widget.validator;
     if (customValidator != null) {

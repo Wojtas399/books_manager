@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'bloc/home_bloc.dart';
+import 'components/home_provider.dart';
 import 'components/home_router.dart';
 
 class Home extends StatelessWidget {
@@ -10,7 +11,9 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const _HomeBlocProvider(
-      child: HomeRouter(),
+      child: HomeProvider(
+        child: HomeRouter(),
+      ),
     );
   }
 }

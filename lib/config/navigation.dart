@@ -1,13 +1,27 @@
-import 'dart:io';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import '../features/home/home.dart';
 import '../features/reset_password/reset_password_screen.dart';
+import '../features/sign_in/sign_in_screen.dart';
 import '../features/sign_up/sign_up_screen.dart';
+import '../providers/navigator_key_provider.dart';
+import 'animations/slide_left_route_animation.dart';
+import 'animations/slide_right_route_animation.dart';
 import 'animations/slide_up_route_animation.dart';
+import 'routes.dart';
 
 class Navigation {
+  static void navigateToSignInScreen() {
+    final BuildContext? buildContext = _getNavigatorContext();
+    if (buildContext != null) {
+      Navigator.of(buildContext).pushReplacement(
+        SlideRightRouteAnimation(
+          page: const SignInScreen(),
+        ),
+      );
+    }
+  }
+
   static void navigateToSignUpScreen({required BuildContext context}) {
     Navigator.of(context).push(
       SlideUpRouteAnimation(
@@ -26,14 +40,20 @@ class Navigation {
 
   static void navigateToHome({required BuildContext context}) {
     Navigator.of(context).pushReplacement(
-      _getAppropriatePlatformRoute(const Home()),
+      SlideLeftRouteAnimation(
+        page: const Home(),
+      ),
     );
   }
 
-  static PageRoute _getAppropriatePlatformRoute(Widget page) {
-    if (Platform.isIOS) {
-      return CupertinoPageRoute(builder: (_) => page);
+  static void navigateToSettings() {
+    final BuildContext? buildContext = _getNavigatorContext();
+    if (buildContext != null) {
+      Navigator.of(buildContext).pushNamed(Routes.settings);
     }
-    return MaterialPageRoute(builder: (_) => page);
+  }
+
+  static BuildContext? _getNavigatorContext() {
+    return NavigatorKeyProvider.getContext();
   }
 }

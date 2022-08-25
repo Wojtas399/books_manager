@@ -2,8 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'providers/dialog_provider.dart';
-import 'providers/factory_provider.dart';
-import 'providers/firebase_provider.dart';
+import 'providers/database_provider.dart';
 
 class GlobalProvider extends StatelessWidget {
   final Widget child;
@@ -15,19 +14,10 @@ class GlobalProvider extends StatelessWidget {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider(
-          create: (_) => FactoryProvider.provideWidgetFactory(),
-        ),
-        RepositoryProvider(
-          create: (_) => FactoryProvider.provideIconFactory(),
-        ),
-        RepositoryProvider(
           create: (_) => DialogProvider.provideDialogInterface(),
         ),
         RepositoryProvider(
-          create: (_) => FirebaseProvider.provideAuthInterface(),
-        ),
-        RepositoryProvider(
-          create: (_) => FirebaseProvider.provideUserInterface(),
+          create: (_) => DatabaseProvider.provideAuthInterface(),
         ),
       ],
       child: child,

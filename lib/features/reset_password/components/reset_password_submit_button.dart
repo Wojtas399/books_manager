@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../interfaces/factories/widget_factory.dart';
+import '../../../components/custom_button.dart';
 import '../../../utils/utils.dart';
 import '../bloc/reset_password_bloc.dart';
 
@@ -10,12 +10,11 @@ class ResetPasswordSubmitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
     final bool isButtonDisabled = context.select(
       (ResetPasswordBloc bloc) => bloc.state.isButtonDisabled,
     );
 
-    return widgetFactory.createButton(
+    return CustomButton(
       label: 'Wyślij',
       onPressed: isButtonDisabled ? null : () => _onPressed(context),
     );
@@ -24,7 +23,7 @@ class ResetPasswordSubmitButton extends StatelessWidget {
   void _onPressed(BuildContext context) {
     Utils.unfocusInputs();
     context.read<ResetPasswordBloc>().add(
-          ResetPasswordEventSubmit(),
+          const ResetPasswordEventSubmit(),
         );
   }
 }

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:provider/provider.dart';
 
+import 'config/themes/global_material_theme.dart';
 import 'features/sign_in/sign_in_screen.dart';
 import 'global_provider.dart';
-import 'interfaces/factories/widget_factory.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,14 +17,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlobalProvider(
-      child: Builder(
-        builder: (BuildContext context) {
-          final WidgetFactory widgetFactory = context.read<WidgetFactory>();
-          return widgetFactory.createApp(
-            title: 'BooksManager',
-            home: const SignInScreen(),
-          );
-        },
+      child: MaterialApp(
+        title: 'BooksManager',
+        theme: GlobalMaterialTheme.lightTheme,
+        home: const SignInScreen(),
       ),
     );
   }

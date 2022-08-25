@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../config/navigation.dart';
+import '../../domain/use_cases/auth/get_auth_state_use_case.dart';
 import '../../domain/use_cases/auth/sign_in_use_case.dart';
 import '../../interfaces/auth_interface.dart';
 import '../../interfaces/dialog_interface.dart';
@@ -31,10 +32,13 @@ class _SignInBlocProvider extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (BuildContext context) => SignInBloc(
+        getAuthStateUseCase: GetAuthStateUseCase(
+          authInterface: context.read<AuthInterface>(),
+        ),
         signInUseCase: SignInUseCase(
           authInterface: context.read<AuthInterface>(),
         ),
-      ),
+      )..add(const SignInEventInitialize()),
       child: child,
     );
   }
@@ -70,14 +74,10 @@ class _SignInBlocListener extends StatelessWidget {
     BlocStatusComplete completeStatus,
     BuildContext context,
   ) {
-    context.read<DialogInterface>().closeLoadingDialog(context: context);
+    _closeLoadingDialog(context);
     final SignInBlocInfo? blocInfo = completeStatus.info;
     if (blocInfo != null) {
-      switch (blocInfo) {
-        case SignInBlocInfo.userHasBeenSignedIn:
-          Navigation.navigateToHome(context: context);
-          break;
-      }
+      _manageBlocInfo(blocInfo, context);
     }
   }
 
@@ -85,33 +85,80 @@ class _SignInBlocListener extends StatelessWidget {
     BlocStatusError errorStatus,
     BuildContext context,
   ) {
-    final DialogInterface dialogInterface = context.read<DialogInterface>();
-    dialogInterface.closeLoadingDialog(context: context);
+    _closeLoadingDialog(context);
     final SignInBlocError? blocError = errorStatus.error;
     if (blocError != null) {
-      switch (blocError) {
-        case SignInBlocError.invalidEmail:
-          dialogInterface.showInfoDialog(
-            context: context,
-            title: 'Niepoprawny adres e-mail',
-            info: 'Wprowadzony adres e-mail jest niepoprawny.',
-          );
-          break;
-        case SignInBlocError.wrongPassword:
-          dialogInterface.showInfoDialog(
-            context: context,
-            title: 'Błędne hasło',
-            info: 'Podano błędne hasło dla tego użytkownika.',
-          );
-          break;
-        case SignInBlocError.userNotFound:
-          dialogInterface.showInfoDialog(
-            context: context,
-            title: 'Brak użytkownika',
-            info: 'Nie znaleziono użytkownika o podanym adresie e-mail.',
-          );
-          break;
-      }
+      _manageBlocError(blocError, context);
     }
+  }
+
+  void _closeLoadingDialog(BuildContext context) {
+    context.read<DialogInterface>().closeLoadingDialog(context: context);
+  }
+
+  void _manageBlocInfo(SignInBlocInfo blocInfo, BuildContext context) {
+    switch (blocInfo) {
+      case SignInBlocInfo.userHasBeenSignedIn:
+        _onUserSigningIn(context);
+        break;
+    }
+  }
+
+  void _manageBlocError(SignInBlocError blocError, BuildContext context) {
+    switch (blocError) {
+      case SignInBlocError.invalidEmail:
+        _invalidEmailInfo(context);
+        break;
+      case SignInBlocError.wrongPassword:
+        _wrongPasswordInfo(context);
+        break;
+      case SignInBlocError.userNotFound:
+        _noUserFoundInfo(context);
+        break;
+      case SignInBlocError.noInternetConnection:
+        _lossOfInternetConnectionInfo(context);
+        break;
+      case SignInBlocError.timeoutException:
+        _timeoutExceptionInfo(context);
+        break;
+    }
+  }
+
+  void _onUserSigningIn(BuildContext context) {
+    Navigation.navigateToHome(context: context);
+  }
+
+  void _invalidEmailInfo(BuildContext context) {
+    context.read<DialogInterface>().showInfoDialog(
+          context: context,
+          title: 'Niepoprawny adres e-mail',
+          info: 'Wprowadzony adres e-mail jest niepoprawny.',
+        );
+  }
+
+  void _wrongPasswordInfo(BuildContext context) {
+    context.read<DialogInterface>().showInfoDialog(
+          context: context,
+          title: 'Błędne hasło',
+          info: 'Podano błędne hasło dla tego użytkownika.',
+        );
+  }
+
+  void _noUserFoundInfo(BuildContext context) {
+    context.read<DialogInterface>().showInfoDialog(
+          context: context,
+          title: 'Brak użytkownika',
+          info: 'Nie znaleziono użytkownika o podanym adresie e-mail.',
+        );
+  }
+
+  void _lossOfInternetConnectionInfo(BuildContext context) {
+    context.read<DialogInterface>().showLossOfConnectionDialog(
+          context: context,
+        );
+  }
+
+  void _timeoutExceptionInfo(BuildContext context) {
+    context.read<DialogInterface>().showTimeoutDialog(context: context);
   }
 }

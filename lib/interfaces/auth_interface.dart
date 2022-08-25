@@ -1,5 +1,7 @@
+import '../models/auth_state.dart';
+
 abstract class AuthInterface {
-  Stream<bool> get isUserSignedIn$;
+  Stream<AuthState> get authState$;
 
   Future<void> signIn({
     required String email,
@@ -12,4 +14,8 @@ abstract class AuthInterface {
   });
 
   Future<void> sendPasswordResetEmail({required String email});
+
+  Future<void> signOut();
+
+  Future<void> deleteLoggedUser({required String password});
 }

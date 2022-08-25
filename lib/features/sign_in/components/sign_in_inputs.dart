@@ -1,8 +1,9 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
-import '../../../interfaces/factories/icon_factory.dart';
-import '../../../interfaces/factories/widget_factory.dart';
+import '../../../components/custom_text_field.dart';
+import '../../../components/password_text_field.dart';
 import '../bloc/sign_in_bloc.dart';
 
 class SignInInputs extends StatelessWidget {
@@ -10,25 +11,34 @@ class SignInInputs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
-    final IconFactory iconFactory = context.read<IconFactory>();
-
     return Column(
       children: [
-        widgetFactory.createTextFormField(
-          placeholder: 'Adres email',
-          icon: iconFactory.createAccountIcon(),
-          keyboardType: TextInputType.emailAddress,
-          onChanged: (String email) => _onEmailChanged(email, context),
-        ),
+        _Email(),
         const SizedBox(height: 24.0),
-        widgetFactory.createTextFormField(
-          placeholder: 'Hasło',
-          icon: iconFactory.createLockIcon(),
-          isPassword: true,
-          onChanged: (String password) => _onPasswordChanged(password, context),
-        ),
+        _Password(),
       ],
+    );
+  }
+}
+
+class _Email extends StatelessWidget {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    final String email = context.select(
+      (SignInBloc bloc) => bloc.state.email,
+    );
+    if (email == '') {
+      _controller.clear();
+    }
+
+    return CustomTextField(
+      controller: _controller,
+      placeholder: 'Adres email',
+      iconData: MdiIcons.account,
+      keyboardType: TextInputType.emailAddress,
+      onChanged: (String email) => _onEmailChanged(email, context),
     );
   }
 
@@ -36,6 +46,26 @@ class SignInInputs extends StatelessWidget {
     context.read<SignInBloc>().add(
           SignInEventEmailChanged(email: value),
         );
+  }
+}
+
+class _Password extends StatelessWidget {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    final String password = context.select(
+      (SignInBloc bloc) => bloc.state.password,
+    );
+    if (password == '') {
+      _controller.clear();
+    }
+
+    return PasswordTextField(
+      controller: _controller,
+      placeholder: 'Hasło',
+      onChanged: (String password) => _onPasswordChanged(password, context),
+    );
   }
 
   void _onPasswordChanged(String value, BuildContext context) {

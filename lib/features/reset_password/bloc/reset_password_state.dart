@@ -44,4 +44,6 @@ enum ResetPasswordBlocInfo {
 enum ResetPasswordBlocError {
   invalidEmail,
   userNotFound,
+  lossOfConnection,
+  timeoutException,
 }

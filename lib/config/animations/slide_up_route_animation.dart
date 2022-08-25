@@ -1,24 +1,9 @@
-import 'package:flutter/widgets.dart';
+import 'slide_route_animation.dart';
 
-class SlideUpRouteAnimation<T> extends PageRouteBuilder<T> {
-  final Widget page;
-
-  SlideUpRouteAnimation({required this.page})
-      : super(
-    pageBuilder: (_, animation, secondaryAnimation) => page,
-    transitionsBuilder: (_, animation, secondaryAnimation, child) {
-      const begin = Offset(0.0, 1.0);
-      const end = Offset.zero;
-      const curve = Curves.fastOutSlowIn;
-
-      var tween = Tween(begin: begin, end: end).chain(
-        CurveTween(curve: curve),
-      );
-
-      return SlideTransition(
-        position: animation.drive(tween),
-        child: child,
-      );
-    },
-  );
+class SlideUpRouteAnimation extends SlideRouteAnimation {
+  SlideUpRouteAnimation({
+    required super.page,
+    super.dx = 0,
+    super.dy = 1,
+  });
 }

@@ -1,11 +1,11 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../components/on_tap_focus_lose_area_component.dart';
 import '../../../config/navigation.dart';
 import '../../../config/themes/app_colors.dart';
-import '../../../config/themes/text_theme.dart';
-import '../../../interfaces/factories/widget_factory.dart';
+import '../../../utils/utils.dart';
+import '../bloc/sign_in_bloc.dart';
 import 'sign_in_background.dart';
 import 'sign_in_form_card.dart';
 import 'sign_in_inputs.dart';
@@ -16,11 +16,8 @@ class SignInContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
-
-    return widgetFactory.createScaffold(
-      withAppBar: false,
-      child: SignInBackground(
+    return Scaffold(
+      body: SignInBackground(
         child: SafeArea(
           child: OnTapFocusLoseAreaComponent(
             child: Center(
@@ -72,7 +69,10 @@ class _Title extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       'Logowanie',
-      style: TextTheme.titleBig.copyWith(color: AppColors.primary),
+      style: Theme.of(context).textTheme.headline4?.copyWith(
+            color: AppColors.primary,
+            fontWeight: FontWeight.w500,
+          ),
     );
   }
 }
@@ -84,7 +84,7 @@ class _AlternativeOptions extends StatelessWidget {
   Widget build(BuildContext context) {
     final textStyle = TextStyle(
       fontSize: 12,
-      color: AppColors.grey,
+      color: Colors.black.withOpacity(0.5),
     );
     return Column(
       children: [
@@ -109,9 +109,23 @@ class _AlternativeOptions extends StatelessWidget {
 
   void _onForgotPasswordPressed(BuildContext context) {
     Navigation.navigateToResetPasswordScreen(context: context);
+    _cleanForm(context);
+    _unfocusInputs();
   }
 
   void _onSignUpPressed(BuildContext context) {
     Navigation.navigateToSignUpScreen(context: context);
+    _cleanForm(context);
+    _unfocusInputs();
+  }
+
+  void _cleanForm(BuildContext context) {
+    context.read<SignInBloc>().add(
+          const SignInEventCleanForm(),
+        );
+  }
+
+  void _unfocusInputs() {
+    Utils.unfocusInputs();
   }
 }

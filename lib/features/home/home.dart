@@ -1,19 +1,30 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../interfaces/factories/widget_factory.dart';
+import 'bloc/home_bloc.dart';
+import 'components/home_router.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final WidgetFactory widgetFactory = context.read<WidgetFactory>();
+    return const _HomeBlocProvider(
+      child: HomeRouter(),
+    );
+  }
+}
 
-    return widgetFactory.createScaffold(
-      child: const Center(
-        child: Text('Welcome home!'),
-      ),
+class _HomeBlocProvider extends StatelessWidget {
+  final Widget child;
+
+  const _HomeBlocProvider({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => HomeBloc(),
+      child: child,
     );
   }
 }

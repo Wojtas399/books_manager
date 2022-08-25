@@ -10,6 +10,7 @@ class CustomScaffold extends StatelessWidget {
   final bool automaticallyImplyLeading;
   final Widget? trailing;
   final Widget? bottomNavigationBar;
+  final FloatingActionButton? floatingActionButton;
 
   const CustomScaffold({
     super.key,
@@ -21,6 +22,7 @@ class CustomScaffold extends StatelessWidget {
     this.automaticallyImplyLeading = true,
     this.trailing,
     this.bottomNavigationBar,
+    this.floatingActionButton,
   });
 
   @override
@@ -37,6 +39,7 @@ class CustomScaffold extends StatelessWidget {
         trailing: trailing,
       ),
       bottomNavigationBar: bottomNavigationBar,
+      floatingActionButton: floatingActionButton,
       body: body,
     );
   }

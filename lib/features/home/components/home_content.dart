@@ -55,6 +55,13 @@ class HomeContent extends StatelessWidget {
         onTap: (int pressedItemIndex) =>
             _onBottomNavigationBarItemPressed(pressedItemIndex, context),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _onFloatingActionButtonPressed,
+        child: const Icon(
+          Icons.add_rounded,
+          color: Colors.white,
+        ),
+      ),
       body: pages[pageIndex],
     );
   }
@@ -70,5 +77,9 @@ class HomeContent extends StatelessWidget {
     context.read<HomeBloc>().add(
           HomeEventChangePage(pageIndex: pressedItemIndex),
         );
+  }
+
+  void _onFloatingActionButtonPressed() {
+    Navigation.navigateToBookCreator();
   }
 }

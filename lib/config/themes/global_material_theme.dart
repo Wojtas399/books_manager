@@ -10,6 +10,7 @@ class GlobalMaterialTheme {
         elevatedButtonTheme: _elevatedButtonTheme,
         appBarTheme: _appBarTheme,
         bottomNavigationBarTheme: _bottomNavigationBarTheme,
+        floatingActionButtonTheme: _floatingActionButtonTheme,
       );
 
   static final ColorScheme _colorScheme = const ColorScheme.light().copyWith(
@@ -49,5 +50,11 @@ class GlobalMaterialTheme {
     backgroundColor: AppColors.secondary,
     unselectedItemColor: Colors.black.withOpacity(0.3),
     selectedItemColor: Colors.black,
+  );
+
+  static final FloatingActionButtonThemeData _floatingActionButtonTheme =
+      FloatingActionButtonThemeData(
+    backgroundColor: AppColors.primary,
+    iconSize: 32,
   );
 }

@@ -53,6 +53,13 @@ class Navigation {
     }
   }
 
+  static void navigateToBookCreator() {
+    final BuildContext? buildContext = _getNavigatorContext();
+    if (buildContext != null) {
+      Navigator.of(buildContext).pushNamed(Routes.bookCreator);
+    }
+  }
+
   static BuildContext? _getNavigatorContext() {
     return NavigatorKeyProvider.getContext();
   }

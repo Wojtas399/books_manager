@@ -1,16 +1,34 @@
+import 'package:app/domain/use_cases/book/add_book_use_case.dart';
 import 'package:app/features/book_creator/bloc/book_creator_bloc.dart';
+import 'package:app/models/bloc_status.dart';
 import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+
+class MockAddBookUseCase extends Mock implements AddBookUseCase {}
 
 void main() {
+  final addBookUseCase = MockAddBookUseCase();
+
   BookCreatorBloc createBloc({
     String? imagePath,
+    String title = '',
+    String author = '',
+    int readPagesAmount = 0,
+    int allPagesAmount = 0,
   }) {
     return BookCreatorBloc(
+      addBookUseCase: addBookUseCase,
       imagePath: imagePath,
+      title: title,
+      author: author,
+      readPagesAmount: readPagesAmount,
+      allPagesAmount: allPagesAmount,
     );
   }
 
   BookCreatorState createState({
+    BlocStatus status = const BlocStatusInProgress(),
     String? imagePath,
     String title = '',
     String author = '',
@@ -18,6 +36,7 @@ void main() {
     int readPagesAmount = 0,
   }) {
     return BookCreatorState(
+      status: status,
       imagePath: imagePath,
       title: title,
       author: author,
@@ -25,6 +44,10 @@ void main() {
       readPagesAmount: readPagesAmount,
     );
   }
+
+  tearDown(() {
+    reset(addBookUseCase);
+  });
 
   blocTest(
     'change image path, should update image path',
@@ -102,5 +125,68 @@ void main() {
     expect: () => [
       createState(allPagesAmount: 20),
     ],
+  );
+
+  group(
+    'submit',
+    () {
+      const String title = 'title';
+      const String author = 'author';
+      const int readPagesAmount = 30;
+      const int allPagesAmount = 300;
+
+      blocTest(
+        'should call use case responsible for adding new book',
+        build: () => createBloc(
+          title: title,
+          author: author,
+          readPagesAmount: readPagesAmount,
+          allPagesAmount: allPagesAmount,
+        ),
+        setUp: () {
+          when(
+            () => addBookUseCase.execute(
+              title: title,
+              author: author,
+              allPagesAmount: allPagesAmount,
+              readPagesAmount: readPagesAmount,
+            ),
+          ).thenAnswer((_) async => '');
+        },
+        act: (BookCreatorBloc bloc) {
+          bloc.add(
+            const BookCreatorEventSubmit(),
+          );
+        },
+        expect: () => [
+          createState(
+            status: const BlocStatusLoading(),
+            title: title,
+            author: author,
+            readPagesAmount: readPagesAmount,
+            allPagesAmount: allPagesAmount,
+          ),
+          createState(
+            status: const BlocStatusComplete<BookCreatorBlocInfo>(
+              info: BookCreatorBlocInfo.bookHasBeenAdded,
+            ),
+            title: title,
+            author: author,
+            readPagesAmount: readPagesAmount,
+            allPagesAmount: allPagesAmount,
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => addBookUseCase.execute(
+              title: title,
+              author: author,
+              allPagesAmount: allPagesAmount,
+              readPagesAmount: readPagesAmount,
+            ),
+          ).called(1);
+        },
+      );
+    },
   );
 }

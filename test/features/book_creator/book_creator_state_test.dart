@@ -1,4 +1,5 @@
 import 'package:app/features/book_creator/bloc/book_creator_bloc.dart';
+import 'package:app/models/bloc_status.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -6,6 +7,8 @@ void main() {
 
   setUp(() {
     state = const BookCreatorState(
+      status: BlocStatusInitial(),
+      imagePath: null,
       title: '',
       author: '',
       allPagesAmount: 0,
@@ -84,6 +87,19 @@ void main() {
   );
 
   test(
+    'copy with bloc status',
+    () {
+      const BlocStatus expectedStatus = BlocStatusLoading();
+
+      state = state.copyWith(status: expectedStatus);
+      final state2 = state.copyWith();
+
+      expect(state.status, expectedStatus);
+      expect(state2.status, const BlocStatusInProgress());
+    },
+  );
+
+  test(
     'copy with image path',
     () {
       const String expectedPath = 'path';
@@ -156,6 +172,21 @@ void main() {
 
       expect(state.imagePath, 'path');
       expect(state2.imagePath, null);
+    },
+  );
+
+  test(
+    'copy with info',
+    () {
+      const BookCreatorBlocInfo expectedInfo =
+          BookCreatorBlocInfo.bookHasBeenAdded;
+
+      state = state.copyWithInfo(expectedInfo);
+
+      expect(
+        state.status,
+        const BlocStatusComplete<BookCreatorBlocInfo>(info: expectedInfo),
+      );
     },
   );
 }

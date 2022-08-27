@@ -15,16 +15,16 @@ class BookRepository implements BookInterface {
   Future<void> addNewBook({
     required String title,
     required String author,
-    required int allPagesAmount,
     required int readPagesAmount,
+    required int allPagesAmount,
   }) async {
     await _sqliteBookService.addNewBook(
       SqliteBook(
         userId: 'testUser',
         title: title,
         author: author,
-        allPagesAmount: allPagesAmount,
         readPagesAmount: readPagesAmount,
+        allPagesAmount: allPagesAmount,
       ),
     );
   }

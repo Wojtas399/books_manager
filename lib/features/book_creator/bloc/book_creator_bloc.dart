@@ -1,11 +1,18 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../domain/use_cases/book/add_book_use_case.dart';
+import '../../../models/bloc_status.dart';
+
 part 'book_creator_event.dart';
 part 'book_creator_state.dart';
 
 class BookCreatorBloc extends Bloc<BookCreatorEvent, BookCreatorState> {
+  late final AddBookUseCase _addBookUseCase;
+
   BookCreatorBloc({
+    required AddBookUseCase addBookUseCase,
+    BlocStatus status = const BlocStatusInitial(),
     String? imagePath,
     String title = '',
     String author = '',
@@ -13,6 +20,7 @@ class BookCreatorBloc extends Bloc<BookCreatorEvent, BookCreatorState> {
     int readPagesAmount = 0,
   }) : super(
           BookCreatorState(
+            status: status,
             imagePath: imagePath,
             title: title,
             author: author,
@@ -20,6 +28,7 @@ class BookCreatorBloc extends Bloc<BookCreatorEvent, BookCreatorState> {
             readPagesAmount: readPagesAmount,
           ),
         ) {
+    _addBookUseCase = addBookUseCase;
     on<BookCreatorEventChangeImagePath>(_changeImagePath);
     on<BookCreatorEventRemoveImage>(_removeImage);
     on<BookCreatorEventTitleChanged>(_titleChanged);
@@ -83,10 +92,21 @@ class BookCreatorBloc extends Bloc<BookCreatorEvent, BookCreatorState> {
     ));
   }
 
-  void _submit(
+  Future<void> _submit(
     BookCreatorEventSubmit event,
     Emitter<BookCreatorState> emit,
-  ) {
-    //TODO
+  ) async {
+    emit(state.copyWith(
+      status: const BlocStatusLoading(),
+    ));
+    await _addBookUseCase.execute(
+      title: state.title,
+      author: state.author,
+      allPagesAmount: state.allPagesAmount,
+      readPagesAmount: state.readPagesAmount,
+    );
+    emit(state.copyWithInfo(
+      BookCreatorBlocInfo.bookHasBeenAdded,
+    ));
   }
 }

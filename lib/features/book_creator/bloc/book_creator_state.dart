@@ -1,27 +1,30 @@
 part of 'book_creator_bloc.dart';
 
 class BookCreatorState extends Equatable {
+  final BlocStatus status;
   final String? imagePath;
   final String title;
   final String author;
-  final int allPagesAmount;
   final int readPagesAmount;
+  final int allPagesAmount;
 
   const BookCreatorState({
-    this.imagePath,
+    required this.status,
+    required this.imagePath,
     required this.title,
     required this.author,
-    required this.allPagesAmount,
     required this.readPagesAmount,
+    required this.allPagesAmount,
   });
 
   @override
   List<Object> get props => [
+        status,
         imagePath ?? '',
         title,
         author,
-        allPagesAmount,
         readPagesAmount,
+        allPagesAmount,
       ];
 
   bool get isButtonDisabled =>
@@ -31,6 +34,7 @@ class BookCreatorState extends Equatable {
       allPagesAmount < readPagesAmount;
 
   BookCreatorState copyWith({
+    BlocStatus? status,
     String? imagePath,
     String? title,
     String? author,
@@ -39,6 +43,7 @@ class BookCreatorState extends Equatable {
     bool removedImagePath = false,
   }) {
     return BookCreatorState(
+      status: status ?? const BlocStatusInProgress(),
       imagePath: removedImagePath ? null : imagePath ?? this.imagePath,
       title: title ?? this.title,
       author: author ?? this.author,
@@ -46,4 +51,14 @@ class BookCreatorState extends Equatable {
       allPagesAmount: allPagesAmount ?? this.allPagesAmount,
     );
   }
+
+  BookCreatorState copyWithInfo(BookCreatorBlocInfo info) {
+    return copyWith(
+      status: BlocStatusComplete<BookCreatorBlocInfo>(info: info),
+    );
+  }
+}
+
+enum BookCreatorBlocInfo {
+  bookHasBeenAdded,
 }

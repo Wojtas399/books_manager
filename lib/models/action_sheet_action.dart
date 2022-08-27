@@ -3,13 +3,13 @@ import 'package:flutter/widgets.dart';
 
 class ActionSheetAction extends Equatable {
   final String label;
-  final Icon icon;
+  final IconData iconData;
 
   const ActionSheetAction({
     required this.label,
-    required this.icon,
+    required this.iconData,
   });
 
   @override
-  List<Object> get props => [label, icon];
+  List<Object> get props => [label, iconData];
 }

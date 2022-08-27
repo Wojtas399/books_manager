@@ -10,9 +10,8 @@ class ResetPasswordInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return CustomTextField(
-      placeholder: 'Adres email',
+      label: 'Adres email',
       iconData: MdiIcons.email,
       onChanged: (String email) => _onEmailChanged(email, context),
     );

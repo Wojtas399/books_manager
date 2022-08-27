@@ -7,7 +7,11 @@ class MaterialSingleInputDialog extends StatelessWidget {
   final String title;
   final String? message;
   final String? placeholder;
+  final String initialValue;
+  final TextInputType? keyboardType;
   final bool obscureText;
+  final String? acceptLabel;
+  final String? cancelLabel;
   final TextEditingController _controller = TextEditingController();
 
   MaterialSingleInputDialog({
@@ -15,8 +19,14 @@ class MaterialSingleInputDialog extends StatelessWidget {
     required this.title,
     this.message,
     this.placeholder,
+    this.initialValue = '',
+    this.keyboardType,
     this.obscureText = false,
-  });
+    this.acceptLabel,
+    this.cancelLabel,
+  }) {
+    _controller.text = initialValue;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,17 +40,18 @@ class MaterialSingleInputDialog extends StatelessWidget {
       content: _Content(
         message: message,
         placeholder: placeholder,
+        keyboardType: keyboardType,
         obscureText: obscureText,
         controller: _controller,
       ),
       actions: [
         TextButton(
           onPressed: () => _onCancelPressed(context),
-          child: const Text('Anuluj'),
+          child: Text(cancelLabel ?? 'Anuluj'),
         ),
         TextButton(
           onPressed: () => _onContinuePressed(context),
-          child: const Text('Kontynuuj'),
+          child: Text(acceptLabel ?? 'Kontynuuj'),
         ),
       ],
     );
@@ -58,13 +69,15 @@ class MaterialSingleInputDialog extends StatelessWidget {
 class _Content extends StatelessWidget {
   final String? message;
   final String? placeholder;
+  final TextInputType? keyboardType;
   final bool obscureText;
   final TextEditingController controller;
 
   const _Content({
-    required this.message,
-    required this.placeholder,
-    required this.obscureText,
+    this.message,
+    this.placeholder,
+    this.keyboardType,
+    this.obscureText = false,
     required this.controller,
   });
 
@@ -74,14 +87,16 @@ class _Content extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(message ?? ''),
-        const SizedBox(height: 16),
+        SizedBox(height: message != null ? 16 : 0),
         obscureText
             ? PasswordTextField(
-                placeholder: placeholder,
+                label: placeholder,
+                keyboardType: keyboardType,
                 controller: controller,
               )
             : CustomTextField(
-                placeholder: placeholder,
+                label: placeholder,
+                keyboardType: keyboardType,
                 controller: controller,
               ),
       ],

@@ -123,7 +123,7 @@ class _ResetPasswordBlocListener extends StatelessWidget {
   }
 
   void _emailHasBeenSentInfo(BuildContext context) {
-    context.read<DialogInterface>().showSnackbar(
+    context.read<DialogInterface>().showSnackBar(
           context: context,
           message: 'Pomyślnie wysłano wiadomość na podany adres email.',
         );

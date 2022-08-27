@@ -5,18 +5,22 @@ import '../config/themes/material_text_field_theme.dart';
 import '../ui/validator_messages.dart';
 
 class PasswordTextField extends StatefulWidget {
+  final String? label;
   final String? placeholder;
   final Color? backgroundColor;
   final bool isRequired;
+  final TextInputType? keyboardType;
   final String? Function(String? value)? validator;
   final TextEditingController? controller;
   final Function(String)? onChanged;
 
   const PasswordTextField({
     super.key,
+    this.label,
     this.placeholder,
     this.backgroundColor,
     this.isRequired = false,
+    this.keyboardType,
     this.validator,
     this.controller,
     this.onChanged,
@@ -35,12 +39,14 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
       obscureText: !isVisible,
       obscuringCharacter: '*',
       decoration: MaterialTextFieldTheme.basic(
-        icon: const Icon(MdiIcons.lock),
+        iconData: MdiIcons.lock,
+        label: widget.label,
         placeholder: widget.placeholder,
         isPassword: true,
         isVisiblePassword: isVisible,
         onVisibilityIconPressed: _onVisibilityIconPressed,
       ),
+      keyboardType: widget.keyboardType,
       validator: _validate,
       controller: widget.controller,
       autovalidateMode: AutovalidateMode.onUserInteraction,

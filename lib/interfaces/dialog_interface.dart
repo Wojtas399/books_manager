@@ -13,7 +13,11 @@ abstract class DialogInterface {
     required String title,
     String? message,
     String? placeholder,
+    String initialValue = '',
+    TextInputType? keyboardType,
     bool obscureText = false,
+    String? acceptLabel,
+    String? cancelLabel,
   });
 
   void showLoadingDialog({BuildContext? context});
@@ -26,7 +30,7 @@ abstract class DialogInterface {
     BuildContext? context,
   });
 
-  void showSnackbar({
+  void showSnackBar({
     required String message,
     BuildContext? context,
   });

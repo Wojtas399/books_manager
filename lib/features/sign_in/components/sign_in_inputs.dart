@@ -35,7 +35,7 @@ class _Email extends StatelessWidget {
 
     return CustomTextField(
       controller: _controller,
-      placeholder: 'Adres email',
+      label: 'Adres email',
       iconData: MdiIcons.account,
       keyboardType: TextInputType.emailAddress,
       onChanged: (String email) => _onEmailChanged(email, context),
@@ -63,7 +63,7 @@ class _Password extends StatelessWidget {
 
     return PasswordTextField(
       controller: _controller,
-      placeholder: 'Hasło',
+      label: 'Hasło',
       onChanged: (String password) => _onPasswordChanged(password, context),
     );
   }

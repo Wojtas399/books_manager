@@ -31,7 +31,7 @@ class MaterialCustomActionSheet extends StatelessWidget {
                 (MapEntry<int, ActionSheetAction> entry) =>
                     _createMaterialAction(
                   label: entry.value.label,
-                  icon: entry.value.icon,
+                  iconData: entry.value.iconData,
                   index: entry.key,
                   context: context,
                 ),
@@ -53,13 +53,13 @@ class MaterialCustomActionSheet extends StatelessWidget {
 
   Widget _createMaterialAction({
     required String label,
-    required Icon icon,
+    required IconData iconData,
     required int index,
     required BuildContext context,
   }) {
     return ListTile(
       title: Text(label),
-      leading: icon,
+      leading: Icon(iconData),
       onTap: () {
         Navigator.pop(context, index);
       },

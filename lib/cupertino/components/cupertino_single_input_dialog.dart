@@ -4,7 +4,11 @@ class CupertinoSingleInputDialog extends StatelessWidget {
   final String title;
   final String? message;
   final String? placeholder;
+  final String initialValue;
+  final TextInputType? keyboardType;
   final bool obscureText;
+  final String? acceptLabel;
+  final String? cancelLabel;
   final TextEditingController _controller = TextEditingController();
 
   CupertinoSingleInputDialog({
@@ -12,8 +16,14 @@ class CupertinoSingleInputDialog extends StatelessWidget {
     required this.title,
     this.message,
     this.placeholder,
+    this.initialValue = '',
+    this.keyboardType,
     this.obscureText = false,
-  });
+    this.acceptLabel,
+    this.cancelLabel,
+  }) {
+    _controller.text = initialValue;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,17 +32,18 @@ class CupertinoSingleInputDialog extends StatelessWidget {
       content: _Content(
         message: message,
         placeholder: placeholder,
+        keyboardType: keyboardType,
         obscureText: obscureText,
         controller: _controller,
       ),
       actions: [
         CupertinoDialogAction(
           isDestructiveAction: true,
-          child: const Text('Anuluj'),
+          child: Text(cancelLabel ?? 'Anuluj'),
           onPressed: () => _onCancelPressed(context),
         ),
         CupertinoDialogAction(
-          child: const Text('Kontynuuj'),
+          child: Text(acceptLabel ?? 'Kontynuuj'),
           onPressed: () => _onContinuePressed(context),
         ),
       ],
@@ -51,13 +62,15 @@ class CupertinoSingleInputDialog extends StatelessWidget {
 class _Content extends StatelessWidget {
   final String? message;
   final String? placeholder;
+  final TextInputType? keyboardType;
   final bool obscureText;
   final TextEditingController controller;
 
   const _Content({
-    required this.message,
-    required this.placeholder,
-    required this.obscureText,
+    this.message,
+    this.placeholder,
+    this.keyboardType,
+    this.obscureText = false,
     required this.controller,
   });
 
@@ -67,11 +80,12 @@ class _Content extends StatelessWidget {
       children: [
         SizedBox(height: message != null ? 4 : 0),
         Text(message ?? ''),
-        const SizedBox(height: 16),
+        SizedBox(height: message != null ? 16 : 0),
         CupertinoTextField(
           obscureText: obscureText,
           obscuringCharacter: '*',
           placeholder: placeholder,
+          keyboardType: keyboardType,
           controller: controller,
         ),
       ],

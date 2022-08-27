@@ -35,7 +35,8 @@ class _Email extends StatelessWidget {
     );
 
     return CustomTextField(
-      placeholder: 'Adres email',
+      label: 'Adres email',
+      placeholder: 'np. jannowak@example.com',
       iconData: MdiIcons.email,
       validator: (_) => _validate(isEmailValid),
       onChanged: (String email) => _onEmailChanged(email, context),
@@ -66,7 +67,7 @@ class _Password extends StatelessWidget {
     );
 
     return PasswordTextField(
-      placeholder: 'Hasło',
+      label: 'Hasło',
       isRequired: true,
       validator: (_) => _validate(isPasswordValid),
       onChanged: (String password) => _onPasswordChanged(password, context),
@@ -97,7 +98,7 @@ class _PasswordConfirmation extends StatelessWidget {
     );
 
     return PasswordTextField(
-      placeholder: 'Powtórz hasło',
+      label: 'Powtórz hasło',
       isRequired: true,
       validator: (_) => _validate(isPasswordConfirmationValid),
       onChanged: (String password) => _onPasswordConfirmationChanged(

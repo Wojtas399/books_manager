@@ -4,6 +4,7 @@ import '../config/themes/material_text_field_theme.dart';
 import '../ui/validator_messages.dart';
 
 class CustomTextField extends StatelessWidget {
+  final String? label;
   final String? placeholder;
   final IconData? iconData;
   final Color? backgroundColor;
@@ -15,6 +16,7 @@ class CustomTextField extends StatelessWidget {
 
   const CustomTextField({
     super.key,
+    this.label,
     this.placeholder,
     this.iconData,
     this.backgroundColor,
@@ -29,7 +31,8 @@ class CustomTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       decoration: MaterialTextFieldTheme.basic(
-        icon: Icon(iconData),
+        iconData: iconData,
+        label: label,
         placeholder: placeholder,
         backgroundColor: backgroundColor,
       ),

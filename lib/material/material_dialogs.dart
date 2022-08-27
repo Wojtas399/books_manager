@@ -5,8 +5,8 @@ import '../models/action_sheet_action.dart';
 import '../providers/navigator_key_provider.dart';
 import '../ui/errors_messages.dart';
 import 'components/material_custom_action_sheet.dart';
-import 'components/material_loading_dialog.dart';
 import 'components/material_info_dialog.dart';
+import 'components/material_loading_dialog.dart';
 import 'components/material_single_input_dialog.dart';
 
 class MaterialDialogs implements DialogInterface {
@@ -36,7 +36,11 @@ class MaterialDialogs implements DialogInterface {
     required String title,
     String? message,
     String? placeholder,
+    String initialValue = '',
+    TextInputType? keyboardType,
     bool obscureText = false,
+    String? acceptLabel,
+    String? cancelLabel,
   }) async {
     final BuildContext? buildContext = _getNavigatorContext();
     if (buildContext != null) {
@@ -46,7 +50,11 @@ class MaterialDialogs implements DialogInterface {
           title: title,
           message: message,
           placeholder: placeholder,
+          initialValue: initialValue,
+          keyboardType: keyboardType,
           obscureText: obscureText,
+          acceptLabel: acceptLabel,
+          cancelLabel: cancelLabel,
         ),
       );
     }
@@ -93,7 +101,7 @@ class MaterialDialogs implements DialogInterface {
   }
 
   @override
-  void showSnackbar({
+  void showSnackBar({
     required String message,
     BuildContext? context,
   }) {

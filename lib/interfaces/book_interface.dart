@@ -1,8 +1,9 @@
+import '../domain/entities/book.dart';
+
 abstract class BookInterface {
-  Future<void> addNewBook({
-    required String title,
-    required String author,
-    required int readPagesAmount,
-    required int allPagesAmount,
-  });
+  Stream<List<Book>> getBooksByUserId({required String userId});
+
+  Future<void> loadAllBooksByUserId({required String userId});
+
+  Future<void> addNewBook({required Book book});
 }

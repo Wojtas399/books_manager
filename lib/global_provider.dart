@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'providers/dialog_provider.dart';
 import 'providers/database_provider.dart';
+import 'providers/dialog_provider.dart';
 
 class GlobalProvider extends StatelessWidget {
   final Widget child;

@@ -83,14 +83,14 @@ class MaterialDialogs implements DialogInterface {
   }
 
   @override
-  void showInfoDialog({
+  Future<void> showInfoDialog({
     required String title,
     required String info,
     BuildContext? context,
-  }) {
+  }) async {
     final BuildContext? buildContext = context ?? _getNavigatorContext();
     if (buildContext != null) {
-      showDialog(
+      await showDialog(
         context: buildContext,
         builder: (_) => MaterialInfoDialog(
           title: title,

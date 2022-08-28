@@ -4,12 +4,13 @@ import 'package:rxdart/rxdart.dart';
 import '../../database/firebase/services/fire_auth_service.dart';
 import '../../database/shared_preferences/shared_preferences_service.dart';
 import '../../interfaces/auth_interface.dart';
-import '../../models/auth_state.dart';
 import '../../models/error.dart';
 
 class AuthRepository implements AuthInterface {
   late final FireAuthService _fireAuthService;
   late final SharedPreferencesService _sharedPreferencesService;
+  final BehaviorSubject<String?> _loggedUserId$ =
+      BehaviorSubject<String?>.seeded(null);
 
   AuthRepository({
     required FireAuthService fireAuthService,
@@ -20,9 +21,14 @@ class AuthRepository implements AuthInterface {
   }
 
   @override
-  Stream<AuthState> get authState$ => Rx.fromCallable(
-        () async => await _sharedPreferencesService.loadLoggedUserId(),
-      ).map(_getAuthStateDependsOnUserId);
+  Stream<String?> get loggedUserId$ => _loggedUserId$.stream;
+
+  @override
+  Future<void> loadLoggedUserId() async {
+    _loggedUserId$.add(
+      await _sharedPreferencesService.loadLoggedUserId(),
+    );
+  }
 
   @override
   Future<void> signIn({
@@ -37,6 +43,7 @@ class AuthRepository implements AuthInterface {
       await _sharedPreferencesService.saveLoggedUserId(
         loggedUserId: loggedUserId,
       );
+      _loggedUserId$.add(loggedUserId);
     } on FirebaseAuthException catch (exception) {
       _manageFirebaseAuthException(exception.code);
     }
@@ -55,6 +62,7 @@ class AuthRepository implements AuthInterface {
       await _sharedPreferencesService.saveLoggedUserId(
         loggedUserId: loggedUserId,
       );
+      _loggedUserId$.add(loggedUserId);
     } on FirebaseAuthException catch (exception) {
       _manageFirebaseAuthException(exception.code);
     }
@@ -73,6 +81,7 @@ class AuthRepository implements AuthInterface {
   Future<void> signOut() async {
     await _fireAuthService.signOut();
     await _sharedPreferencesService.removeLoggedUserId();
+    _loggedUserId$.add(null);
   }
 
   @override
@@ -83,13 +92,6 @@ class AuthRepository implements AuthInterface {
     } on FirebaseAuthException catch (exception) {
       _manageFirebaseAuthException(exception.code);
     }
-  }
-
-  AuthState _getAuthStateDependsOnUserId(String? userId) {
-    if (userId != null) {
-      return AuthStateSignedIn(userId: userId);
-    }
-    return const AuthStateSignedOut();
   }
 
   void _manageFirebaseAuthException(String code) {

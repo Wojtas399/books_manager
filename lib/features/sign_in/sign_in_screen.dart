@@ -2,7 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../config/navigation.dart';
-import '../../domain/use_cases/auth/get_auth_state_use_case.dart';
+import '../../domain/use_cases/auth/get_logged_user_id_use_case.dart';
+import '../../domain/use_cases/auth/load_logged_user_id_use_case.dart';
 import '../../domain/use_cases/auth/sign_in_use_case.dart';
 import '../../interfaces/auth_interface.dart';
 import '../../interfaces/dialog_interface.dart';
@@ -32,7 +33,10 @@ class _SignInBlocProvider extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (BuildContext context) => SignInBloc(
-        getAuthStateUseCase: GetAuthStateUseCase(
+        loadLoggedUserIdUseCase: LoadLoggedUserIdUseCase(
+          authInterface: context.read<AuthInterface>(),
+        ),
+        getLoggedUserIdUseCase: GetLoggedUserIdUseCase(
           authInterface: context.read<AuthInterface>(),
         ),
         signInUseCase: SignInUseCase(

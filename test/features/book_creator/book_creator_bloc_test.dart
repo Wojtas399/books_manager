@@ -1,3 +1,5 @@
+import 'package:app/domain/entities/book.dart';
+import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/book/add_book_use_case.dart';
 import 'package:app/features/book_creator/bloc/book_creator_bloc.dart';
 import 'package:app/models/bloc_status.dart';
@@ -5,9 +7,15 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+class MockGetLoggedUserIdUseCase extends Mock
+    implements GetLoggedUserIdUseCase {}
+
 class MockAddBookUseCase extends Mock implements AddBookUseCase {}
 
+class FakeBook extends Fake implements Book {}
+
 void main() {
+  final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
   final addBookUseCase = MockAddBookUseCase();
 
   BookCreatorBloc createBloc({
@@ -18,6 +26,7 @@ void main() {
     int allPagesAmount = 0,
   }) {
     return BookCreatorBloc(
+      getLoggedUserIdUseCase: getLoggedUserIdUseCase,
       addBookUseCase: addBookUseCase,
       imagePath: imagePath,
       title: title,
@@ -45,7 +54,12 @@ void main() {
     );
   }
 
+  setUpAll(() {
+    registerFallbackValue(FakeBook());
+  });
+
   tearDown(() {
+    reset(getLoggedUserIdUseCase);
     reset(addBookUseCase);
   });
 
@@ -130,27 +144,34 @@ void main() {
   group(
     'submit',
     () {
+      const String loggedUserId = 'loggedUserId';
       const String title = 'title';
       const String author = 'author';
-      const int readPagesAmount = 30;
-      const int allPagesAmount = 300;
+      const int readPagesAmount = 20;
+      const int allPagesAmount = 200;
+      final Book book = createBook(
+        userId: loggedUserId,
+        imageData: null,
+        title: title,
+        author: author,
+        readPagesAmount: readPagesAmount,
+        allPagesAmount: allPagesAmount,
+      );
 
       blocTest(
         'should call use case responsible for adding new book',
         build: () => createBloc(
-          title: title,
-          author: author,
-          readPagesAmount: readPagesAmount,
-          allPagesAmount: allPagesAmount,
+          title: book.title,
+          author: book.author,
+          readPagesAmount: book.readPagesAmount,
+          allPagesAmount: book.allPagesAmount,
         ),
         setUp: () {
           when(
-            () => addBookUseCase.execute(
-              title: title,
-              author: author,
-              allPagesAmount: allPagesAmount,
-              readPagesAmount: readPagesAmount,
-            ),
+            () => getLoggedUserIdUseCase.execute(),
+          ).thenAnswer((_) => Stream.value(loggedUserId));
+          when(
+            () => addBookUseCase.execute(book: book),
           ).thenAnswer((_) async => '');
         },
         act: (BookCreatorBloc bloc) {
@@ -178,13 +199,39 @@ void main() {
         ],
         verify: (_) {
           verify(
-            () => addBookUseCase.execute(
-              title: title,
-              author: author,
-              allPagesAmount: allPagesAmount,
-              readPagesAmount: readPagesAmount,
-            ),
+            () => addBookUseCase.execute(book: book),
           ).called(1);
+        },
+      );
+
+      blocTest(
+        'should not call use case responsible for adding new book if logged user id is null',
+        build: () => createBloc(),
+        setUp: () {
+          when(
+            () => getLoggedUserIdUseCase.execute(),
+          ).thenAnswer((_) => Stream.value(null));
+          when(
+            () => addBookUseCase.execute(book: any(named: 'book')),
+          ).thenAnswer((_) async => '');
+        },
+        act: (BookCreatorBloc bloc) {
+          bloc.add(
+            const BookCreatorEventSubmit(),
+          );
+        },
+        expect: () => [
+          createState(
+            status: const BlocStatusLoading(),
+          ),
+          createState(
+            status: const BlocStatusLoggedUserNotFound(),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(
+            () => addBookUseCase.execute(book: any(named: 'book')),
+          );
         },
       );
     },

@@ -34,6 +34,7 @@ class _HomeRouterState extends State<HomeRouter> {
       case Routes.home:
         return MaterialPageRoute(
           builder: (_) => const HomeContent(),
+          settings: routeSettings,
         );
       case Routes.settings:
         return MaterialPageRoute(

@@ -1,7 +1,6 @@
 part of 'book_creator_bloc.dart';
 
-class BookCreatorState extends Equatable {
-  final BlocStatus status;
+class BookCreatorState extends BlocState {
   final String? imagePath;
   final String title;
   final String author;
@@ -9,7 +8,7 @@ class BookCreatorState extends Equatable {
   final int allPagesAmount;
 
   const BookCreatorState({
-    required this.status,
+    required super.status,
     required this.imagePath,
     required this.title,
     required this.author,

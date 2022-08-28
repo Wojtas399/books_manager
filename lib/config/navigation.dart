@@ -46,6 +46,15 @@ class Navigation {
     );
   }
 
+  static void backHome() {
+    final BuildContext? buildContext = _getNavigatorContext();
+    if (buildContext != null) {
+      Navigator.of(buildContext).popUntil(
+        ModalRoute.withName(Routes.home),
+      );
+    }
+  }
+
   static void navigateToSettings() {
     final BuildContext? buildContext = _getNavigatorContext();
     if (buildContext != null) {

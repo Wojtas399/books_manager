@@ -1,16 +1,22 @@
-import 'package:equatable/equatable.dart';
+import 'dart:io';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../domain/entities/book.dart';
+import '../../../domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import '../../../domain/use_cases/book/add_book_use_case.dart';
+import '../../../models/bloc_state.dart';
 import '../../../models/bloc_status.dart';
 
 part 'book_creator_event.dart';
 part 'book_creator_state.dart';
 
 class BookCreatorBloc extends Bloc<BookCreatorEvent, BookCreatorState> {
+  late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
   late final AddBookUseCase _addBookUseCase;
 
   BookCreatorBloc({
+    required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
     required AddBookUseCase addBookUseCase,
     BlocStatus status = const BlocStatusInitial(),
     String? imagePath,
@@ -28,6 +34,7 @@ class BookCreatorBloc extends Bloc<BookCreatorEvent, BookCreatorState> {
             readPagesAmount: readPagesAmount,
           ),
         ) {
+    _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
     _addBookUseCase = addBookUseCase;
     on<BookCreatorEventChangeImagePath>(_changeImagePath);
     on<BookCreatorEventRemoveImage>(_removeImage);
@@ -99,14 +106,31 @@ class BookCreatorBloc extends Bloc<BookCreatorEvent, BookCreatorState> {
     emit(state.copyWith(
       status: const BlocStatusLoading(),
     ));
+    final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
+    if (loggedUserId != null) {
+      await _addBook(loggedUserId);
+      emit(state.copyWithInfo(
+        BookCreatorBlocInfo.bookHasBeenAdded,
+      ));
+    } else {
+      emit(state.copyWith(
+        status: const BlocStatusLoggedUserNotFound(),
+      ));
+    }
+  }
+
+  Future<void> _addBook(String loggedUserId) async {
+    final String? imagePath = state.imagePath;
     await _addBookUseCase.execute(
-      title: state.title,
-      author: state.author,
-      allPagesAmount: state.allPagesAmount,
-      readPagesAmount: state.readPagesAmount,
+      book: Book(
+        userId: loggedUserId,
+        status: BookStatus.unread,
+        imageData: imagePath != null ? File(imagePath).readAsBytesSync() : null,
+        title: state.title,
+        author: state.author,
+        readPagesAmount: state.readPagesAmount,
+        allPagesAmount: state.allPagesAmount,
+      ),
     );
-    emit(state.copyWithInfo(
-      BookCreatorBlocInfo.bookHasBeenAdded,
-    ));
   }
 }

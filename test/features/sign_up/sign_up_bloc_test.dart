@@ -1,13 +1,12 @@
-import 'package:bloc_test/bloc_test.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-
 import 'package:app/domain/use_cases/auth/sign_up_use_case.dart';
 import 'package:app/features/sign_up/bloc/sign_up_bloc.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/error.dart';
 import 'package:app/validators/email_validator.dart';
 import 'package:app/validators/password_validator.dart';
+import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 class MockEmailValidator extends Mock implements EmailValidator {}
 

@@ -1,11 +1,10 @@
-import 'package:bloc_test/bloc_test.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-
 import 'package:app/domain/use_cases/auth/send_reset_password_email_use_case.dart';
 import 'package:app/features/reset_password/bloc/reset_password_bloc.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/error.dart';
+import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 class MockSendResetPasswordEmailUseCase extends Mock
     implements SendResetPasswordEmailUseCase {}

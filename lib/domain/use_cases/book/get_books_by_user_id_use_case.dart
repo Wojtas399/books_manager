@@ -1,16 +1,16 @@
 import '../../../interfaces/book_interface.dart';
 import '../../entities/book.dart';
 
-class AddBookUseCase {
+class GetBooksByUserIdUseCase {
   late final BookInterface _bookInterface;
 
-  AddBookUseCase({
+  GetBooksByUserIdUseCase({
     required BookInterface bookInterface,
   }) {
     _bookInterface = bookInterface;
   }
 
-  Future<void> execute({required Book book}) async {
-    await _bookInterface.addNewBook(book: book);
+  Stream<List<Book>> execute({required String userId}) {
+    return _bookInterface.getBooksByUserId(userId: userId);
   }
 }

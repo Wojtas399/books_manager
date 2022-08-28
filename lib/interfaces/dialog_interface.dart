@@ -24,7 +24,7 @@ abstract class DialogInterface {
 
   void closeLoadingDialog({BuildContext? context});
 
-  void showInfoDialog({
+  Future<void> showInfoDialog({
     required String title,
     required String info,
     BuildContext? context,

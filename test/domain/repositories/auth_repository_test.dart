@@ -1,12 +1,10 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:app/database/firebase/services/fire_auth_service.dart';
 import 'package:app/database/shared_preferences/shared_preferences_service.dart';
-import 'package:app/models/auth_state.dart';
-import 'package:app/models/error.dart';
 import 'package:app/domain/repositories/auth_repository.dart';
+import 'package:app/models/error.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 class MockFireAuthService extends Mock implements FireAuthService {}
 
@@ -31,34 +29,17 @@ void main() {
   });
 
   test(
-    'auth state, should return stream with auth state set to signed in if loaded user id is not null',
+    'load logged user id, should load id of logged user and assign it to stream',
     () async {
+      const String loggedUserId = 'userId';
       when(
         () => sharedPreferencesService.loadLoggedUserId(),
-      ).thenAnswer((_) async => 'userId');
+      ).thenAnswer((_) async => loggedUserId);
 
-      final Stream<AuthState> authState$ = repository.authState$;
+      await repository.loadLoggedUserId();
+      final Stream<String?> loggedUserId$ = repository.loggedUserId$;
 
-      expect(
-        await authState$.first,
-        const AuthStateSignedIn(userId: 'userId'),
-      );
-    },
-  );
-
-  test(
-    'auth state, should return stream with auth state set to signed out if loaded user id is null',
-    () async {
-      when(
-        () => sharedPreferencesService.loadLoggedUserId(),
-      ).thenAnswer((_) async => null);
-
-      final Stream<AuthState> authState$ = repository.authState$;
-
-      expect(
-        await authState$.first,
-        const AuthStateSignedOut(),
-      );
+      expect(await loggedUserId$.first, loggedUserId);
     },
   );
 
@@ -94,6 +75,7 @@ void main() {
               loggedUserId: loggedUserId,
             ),
           ).called(1);
+          expect(await repository.loggedUserId$.first, loggedUserId);
         },
       );
 
@@ -203,6 +185,7 @@ void main() {
               loggedUserId: loggedUserId,
             ),
           ).called(1);
+          expect(await repository.loggedUserId$.first, loggedUserId);
         },
       );
 
@@ -302,6 +285,7 @@ void main() {
       verify(
         () => sharedPreferencesService.removeLoggedUserId(),
       ).called(1);
+      expect(await repository.loggedUserId$.first, null);
     },
   );
 

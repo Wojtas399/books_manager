@@ -85,14 +85,14 @@ class CupertinoDialogs implements DialogInterface {
   }
 
   @override
-  void showInfoDialog({
+  Future<void> showInfoDialog({
     required String title,
     required String info,
     BuildContext? context,
-  }) {
+  }) async {
     final BuildContext? buildContext = context ?? _getNavigatorContext();
     if (buildContext != null) {
-      showCupertinoDialog(
+      await showCupertinoDialog(
         context: buildContext,
         builder: (_) => CupertinoInfoDialog(
           title: title,

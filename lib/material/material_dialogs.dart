@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../interfaces/dialog_interface.dart';
 import '../models/action_sheet_action.dart';
 import '../providers/navigator_key_provider.dart';
-import '../ui/errors_messages.dart';
 import 'components/material_custom_action_sheet.dart';
 import 'components/material_info_dialog.dart';
 import 'components/material_loading_dialog.dart';
@@ -111,30 +110,6 @@ class MaterialDialogs implements DialogInterface {
         SnackBar(
           content: Text(message),
         ),
-      );
-    }
-  }
-
-  @override
-  void showLossOfConnectionDialog({BuildContext? context}) {
-    final BuildContext? buildContext = context ?? _getNavigatorContext();
-    if (buildContext != null) {
-      showDialog(
-        context: buildContext,
-        builder: (_) => const MaterialInfoDialog(
-          title: ErrorsMessages.lossOfConnection,
-        ),
-      );
-    }
-  }
-
-  @override
-  void showTimeoutDialog({BuildContext? context}) {
-    final BuildContext? buildContext = context ?? _getNavigatorContext();
-    if (buildContext != null) {
-      showInfoDialog(
-        title: 'Przekroczony czas wykonania operacji',
-        info: ErrorsMessages.timeoutMessage,
       );
     }
   }

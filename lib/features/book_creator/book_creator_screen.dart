@@ -55,7 +55,10 @@ class _BookCreatorBlocListener extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomBlocListener<BookCreatorBloc, BookCreatorState,
         BookCreatorBlocInfo, dynamic>(
-      onInfo: (BookCreatorBlocInfo info) => _manageBlocInfo(info, context),
+      onCompletionInfo: (BookCreatorBlocInfo info) => _manageBlocInfo(
+        info,
+        context,
+      ),
       child: child,
     );
   }

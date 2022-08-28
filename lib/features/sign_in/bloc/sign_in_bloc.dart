@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import '../../../domain/use_cases/auth/load_logged_user_id_use_case.dart';
 import '../../../domain/use_cases/auth/sign_in_use_case.dart';
+import '../../../models/bloc_state.dart';
 import '../../../models/bloc_status.dart';
 import '../../../models/error.dart';
 
@@ -78,14 +78,10 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       await _signIn(emit);
     } on AuthError catch (authError) {
       _manageAuthError(authError, emit);
-    } on NetworkError catch (_) {
-      emit(state.copyWithError(
-        SignInBlocError.noInternetConnection,
-      ));
+    } on NetworkError catch (networkError) {
+      _manageNetworkError(networkError, emit);
     } on TimeoutException catch (_) {
-      emit(state.copyWithError(
-        SignInBlocError.timeoutException,
-      ));
+      _manageTimeoutException(emit);
     }
   }
 
@@ -131,5 +127,22 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         SignInBlocError.userNotFound,
       ));
     }
+  }
+
+  void _manageNetworkError(
+    NetworkError networkError,
+    Emitter<SignInState> emit,
+  ) {
+    if (networkError.code == NetworkErrorCode.lossOfConnection.name) {
+      emit(state.copyWith(
+        status: const BlocStatusLossOfInternetConnection(),
+      ));
+    }
+  }
+
+  void _manageTimeoutException(Emitter<SignInState> emit) {
+    emit(state.copyWith(
+      status: const BlocStatusTimeoutException(),
+    ));
   }
 }

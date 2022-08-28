@@ -1,13 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../components/custom_bloc_listener.dart';
 import '../../config/navigation.dart';
 import '../../domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import '../../domain/use_cases/auth/load_logged_user_id_use_case.dart';
 import '../../domain/use_cases/auth/sign_in_use_case.dart';
 import '../../interfaces/auth_interface.dart';
 import '../../interfaces/dialog_interface.dart';
-import '../../models/bloc_status.dart';
 import 'bloc/sign_in_bloc.dart';
 import 'components/sign_in_content.dart';
 
@@ -55,49 +55,12 @@ class _SignInBlocListener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<SignInBloc, SignInState>(
-      listener: (BuildContext context, SignInState state) {
-        final BlocStatus blocStatus = state.status;
-        if (blocStatus is BlocStatusLoading) {
-          _manageBlocLoadingStatus(context);
-        } else if (blocStatus is BlocStatusComplete) {
-          _manageBlocCompleteStatus(blocStatus, context);
-        } else if (blocStatus is BlocStatusError) {
-          _manageBlocErrorStatus(blocStatus, context);
-        }
-      },
+    return CustomBlocListener<SignInBloc, SignInState, SignInBlocInfo,
+        SignInBlocError>(
+      onCompletionInfo: (SignInBlocInfo info) => _manageBlocInfo(info, context),
+      onError: (SignInBlocError error) => _manageBlocError(error, context),
       child: child,
     );
-  }
-
-  void _manageBlocLoadingStatus(BuildContext context) {
-    context.read<DialogInterface>().showLoadingDialog(context: context);
-  }
-
-  void _manageBlocCompleteStatus(
-    BlocStatusComplete completeStatus,
-    BuildContext context,
-  ) {
-    _closeLoadingDialog(context);
-    final SignInBlocInfo? blocInfo = completeStatus.info;
-    if (blocInfo != null) {
-      _manageBlocInfo(blocInfo, context);
-    }
-  }
-
-  void _manageBlocErrorStatus(
-    BlocStatusError errorStatus,
-    BuildContext context,
-  ) {
-    _closeLoadingDialog(context);
-    final SignInBlocError? blocError = errorStatus.error;
-    if (blocError != null) {
-      _manageBlocError(blocError, context);
-    }
-  }
-
-  void _closeLoadingDialog(BuildContext context) {
-    context.read<DialogInterface>().closeLoadingDialog(context: context);
   }
 
   void _manageBlocInfo(SignInBlocInfo blocInfo, BuildContext context) {
@@ -118,12 +81,6 @@ class _SignInBlocListener extends StatelessWidget {
         break;
       case SignInBlocError.userNotFound:
         _noUserFoundInfo(context);
-        break;
-      case SignInBlocError.noInternetConnection:
-        _lossOfInternetConnectionInfo(context);
-        break;
-      case SignInBlocError.timeoutException:
-        _timeoutExceptionInfo(context);
         break;
     }
   }
@@ -154,15 +111,5 @@ class _SignInBlocListener extends StatelessWidget {
           title: 'Brak użytkownika',
           info: 'Nie znaleziono użytkownika o podanym adresie e-mail.',
         );
-  }
-
-  void _lossOfInternetConnectionInfo(BuildContext context) {
-    context.read<DialogInterface>().showLossOfConnectionDialog(
-          context: context,
-        );
-  }
-
-  void _timeoutExceptionInfo(BuildContext context) {
-    context.read<DialogInterface>().showTimeoutDialog(context: context);
   }
 }

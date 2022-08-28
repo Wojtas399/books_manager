@@ -34,8 +34,4 @@ abstract class DialogInterface {
     required String message,
     BuildContext? context,
   });
-
-  void showLossOfConnectionDialog({BuildContext? context});
-
-  void showTimeoutDialog({BuildContext? context});
 }

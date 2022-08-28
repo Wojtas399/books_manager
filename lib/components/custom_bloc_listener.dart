@@ -9,13 +9,13 @@ import '../models/bloc_status.dart';
 class CustomBlocListener<Bloc extends StateStreamable<State>,
     State extends BlocState, Info, Error> extends StatelessWidget {
   final Widget child;
-  final void Function(Info info)? onInfo;
+  final void Function(Info info)? onCompletionInfo;
   final void Function(Error error)? onError;
 
   const CustomBlocListener({
     super.key,
     required this.child,
-    this.onInfo,
+    this.onCompletionInfo,
     this.onError,
   });
 
@@ -32,6 +32,10 @@ class CustomBlocListener<Bloc extends StateStreamable<State>,
           _manageErrorStatus(blocStatus, context);
         } else if (blocStatus is BlocStatusLoggedUserNotFound) {
           _manageLoggedUserNotFoundStatus(context);
+        } else if (blocStatus is BlocStatusLossOfInternetConnection) {
+          _manageLossOfInternetConnection(context);
+        } else if (blocStatus is BlocStatusTimeoutException) {
+          _manageTimeoutException(context);
         }
       },
       child: child,
@@ -52,9 +56,9 @@ class CustomBlocListener<Bloc extends StateStreamable<State>,
           context: context,
         );
     final Info? info = completeStatus.info;
-    final Function(Info info)? onInfo = this.onInfo;
-    if (info != null && onInfo != null) {
-      onInfo(info);
+    final Function(Info info)? onCompletionInfo = this.onCompletionInfo;
+    if (info != null && onCompletionInfo != null) {
+      onCompletionInfo(info);
     }
   }
 
@@ -79,5 +83,21 @@ class CustomBlocListener<Bloc extends StateStreamable<State>,
               'Wystąpił nieoczekiwany problem ze znalezieniem zalogowanego użytkownika. W związku z tym za chwilę aplikacja przejdzie do ekranu logowania. Zaloguj się ponownie i przeprowadź operację od początku.',
         );
     Navigation.navigateToSignInScreen();
+  }
+
+  void _manageLossOfInternetConnection(BuildContext context) {
+    context.read<DialogInterface>().showInfoDialog(
+          title: 'Brak połączenia internetowego',
+          info:
+              'Niestety nie można wykonać tej operacji, ponieważ nie wykryto połączenia z internetem...',
+        );
+  }
+
+  void _manageTimeoutException(BuildContext context) {
+    context.read<DialogInterface>().showInfoDialog(
+          title: 'Przekroczony czas wykonania operacji',
+          info:
+              'Operacja ładuje się zbyt długo. Sprawdź połączenie internetowe i spróbuj ponownie...',
+        );
   }
 }

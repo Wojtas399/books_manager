@@ -142,7 +142,7 @@ void main() {
       );
 
       blocTest(
-        'should emit appropriate info if connection has been lost',
+        'should emit appropriate info if there is no internet connection',
         build: () => createBloc(email: email),
         setUp: () {
           when(
@@ -162,9 +162,7 @@ void main() {
             email: email,
           ),
           createState(
-            status: const BlocStatusError<ResetPasswordBlocError>(
-              error: ResetPasswordBlocError.lossOfConnection,
-            ),
+            status: const BlocStatusLossOfInternetConnection(),
             email: email,
           ),
         ],

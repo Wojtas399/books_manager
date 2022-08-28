@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../components/custom_bloc_listener.dart';
 import '../../config/navigation.dart';
 import '../../domain/use_cases/auth/sign_up_use_case.dart';
 import '../../interfaces/auth_interface.dart';
 import '../../interfaces/dialog_interface.dart';
-import '../../models/bloc_status.dart';
 import '../../validators/email_validator.dart';
 import '../../validators/password_validator.dart';
 import 'bloc/sign_up_bloc.dart';
@@ -51,49 +51,12 @@ class _SignUpBlocListener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<SignUpBloc, SignUpState>(
-      listener: (BuildContext context, SignUpState state) {
-        final BlocStatus blocStatus = state.status;
-        if (blocStatus is BlocStatusLoading) {
-          _manageBlocLoadingStatus(context);
-        } else if (blocStatus is BlocStatusComplete) {
-          _manageBlocCompleteStatus(blocStatus, context);
-        } else if (blocStatus is BlocStatusError) {
-          _manageBlocErrorStatus(blocStatus, context);
-        }
-      },
+    return CustomBlocListener<SignUpBloc, SignUpState, SignUpBlocInfo,
+        SignUpBlocError>(
+      onCompletionInfo: (SignUpBlocInfo info) => _manageBlocInfo(info, context),
+      onError: (SignUpBlocError error) => _manageBlocError(error, context),
       child: child,
     );
-  }
-
-  void _manageBlocLoadingStatus(BuildContext context) {
-    context.read<DialogInterface>().showLoadingDialog(context: context);
-  }
-
-  void _manageBlocCompleteStatus(
-    BlocStatusComplete completeStatus,
-    BuildContext context,
-  ) {
-    _closeLoadingDialog(context);
-    final SignUpBlocInfo? blocInfo = completeStatus.info;
-    if (blocInfo != null) {
-      _manageBlocInfo(blocInfo, context);
-    }
-  }
-
-  void _manageBlocErrorStatus(
-    BlocStatusError errorStatus,
-    BuildContext context,
-  ) {
-    _closeLoadingDialog(context);
-    final SignUpBlocError? blocError = errorStatus.error;
-    if (blocError != null) {
-      _manageBlocError(blocError, context);
-    }
-  }
-
-  void _closeLoadingDialog(BuildContext context) {
-    context.read<DialogInterface>().closeLoadingDialog(context: context);
   }
 
   void _manageBlocInfo(SignUpBlocInfo blocInfo, BuildContext context) {
@@ -109,12 +72,6 @@ class _SignUpBlocListener extends StatelessWidget {
       case SignUpBlocError.emailIsAlreadyTaken:
         _emailIsAlreadyTakenInfo(context);
         break;
-      case SignUpBlocError.lossOfConnection:
-        _lossOfConnectionInfo(context);
-        break;
-      case SignUpBlocError.loadingTimeExceeded:
-        _loadingTimeExceededInfo(context);
-        break;
     }
   }
 
@@ -128,15 +85,5 @@ class _SignUpBlocListener extends StatelessWidget {
           title: 'Zajęty email',
           info: 'Ten adres email jest już zajęty przez innego użytkownika.',
         );
-  }
-
-  void _lossOfConnectionInfo(BuildContext context) {
-    context.read<DialogInterface>().showLossOfConnectionDialog(
-          context: context,
-        );
-  }
-
-  void _loadingTimeExceededInfo(BuildContext context) {
-    context.read<DialogInterface>().showTimeoutDialog(context: context);
   }
 }

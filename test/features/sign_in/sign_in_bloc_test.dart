@@ -272,9 +272,7 @@ void main() {
             password: password,
           ),
           createState(
-            status: const BlocStatusError<SignInBlocError>(
-              error: SignInBlocError.noInternetConnection,
-            ),
+            status: const BlocStatusLossOfInternetConnection(),
             email: email,
             password: password,
           ),

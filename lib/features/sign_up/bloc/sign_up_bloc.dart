@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../domain/use_cases/auth/sign_up_use_case.dart';
+import '../../../models/bloc_state.dart';
 import '../../../models/bloc_status.dart';
 import '../../../models/error.dart';
 import '../../../validators/email_validator.dart';
@@ -86,9 +86,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     } on NetworkError catch (networkError) {
       _manageNetworkError(networkError, emit);
     } on TimeoutException catch (_) {
-      emit(state.copyWithError(
-        SignUpBlocError.loadingTimeExceeded,
-      ));
+      _manageTimeoutException(emit);
     }
   }
 
@@ -117,9 +115,15 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     Emitter<SignUpState> emit,
   ) {
     if (networkError.code == NetworkErrorCode.lossOfConnection.name) {
-      emit(state.copyWithError(
-        SignUpBlocError.lossOfConnection,
+      emit(state.copyWith(
+        status: const BlocStatusLossOfInternetConnection(),
       ));
     }
+  }
+
+  void _manageTimeoutException(Emitter<SignUpState> emit) {
+    emit(state.copyWith(
+      status: const BlocStatusTimeoutException(),
+    ));
   }
 }

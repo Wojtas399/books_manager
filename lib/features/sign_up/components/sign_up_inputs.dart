@@ -4,7 +4,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 
 import '../../../components/custom_text_field.dart';
 import '../../../components/password_text_field.dart';
-import '../../../ui/validator_messages.dart';
+import '../../../validators/validator_messages.dart';
 import '../bloc/sign_up_bloc.dart';
 
 class SignUpInputs extends StatelessWidget {

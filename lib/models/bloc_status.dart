@@ -40,3 +40,11 @@ class BlocStatusError<T> extends BlocStatus {
 class BlocStatusLoggedUserNotFound extends BlocStatus {
   const BlocStatusLoggedUserNotFound();
 }
+
+class BlocStatusLossOfInternetConnection extends BlocStatus {
+  const BlocStatusLossOfInternetConnection();
+}
+
+class BlocStatusTimeoutException extends BlocStatus {
+  const BlocStatusTimeoutException();
+}

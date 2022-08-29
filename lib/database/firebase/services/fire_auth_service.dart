@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../fire_instances.dart';
-import '../fire_logged_user_data.dart';
 
 class FireAuthService {
   Future<String> signIn({
@@ -38,7 +37,7 @@ class FireAuthService {
 
   Future<void> deleteLoggedUser({required String password}) async {
     await _reauthenticateLoggedUserWithPassword(password);
-    await FireLoggedUserData.user?.delete();
+    await FireInstances.auth.currentUser?.delete();
   }
 
   String _readUserIdFromCredential(UserCredential credential) {
@@ -51,7 +50,7 @@ class FireAuthService {
   }
 
   Future<void> _reauthenticateLoggedUserWithPassword(String password) async {
-    final User? loggedUser = FireLoggedUserData.user;
+    final User? loggedUser = FireInstances.auth.currentUser;
     final String? loggedUserEmail = loggedUser?.email;
     if (loggedUser != null && loggedUserEmail != null) {
       final AuthCredential credential = EmailAuthProvider.credential(

@@ -1,20 +1,28 @@
 import 'package:rxdart/rxdart.dart';
 
-import '../../database/sqlite/entities/sqlite_book.dart';
+import '../../database/entities/db_book.dart';
+import '../../database/firebase/services/fire_book_service.dart';
 import '../../database/sqlite/services/sqlite_book_service.dart';
 import '../../interfaces/book_interface.dart';
+import '../../models/device.dart';
 import '../../utils/utils.dart';
 import '../entities/book.dart';
 
 class BookRepository implements BookInterface {
   late final SqliteBookService _sqliteBookService;
+  late final FirebaseBookService _firebaseBookService;
+  late final Device _device;
   final BehaviorSubject<List<Book>> _books$ =
       BehaviorSubject<List<Book>>.seeded([]);
 
   BookRepository({
     required SqliteBookService sqliteBookService,
+    required FirebaseBookService firebaseBookService,
+    required Device device,
   }) {
     _sqliteBookService = sqliteBookService;
+    _firebaseBookService = firebaseBookService;
+    _device = device;
   }
 
   @override
@@ -29,22 +37,25 @@ class BookRepository implements BookInterface {
 
   @override
   Future<void> loadAllBooksByUserId({required String userId}) async {
-    final List<SqliteBook> sqliteBooks =
+    final List<DbBook> dbBooks =
         await _sqliteBookService.loadBooksByUserId(userId: userId);
-    final List<Book> books = sqliteBooks.map(_convertSqliteBookToBook).toList();
+    final List<Book> books = dbBooks.map(_convertDatabaseBookToBook).toList();
     _books$.add(books);
   }
 
   @override
   Future<void> addNewBook({required Book book}) async {
-    final SqliteBook sqliteBook = await _sqliteBookService.addNewBook(
-      _convertBookToSqliteBook(book),
+    final DbBook dbBook = await _sqliteBookService.addNewBook(
+      _convertBookToDatabaseBook(book),
     );
-    _addNewBookToList(_convertSqliteBookToBook(sqliteBook));
+    if (await _device.hasInternetConnection()) {
+      await _firebaseBookService.addNewBook(dbBook);
+    }
+    _addNewBookToList(_convertDatabaseBookToBook(dbBook));
   }
 
-  SqliteBook _convertBookToSqliteBook(Book book) {
-    return SqliteBook(
+  DbBook _convertBookToDatabaseBook(Book book) {
+    return DbBook(
       image: Utils.base64String(book.imageData),
       userId: book.userId,
       status: book.status.name,
@@ -55,15 +66,16 @@ class BookRepository implements BookInterface {
     );
   }
 
-  Book _convertSqliteBookToBook(SqliteBook sqliteBook) {
+  Book _convertDatabaseBookToBook(DbBook dbBook) {
     return Book(
-      userId: sqliteBook.userId,
-      status: _convertStringToBookStatus(sqliteBook.status),
-      imageData: Utils.dataFromBase64String(sqliteBook.image),
-      title: sqliteBook.title,
-      author: sqliteBook.author,
-      readPagesAmount: sqliteBook.readPagesAmount,
-      allPagesAmount: sqliteBook.allPagesAmount,
+      id: dbBook.id,
+      userId: dbBook.userId,
+      status: _convertStringToBookStatus(dbBook.status),
+      imageData: Utils.dataFromBase64String(dbBook.image),
+      title: dbBook.title,
+      author: dbBook.author,
+      readPagesAmount: dbBook.readPagesAmount,
+      allPagesAmount: dbBook.allPagesAmount,
     );
   }
 

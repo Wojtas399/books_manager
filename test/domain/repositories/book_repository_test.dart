@@ -4,6 +4,7 @@ import 'package:app/database/sqlite/services/sqlite_book_service.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/repositories/book_repository.dart';
 import 'package:app/models/device.dart';
+import 'package:app/models/error.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -58,6 +59,78 @@ void main() {
         () => sqliteBookService.loadBooksByUserId(userId: userId),
       ).called(1);
       expect(await books$.first, expectedBooks);
+    },
+  );
+
+  group(
+    'refresh user books',
+    () {
+      const String userId = 'u1';
+      final List<DbBook> sqliteBooks = [
+        createDbBook(id: 'b2'),
+        createDbBook(id: 'b3'),
+      ];
+      final List<DbBook> firebaseBooks = [
+        createDbBook(id: 'b1'),
+        createDbBook(id: 'b2')
+      ];
+
+      setUp(() {
+        when(
+          () => sqliteBookService.loadBooksByUserId(userId: userId),
+        ).thenAnswer((_) async => sqliteBooks);
+        when(
+          () => firebaseBookService.loadBooksByUserId(userId: userId),
+        ).thenAnswer((_) async => firebaseBooks);
+        when(
+          () => sqliteBookService.addNewBook(firebaseBooks.first),
+        ).thenAnswer((_) async => firebaseBooks.first);
+        when(
+          () => firebaseBookService.addNewBook(sqliteBooks.last),
+        ).thenAnswer((_) async => sqliteBooks.last);
+      });
+
+      test(
+        'should synchronize books between databases',
+        () async {
+          when(
+            () => device.hasInternetConnection(),
+          ).thenAnswer((_) async => true);
+
+          await repository.refreshUserBooks(userId: userId);
+
+          verify(
+            () => sqliteBookService.addNewBook(firebaseBooks.first),
+          ).called(1);
+          verify(
+            () => firebaseBookService.addNewBook(sqliteBooks.last),
+          ).called(1);
+        },
+      );
+
+      test(
+        'should not synchronize books between databases if there is no internet connection',
+        () async {
+          when(
+            () => device.hasInternetConnection(),
+          ).thenAnswer((_) async => false);
+
+          try {
+            await repository.refreshUserBooks(userId: userId);
+          } on NetworkError catch (networkError) {
+            expect(
+              networkError,
+              NetworkError(networkErrorCode: NetworkErrorCode.lossOfConnection),
+            );
+            verifyNever(
+              () => sqliteBookService.addNewBook(firebaseBooks.first),
+            );
+            verifyNever(
+              () => firebaseBookService.addNewBook(sqliteBooks.last),
+            );
+          }
+        },
+      );
     },
   );
 

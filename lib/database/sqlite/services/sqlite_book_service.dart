@@ -37,7 +37,7 @@ class SqliteBookService {
 
   Future<DbBook> addNewBook(DbBook dbBook) async {
     final Database db = await SqliteDatabase.instance.database;
-    final String id = _uuid.v4();
+    final String id = dbBook.id ?? _uuid.v4();
     final DbBook newBook = dbBook.copyWith(id: id);
     await db.insert(
       SqliteTables.booksTable,

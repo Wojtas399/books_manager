@@ -3,8 +3,11 @@ import 'package:rxdart/rxdart.dart';
 import '../../database/entities/db_book.dart';
 import '../../database/firebase/services/fire_book_service.dart';
 import '../../database/sqlite/services/sqlite_book_service.dart';
+import '../../extensions/book_extensions.dart';
+import '../../extensions/list_extensions.dart';
 import '../../interfaces/book_interface.dart';
 import '../../models/device.dart';
+import '../../models/error.dart';
 import '../../utils/utils.dart';
 import '../entities/book.dart';
 
@@ -28,17 +31,21 @@ class BookRepository implements BookInterface {
   @override
   Stream<List<Book>> getBooksByUserId({required String userId}) =>
       _books$.stream.map(
-        (List<Book> books) => books
-            .where(
-              (Book book) => book.userId == userId,
-            )
-            .toList(),
+        (List<Book> books) => _selectBooksBelongingToUser(books, userId),
       );
 
   @override
+  Future<void> refreshUserBooks({required String userId}) async {
+    if (await _device.hasInternetConnection()) {
+      await _synchronizeUserBooksBetweenDatabases(userId);
+    } else {
+      throw NetworkError(networkErrorCode: NetworkErrorCode.lossOfConnection);
+    }
+  }
+
+  @override
   Future<void> loadAllBooksByUserId({required String userId}) async {
-    final List<DbBook> dbBooks =
-        await _sqliteBookService.loadBooksByUserId(userId: userId);
+    final List<DbBook> dbBooks = await _loadSqliteBooksByUserId(userId);
     final List<Book> books = dbBooks.map(_convertDatabaseBookToBook).toList();
     _books$.add(books);
   }
@@ -54,16 +61,33 @@ class BookRepository implements BookInterface {
     _addNewBookToList(_convertDatabaseBookToBook(dbBook));
   }
 
-  DbBook _convertBookToDatabaseBook(Book book) {
-    return DbBook(
-      image: Utils.base64String(book.imageData),
-      userId: book.userId,
-      status: book.status.name,
-      title: book.title,
-      author: book.author,
-      readPagesAmount: book.readPagesAmount,
-      allPagesAmount: book.allPagesAmount,
+  List<Book> _selectBooksBelongingToUser(List<Book> books, String userId) {
+    return books.where((Book book) => book.belongsTo(userId)).toList();
+  }
+
+  Future<void> _synchronizeUserBooksBetweenDatabases(String userId) async {
+    final List<DbBook> sqliteBooks = await _loadSqliteBooksByUserId(userId);
+    final List<DbBook> firebaseBooks = await _loadFirebaseBooksByUserId(userId);
+    final List<DbBook> uniqueBooks = _getUniqueDbBooks(
+      sqliteBooks,
+      firebaseBooks,
     );
+    for (final DbBook dbBook in uniqueBooks) {
+      if (sqliteBooks.doesNotContain(dbBook)) {
+        await _sqliteBookService.addNewBook(dbBook);
+      }
+      if (firebaseBooks.doesNotContain(dbBook)) {
+        await _firebaseBookService.addNewBook(dbBook);
+      }
+    }
+  }
+
+  Future<List<DbBook>> _loadSqliteBooksByUserId(String userId) async {
+    return await _sqliteBookService.loadBooksByUserId(userId: userId);
+  }
+
+  Future<List<DbBook>> _loadFirebaseBooksByUserId(String userId) async {
+    return await _firebaseBookService.loadBooksByUserId(userId: userId);
   }
 
   Book _convertDatabaseBookToBook(DbBook dbBook) {
@@ -76,6 +100,18 @@ class BookRepository implements BookInterface {
       author: dbBook.author,
       readPagesAmount: dbBook.readPagesAmount,
       allPagesAmount: dbBook.allPagesAmount,
+    );
+  }
+
+  DbBook _convertBookToDatabaseBook(Book book) {
+    return DbBook(
+      image: Utils.base64String(book.imageData),
+      userId: book.userId,
+      status: book.status.name,
+      title: book.title,
+      author: book.author,
+      readPagesAmount: book.readPagesAmount,
+      allPagesAmount: book.allPagesAmount,
     );
   }
 
@@ -96,5 +132,13 @@ class BookRepository implements BookInterface {
     final List<Book> updatedCollection = [..._books$.value];
     updatedCollection.add(book);
     _books$.add(updatedCollection);
+  }
+
+  List<DbBook> _getUniqueDbBooks(
+    List<DbBook> sqliteDbBooks,
+    List<DbBook> firebaseDbBooks,
+  ) {
+    final List<DbBook> allBooks = [...sqliteDbBooks, ...firebaseDbBooks];
+    return allBooks.toSet().toList();
   }
 }

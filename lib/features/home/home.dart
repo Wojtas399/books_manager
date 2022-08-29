@@ -1,7 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../domain/use_cases/auth/get_logged_user_id_use_case.dart';
+import '../../domain/use_cases/book/refresh_user_books_use_case.dart';
+import '../../interfaces/auth_interface.dart';
+import '../../interfaces/book_interface.dart';
+import '../../models/bloc_status.dart';
 import 'bloc/home_bloc.dart';
+import 'components/home_loading_screen.dart';
 import 'components/home_provider.dart';
 import 'components/home_router.dart';
 
@@ -10,9 +16,9 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const _HomeBlocProvider(
-      child: HomeProvider(
-        child: HomeRouter(),
+    return const HomeProvider(
+      child: _HomeBlocProvider(
+        child: _HomeView(),
       ),
     );
   }
@@ -26,8 +32,34 @@ class _HomeBlocProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => HomeBloc(),
+      create: (BuildContext context) => HomeBloc(
+        getLoggedUserIdUseCase: GetLoggedUserIdUseCase(
+          authInterface: context.read<AuthInterface>(),
+        ),
+        refreshUserBooksUseCase: RefreshUserBooksUseCase(
+          bookInterface: context.read<BookInterface>(),
+        ),
+      )..add(const HomeEventInitialize()),
       child: child,
+    );
+  }
+}
+
+class _HomeView extends StatelessWidget {
+  const _HomeView();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<HomeBloc, HomeState>(
+      builder: (BuildContext context, HomeState state) {
+        final BlocStatus blocStatus = state.status;
+        if (blocStatus is BlocStatusLoading) {
+          return const HomeLoadingScreen();
+        } else if (blocStatus is BlocStatusComplete) {
+          return const HomeRouter();
+        }
+        return const SizedBox();
+      },
     );
   }
 }

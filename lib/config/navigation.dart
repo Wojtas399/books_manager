@@ -11,8 +11,8 @@ import 'animations/slide_up_route_animation.dart';
 import 'routes.dart';
 
 class Navigation {
-  static void navigateToSignInScreen() {
-    final BuildContext? buildContext = _getNavigatorContext();
+  static void navigateToSignInScreen({BuildContext? context}) {
+    final BuildContext? buildContext = context ?? _getNavigatorContext();
     if (buildContext != null) {
       Navigator.of(buildContext).pushReplacement(
         SlideRightRouteAnimation(

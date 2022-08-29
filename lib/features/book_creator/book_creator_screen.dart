@@ -77,7 +77,7 @@ class _BookCreatorBlocListener extends StatelessWidget {
         );
     Navigation.backHome();
     context.read<HomeBloc>().add(
-          HomeEventChangePage(pageIndex: 1),
+          const HomeEventChangePage(pageIndex: 1),
         );
   }
 }

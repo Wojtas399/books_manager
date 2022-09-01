@@ -1,7 +1,6 @@
+import 'package:app/data/data_sources/remote_db/firebase/fire_instances.dart';
+import 'package:app/data/models/db_book.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-import '../entities/db_book.dart';
-import 'fire_instances.dart';
 
 class FireReferences {
   static CollectionReference get usersRef =>

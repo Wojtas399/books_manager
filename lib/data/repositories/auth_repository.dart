@@ -1,23 +1,22 @@
+import 'package:app/data/data_sources/local_db/services/auth_local_db_service.dart';
+import 'package:app/data/data_sources/remote_db/services/auth_remote_db_service.dart';
+import 'package:app/interfaces/auth_interface.dart';
+import 'package:app/models/error.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../../database/firebase/services/fire_auth_service.dart';
-import '../../database/shared_preferences/shared_preferences_service.dart';
-import '../../interfaces/auth_interface.dart';
-import '../../models/error.dart';
-
 class AuthRepository implements AuthInterface {
-  late final FireAuthService _fireAuthService;
-  late final SharedPreferencesService _sharedPreferencesService;
+  late final AuthLocalDbService _authLocalDbService;
+  late final AuthRemoteDbService _authRemoteDbService;
   final BehaviorSubject<String?> _loggedUserId$ =
       BehaviorSubject<String?>.seeded(null);
 
   AuthRepository({
-    required FireAuthService fireAuthService,
-    required SharedPreferencesService sharedPreferencesService,
+    required AuthLocalDbService authLocalDbService,
+    required AuthRemoteDbService authRemoteDbService,
   }) {
-    _fireAuthService = fireAuthService;
-    _sharedPreferencesService = sharedPreferencesService;
+    _authLocalDbService = authLocalDbService;
+    _authRemoteDbService = authRemoteDbService;
   }
 
   @override
@@ -26,7 +25,7 @@ class AuthRepository implements AuthInterface {
   @override
   Future<void> loadLoggedUserId() async {
     _loggedUserId$.add(
-      await _sharedPreferencesService.loadLoggedUserId(),
+      await _authLocalDbService.loadLoggedUserId(),
     );
   }
 
@@ -36,13 +35,11 @@ class AuthRepository implements AuthInterface {
     required String password,
   }) async {
     try {
-      final String loggedUserId = await _fireAuthService.signIn(
+      final String loggedUserId = await _authRemoteDbService.signIn(
         email: email,
         password: password,
       );
-      await _sharedPreferencesService.saveLoggedUserId(
-        loggedUserId: loggedUserId,
-      );
+      await _authLocalDbService.saveLoggedUserId(loggedUserId: loggedUserId);
       _loggedUserId$.add(loggedUserId);
     } on FirebaseAuthException catch (exception) {
       _manageFirebaseAuthException(exception.code);
@@ -55,13 +52,11 @@ class AuthRepository implements AuthInterface {
     required String password,
   }) async {
     try {
-      final String loggedUserId = await _fireAuthService.signUp(
+      final String loggedUserId = await _authRemoteDbService.signUp(
         email: email,
         password: password,
       );
-      await _sharedPreferencesService.saveLoggedUserId(
-        loggedUserId: loggedUserId,
-      );
+      await _authLocalDbService.saveLoggedUserId(loggedUserId: loggedUserId);
       _loggedUserId$.add(loggedUserId);
     } on FirebaseAuthException catch (exception) {
       _manageFirebaseAuthException(exception.code);
@@ -71,7 +66,7 @@ class AuthRepository implements AuthInterface {
   @override
   Future<void> sendPasswordResetEmail({required String email}) async {
     try {
-      await _fireAuthService.sendPasswordResetEmail(email: email);
+      await _authRemoteDbService.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (exception) {
       _manageFirebaseAuthException(exception.code);
     }
@@ -79,16 +74,16 @@ class AuthRepository implements AuthInterface {
 
   @override
   Future<void> signOut() async {
-    await _fireAuthService.signOut();
-    await _sharedPreferencesService.removeLoggedUserId();
+    await _authRemoteDbService.signOut();
+    await _authLocalDbService.removeLoggedUserId();
     _loggedUserId$.add(null);
   }
 
   @override
   Future<void> deleteLoggedUser({required String password}) async {
     try {
-      await _fireAuthService.deleteLoggedUser(password: password);
-      await _sharedPreferencesService.removeLoggedUserId();
+      await _authRemoteDbService.deleteLoggedUser(password: password);
+      await _authLocalDbService.removeLoggedUserId();
     } on FirebaseAuthException catch (exception) {
       _manageFirebaseAuthException(exception.code);
     }

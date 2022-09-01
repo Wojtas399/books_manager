@@ -37,6 +37,12 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     on<LibraryEventBooksUpdated>(_booksUpdated);
   }
 
+  @override
+  Future<void> close() async {
+    _booksListener?.cancel();
+    super.close();
+  }
+
   Future<void> _initialize(
     LibraryEventInitialize event,
     Emitter<LibraryState> emit,

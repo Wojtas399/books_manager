@@ -1,39 +1,38 @@
-import 'package:app/database/firebase/services/fire_auth_service.dart';
-import 'package:app/database/shared_preferences/shared_preferences_service.dart';
-import 'package:app/domain/repositories/auth_repository.dart';
+import 'package:app/data/data_sources/local_db/services/auth_local_db_service.dart';
+import 'package:app/data/data_sources/remote_db/services/auth_remote_db_service.dart';
+import 'package:app/data/repositories/auth_repository.dart';
 import 'package:app/models/error.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockFireAuthService extends Mock implements FireAuthService {}
+class MockAuthLocalDbService extends Mock implements AuthLocalDbService {}
 
-class MockSharedPreferencesService extends Mock
-    implements SharedPreferencesService {}
+class MockAuthRemoteDbService extends Mock implements AuthRemoteDbService {}
 
 void main() {
-  final fireAuthService = MockFireAuthService();
-  final sharedPreferencesService = MockSharedPreferencesService();
+  final authLocalDbService = MockAuthLocalDbService();
+  final authRemoteDbService = MockAuthRemoteDbService();
   late AuthRepository repository;
 
   setUp(() {
     repository = AuthRepository(
-      fireAuthService: fireAuthService,
-      sharedPreferencesService: sharedPreferencesService,
+      authLocalDbService: authLocalDbService,
+      authRemoteDbService: authRemoteDbService,
     );
   });
 
   tearDown(() {
-    reset(fireAuthService);
-    reset(sharedPreferencesService);
+    reset(authLocalDbService);
+    reset(authRemoteDbService);
   });
 
   test(
-    'load logged user id, should load id of logged user and assign it to stream',
+    'load logged user id, should load id of logged user from local db and assign it to stream',
     () async {
       const String loggedUserId = 'userId';
       when(
-        () => sharedPreferencesService.loadLoggedUserId(),
+        () => authLocalDbService.loadLoggedUserId(),
       ).thenAnswer((_) async => loggedUserId);
 
       await repository.loadLoggedUserId();
@@ -50,14 +49,14 @@ void main() {
       const String password = 'password123';
 
       test(
-        'should call methods responsible for signing in user and for saving logged user id in shared preferences',
+        'should call methods responsible for signing in user in remote db and for saving logged user id in local db',
         () async {
           const String loggedUserId = 'userId';
           when(
-            () => fireAuthService.signIn(email: email, password: password),
+            () => authRemoteDbService.signIn(email: email, password: password),
           ).thenAnswer((_) async => loggedUserId);
           when(
-            () => sharedPreferencesService.saveLoggedUserId(
+            () => authLocalDbService.saveLoggedUserId(
               loggedUserId: loggedUserId,
             ),
           ).thenAnswer((_) async => '');
@@ -65,13 +64,10 @@ void main() {
           await repository.signIn(email: email, password: password);
 
           verify(
-            () => fireAuthService.signIn(
-              email: email,
-              password: password,
-            ),
+            () => authRemoteDbService.signIn(email: email, password: password),
           ).called(1);
           verify(
-            () => sharedPreferencesService.saveLoggedUserId(
+            () => authLocalDbService.saveLoggedUserId(
               loggedUserId: loggedUserId,
             ),
           ).called(1);
@@ -83,7 +79,7 @@ void main() {
         'should throw appropriate auth error if email is invalid',
         () async {
           when(
-            () => fireAuthService.signIn(email: email, password: password),
+            () => authRemoteDbService.signIn(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'invalid-email'));
 
           try {
@@ -101,7 +97,7 @@ void main() {
         'should throw appropriate auth error if password is wrong',
         () async {
           when(
-            () => fireAuthService.signIn(email: email, password: password),
+            () => authRemoteDbService.signIn(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'wrong-password'));
 
           try {
@@ -119,7 +115,7 @@ void main() {
         'should throw appropriate auth error if user has not been found',
         () async {
           when(
-            () => fireAuthService.signIn(email: email, password: password),
+            () => authRemoteDbService.signIn(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'user-not-found'));
 
           try {
@@ -137,7 +133,7 @@ void main() {
         'should throw appropriate network error if network connection has been lost',
         () async {
           when(
-            () => fireAuthService.signIn(email: email, password: password),
+            () => authRemoteDbService.signIn(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'network-request-failed'));
 
           try {
@@ -160,17 +156,14 @@ void main() {
       const String password = 'password123';
 
       test(
-        'should call methods responsible for signing up user and for saving logged user id in shared preferences',
+        'should call methods responsible for signing up user in remote db and for saving logged user id in local db',
         () async {
           const String loggedUserId = 'userId';
           when(
-            () => fireAuthService.signUp(
-              email: email,
-              password: password,
-            ),
+            () => authRemoteDbService.signUp(email: email, password: password),
           ).thenAnswer((_) async => loggedUserId);
           when(
-            () => sharedPreferencesService.saveLoggedUserId(
+            () => authLocalDbService.saveLoggedUserId(
               loggedUserId: loggedUserId,
             ),
           ).thenAnswer((_) async => '');
@@ -178,10 +171,10 @@ void main() {
           await repository.signUp(email: email, password: password);
 
           verify(
-            () => fireAuthService.signUp(email: email, password: password),
+            () => authRemoteDbService.signUp(email: email, password: password),
           ).called(1);
           verify(
-            () => sharedPreferencesService.saveLoggedUserId(
+            () => authLocalDbService.saveLoggedUserId(
               loggedUserId: loggedUserId,
             ),
           ).called(1);
@@ -193,7 +186,7 @@ void main() {
         'should throw appropriate auth error if email is already in use',
         () async {
           when(
-            () => fireAuthService.signUp(email: email, password: password),
+            () => authRemoteDbService.signUp(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'email-already-in-use'));
 
           try {
@@ -215,16 +208,16 @@ void main() {
       const String email = 'email@example.com';
 
       test(
-        'should call method responsible for sending password reset email',
+        'should call method from remote db responsible for sending password reset email',
         () async {
           when(
-            () => fireAuthService.sendPasswordResetEmail(email: email),
+            () => authRemoteDbService.sendPasswordResetEmail(email: email),
           ).thenAnswer((_) async => '');
 
           await repository.sendPasswordResetEmail(email: email);
 
           verify(
-            () => fireAuthService.sendPasswordResetEmail(email: email),
+            () => authRemoteDbService.sendPasswordResetEmail(email: email),
           ).called(1);
         },
       );
@@ -233,7 +226,7 @@ void main() {
         'should throw auth error if email is invalid',
         () async {
           when(
-            () => fireAuthService.sendPasswordResetEmail(email: email),
+            () => authRemoteDbService.sendPasswordResetEmail(email: email),
           ).thenThrow(FirebaseAuthException(code: 'invalid-email'));
 
           try {
@@ -251,7 +244,7 @@ void main() {
         'should throw auth error if user has not been found',
         () async {
           when(
-            () => fireAuthService.sendPasswordResetEmail(email: email),
+            () => authRemoteDbService.sendPasswordResetEmail(email: email),
           ).thenThrow(FirebaseAuthException(code: 'user-not-found'));
 
           try {
@@ -268,45 +261,45 @@ void main() {
   );
 
   test(
-    'sign out, should call methods responsible for signing out user and for removing user id from shared preferences',
+    'sign out, should call methods responsible for signing out user from remote db and for removing user id from local db',
     () async {
       when(
-        () => fireAuthService.signOut(),
+        () => authRemoteDbService.signOut(),
       ).thenAnswer((_) async => '');
       when(
-        () => sharedPreferencesService.removeLoggedUserId(),
+        () => authLocalDbService.removeLoggedUserId(),
       ).thenAnswer((_) async => '');
 
       await repository.signOut();
 
       verify(
-        () => fireAuthService.signOut(),
+        () => authRemoteDbService.signOut(),
       ).called(1);
       verify(
-        () => sharedPreferencesService.removeLoggedUserId(),
+        () => authLocalDbService.removeLoggedUserId(),
       ).called(1);
       expect(await repository.loggedUserId$.first, null);
     },
   );
 
   test(
-    'delete logged user, should call methods responsible for deleting user and for removing user id from shared preferences',
+    'delete logged user, should call methods responsible for deleting user from remote db and for removing user id from local db',
     () async {
       const String password = 'password';
       when(
-        () => fireAuthService.deleteLoggedUser(password: password),
+        () => authRemoteDbService.deleteLoggedUser(password: password),
       ).thenAnswer((_) async => '');
       when(
-        () => sharedPreferencesService.removeLoggedUserId(),
+        () => authLocalDbService.removeLoggedUserId(),
       ).thenAnswer((_) async => '');
 
       await repository.deleteLoggedUser(password: password);
 
       verify(
-        () => fireAuthService.deleteLoggedUser(password: password),
+        () => authRemoteDbService.deleteLoggedUser(password: password),
       ).called(1);
       verify(
-        () => sharedPreferencesService.removeLoggedUserId(),
+        () => authLocalDbService.removeLoggedUserId(),
       ).called(1);
     },
   );
@@ -316,7 +309,7 @@ void main() {
     () async {
       const String password = 'password';
       when(
-        () => fireAuthService.deleteLoggedUser(password: password),
+        () => authRemoteDbService.deleteLoggedUser(password: password),
       ).thenThrow(FirebaseAuthException(code: 'wrong-password'));
 
       try {

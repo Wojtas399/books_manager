@@ -1,7 +1,6 @@
+import 'package:app/data/data_sources/local_db/sqlite/services/sqlite_book_service.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-
-import 'services/sqlite_book_service.dart';
 
 class SqliteDatabase {
   static final SqliteDatabase instance = SqliteDatabase._init();
@@ -14,7 +13,7 @@ class SqliteDatabase {
     if (_database != null) {
       return _database!;
     }
-    _database = await _initializeDatabase('database.db');
+    _database = await _initializeDatabase('data.db');
     return _database!;
   }
 

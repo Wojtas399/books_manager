@@ -1,7 +1,6 @@
+import 'package:app/providers/data_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../providers/database_provider.dart';
 
 class HomeProvider extends StatelessWidget {
   final Widget child;
@@ -13,7 +12,7 @@ class HomeProvider extends StatelessWidget {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider(
-          create: (_) => DatabaseProvider.provideBookInterface(),
+          create: (_) => DataProvider.provideBookInterface(),
         ),
       ],
       child: child,

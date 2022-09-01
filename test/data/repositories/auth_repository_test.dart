@@ -1,5 +1,5 @@
-import 'package:app/data/data_sources/local_db/services/auth_local_db_service.dart';
-import 'package:app/data/data_sources/remote_db/services/auth_remote_db_service.dart';
+import 'package:app/data/data_sources/local_db/auth_local_db_service.dart';
+import 'package:app/data/data_sources/remote_db/auth_remote_db_service.dart';
 import 'package:app/data/repositories/auth_repository.dart';
 import 'package:app/models/error.dart';
 import 'package:firebase_auth/firebase_auth.dart';

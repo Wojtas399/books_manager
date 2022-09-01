@@ -1,8 +1,7 @@
+import 'package:app/data/data_sources/remote_db/firebase/firebase_instances.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../fire_instances.dart';
-
-class FireAuthService {
+class FirebaseAuthService {
   Future<String> signIn({
     required String email,
     required String password,

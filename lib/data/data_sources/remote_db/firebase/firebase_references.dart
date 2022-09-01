@@ -1,4 +1,4 @@
-import 'package:app/data/data_sources/remote_db/firebase/fire_instances.dart';
+import 'package:app/data/data_sources/remote_db/firebase/firebase_instances.dart';
 import 'package:app/data/models/db_book.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 

@@ -1,5 +1,5 @@
-import 'package:app/data/data_sources/local_db/services/book_local_db_service.dart';
-import 'package:app/data/data_sources/remote_db/services/book_remote_db_service.dart';
+import 'package:app/data/data_sources/local_db/book_local_db_service.dart';
+import 'package:app/data/data_sources/remote_db/book_remote_db_service.dart';
 import 'package:app/data/models/db_book.dart';
 import 'package:app/data/repositories/book_repository.dart';
 import 'package:app/domain/entities/book.dart';

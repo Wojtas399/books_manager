@@ -26,7 +26,7 @@ class SqliteBookService {
     return booksJson.map(_createDbBookFromJson).toList();
   }
 
-  Future<DbBook> addBook(DbBook dbBook) async {
+  Future<DbBook> addBook({required DbBook dbBook}) async {
     final String bookId = dbBook.id ?? _generateNewId();
     final DbBook updatedBook = dbBook.copyWith(id: bookId);
     await _insertNewBook(updatedBook);

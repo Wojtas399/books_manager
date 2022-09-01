@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:path_provider/path_provider.dart';
+import 'package:sqflite/sqflite.dart';
 
 class LocalStorageService {
-  Future<void> saveBookImageToFile({
+  Future<void> saveBookImageData({
     required Uint8List imageData,
     required String bookId,
     required String userId,
@@ -13,7 +13,7 @@ class LocalStorageService {
     await imageFile.writeAsBytes(imageData);
   }
 
-  Future<Uint8List?> loadBookImageDataFromFile({
+  Future<Uint8List?> loadBookImageData({
     required String bookId,
     required String userId,
   }) async {
@@ -30,7 +30,7 @@ class LocalStorageService {
   }
 
   Future<String> _createFilePath(String bookId, String userId) async {
-    final Directory directory = await getApplicationDocumentsDirectory();
-    return '${directory.path}/$userId-$bookId.jpg';
+    final String databasePath = await getDatabasesPath();
+    return '$databasePath/$userId-$bookId.jpg';
   }
 }

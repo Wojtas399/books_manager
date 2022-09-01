@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
-import 'package:app/data/data_sources/local_db/local_storage/local_storage_service.dart';
-import 'package:app/data/data_sources/local_db/services/book_local_db_service.dart';
+import 'package:app/data/data_sources/local_db/book_local_db_service.dart';
+import 'package:app/data/data_sources/local_db/local_storage_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/services/sqlite_book_service.dart';
 import 'package:app/data/models/db_book.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -45,13 +45,13 @@ void main() {
         () => sqliteBookService.loadBooksByUserId(userId: userId),
       ).thenAnswer((_) async => dbBooks);
       when(
-        () => localStorageService.loadBookImageDataFromFile(
+        () => localStorageService.loadBookImageData(
           bookId: 'b1',
           userId: userId,
         ),
       ).thenAnswer((_) async => b1ImageData);
       when(
-        () => localStorageService.loadBookImageDataFromFile(
+        () => localStorageService.loadBookImageData(
           bookId: 'b2',
           userId: userId,
         ),
@@ -66,18 +66,18 @@ void main() {
   );
 
   test(
-    'add book, should only call method responsible for adding book to sqlite if book does not have image image',
+    'add book, should only call method responsible for adding book to sqlite if book does not have image',
     () async {
       final DbBook dbBookToAdd = createDbBook();
       final DbBook expectedAddedDbBook = dbBookToAdd.copyWith(id: 'b1');
       when(
-        () => sqliteBookService.addBook(dbBookToAdd),
+        () => sqliteBookService.addBook(dbBook: dbBookToAdd),
       ).thenAnswer((_) async => expectedAddedDbBook);
 
       final DbBook addedDbBook = await service.addBook(dbBook: dbBookToAdd);
 
       verify(
-        () => sqliteBookService.addBook(dbBookToAdd),
+        () => sqliteBookService.addBook(dbBook: dbBookToAdd),
       ).called(1);
       expect(addedDbBook, expectedAddedDbBook);
     },
@@ -95,10 +95,10 @@ void main() {
       );
       final DbBook expectedAddedDbBook = dbBookToAdd.copyWith(id: addedBookId);
       when(
-        () => sqliteBookService.addBook(dbBookToAdd),
+        () => sqliteBookService.addBook(dbBook: dbBookToAdd),
       ).thenAnswer((_) async => expectedAddedDbBook);
       when(
-        () => localStorageService.saveBookImageToFile(
+        () => localStorageService.saveBookImageData(
           imageData: imageData,
           bookId: addedBookId,
           userId: userId,
@@ -108,10 +108,10 @@ void main() {
       final DbBook addedDbBook = await service.addBook(dbBook: dbBookToAdd);
 
       verify(
-        () => sqliteBookService.addBook(dbBookToAdd),
+        () => sqliteBookService.addBook(dbBook: dbBookToAdd),
       ).called(1);
       verify(
-        () => localStorageService.saveBookImageToFile(
+        () => localStorageService.saveBookImageData(
           imageData: imageData,
           bookId: addedBookId,
           userId: userId,

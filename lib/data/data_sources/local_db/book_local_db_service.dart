@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:app/data/data_sources/local_db/local_storage/local_storage_service.dart';
+import 'package:app/data/data_sources/local_db/local_storage_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/services/sqlite_book_service.dart';
 import 'package:app/data/models/db_book.dart';
 
@@ -23,11 +23,11 @@ class BookLocalDbService {
   }
 
   Future<DbBook> addBook({required DbBook dbBook}) async {
-    final DbBook addedBook = await _sqliteBookService.addBook(dbBook);
+    final DbBook addedBook = await _sqliteBookService.addBook(dbBook: dbBook);
     final String? bookId = addedBook.id;
     final Uint8List? imageData = dbBook.imageData;
     if (imageData != null && bookId != null) {
-      await _localStorageService.saveBookImageToFile(
+      await _localStorageService.saveBookImageData(
         imageData: imageData,
         bookId: bookId,
         userId: dbBook.userId,
@@ -49,7 +49,7 @@ class BookLocalDbService {
     final String? dbBookId = dbBook.id;
     Uint8List? imageData;
     if (dbBookId != null) {
-      imageData = await _localStorageService.loadBookImageDataFromFile(
+      imageData = await _localStorageService.loadBookImageData(
         userId: dbBook.userId,
         bookId: dbBookId,
       );

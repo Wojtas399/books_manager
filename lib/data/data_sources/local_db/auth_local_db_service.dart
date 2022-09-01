@@ -1,4 +1,4 @@
-import 'package:app/data/data_sources/local_db/shared_preferences/shared_preferences_service.dart';
+import 'package:app/data/data_sources/local_db/shared_preferences_service.dart';
 
 class AuthLocalDbService {
   late final SharedPreferencesService _sharedPreferencesService;

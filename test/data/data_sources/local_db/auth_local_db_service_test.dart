@@ -1,5 +1,5 @@
-import 'package:app/data/data_sources/local_db/services/auth_local_db_service.dart';
-import 'package:app/data/data_sources/local_db/shared_preferences/shared_preferences_service.dart';
+import 'package:app/data/data_sources/local_db/auth_local_db_service.dart';
+import 'package:app/data/data_sources/local_db/shared_preferences_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

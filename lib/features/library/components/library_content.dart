@@ -13,7 +13,7 @@ class LibraryContent extends StatelessWidget {
     const int itemsWidth = 200;
     const int itemsHeight = 320;
     final List<Book> books = context.select(
-      (LibraryBloc bloc) => bloc.state.books,
+      (LibraryBloc bloc) => bloc.state.sortedBooks,
     );
 
     return GridView.count(

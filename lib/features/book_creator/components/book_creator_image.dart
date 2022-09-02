@@ -1,14 +1,13 @@
 import 'dart:io';
-import 'dart:ui';
 
+import 'package:app/components/book_image_component.dart';
+import 'package:app/features/book_creator/bloc/book_creator_bloc.dart';
+import 'package:app/interfaces/dialog_interface.dart';
+import 'package:app/models/action_sheet_action.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-
-import '../../../interfaces/dialog_interface.dart';
-import '../../../models/action_sheet_action.dart';
-import '../bloc/book_creator_bloc.dart';
 
 class BookCreatorImage extends StatefulWidget {
   const BookCreatorImage({super.key});
@@ -30,7 +29,7 @@ class _BookCreatorImageState extends State<BookCreatorImage> {
       onTap: () => _onPressed(imagePath),
       child: Container(
         height: 300,
-        width: double.infinity,
+        width: 260,
         clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
           color: Colors.white,
@@ -43,9 +42,7 @@ class _BookCreatorImageState extends State<BookCreatorImage> {
             ),
           ],
         ),
-        child: imagePath != null
-            ? _Image(imagePath: imagePath)
-            : const _BookIcon(),
+        child: _Image(imagePath: imagePath),
       ),
     );
   }
@@ -145,41 +142,25 @@ class _BookCreatorImageState extends State<BookCreatorImage> {
 }
 
 class _Image extends StatelessWidget {
-  final String imagePath;
+  final String? imagePath;
 
-  const _Image({required this.imagePath});
-
-  @override
-  Widget build(BuildContext context) {
-    final File file = File(imagePath);
-
-    return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: FileImage(file),
-          fit: BoxFit.fill,
-        ),
-      ),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Image.file(file, fit: BoxFit.contain),
-        ),
-      ),
-    );
-  }
-}
-
-class _BookIcon extends StatelessWidget {
-  const _BookIcon();
+  const _Image({this.imagePath});
 
   @override
   Widget build(BuildContext context) {
-    return Icon(
-      MdiIcons.bookOpenPageVariantOutline,
-      size: 120,
-      color: Colors.grey.withOpacity(0.3),
+    final String? imagePath = this.imagePath;
+
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: BookImageComponent(
+        image: imagePath != null
+            ? Image.file(
+                File(imagePath),
+                fit: BoxFit.contain,
+              )
+            : null,
+        bookIconSize: 120,
+      ),
     );
   }
 }

@@ -1,14 +1,13 @@
+import 'package:app/components/custom_bloc_listener.dart';
+import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
+import 'package:app/domain/use_cases/book/get_books_by_user_id_use_case.dart';
+import 'package:app/domain/use_cases/book/load_all_books_by_user_id_use_case.dart';
+import 'package:app/features/library/bloc/library_bloc.dart';
+import 'package:app/features/library/components/library_content.dart';
+import 'package:app/interfaces/auth_interface.dart';
+import 'package:app/interfaces/book_interface.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../components/custom_bloc_listener.dart';
-import '../../domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import '../../domain/use_cases/book/get_books_by_user_id_use_case.dart';
-import '../../domain/use_cases/book/load_all_books_by_user_id_use_case.dart';
-import '../../interfaces/auth_interface.dart';
-import '../../interfaces/book_interface.dart';
-import 'bloc/library_bloc.dart';
-import 'components/library_content.dart';
 
 class LibraryScreen extends StatelessWidget {
   const LibraryScreen({super.key});

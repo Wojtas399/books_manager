@@ -26,6 +26,6 @@ class FirebaseStorageService {
   }
 
   Reference _getBookImageReference(String userId, String bookId) {
-    return FireInstances.storage.ref('$userId/books/$bookId.jpg');
+    return FireInstances.storage.ref('$userId/$bookId.jpg');
   }
 }

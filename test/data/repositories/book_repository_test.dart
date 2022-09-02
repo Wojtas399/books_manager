@@ -36,6 +36,26 @@ void main() {
   });
 
   test(
+    'get book by id, should return stream which contains book with given id',
+    () async {
+      final List<DbBook> dbBooks = [
+        createDbBook(id: 'b1'),
+        createDbBook(id: 'b2'),
+        createDbBook(id: 'b3'),
+      ];
+      final Book expectedBook = createBook(id: 'b3');
+      when(
+        () => bookLocalDbService.loadBooksByUserId(userId: userId),
+      ).thenAnswer((_) async => dbBooks);
+
+      await repository.loadAllBooksByUserId(userId: userId);
+      final Stream<Book> book$ = repository.getBookById(bookId: 'b3');
+
+      expect(await book$.first, expectedBook);
+    },
+  );
+
+  test(
     'get books by user id, should return stream which contains books belonging to user',
     () async {
       final List<DbBook> dbBooks = [

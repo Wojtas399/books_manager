@@ -1,18 +1,30 @@
 part of 'book_preview_bloc.dart';
 
 class BookPreviewState extends BlocState {
-  final Book? book;
+  late final Book? _book;
 
-  const BookPreviewState({
+  BookPreviewState({
     required super.status,
-    required this.book,
-  });
+    required Book? book,
+  }) {
+    _book = book;
+  }
 
   @override
   List<Object> get props => [
         status,
-        book ?? '',
+        _book ?? '',
       ];
+
+  Uint8List? get bookImageData => _book?.imageData;
+
+  String? get title => _book?.title;
+
+  String? get author => _book?.author;
+
+  int? get readPagesAmount => _book?.readPagesAmount;
+
+  int? get allPagesAmount => _book?.allPagesAmount;
 
   BookPreviewState copyWith({
     BlocStatus? status,
@@ -20,7 +32,7 @@ class BookPreviewState extends BlocState {
   }) {
     return BookPreviewState(
       status: status ?? const BlocStatusInProgress(),
-      book: book ?? this.book,
+      book: book ?? _book,
     );
   }
 }

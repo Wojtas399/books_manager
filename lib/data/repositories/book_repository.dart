@@ -28,11 +28,29 @@ class BookRepository implements BookInterface {
     _device = device;
   }
 
+  Stream<List<Book>> get _booksStream$ => _books$.stream;
+
   @override
-  Stream<List<Book>> getBooksByUserId({required String userId}) =>
-      _books$.stream.map(
-        (List<Book> books) => _selectBooksBelongingToUser(books, userId),
-      );
+  Stream<Book> getBookById({required String bookId}) {
+    return _booksStream$.map(
+      (List<Book> books) {
+        final List<Book?> allBooks = [...books];
+        return allBooks.firstWhere(
+          (Book? book) => book?.id == bookId,
+          orElse: () => null,
+        );
+      },
+    ).whereType<Book>();
+  }
+
+  @override
+  Stream<List<Book>> getBooksByUserId({required String userId}) {
+    return _booksStream$.map(
+      (List<Book> books) {
+        return books.where((Book book) => book.belongsTo(userId)).toList();
+      },
+    );
+  }
 
   @override
   Future<void> refreshUserBooks({required String userId}) async {
@@ -67,10 +85,6 @@ class BookRepository implements BookInterface {
   @override
   void reset() {
     _books$.add([]);
-  }
-
-  List<Book> _selectBooksBelongingToUser(List<Book> books, String userId) {
-    return books.where((Book book) => book.belongsTo(userId)).toList();
   }
 
   Future<void> _synchronizeUserBooksBetweenDatabases(String userId) async {

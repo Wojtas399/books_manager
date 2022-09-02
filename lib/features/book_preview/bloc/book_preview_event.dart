@@ -9,3 +9,9 @@ class BookPreviewEventInitialize extends BookPreviewEvent {
 
   const BookPreviewEventInitialize({required this.bookId});
 }
+
+class BookPreviewEventBookUpdated extends BookPreviewEvent {
+  final Book book;
+
+  const BookPreviewEventBookUpdated({required this.book});
+}

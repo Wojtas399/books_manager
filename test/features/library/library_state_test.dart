@@ -14,6 +14,27 @@ void main() {
   });
 
   test(
+    'sorted books, should return books sorted by title',
+    () {
+      final List<Book> unsortedBooks = [
+        createBook(title: 'boom'),
+        createBook(title: 'wow'),
+        createBook(title: 'abc'),
+      ];
+      final List<Book> sortedBooks = [
+        unsortedBooks[2],
+        unsortedBooks[0],
+        unsortedBooks[1],
+      ];
+      state = state.copyWith(books: unsortedBooks);
+
+      final List<Book> books = state.sortedBooks;
+
+      expect(books, sortedBooks);
+    },
+  );
+
+  test(
     'copy with status',
     () {
       const BlocStatus expectedStatus = BlocStatusLoading();

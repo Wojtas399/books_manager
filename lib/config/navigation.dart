@@ -1,14 +1,13 @@
+import 'package:app/config/animations/slide_left_route_animation.dart';
+import 'package:app/config/animations/slide_right_route_animation.dart';
+import 'package:app/config/animations/slide_up_route_animation.dart';
+import 'package:app/config/routes.dart';
+import 'package:app/features/home/home.dart';
+import 'package:app/features/reset_password/reset_password_screen.dart';
+import 'package:app/features/sign_in/sign_in_screen.dart';
+import 'package:app/features/sign_up/sign_up_screen.dart';
+import 'package:app/providers/navigator_key_provider.dart';
 import 'package:flutter/widgets.dart';
-
-import '../features/home/home.dart';
-import '../features/reset_password/reset_password_screen.dart';
-import '../features/sign_in/sign_in_screen.dart';
-import '../features/sign_up/sign_up_screen.dart';
-import '../providers/navigator_key_provider.dart';
-import 'animations/slide_left_route_animation.dart';
-import 'animations/slide_right_route_animation.dart';
-import 'animations/slide_up_route_animation.dart';
-import 'routes.dart';
 
 class Navigation {
   static void navigateToSignInScreen({BuildContext? context}) {
@@ -66,6 +65,16 @@ class Navigation {
     final BuildContext? buildContext = _getNavigatorContext();
     if (buildContext != null) {
       Navigator.of(buildContext).pushNamed(Routes.bookCreator);
+    }
+  }
+
+  static void navigateToBookPreview({required String bookId}) {
+    final BuildContext? buildContext = _getNavigatorContext();
+    if (buildContext != null) {
+      Navigator.of(buildContext).pushNamed(
+        Routes.bookPreview,
+        arguments: bookId,
+      );
     }
   }
 

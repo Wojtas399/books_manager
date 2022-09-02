@@ -1,10 +1,10 @@
+import 'package:app/config/routes.dart';
+import 'package:app/features/book_creator/book_creator_screen.dart';
+import 'package:app/features/book_preview/book_preview_screen.dart';
+import 'package:app/features/home/components/home_content.dart';
+import 'package:app/features/settings/settings_screen.dart';
+import 'package:app/providers/navigator_key_provider.dart';
 import 'package:flutter/material.dart';
-
-import '../../../config/routes.dart';
-import '../../../providers/navigator_key_provider.dart';
-import '../../book_creator/book_creator_screen.dart';
-import '../../settings/settings_screen.dart';
-import 'home_content.dart';
 
 class HomeRouter extends StatefulWidget {
   const HomeRouter({super.key});
@@ -43,6 +43,12 @@ class _HomeRouterState extends State<HomeRouter> {
       case Routes.bookCreator:
         return MaterialPageRoute(
           builder: (_) => const BookCreatorScreen(),
+        );
+      case Routes.bookPreview:
+        return MaterialPageRoute(
+          builder: (_) => BookPreviewScreen(
+            bookId: routeSettings.arguments as String,
+          ),
         );
       default:
         return MaterialPageRoute(

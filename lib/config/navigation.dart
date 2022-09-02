@@ -11,8 +11,8 @@ import 'animations/slide_up_route_animation.dart';
 import 'routes.dart';
 
 class Navigation {
-  static void navigateToSignInScreen() {
-    final BuildContext? buildContext = _getNavigatorContext();
+  static void navigateToSignInScreen({BuildContext? context}) {
+    final BuildContext? buildContext = context ?? _getNavigatorContext();
     if (buildContext != null) {
       Navigator.of(buildContext).pushReplacement(
         SlideRightRouteAnimation(
@@ -46,10 +46,26 @@ class Navigation {
     );
   }
 
+  static void backHome() {
+    final BuildContext? buildContext = _getNavigatorContext();
+    if (buildContext != null) {
+      Navigator.of(buildContext).popUntil(
+        ModalRoute.withName(Routes.home),
+      );
+    }
+  }
+
   static void navigateToSettings() {
     final BuildContext? buildContext = _getNavigatorContext();
     if (buildContext != null) {
       Navigator.of(buildContext).pushNamed(Routes.settings);
+    }
+  }
+
+  static void navigateToBookCreator() {
+    final BuildContext? buildContext = _getNavigatorContext();
+    if (buildContext != null) {
+      Navigator.of(buildContext).pushNamed(Routes.bookCreator);
     }
   }
 

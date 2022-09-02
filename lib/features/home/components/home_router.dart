@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../config/routes.dart';
 import '../../../providers/navigator_key_provider.dart';
+import '../../book_creator/book_creator_screen.dart';
 import '../../settings/settings_screen.dart';
 import 'home_content.dart';
 
@@ -33,10 +34,15 @@ class _HomeRouterState extends State<HomeRouter> {
       case Routes.home:
         return MaterialPageRoute(
           builder: (_) => const HomeContent(),
+          settings: routeSettings,
         );
       case Routes.settings:
         return MaterialPageRoute(
           builder: (_) => const SettingsScreen(),
+        );
+      case Routes.bookCreator:
+        return MaterialPageRoute(
+          builder: (_) => const BookCreatorScreen(),
         );
       default:
         return MaterialPageRoute(

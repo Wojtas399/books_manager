@@ -36,3 +36,15 @@ class BlocStatusError<T> extends BlocStatus {
   @override
   List<Object> get props => [error ?? ''];
 }
+
+class BlocStatusLoggedUserNotFound extends BlocStatus {
+  const BlocStatusLoggedUserNotFound();
+}
+
+class BlocStatusLossOfInternetConnection extends BlocStatus {
+  const BlocStatusLossOfInternetConnection();
+}
+
+class BlocStatusTimeoutException extends BlocStatus {
+  const BlocStatusTimeoutException();
+}

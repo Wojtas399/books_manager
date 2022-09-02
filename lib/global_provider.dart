@@ -1,8 +1,7 @@
+import 'package:app/providers/data_provider.dart';
+import 'package:app/providers/dialog_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'providers/dialog_provider.dart';
-import 'providers/database_provider.dart';
 
 class GlobalProvider extends StatelessWidget {
   final Widget child;
@@ -17,7 +16,7 @@ class GlobalProvider extends StatelessWidget {
           create: (_) => DialogProvider.provideDialogInterface(),
         ),
         RepositoryProvider(
-          create: (_) => DatabaseProvider.provideAuthInterface(),
+          create: (_) => DataProvider.provideAuthInterface(),
         ),
       ],
       child: child,

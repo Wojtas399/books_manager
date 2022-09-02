@@ -1,7 +1,7 @@
-import '../models/auth_state.dart';
-
 abstract class AuthInterface {
-  Stream<AuthState> get authState$;
+  Stream<String?> get loggedUserId$;
+
+  Future<void> loadLoggedUserId();
 
   Future<void> signIn({
     required String email,

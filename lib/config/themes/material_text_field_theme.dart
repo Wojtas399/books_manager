@@ -3,8 +3,13 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 class MaterialTextFieldTheme {
+  static const UnderlineInputBorder _errorBorder = UnderlineInputBorder(
+    borderSide: BorderSide(width: 2, color: Colors.red),
+  );
+
   static InputDecoration basic({
-    Icon? icon,
+    IconData? iconData,
+    String? label,
     String? placeholder,
     Color? backgroundColor,
     bool isPassword = false,
@@ -12,32 +17,29 @@ class MaterialTextFieldTheme {
     VoidCallback? onVisibilityIconPressed,
   }) {
     return InputDecoration(
+      labelText: label,
       hintText: placeholder,
-      prefixIcon: icon,
       filled: true,
-      fillColor: backgroundColor ?? AppColors.lightGrey,
-      contentPadding: EdgeInsets.symmetric(
-        vertical: 16,
-        horizontal: icon != null ? 4 : 16,
+      contentPadding: const EdgeInsets.symmetric(
+        vertical: 10,
+        horizontal: 8,
       ),
-      enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
-        borderRadius: BorderRadius.circular(10),
+      enabledBorder: UnderlineInputBorder(
+        borderSide: BorderSide(
+          width: 1,
+          color: Colors.black.withOpacity(0.25),
+        ),
       ),
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
-        borderRadius: BorderRadius.circular(10),
+      focusedBorder: UnderlineInputBorder(
+        borderSide: BorderSide(width: 1, color: AppColors.primary),
       ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Colors.red),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Colors.red),
-        borderRadius: BorderRadius.circular(10),
-      ),
+      focusedErrorBorder: _errorBorder,
+      errorBorder: _errorBorder,
       focusColor: AppColors.primary,
       errorMaxLines: 2,
+      prefixIcon: Icon(iconData),
+      prefixIconConstraints:
+          iconData == null ? const BoxConstraints(maxWidth: 16) : null,
       suffixIcon: isPassword
           ? SizedBox(
               width: 50,

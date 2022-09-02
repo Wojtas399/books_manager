@@ -13,25 +13,25 @@ abstract class DialogInterface {
     required String title,
     String? message,
     String? placeholder,
+    String initialValue = '',
+    TextInputType? keyboardType,
     bool obscureText = false,
+    String? acceptLabel,
+    String? cancelLabel,
   });
 
   void showLoadingDialog({BuildContext? context});
 
   void closeLoadingDialog({BuildContext? context});
 
-  void showInfoDialog({
+  Future<void> showInfoDialog({
     required String title,
     required String info,
     BuildContext? context,
   });
 
-  void showSnackbar({
+  void showSnackBar({
     required String message,
     BuildContext? context,
   });
-
-  void showLossOfConnectionDialog({BuildContext? context});
-
-  void showTimeoutDialog({BuildContext? context});
 }

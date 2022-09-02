@@ -1,12 +1,11 @@
 part of 'sign_in_bloc.dart';
 
-class SignInState extends Equatable {
-  final BlocStatus status;
+class SignInState extends BlocState {
   final String email;
   final String password;
 
   const SignInState({
-    required this.status,
+    required super.status,
     required this.email,
     required this.password,
   });
@@ -53,6 +52,4 @@ enum SignInBlocError {
   invalidEmail,
   wrongPassword,
   userNotFound,
-  noInternetConnection,
-  timeoutException,
 }

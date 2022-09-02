@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 import '../interfaces/dialog_interface.dart';
 import '../models/action_sheet_action.dart';
 import '../providers/navigator_key_provider.dart';
-import '../ui/errors_messages.dart';
-import 'components/cupertino_info_dialog.dart';
 import 'components/cupertino_custom_action_sheet.dart';
+import 'components/cupertino_info_dialog.dart';
 import 'components/cupertino_loading_dialog.dart';
 import 'components/cupertino_single_input_dialog.dart';
 
@@ -38,7 +37,11 @@ class CupertinoDialogs implements DialogInterface {
     required String title,
     String? message,
     String? placeholder,
+    String initialValue = '',
+    TextInputType? keyboardType,
     bool obscureText = false,
+    String? acceptLabel,
+    String? cancelLabel,
   }) async {
     final BuildContext? buildContext = _getNavigatorContext();
     if (buildContext != null) {
@@ -48,7 +51,11 @@ class CupertinoDialogs implements DialogInterface {
           title: title,
           message: message,
           placeholder: placeholder,
+          initialValue: initialValue,
+          keyboardType: keyboardType,
           obscureText: obscureText,
+          acceptLabel: acceptLabel,
+          cancelLabel: cancelLabel,
         ),
       );
     }
@@ -77,14 +84,14 @@ class CupertinoDialogs implements DialogInterface {
   }
 
   @override
-  void showInfoDialog({
+  Future<void> showInfoDialog({
     required String title,
     required String info,
     BuildContext? context,
-  }) {
+  }) async {
     final BuildContext? buildContext = context ?? _getNavigatorContext();
     if (buildContext != null) {
-      showCupertinoDialog(
+      await showCupertinoDialog(
         context: buildContext,
         builder: (_) => CupertinoInfoDialog(
           title: title,
@@ -95,7 +102,7 @@ class CupertinoDialogs implements DialogInterface {
   }
 
   @override
-  void showSnackbar({
+  void showSnackBar({
     required String message,
     BuildContext? context,
   }) {
@@ -105,30 +112,6 @@ class CupertinoDialogs implements DialogInterface {
         SnackBar(
           content: Text(message),
         ),
-      );
-    }
-  }
-
-  @override
-  void showLossOfConnectionDialog({BuildContext? context}) {
-    final BuildContext? buildContext = context ?? _getNavigatorContext();
-    if (buildContext != null) {
-      showCupertinoDialog(
-        context: buildContext,
-        builder: (_) => const CupertinoInfoDialog(
-          title: ErrorsMessages.lossOfConnection,
-        ),
-      );
-    }
-  }
-
-  @override
-  void showTimeoutDialog({BuildContext? context}) {
-    final BuildContext? buildContext = context ?? _getNavigatorContext();
-    if (buildContext != null) {
-      showInfoDialog(
-        title: 'Przekroczony czas wykonania operacji',
-        info: ErrorsMessages.timeoutMessage,
       );
     }
   }

@@ -1,20 +1,24 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:bloc_test/bloc_test.dart';
-
-import 'package:app/models/auth_state.dart';
-import 'package:app/domain/use_cases/auth/get_auth_state_use_case.dart';
+import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
+import 'package:app/domain/use_cases/auth/load_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/auth/sign_in_use_case.dart';
 import 'package:app/features/sign_in/bloc/sign_in_bloc.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/error.dart';
+import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
-class MockGetAuthStateUseCase extends Mock implements GetAuthStateUseCase {}
+class MockLoadLoggedUserIdUseCase extends Mock
+    implements LoadLoggedUserIdUseCase {}
+
+class MockGetLoggedUserIdUseCase extends Mock
+    implements GetLoggedUserIdUseCase {}
 
 class MockSignInUseCase extends Mock implements SignInUseCase {}
 
 void main() {
-  final getAuthStateUseCase = MockGetAuthStateUseCase();
+  final loadLoggedUserIdUseCase = MockLoadLoggedUserIdUseCase();
+  final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
   final signInUseCase = MockSignInUseCase();
 
   SignInBloc createBloc({
@@ -22,7 +26,8 @@ void main() {
     String password = '',
   }) {
     return SignInBloc(
-      getAuthStateUseCase: getAuthStateUseCase,
+      loadLoggedUserIdUseCase: loadLoggedUserIdUseCase,
+      getLoggedUserIdUseCase: getLoggedUserIdUseCase,
       signInUseCase: signInUseCase,
       email: email,
       password: password,
@@ -46,14 +51,15 @@ void main() {
   });
 
   blocTest(
-    'initialize, should emit appropriate info if auth state is set to signed in',
+    'initialize, should emit appropriate info if logged user id is not null',
     build: () => createBloc(),
     setUp: () {
       when(
-        () => getAuthStateUseCase.execute(),
-      ).thenAnswer(
-        (_) => Stream.value(const AuthStateSignedIn(userId: 'userId')),
-      );
+        () => loadLoggedUserIdUseCase.execute(),
+      ).thenAnswer((_) async => '');
+      when(
+        () => getLoggedUserIdUseCase.execute(),
+      ).thenAnswer((_) => Stream.value('u1'));
     },
     act: (SignInBloc bloc) {
       bloc.add(
@@ -67,6 +73,25 @@ void main() {
         ),
       ),
     ],
+  );
+
+  blocTest(
+    'initialize, should not emit appropriate info if logged user id is null',
+    build: () => createBloc(),
+    setUp: () {
+      when(
+        () => loadLoggedUserIdUseCase.execute(),
+      ).thenAnswer((_) async => '');
+      when(
+        () => getLoggedUserIdUseCase.execute(),
+      ).thenAnswer((_) => Stream.value(null));
+    },
+    act: (SignInBloc bloc) {
+      bloc.add(
+        const SignInEventInitialize(),
+      );
+    },
+    expect: () => [],
   );
 
   blocTest(
@@ -247,9 +272,7 @@ void main() {
             password: password,
           ),
           createState(
-            status: const BlocStatusError<SignInBlocError>(
-              error: SignInBlocError.noInternetConnection,
-            ),
+            status: const BlocStatusLossOfInternetConnection(),
             email: email,
             password: password,
           ),

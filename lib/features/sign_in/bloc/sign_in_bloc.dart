@@ -1,23 +1,25 @@
 import 'dart:async';
-import 'package:equatable/equatable.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../models/auth_state.dart';
-import '../../../domain/use_cases/auth/get_auth_state_use_case.dart';
+import '../../../domain/use_cases/auth/get_logged_user_id_use_case.dart';
+import '../../../domain/use_cases/auth/load_logged_user_id_use_case.dart';
 import '../../../domain/use_cases/auth/sign_in_use_case.dart';
+import '../../../models/bloc_state.dart';
 import '../../../models/bloc_status.dart';
 import '../../../models/error.dart';
 
 part 'sign_in_event.dart';
-
 part 'sign_in_state.dart';
 
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
-  late final GetAuthStateUseCase _getAuthStateUseCase;
+  late final LoadLoggedUserIdUseCase _loadLoggedUserIdUseCase;
+  late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
   late final SignInUseCase _signInUseCase;
 
   SignInBloc({
-    required GetAuthStateUseCase getAuthStateUseCase,
+    required LoadLoggedUserIdUseCase loadLoggedUserIdUseCase,
+    required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
     required SignInUseCase signInUseCase,
     BlocStatus status = const BlocStatusInitial(),
     String email = '',
@@ -29,7 +31,8 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
             password: password,
           ),
         ) {
-    _getAuthStateUseCase = getAuthStateUseCase;
+    _loadLoggedUserIdUseCase = loadLoggedUserIdUseCase;
+    _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
     _signInUseCase = signInUseCase;
     on<SignInEventInitialize>(_initialize);
     on<SignInEventEmailChanged>(_emailChanged);
@@ -75,14 +78,10 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       await _signIn(emit);
     } on AuthError catch (authError) {
       _manageAuthError(authError, emit);
-    } on NetworkError catch (_) {
-      emit(state.copyWithError(
-        SignInBlocError.noInternetConnection,
-      ));
+    } on NetworkError catch (networkError) {
+      _manageNetworkError(networkError, emit);
     } on TimeoutException catch (_) {
-      emit(state.copyWithError(
-        SignInBlocError.timeoutException,
-      ));
+      _manageTimeoutException(emit);
     }
   }
 
@@ -97,8 +96,9 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   }
 
   Future<bool> _isUserSignedIn() async {
-    final AuthState authState = await _getAuthStateUseCase.execute().first;
-    return authState is AuthStateSignedIn;
+    await _loadLoggedUserIdUseCase.execute();
+    final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
+    return loggedUserId != null;
   }
 
   Future<void> _signIn(Emitter<SignInState> emit) async {
@@ -127,5 +127,22 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         SignInBlocError.userNotFound,
       ));
     }
+  }
+
+  void _manageNetworkError(
+    NetworkError networkError,
+    Emitter<SignInState> emit,
+  ) {
+    if (networkError.code == NetworkErrorCode.lossOfConnection.name) {
+      emit(state.copyWith(
+        status: const BlocStatusLossOfInternetConnection(),
+      ));
+    }
+  }
+
+  void _manageTimeoutException(Emitter<SignInState> emit) {
+    emit(state.copyWith(
+      status: const BlocStatusTimeoutException(),
+    ));
   }
 }

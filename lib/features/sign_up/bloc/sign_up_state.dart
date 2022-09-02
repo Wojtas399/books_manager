@@ -1,7 +1,6 @@
 part of 'sign_up_bloc.dart';
 
-class SignUpState extends Equatable {
-  final BlocStatus status;
+class SignUpState extends BlocState {
   final String email;
   final String password;
   final String passwordConfirmation;
@@ -9,7 +8,7 @@ class SignUpState extends Equatable {
   final bool isPasswordValid;
 
   const SignUpState({
-    required this.status,
+    required super.status,
     required this.email,
     required this.password,
     required this.passwordConfirmation,
@@ -30,9 +29,7 @@ class SignUpState extends Equatable {
   bool get isPasswordConfirmationValid => password == passwordConfirmation;
 
   bool get isButtonDisabled =>
-      !isEmailValid ||
-      !isPasswordValid ||
-      !isPasswordConfirmationValid;
+      !isEmailValid || !isPasswordValid || !isPasswordConfirmationValid;
 
   SignUpState copyWith({
     BlocStatus? status,
@@ -71,6 +68,4 @@ enum SignUpBlocInfo {
 
 enum SignUpBlocError {
   emailIsAlreadyTaken,
-  lossOfConnection,
-  loadingTimeExceeded,
 }

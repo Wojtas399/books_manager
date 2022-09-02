@@ -1,11 +1,10 @@
 part of 'reset_password_bloc.dart';
 
-class ResetPasswordState extends Equatable {
-  final BlocStatus status;
+class ResetPasswordState extends BlocState {
   final String email;
 
   const ResetPasswordState({
-    required this.status,
+    required super.status,
     required this.email,
   });
 
@@ -44,6 +43,4 @@ enum ResetPasswordBlocInfo {
 enum ResetPasswordBlocError {
   invalidEmail,
   userNotFound,
-  lossOfConnection,
-  timeoutException,
 }

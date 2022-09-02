@@ -51,7 +51,10 @@ class CupertinoCustomActionSheet extends StatelessWidget {
       },
       child: Text(
         label,
-        style: CupertinoTheme.of(context).textTheme.actionTextStyle,
+        style: CupertinoTheme.of(context)
+            .textTheme
+            .actionTextStyle
+            .copyWith(color: CupertinoColors.activeBlue),
       ),
     );
   }

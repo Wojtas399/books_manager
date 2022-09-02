@@ -1,13 +1,14 @@
 import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../domain/use_cases/auth/send_reset_password_email_use_case.dart';
+import '../../../models/bloc_state.dart';
 import '../../../models/bloc_status.dart';
 import '../../../models/error.dart';
 
 part 'reset_password_event.dart';
-
 part 'reset_password_state.dart';
 
 class ResetPasswordBloc extends Bloc<ResetPasswordEvent, ResetPasswordState> {
@@ -44,11 +45,11 @@ class ResetPasswordBloc extends Bloc<ResetPasswordEvent, ResetPasswordState> {
     try {
       await _manageSendingResetPasswordEmail(emit);
     } on AuthError catch (authError) {
-      _onAuthError(authError, emit);
+      _manageAuthError(authError, emit);
     } on NetworkError catch (networkError) {
-      _onNetworkError(networkError, emit);
+      _manageNetworkError(networkError, emit);
     } on TimeoutException catch (_) {
-      _onTimeoutException(emit);
+      _manageTimeoutException(emit);
     }
   }
 
@@ -66,7 +67,7 @@ class ResetPasswordBloc extends Bloc<ResetPasswordEvent, ResetPasswordState> {
     ));
   }
 
-  void _onAuthError(
+  void _manageAuthError(
     AuthError authError,
     Emitter<ResetPasswordState> emit,
   ) {
@@ -81,20 +82,20 @@ class ResetPasswordBloc extends Bloc<ResetPasswordEvent, ResetPasswordState> {
     }
   }
 
-  void _onNetworkError(
+  void _manageNetworkError(
     NetworkError networkError,
     Emitter<ResetPasswordState> emit,
   ) {
     if (networkError.code == NetworkErrorCode.lossOfConnection.name) {
-      emit(state.copyWithError(
-        ResetPasswordBlocError.lossOfConnection,
+      emit(state.copyWith(
+        status: const BlocStatusLossOfInternetConnection(),
       ));
     }
   }
 
-  void _onTimeoutException(Emitter<ResetPasswordState> emit) {
-    emit(state.copyWithError(
-      ResetPasswordBlocError.timeoutException,
+  void _manageTimeoutException(Emitter<ResetPasswordState> emit) {
+    emit(state.copyWith(
+      status: const BlocStatusTimeoutException(),
     ));
   }
 }

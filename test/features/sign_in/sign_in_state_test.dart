@@ -1,7 +1,6 @@
-import 'package:flutter_test/flutter_test.dart';
-
 import 'package:app/features/sign_in/bloc/sign_in_bloc.dart';
 import 'package:app/models/bloc_status.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   late SignInState state;

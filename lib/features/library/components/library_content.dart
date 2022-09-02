@@ -1,3 +1,4 @@
+import 'package:app/config/navigation.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/features/library/bloc/library_bloc.dart';
 import 'package:app/features/library/components/library_book_item.dart';
@@ -32,9 +33,11 @@ class LibraryContent extends StatelessWidget {
       imageData: book.imageData,
       title: book.title,
       author: book.author,
-      onPressed: () {
-        //TODO
-      },
+      onPressed: () => _onBookPressed(bookId),
     );
+  }
+
+  void _onBookPressed(String bookId) {
+    Navigation.navigateToBookPreview(bookId: bookId);
   }
 }

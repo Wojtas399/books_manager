@@ -11,7 +11,7 @@ class LibraryContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const int itemsWidth = 200;
-    const int itemsHeight = 315;
+    const int itemsHeight = 320;
     final List<Book> books = context.select(
       (LibraryBloc bloc) => bloc.state.books,
     );

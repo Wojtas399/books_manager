@@ -34,7 +34,9 @@ class LibraryBookItem extends StatelessWidget {
                 child: _Image(imageData: imageData),
               ),
               const SizedBox(height: 16),
-              _Description(title: title, author: author),
+              Expanded(
+                child: _Description(title: title, author: author),
+              ),
             ],
           ),
         ),
@@ -56,7 +58,7 @@ class _Image extends StatelessWidget {
       image: imageData != null
           ? Image.memory(
               imageData,
-              fit: BoxFit.fill,
+              fit: BoxFit.contain,
             )
           : null,
       bookIconSize: 100,
@@ -79,6 +81,7 @@ class _Description extends StatelessWidget {
       width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             title,

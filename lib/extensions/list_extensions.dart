@@ -3,7 +3,7 @@ extension ListExtensions<T> on List<T> {
     return !contains(element);
   }
 
-  List<T> getUniqueElements() {
+  List<T> removeRepetitions() {
     return toSet().toList();
   }
 }

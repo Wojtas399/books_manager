@@ -1,4 +1,3 @@
-import 'package:app/components/custom_scaffold.dart';
 import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
 import 'package:app/features/book_preview/bloc/book_preview_bloc.dart';
 import 'package:app/features/book_preview/components/book_preview_content.dart';
@@ -15,9 +14,7 @@ class BookPreviewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return _BookPreviewBlocProvider(
       bookId: bookId,
-      child: const CustomScaffold(
-        body: BookPreviewContent(),
-      ),
+      child: const BookPreviewContent(),
     );
   }
 }

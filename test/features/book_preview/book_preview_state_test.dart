@@ -29,6 +29,19 @@ void main() {
   );
 
   test(
+    'book status, should return book status',
+    () {
+      const BookStatus expectedBookStatus = BookStatus.inProgress;
+      final Book book = createBook(status: expectedBookStatus);
+      state = state.copyWith(book: book);
+
+      final BookStatus? bookStatus = state.bookStatus;
+
+      expect(bookStatus, expectedBookStatus);
+    },
+  );
+
+  test(
     'title, should return book title',
     () {
       const String expectedTitle = 'title';

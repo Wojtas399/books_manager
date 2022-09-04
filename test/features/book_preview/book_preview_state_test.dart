@@ -118,4 +118,21 @@ void main() {
       expect(state2.title, 'title');
     },
   );
+
+  test(
+    'copy with status',
+    () {
+      const BookPreviewBlocInfo expectedInfo =
+          BookPreviewBlocInfo.bookHasBeenDeleted;
+
+      state = state.copyWithInfo(expectedInfo);
+
+      expect(
+        state.status,
+        const BlocStatusComplete<BookPreviewBlocInfo>(
+          info: expectedInfo,
+        ),
+      );
+    },
+  );
 }

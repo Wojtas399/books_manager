@@ -46,9 +46,12 @@ class BookPreviewActionsIcon extends StatelessWidget {
   }
 
   Future<void> _onDeletePressed(BuildContext context) async {
+    final BookPreviewBloc bookPreviewBloc = context.read<BookPreviewBloc>();
     final bool confirmation = await _askForDeletionConfirmation(context);
     if (confirmation) {
-      //TODO
+      bookPreviewBloc.add(
+        const BookPreviewEventDeleteBook(),
+      );
     }
   }
 

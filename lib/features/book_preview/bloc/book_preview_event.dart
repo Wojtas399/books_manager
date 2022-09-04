@@ -15,3 +15,7 @@ class BookPreviewEventBookUpdated extends BookPreviewEvent {
 
   const BookPreviewEventBookUpdated({required this.book});
 }
+
+class BookPreviewEventDeleteBook extends BookPreviewEvent {
+  const BookPreviewEventDeleteBook();
+}

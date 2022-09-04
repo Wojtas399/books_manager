@@ -37,4 +37,14 @@ class BookPreviewState extends BlocState {
       book: book ?? _book,
     );
   }
+
+  BookPreviewState copyWithInfo(BookPreviewBlocInfo info) {
+    return copyWith(
+      status: BlocStatusComplete<BookPreviewBlocInfo>(info: info),
+    );
+  }
+}
+
+enum BookPreviewBlocInfo {
+  bookHasBeenDeleted,
 }

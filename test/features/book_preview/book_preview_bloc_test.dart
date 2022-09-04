@@ -1,4 +1,5 @@
 import 'package:app/domain/entities/book.dart';
+import 'package:app/domain/use_cases/book/delete_book_use_case.dart';
 import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
 import 'package:app/features/book_preview/bloc/book_preview_bloc.dart';
 import 'package:app/models/bloc_status.dart';
@@ -8,12 +9,19 @@ import 'package:mocktail/mocktail.dart';
 
 class MockGetBookByIdUseCase extends Mock implements GetBookByIdUseCase {}
 
+class MockDeleteBookUseCase extends Mock implements DeleteBookUseCase {}
+
 void main() {
   final getBookByIdUseCase = MockGetBookByIdUseCase();
+  final deleteBookUseCase = MockDeleteBookUseCase();
 
-  BookPreviewBloc createBloc() {
+  BookPreviewBloc createBloc({
+    Book? book,
+  }) {
     return BookPreviewBloc(
       getBookByIdUseCase: getBookByIdUseCase,
+      deleteBookUseCase: deleteBookUseCase,
+      book: book,
     );
   }
 
@@ -29,6 +37,7 @@ void main() {
 
   tearDown(() {
     reset(getBookByIdUseCase);
+    reset(deleteBookUseCase);
   });
 
   group(
@@ -88,6 +97,59 @@ void main() {
           ),
         ],
       );
+    },
+  );
+
+  blocTest(
+    'delete book, should not call use case responsible for deleting book if bookId is null',
+    build: () => createBloc(),
+    setUp: () {
+      when(
+        () => deleteBookUseCase.execute(bookId: any(named: 'bookId')),
+      ).thenAnswer((_) async => '');
+    },
+    act: (BookPreviewBloc bloc) {
+      bloc.add(
+        const BookPreviewEventDeleteBook(),
+      );
+    },
+    expect: () => [],
+    verify: (_) {
+      verifyNever(
+        () => deleteBookUseCase.execute(bookId: any(named: 'bookId')),
+      );
+    },
+  );
+
+  blocTest(
+    'delete book, should call use case responsible for deleting book if bookId is not null',
+    build: () => createBloc(book: createBook(id: 'b1')),
+    setUp: () {
+      when(
+        () => deleteBookUseCase.execute(bookId: 'b1'),
+      ).thenAnswer((_) async => '');
+    },
+    act: (BookPreviewBloc bloc) {
+      bloc.add(
+        const BookPreviewEventDeleteBook(),
+      );
+    },
+    expect: () => [
+      createState(
+        status: const BlocStatusLoading(),
+        book: createBook(id: 'b1'),
+      ),
+      createState(
+        status: const BlocStatusComplete<BookPreviewBlocInfo>(
+          info: BookPreviewBlocInfo.bookHasBeenDeleted,
+        ),
+        book: createBook(id: 'b1'),
+      ),
+    ],
+    verify: (_) {
+      verify(
+        () => deleteBookUseCase.execute(bookId: 'b1'),
+      ).called(1);
     },
   );
 }

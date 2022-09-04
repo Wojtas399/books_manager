@@ -11,5 +11,7 @@ abstract class BookInterface {
 
   Future<void> addNewBook({required Book book});
 
+  Future<void> deleteBook({required String bookId});
+
   void reset();
 }

@@ -8,6 +8,6 @@ class DeleteBookUseCase {
   }
 
   Future<void> execute({required String bookId}) async {
-    //TODO
+    await _bookInterface.deleteBook(bookId: bookId);
   }
 }

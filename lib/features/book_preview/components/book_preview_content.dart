@@ -1,4 +1,5 @@
 import 'package:app/components/custom_scaffold.dart';
+import 'package:app/features/book_preview/components/book_preview_actions_icon.dart';
 import 'package:app/features/book_preview/components/book_preview_book_status.dart';
 import 'package:app/features/book_preview/components/book_preview_button.dart';
 import 'package:app/features/book_preview/components/book_preview_description.dart';
@@ -13,6 +14,8 @@ class BookPreviewContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScaffold(
       appBarTitle: 'Podgląd książki',
+      trailing: const BookPreviewActionsIcon(),
+      trailingRightPadding: 0,
       body: SizedBox(
         width: double.infinity,
         child: Column(

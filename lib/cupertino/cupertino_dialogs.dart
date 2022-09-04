@@ -1,13 +1,13 @@
+import 'package:app/cupertino/components/cupertino_confirmation_dialog.dart';
+import 'package:app/cupertino/components/cupertino_custom_action_sheet.dart';
+import 'package:app/cupertino/components/cupertino_info_dialog.dart';
+import 'package:app/cupertino/components/cupertino_loading_dialog.dart';
+import 'package:app/cupertino/components/cupertino_single_input_dialog.dart';
+import 'package:app/interfaces/dialog_interface.dart';
+import 'package:app/models/action_sheet_action.dart';
+import 'package:app/providers/navigator_key_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import '../interfaces/dialog_interface.dart';
-import '../models/action_sheet_action.dart';
-import '../providers/navigator_key_provider.dart';
-import 'components/cupertino_custom_action_sheet.dart';
-import 'components/cupertino_info_dialog.dart';
-import 'components/cupertino_loading_dialog.dart';
-import 'components/cupertino_single_input_dialog.dart';
 
 class CupertinoDialogs implements DialogInterface {
   bool _isLoadingDialogOpened = false;
@@ -60,6 +60,25 @@ class CupertinoDialogs implements DialogInterface {
       );
     }
     return null;
+  }
+
+  @override
+  Future<bool> askForConfirmation({
+    required String title,
+    String? message,
+  }) async {
+    final BuildContext? buildContext = _getNavigatorContext();
+    if (buildContext == null) {
+      return false;
+    }
+    return await showCupertinoDialog(
+          context: buildContext,
+          builder: (_) => CupertinoConfirmationDialog(
+            title: title,
+            message: message,
+          ),
+        ) ==
+        true;
   }
 
   @override

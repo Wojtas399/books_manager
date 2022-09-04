@@ -20,6 +20,11 @@ abstract class DialogInterface {
     String? cancelLabel,
   });
 
+  Future<bool> askForConfirmation({
+    required String title,
+    String? message,
+  });
+
   void showLoadingDialog({BuildContext? context});
 
   void closeLoadingDialog({BuildContext? context});

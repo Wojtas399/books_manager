@@ -1,9 +1,9 @@
-import '../../../interfaces/book_interface.dart';
+import 'package:app/interfaces/book_interface.dart';
 
-class RefreshUserBooksUseCase {
+class InitializeUserDataUseCase {
   late final BookInterface _bookInterface;
 
-  RefreshUserBooksUseCase({required BookInterface bookInterface}) {
+  InitializeUserDataUseCase({required BookInterface bookInterface}) {
     _bookInterface = bookInterface;
   }
 

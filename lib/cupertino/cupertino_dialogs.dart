@@ -87,6 +87,7 @@ class CupertinoDialogs implements DialogInterface {
     if (!_isLoadingDialogOpened && buildContext != null) {
       showCupertinoDialog(
         context: buildContext,
+        barrierDismissible: false,
         builder: (_) => const CupertinoLoadingDialog(),
       );
       _isLoadingDialogOpened = true;

@@ -29,7 +29,7 @@ void main() {
   });
 
   test(
-    'load books by user id, should return user books from sqlite with loaded images from local storage',
+    'load user books, should return user books from sqlite with loaded images from local storage',
     () async {
       const String userId = 'u1';
       final Uint8List b1ImageData = Uint8List(20);
@@ -42,7 +42,7 @@ void main() {
         dbBooks[1],
       ];
       when(
-        () => sqliteBookService.loadBooksByUserId(userId: userId),
+        () => sqliteBookService.loadUserBooks(userId: userId),
       ).thenAnswer((_) async => dbBooks);
       when(
         () => localStorageService.loadBookImageData(
@@ -57,11 +57,32 @@ void main() {
         ),
       ).thenAnswer((_) async => null);
 
-      final List<DbBook> loadedDbBooks = await service.loadBooksByUserId(
+      final List<DbBook> loadedDbBooks = await service.loadUserBooks(
         userId: userId,
       );
 
       expect(loadedDbBooks, expectedDbBooks);
+    },
+  );
+
+  test(
+    'load ids of user books marked as deleted, should return result of method responsible for loading ids of user books marked as deleted',
+    () async {
+      const String userId = 'u1';
+      const List<String> expectedIdsOfBooksMarkedAsDeleted = ['b2', 'b3'];
+      when(
+        () => sqliteBookService.loadIdsOfUserBooksMarkedAsDeleted(
+          userId: userId,
+        ),
+      ).thenAnswer((_) async => expectedIdsOfBooksMarkedAsDeleted);
+
+      final List<String> idsOfBooksMarkedAsDeleted =
+          await service.loadIdsOfUserBooksMarkedAsDeleted(userId: userId);
+
+      expect(
+        idsOfBooksMarkedAsDeleted,
+        expectedIdsOfBooksMarkedAsDeleted,
+      );
     },
   );
 
@@ -118,6 +139,51 @@ void main() {
         ),
       ).called(1);
       expect(addedDbBook, expectedAddedDbBook);
+    },
+  );
+
+  test(
+    'mark book as deleted, should call method responsible for marking book as deleted',
+    () async {
+      const String bookId = 'b1';
+      when(
+        () => sqliteBookService.markBookAsDeleted(bookId: bookId),
+      ).thenAnswer((_) async => '');
+
+      await service.markBookAsDeleted(bookId: bookId);
+
+      verify(
+        () => sqliteBookService.markBookAsDeleted(bookId: bookId),
+      ).called(1);
+    },
+  );
+
+  test(
+    'delete book, should call methods responsible for deleting book from sqlite and for deleting book image from local storage',
+    () async {
+      const String userId = 'u1';
+      const String bookId = 'b1';
+      when(
+        () => sqliteBookService.deleteBook(bookId: bookId),
+      ).thenAnswer((_) async => '');
+      when(
+        () => localStorageService.deleteBookImageData(
+          bookId: bookId,
+          userId: userId,
+        ),
+      ).thenAnswer((_) async => '');
+
+      await service.deleteBook(userId: userId, bookId: bookId);
+
+      verify(
+        () => sqliteBookService.deleteBook(bookId: bookId),
+      ).called(1);
+      verify(
+        () => localStorageService.deleteBookImageData(
+          bookId: bookId,
+          userId: userId,
+        ),
+      ).called(1);
     },
   );
 }

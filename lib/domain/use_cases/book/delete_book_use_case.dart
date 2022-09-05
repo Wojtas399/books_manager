@@ -7,7 +7,10 @@ class DeleteBookUseCase {
     _bookInterface = bookInterface;
   }
 
-  Future<void> execute({required String bookId}) async {
-    await _bookInterface.deleteBook(bookId: bookId);
+  Future<void> execute({
+    required String userId,
+    required String bookId,
+  }) async {
+    await _bookInterface.deleteBook(userId: userId, bookId: bookId);
   }
 }

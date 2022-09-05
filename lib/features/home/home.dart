@@ -1,8 +1,8 @@
+import 'package:app/domain/use_cases/initialize_user_data_use_case.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import '../../domain/use_cases/book/refresh_user_books_use_case.dart';
 import '../../interfaces/auth_interface.dart';
 import '../../interfaces/book_interface.dart';
 import '../../models/bloc_status.dart';
@@ -36,7 +36,7 @@ class _HomeBlocProvider extends StatelessWidget {
         getLoggedUserIdUseCase: GetLoggedUserIdUseCase(
           authInterface: context.read<AuthInterface>(),
         ),
-        refreshUserBooksUseCase: RefreshUserBooksUseCase(
+        initializeUserDataUseCase: InitializeUserDataUseCase(
           bookInterface: context.read<BookInterface>(),
         ),
       )..add(const HomeEventInitialize()),

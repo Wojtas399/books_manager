@@ -2,11 +2,13 @@ import 'package:app/data/data_sources/local_db/book_local_db_service.dart';
 import 'package:app/data/data_sources/remote_db/book_remote_db_service.dart';
 import 'package:app/data/models/db_book.dart';
 import 'package:app/data/repositories/book_repository.dart';
+import 'package:app/data/synchronizers/book_synchronizer.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/models/device.dart';
-import 'package:app/models/error.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+
+class MockBookSynchronizer extends Mock implements BookSynchronizer {}
 
 class MockBookLocalDbService extends Mock implements BookLocalDbService {}
 
@@ -15,6 +17,7 @@ class MockBookRemoteDbService extends Mock implements BookRemoteDbService {}
 class MockDevice extends Mock implements Device {}
 
 void main() {
+  final bookSynchronizer = MockBookSynchronizer();
   final bookLocalDbService = MockBookLocalDbService();
   final bookRemoteDbService = MockBookRemoteDbService();
   final device = MockDevice();
@@ -23,6 +26,7 @@ void main() {
 
   setUp(() {
     repository = BookRepository(
+      bookSynchronizer: bookSynchronizer,
       bookLocalDbService: bookLocalDbService,
       bookRemoteDbService: bookRemoteDbService,
       device: device,
@@ -30,10 +34,65 @@ void main() {
   });
 
   tearDown(() {
+    reset(bookSynchronizer);
     reset(bookLocalDbService);
     reset(bookRemoteDbService);
     reset(device);
   });
+
+  group(
+    'refresh user books',
+    () {
+      setUp(() {
+        when(
+          () => bookSynchronizer.deleteUserBooksMarkedAsDeleted(userId: userId),
+        ).thenAnswer((_) async => '');
+        when(
+          () => bookSynchronizer.synchronizeUserBooks(userId: userId),
+        ).thenAnswer((_) async => '');
+      });
+
+      test(
+        'refresh user books, should not call methods responsible for deleting user books marked as deleted and for synchronizing user books if device has not internet connection',
+        () async {
+          when(
+            () => device.hasInternetConnection(),
+          ).thenAnswer((_) async => false);
+
+          await repository.refreshUserBooks(userId: userId);
+
+          verifyNever(
+            () => bookSynchronizer.deleteUserBooksMarkedAsDeleted(
+              userId: userId,
+            ),
+          );
+          verifyNever(
+            () => bookSynchronizer.synchronizeUserBooks(userId: userId),
+          );
+        },
+      );
+
+      test(
+        'refresh user books, should call method responsible for deleting user books marked as deleted and for synchronizing user books if device has internet connection',
+        () async {
+          when(
+            () => device.hasInternetConnection(),
+          ).thenAnswer((_) async => true);
+
+          await repository.refreshUserBooks(userId: userId);
+
+          verify(
+            () => bookSynchronizer.deleteUserBooksMarkedAsDeleted(
+              userId: userId,
+            ),
+          ).called(1);
+          verify(
+            () => bookSynchronizer.synchronizeUserBooks(userId: userId),
+          ).called(1);
+        },
+      );
+    },
+  );
 
   test(
     'get book by id, should return stream which contains book with given id',
@@ -45,7 +104,7 @@ void main() {
       ];
       final Book expectedBook = createBook(id: 'b3');
       when(
-        () => bookLocalDbService.loadBooksByUserId(userId: userId),
+        () => bookLocalDbService.loadUserBooks(userId: userId),
       ).thenAnswer((_) async => dbBooks);
 
       await repository.loadAllBooksByUserId(userId: userId);
@@ -68,7 +127,7 @@ void main() {
         createBook(id: 'b3', userId: userId),
       ];
       when(
-        () => bookLocalDbService.loadBooksByUserId(userId: userId),
+        () => bookLocalDbService.loadUserBooks(userId: userId),
       ).thenAnswer((_) async => dbBooks);
 
       await repository.loadAllBooksByUserId(userId: userId);
@@ -77,62 +136,6 @@ void main() {
       );
 
       expect(await userBooks$.first, expectedBooks);
-    },
-  );
-
-  test(
-    'refresh user books, should throw network error if device has not internet connection',
-    () async {
-      when(
-        () => device.hasInternetConnection(),
-      ).thenAnswer((_) async => false);
-
-      try {
-        await repository.refreshUserBooks(userId: userId);
-      } on NetworkError catch (networkError) {
-        expect(
-          networkError,
-          NetworkError(networkErrorCode: NetworkErrorCode.lossOfConnection),
-        );
-      }
-    },
-  );
-
-  test(
-    'refresh user books, should add missing books to local and remote db',
-    () async {
-      final List<DbBook> localBooks = [
-        createDbBook(id: 'b2'),
-        createDbBook(id: 'b3'),
-      ];
-      final List<DbBook> remoteBooks = [
-        createDbBook(id: 'b1'),
-        createDbBook(id: 'b2'),
-      ];
-      when(
-        () => device.hasInternetConnection(),
-      ).thenAnswer((_) async => true);
-      when(
-        () => bookLocalDbService.loadBooksByUserId(userId: userId),
-      ).thenAnswer((_) async => localBooks);
-      when(
-        () => bookRemoteDbService.loadBooksByUserId(userId: userId),
-      ).thenAnswer((_) async => remoteBooks);
-      when(
-        () => bookLocalDbService.addBook(dbBook: remoteBooks.first),
-      ).thenAnswer((_) async => remoteBooks.first);
-      when(
-        () => bookRemoteDbService.addBook(dbBook: localBooks.last),
-      ).thenAnswer((_) async => '');
-
-      await repository.refreshUserBooks(userId: userId);
-
-      verify(
-        () => bookLocalDbService.addBook(dbBook: remoteBooks.first),
-      ).called(1);
-      verify(
-        () => bookRemoteDbService.addBook(dbBook: localBooks.last),
-      ).called(1);
     },
   );
 
@@ -148,7 +151,7 @@ void main() {
         createBook(id: 'b2', userId: userId),
       ];
       when(
-        () => bookLocalDbService.loadBooksByUserId(userId: userId),
+        () => bookLocalDbService.loadUserBooks(userId: userId),
       ).thenAnswer((_) async => dbBooks);
 
       await repository.loadAllBooksByUserId(userId: userId);
@@ -227,6 +230,50 @@ void main() {
   );
 
   test(
+    'delete book, should call methods responsible for deleting book from remote and local db if device has internet connection',
+    () async {
+      const String bookId = 'b1';
+      when(
+        () => device.hasInternetConnection(),
+      ).thenAnswer((_) async => true);
+      when(
+        () => bookRemoteDbService.deleteBook(userId: userId, bookId: bookId),
+      ).thenAnswer((_) async => '');
+      when(
+        () => bookLocalDbService.deleteBook(userId: userId, bookId: bookId),
+      ).thenAnswer((_) async => '');
+
+      await repository.deleteBook(userId: userId, bookId: bookId);
+
+      verify(
+        () => bookRemoteDbService.deleteBook(userId: userId, bookId: bookId),
+      ).called(1);
+      verify(
+        () => bookLocalDbService.deleteBook(userId: userId, bookId: bookId),
+      ).called(1);
+    },
+  );
+
+  test(
+    'delete book, should call method responsible for marking book as deleted in local db if device has not internet connection',
+    () async {
+      const String bookId = 'b1';
+      when(
+        () => device.hasInternetConnection(),
+      ).thenAnswer((_) async => false);
+      when(
+        () => bookLocalDbService.markBookAsDeleted(bookId: bookId),
+      ).thenAnswer((_) async => '');
+
+      await repository.deleteBook(userId: userId, bookId: bookId);
+
+      verify(
+        () => bookLocalDbService.markBookAsDeleted(bookId: bookId),
+      ).called(1);
+    },
+  );
+
+  test(
     'reset, should reset stream of books',
     () async {
       final List<DbBook> dbBooks = [
@@ -238,7 +285,7 @@ void main() {
         createBook(id: 'b2', userId: userId),
       ];
       when(
-        () => bookLocalDbService.loadBooksByUserId(userId: userId),
+        () => bookLocalDbService.loadUserBooks(userId: userId),
       ).thenAnswer((_) async => dbBooks);
 
       await repository.loadAllBooksByUserId(userId: userId);

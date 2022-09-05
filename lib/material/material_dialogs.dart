@@ -85,6 +85,7 @@ class MaterialDialogs implements DialogInterface {
     if (!_isLoadingDialogOpened && buildContext != null) {
       showDialog(
         context: buildContext,
+        barrierDismissible: false,
         builder: (_) => const MaterialLoadingDialog(),
       );
       _isLoadingDialogOpened = true;

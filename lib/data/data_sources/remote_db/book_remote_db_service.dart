@@ -16,7 +16,7 @@ class BookRemoteDbService {
     _firebaseStorageService = firebaseStorageService;
   }
 
-  Future<List<DbBook>> loadBooksByUserId({required String userId}) async {
+  Future<List<DbBook>> loadUserBooks({required String userId}) async {
     final List<DbBook> dbBooksWithoutLoadedImages =
         await _firebaseFirestoreBookService.loadBooksByUserId(userId: userId);
     return await _loadImageForEachBook(dbBooksWithoutLoadedImages);
@@ -29,10 +29,24 @@ class BookRemoteDbService {
     if (imageData != null && dbBookId != null) {
       await _firebaseStorageService.saveBookImageData(
         imageData: imageData,
-        bookId: dbBookId,
         userId: dbBook.userId,
+        bookId: dbBookId,
       );
     }
+  }
+
+  Future<void> deleteBook({
+    required String userId,
+    required String bookId,
+  }) async {
+    await _firebaseFirestoreBookService.deleteBook(
+      userId: userId,
+      bookId: bookId,
+    );
+    await _firebaseStorageService.deleteBookImageData(
+      userId: userId,
+      bookId: bookId,
+    );
   }
 
   Future<List<DbBook>> _loadImageForEachBook(List<DbBook> dbBooks) async {

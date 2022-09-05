@@ -12,15 +12,16 @@ void main() {
   test(
     'should call method responsible for deleting book',
     () async {
+      const String userId = 'u1';
       const String bookId = 'b1';
       when(
-        () => bookInterface.deleteBook(bookId: bookId),
+        () => bookInterface.deleteBook(userId: userId, bookId: bookId),
       ).thenAnswer((_) async => '');
 
-      await useCase.execute(bookId: bookId);
+      await useCase.execute(userId: userId, bookId: bookId);
 
       verify(
-        () => bookInterface.deleteBook(bookId: bookId),
+        () => bookInterface.deleteBook(userId: userId, bookId: bookId),
       ).called(1);
     },
   );

@@ -16,10 +16,18 @@ class BookLocalDbService {
     _localStorageService = localStorageService;
   }
 
-  Future<List<DbBook>> loadBooksByUserId({required String userId}) async {
+  Future<List<DbBook>> loadUserBooks({required String userId}) async {
     final List<DbBook> dbBooksWithoutLoadedImages =
-        await _sqliteBookService.loadBooksByUserId(userId: userId);
+        await _sqliteBookService.loadUserBooks(userId: userId);
     return await _loadImageForEachBook(dbBooksWithoutLoadedImages);
+  }
+
+  Future<List<String>> loadIdsOfUserBooksMarkedAsDeleted({
+    required String userId,
+  }) async {
+    return await _sqliteBookService.loadIdsOfUserBooksMarkedAsDeleted(
+      userId: userId,
+    );
   }
 
   Future<DbBook> addBook({required DbBook dbBook}) async {
@@ -29,11 +37,26 @@ class BookLocalDbService {
     if (imageData != null && bookId != null) {
       await _localStorageService.saveBookImageData(
         imageData: imageData,
-        bookId: bookId,
         userId: dbBook.userId,
+        bookId: bookId,
       );
     }
     return addedBook;
+  }
+
+  Future<void> markBookAsDeleted({required String bookId}) async {
+    await _sqliteBookService.markBookAsDeleted(bookId: bookId);
+  }
+
+  Future<void> deleteBook({
+    required String userId,
+    required String bookId,
+  }) async {
+    await _sqliteBookService.deleteBook(bookId: bookId);
+    await _localStorageService.deleteBookImageData(
+      userId: userId,
+      bookId: bookId,
+    );
   }
 
   Future<List<DbBook>> _loadImageForEachBook(List<DbBook> dbBooks) async {

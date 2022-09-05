@@ -1,5 +1,5 @@
 import 'package:app/data/data_sources/remote_db/firebase/firebase_instances.dart';
-import 'package:app/data/models/db_book.dart';
+import 'package:app/data/data_sources/remote_db/firebase/models/firebase_book.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FireReferences {
@@ -10,16 +10,16 @@ class FireReferences {
     return usersRef.doc(userId).collection('Books');
   }
 
-  static CollectionReference<DbBook> getBooksRefWithConverter({
+  static CollectionReference<FirebaseBook> getBooksRefWithConverter({
     required String userId,
   }) {
     return getBooksRef(userId: userId).withConverter(
-      fromFirestore: (snapshot, _) => DbBook.fromFirebaseJson(
-        snapshot.data()!,
-        snapshot.id,
-        userId,
+      fromFirestore: (snapshot, _) => FirebaseBook.fromJson(
+        json: snapshot.data()!,
+        userId: userId,
+        bookId: snapshot.id,
       ),
-      toFirestore: (data, _) => data.toFirebaseJson(),
+      toFirestore: (FirebaseBook firebaseBook, _) => firebaseBook.toJson(),
     );
   }
 }

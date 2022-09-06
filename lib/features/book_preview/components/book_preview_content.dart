@@ -16,24 +16,26 @@ class BookPreviewContent extends StatelessWidget {
       appBarTitle: 'Podgląd książki',
       trailing: const BookPreviewActionsIcon(),
       trailingRightPadding: 0,
-      body: SizedBox(
-        width: double.infinity,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              children: const [
-                BookPreviewImage(),
-                Divider(thickness: 1),
-                BookPreviewDescription(),
-                SizedBox(height: 24),
-                BookPreviewBookStatus(),
-                SizedBox(height: 12),
-                BookPreviewPagesStatus(),
-              ],
-            ),
-            const BookPreviewButton(),
-          ],
+      body: SafeArea(
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                children: const [
+                  BookPreviewImage(),
+                  Divider(thickness: 1),
+                  BookPreviewDescription(),
+                  SizedBox(height: 24),
+                  BookPreviewBookStatus(),
+                  SizedBox(height: 12),
+                  BookPreviewPagesStatus(),
+                ],
+              ),
+              const BookPreviewButton(),
+            ],
+          ),
         ),
       ),
     );

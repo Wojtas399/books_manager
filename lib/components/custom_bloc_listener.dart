@@ -26,9 +26,9 @@ class CustomBlocListener<Bloc extends StateStreamable<State>,
         final BlocStatus blocStatus = state.status;
         if (blocStatus is BlocStatusLoading) {
           _manageLoadingStatus(context);
-        } else if (blocStatus is BlocStatusComplete<Info>) {
+        } else if (blocStatus is BlocStatusComplete) {
           _manageCompleteStatus(blocStatus, context);
-        } else if (blocStatus is BlocStatusError<Error>) {
+        } else if (blocStatus is BlocStatusError) {
           _manageErrorStatus(blocStatus, context);
         } else if (blocStatus is BlocStatusLoggedUserNotFound) {
           _manageLoggedUserNotFoundStatus(context);
@@ -49,7 +49,7 @@ class CustomBlocListener<Bloc extends StateStreamable<State>,
   }
 
   void _manageCompleteStatus(
-    BlocStatusComplete<Info> completeStatus,
+    BlocStatusComplete completeStatus,
     BuildContext context,
   ) {
     context.read<DialogInterface>().closeLoadingDialog(
@@ -63,7 +63,7 @@ class CustomBlocListener<Bloc extends StateStreamable<State>,
   }
 
   void _manageErrorStatus(
-    BlocStatusError<Error> errorStatus,
+    BlocStatusError errorStatus,
     BuildContext context,
   ) {
     context.read<DialogInterface>().closeLoadingDialog(

@@ -9,6 +9,7 @@ class CustomScaffold extends StatelessWidget {
   final Color? appBarColor;
   final bool automaticallyImplyLeading;
   final Widget? trailing;
+  final double? trailingRightPadding;
   final Widget? bottomNavigationBar;
   final FloatingActionButton? floatingActionButton;
 
@@ -21,6 +22,7 @@ class CustomScaffold extends StatelessWidget {
     this.appBarColor,
     this.automaticallyImplyLeading = true,
     this.trailing,
+    this.trailingRightPadding,
     this.bottomNavigationBar,
     this.floatingActionButton,
   });
@@ -37,6 +39,7 @@ class CustomScaffold extends StatelessWidget {
         automaticallyImplyLeading: automaticallyImplyLeading,
         leadingIcon: leadingIcon,
         trailing: trailing,
+        trailingRightPadding: trailingRightPadding,
       ),
       bottomNavigationBar: bottomNavigationBar,
       floatingActionButton: floatingActionButton,
@@ -52,6 +55,7 @@ class _AppBar extends StatelessWidget with PreferredSizeWidget {
   final bool automaticallyImplyLeading;
   final IconData? leadingIcon;
   final Widget? trailing;
+  final double? trailingRightPadding;
 
   const _AppBar({
     this.appBarTitle,
@@ -60,6 +64,7 @@ class _AppBar extends StatelessWidget with PreferredSizeWidget {
     this.automaticallyImplyLeading = true,
     this.leadingIcon,
     this.trailing,
+    this.trailingRightPadding,
   });
 
   @override
@@ -78,7 +83,7 @@ class _AppBar extends StatelessWidget with PreferredSizeWidget {
       automaticallyImplyLeading: automaticallyImplyLeading,
       actions: [
         trailing ?? const SizedBox(),
-        const SizedBox(width: 8),
+        SizedBox(width: trailingRightPadding ?? 8),
       ],
       elevation: appBarWithElevation ? 2 : 0,
       backgroundColor: appBarColor,

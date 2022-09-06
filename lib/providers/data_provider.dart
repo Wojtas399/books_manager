@@ -10,6 +10,7 @@ import 'package:app/data/data_sources/remote_db/firebase/services/firebase_fires
 import 'package:app/data/data_sources/remote_db/firebase/services/firebase_storage_service.dart';
 import 'package:app/data/repositories/auth_repository.dart';
 import 'package:app/data/repositories/book_repository.dart';
+import 'package:app/data/synchronizers/book_synchronizer.dart';
 import 'package:app/interfaces/auth_interface.dart';
 import 'package:app/interfaces/book_interface.dart';
 import 'package:app/providers/device_provider.dart';
@@ -28,15 +29,27 @@ class DataProvider {
 
   static BookInterface provideBookInterface() {
     return BookRepository(
-      bookLocalDbService: BookLocalDbService(
-        sqliteBookService: SqliteBookService(),
-        localStorageService: LocalStorageService(),
+      bookSynchronizer: BookSynchronizer(
+        bookLocalDbService: _provideBookLocalDbService(),
+        bookRemoteDbService: _provideBookRemoteDbService(),
       ),
-      bookRemoteDbService: BookRemoteDbService(
-        firebaseFirestoreBookService: FirebaseFirestoreBookService(),
-        firebaseStorageService: FirebaseStorageService(),
-      ),
+      bookLocalDbService: _provideBookLocalDbService(),
+      bookRemoteDbService: _provideBookRemoteDbService(),
       device: DeviceProvider.provide(),
+    );
+  }
+
+  static BookLocalDbService _provideBookLocalDbService() {
+    return BookLocalDbService(
+      sqliteBookService: SqliteBookService(),
+      localStorageService: LocalStorageService(),
+    );
+  }
+
+  static BookRemoteDbService _provideBookRemoteDbService() {
+    return BookRemoteDbService(
+      firebaseFirestoreBookService: FirebaseFirestoreBookService(),
+      firebaseStorageService: FirebaseStorageService(),
     );
   }
 }

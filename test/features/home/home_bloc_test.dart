@@ -1,5 +1,5 @@
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import 'package:app/domain/use_cases/book/refresh_user_books_use_case.dart';
+import 'package:app/domain/use_cases/initialize_user_data_use_case.dart';
 import 'package:app/features/home/bloc/home_bloc.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:bloc_test/bloc_test.dart';
@@ -9,17 +9,17 @@ import 'package:mocktail/mocktail.dart';
 class MockGetLoggedUserIdUseCase extends Mock
     implements GetLoggedUserIdUseCase {}
 
-class MockRefreshUserBooksUseCase extends Mock
-    implements RefreshUserBooksUseCase {}
+class MockInitializeUserDataUseCase extends Mock
+    implements InitializeUserDataUseCase {}
 
 void main() {
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
-  final refreshUserBooksUseCase = MockRefreshUserBooksUseCase();
+  final initializeUserDataUseCase = MockInitializeUserDataUseCase();
 
   HomeBloc createBloc() {
     return HomeBloc(
       getLoggedUserIdUseCase: getLoggedUserIdUseCase,
-      refreshUserBooksUseCase: refreshUserBooksUseCase,
+      initializeUserDataUseCase: initializeUserDataUseCase,
     );
   }
 
@@ -35,7 +35,7 @@ void main() {
 
   tearDown(() {
     reset(getLoggedUserIdUseCase);
-    reset(refreshUserBooksUseCase);
+    reset(initializeUserDataUseCase);
   });
 
   blocTest(
@@ -62,14 +62,14 @@ void main() {
   );
 
   blocTest(
-    'initialize, should call use case responsible for refreshing user books if logged user id is not null',
+    'initialize, should call use case responsible for initializing user data if logged user id is not null',
     build: () => createBloc(),
     setUp: () {
       when(
         () => getLoggedUserIdUseCase.execute(),
       ).thenAnswer((_) => Stream.value('u1'));
       when(
-        () => refreshUserBooksUseCase.execute(userId: 'u1'),
+        () => initializeUserDataUseCase.execute(userId: 'u1'),
       ).thenAnswer((_) async => '');
     },
     act: (HomeBloc bloc) {
@@ -87,7 +87,7 @@ void main() {
     ],
     verify: (_) {
       verify(
-        () => refreshUserBooksUseCase.execute(userId: 'u1'),
+        () => initializeUserDataUseCase.execute(userId: 'u1'),
       ).called(1);
     },
   );

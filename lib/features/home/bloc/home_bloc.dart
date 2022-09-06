@@ -1,7 +1,7 @@
+import 'package:app/domain/use_cases/initialize_user_data_use_case.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import '../../../domain/use_cases/book/refresh_user_books_use_case.dart';
 import '../../../models/bloc_state.dart';
 import '../../../models/bloc_status.dart';
 
@@ -10,11 +10,11 @@ part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
-  late final RefreshUserBooksUseCase _refreshUserBooksUseCase;
+  late final InitializeUserDataUseCase _initializeUserDataUseCase;
 
   HomeBloc({
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
-    required RefreshUserBooksUseCase refreshUserBooksUseCase,
+    required InitializeUserDataUseCase initializeUserDataUseCase,
     BlocStatus status = const BlocStatusInitial(),
     int currentPageIndex = 0,
   }) : super(
@@ -24,7 +24,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           ),
         ) {
     _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
-    _refreshUserBooksUseCase = refreshUserBooksUseCase;
+    _initializeUserDataUseCase = initializeUserDataUseCase;
     on<HomeEventInitialize>(_initialize);
     on<HomeEventChangePage>(_changePage);
   }
@@ -42,7 +42,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         status: const BlocStatusLoggedUserNotFound(),
       ));
     } else {
-      await _refreshUserBooksUseCase.execute(userId: loggedUserId);
+      await _initializeUserDataUseCase.execute(userId: loggedUserId);
       emit(state.copyWith(
         status: const BlocStatusComplete(),
       ));

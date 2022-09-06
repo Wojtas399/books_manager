@@ -31,7 +31,7 @@ void main() {
   });
 
   test(
-    'load books by user id, should return user books from firebase firestore with loaded images from firebase storage',
+    'load user books, should return user books from firebase firestore with loaded images from firebase storage',
     () async {
       const String userId = 'u1';
       final Uint8List b1ImageData = Uint8List(20);
@@ -59,7 +59,7 @@ void main() {
         ),
       ).thenAnswer((_) async => null);
 
-      final List<DbBook> loadedDbBooks = await service.loadBooksByUserId(
+      final List<DbBook> loadedDbBooks = await service.loadUserBooks(
         userId: userId,
       );
 
@@ -115,6 +115,41 @@ void main() {
           imageData: imageData,
           bookId: addedBookId,
           userId: userId,
+        ),
+      ).called(1);
+    },
+  );
+
+  test(
+    'delete book, should call methods responsible for deleting book from firebase firestore and for deleting book from firebase storage',
+    () async {
+      const String userId = 'u1';
+      const String bookId = 'b1';
+      when(
+        () => firebaseFirestoreBookService.deleteBook(
+          userId: userId,
+          bookId: bookId,
+        ),
+      ).thenAnswer((_) async => '');
+      when(
+        () => firebaseStorageService.deleteBookImageData(
+          userId: userId,
+          bookId: bookId,
+        ),
+      ).thenAnswer((_) async => '');
+
+      await service.deleteBook(userId: userId, bookId: bookId);
+
+      verify(
+        () => firebaseFirestoreBookService.deleteBook(
+          userId: userId,
+          bookId: bookId,
+        ),
+      ).called(1);
+      verify(
+        () => firebaseStorageService.deleteBookImageData(
+          userId: userId,
+          bookId: bookId,
         ),
       ).called(1);
     },

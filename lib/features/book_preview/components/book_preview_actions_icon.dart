@@ -1,5 +1,5 @@
+import 'package:app/domain/interfaces/dialog_interface.dart';
 import 'package:app/features/book_preview/bloc/book_preview_bloc.dart';
-import 'package:app/interfaces/dialog_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';

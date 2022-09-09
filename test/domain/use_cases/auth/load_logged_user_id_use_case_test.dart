@@ -1,5 +1,5 @@
+import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/use_cases/auth/load_logged_user_id_use_case.dart';
-import 'package:app/interfaces/auth_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

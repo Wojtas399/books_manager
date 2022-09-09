@@ -12,8 +12,8 @@ import 'package:app/data/id_generator.dart';
 import 'package:app/data/repositories/auth_repository.dart';
 import 'package:app/data/repositories/book_repository.dart';
 import 'package:app/data/synchronizers/book_synchronizer.dart';
-import 'package:app/interfaces/auth_interface.dart';
-import 'package:app/interfaces/book_interface.dart';
+import 'package:app/domain/interfaces/auth_interface.dart';
+import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/providers/device_provider.dart';
 
 class DataProvider {

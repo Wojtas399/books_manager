@@ -1,4 +1,4 @@
-import 'package:app/interfaces/dialog_interface.dart';
+import 'package:app/domain/interfaces/dialog_interface.dart';
 import 'package:app/material/components/material_confirmation_dialog.dart';
 import 'package:app/material/components/material_custom_action_sheet.dart';
 import 'package:app/material/components/material_info_dialog.dart';

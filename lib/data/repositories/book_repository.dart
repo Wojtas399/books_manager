@@ -8,8 +8,8 @@ import 'package:app/data/mappers/book_mapper.dart';
 import 'package:app/data/models/db_book.dart';
 import 'package:app/data/synchronizers/book_synchronizer.dart';
 import 'package:app/domain/entities/book.dart';
+import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/extensions/book_extensions.dart';
-import 'package:app/interfaces/book_interface.dart';
 import 'package:app/models/device.dart';
 import 'package:rxdart/rxdart.dart';
 

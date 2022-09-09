@@ -1,6 +1,6 @@
 import 'package:app/domain/entities/book.dart';
+import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
-import 'package:app/interfaces/book_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import '../cupertino/cupertino_dialogs.dart';
-import '../interfaces/dialog_interface.dart';
-import '../material/material_dialogs.dart';
+import 'package:app/cupertino/cupertino_dialogs.dart';
+import 'package:app/domain/interfaces/dialog_interface.dart';
+import 'package:app/material/material_dialogs.dart';
 
 class DialogProvider {
   static DialogInterface provideDialogInterface() {

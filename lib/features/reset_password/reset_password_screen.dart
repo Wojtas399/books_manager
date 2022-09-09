@@ -1,12 +1,11 @@
+import 'package:app/components/custom_bloc_listener.dart';
+import 'package:app/domain/interfaces/auth_interface.dart';
+import 'package:app/domain/interfaces/dialog_interface.dart';
+import 'package:app/domain/use_cases/auth/send_reset_password_email_use_case.dart';
+import 'package:app/features/reset_password/bloc/reset_password_bloc.dart';
+import 'package:app/features/reset_password/components/reset_password_content.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../components/custom_bloc_listener.dart';
-import '../../domain/use_cases/auth/send_reset_password_email_use_case.dart';
-import '../../interfaces/auth_interface.dart';
-import '../../interfaces/dialog_interface.dart';
-import 'bloc/reset_password_bloc.dart';
-import 'components/reset_password_content.dart';
 
 class ResetPasswordScreen extends StatelessWidget {
   const ResetPasswordScreen({super.key});

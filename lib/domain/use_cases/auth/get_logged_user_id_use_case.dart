@@ -1,4 +1,4 @@
-import '../../../interfaces/auth_interface.dart';
+import 'package:app/domain/interfaces/auth_interface.dart';
 
 class GetLoggedUserIdUseCase {
   late final AuthInterface _authInterface;

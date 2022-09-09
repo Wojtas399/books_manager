@@ -1,4 +1,4 @@
-import 'package:app/interfaces/book_interface.dart';
+import 'package:app/domain/interfaces/book_interface.dart';
 
 class DeleteBookUseCase {
   late final BookInterface _bookInterface;

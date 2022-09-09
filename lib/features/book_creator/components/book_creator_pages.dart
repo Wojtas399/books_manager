@@ -1,10 +1,9 @@
+import 'package:app/domain/interfaces/dialog_interface.dart';
+import 'package:app/extensions/string_extensions.dart';
+import 'package:app/features/book_creator/bloc/book_creator_bloc.dart';
+import 'package:app/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../extensions/string_extensions.dart';
-import '../../../interfaces/dialog_interface.dart';
-import '../../../utils/utils.dart';
-import '../bloc/book_creator_bloc.dart';
 
 class BookCreatorPages extends StatelessWidget {
   const BookCreatorPages({super.key});

@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:app/components/book_image_component.dart';
+import 'package:app/domain/interfaces/dialog_interface.dart';
 import 'package:app/features/book_creator/bloc/book_creator_bloc.dart';
-import 'package:app/interfaces/dialog_interface.dart';
 import 'package:app/models/action_sheet_action.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

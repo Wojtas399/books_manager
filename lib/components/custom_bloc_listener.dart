@@ -1,10 +1,9 @@
+import 'package:app/config/navigation.dart';
+import 'package:app/domain/interfaces/dialog_interface.dart';
+import 'package:app/models/bloc_state.dart';
+import 'package:app/models/bloc_status.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../config/navigation.dart';
-import '../interfaces/dialog_interface.dart';
-import '../models/bloc_state.dart';
-import '../models/bloc_status.dart';
 
 class CustomBlocListener<Bloc extends StateStreamable<State>,
     State extends BlocState, Info, Error> extends StatelessWidget {

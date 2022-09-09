@@ -3,7 +3,7 @@ import 'package:app/cupertino/components/cupertino_custom_action_sheet.dart';
 import 'package:app/cupertino/components/cupertino_info_dialog.dart';
 import 'package:app/cupertino/components/cupertino_loading_dialog.dart';
 import 'package:app/cupertino/components/cupertino_single_input_dialog.dart';
-import 'package:app/interfaces/dialog_interface.dart';
+import 'package:app/domain/interfaces/dialog_interface.dart';
 import 'package:app/models/action_sheet_action.dart';
 import 'package:app/providers/navigator_key_provider.dart';
 import 'package:flutter/cupertino.dart';

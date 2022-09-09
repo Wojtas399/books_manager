@@ -1,4 +1,4 @@
-import '../../../interfaces/book_interface.dart';
+import 'package:app/domain/interfaces/book_interface.dart';
 
 class LoadAllBooksByUserIdUseCase {
   late final BookInterface _bookInterface;

@@ -101,35 +101,6 @@ void main() {
   );
 
   blocTest(
-    'delete book, should not call use case responsible for deleting book if bookId is null',
-    build: () => createBloc(
-      book: createBook(userId: 'u1'),
-    ),
-    setUp: () {
-      when(
-        () => deleteBookUseCase.execute(
-          userId: any(named: 'userId'),
-          bookId: any(named: 'bookId'),
-        ),
-      ).thenAnswer((_) async => '');
-    },
-    act: (BookPreviewBloc bloc) {
-      bloc.add(
-        const BookPreviewEventDeleteBook(),
-      );
-    },
-    expect: () => [],
-    verify: (_) {
-      verifyNever(
-        () => deleteBookUseCase.execute(
-          userId: any(named: 'userId'),
-          bookId: any(named: 'bookId'),
-        ),
-      );
-    },
-  );
-
-  blocTest(
     'delete book, should not call use case responsible for deleting book if book is null',
     build: () => createBloc(),
     setUp: () {

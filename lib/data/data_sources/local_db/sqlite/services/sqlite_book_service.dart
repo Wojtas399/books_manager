@@ -1,13 +1,10 @@
 import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_book.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_database.dart';
+import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_tables.dart';
-import 'package:app/data/models/db_book.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:uuid/uuid.dart';
 
 class SqliteBookService {
-  final Uuid _uuid = const Uuid();
-
   static String get tableCreationCommand => '''
       CREATE TABLE ${SqliteTables.booksTable} (
         ${SqliteBookFields.id} TEXT PRIMARY KEY NOT NULL,
@@ -17,37 +14,52 @@ class SqliteBookService {
         ${SqliteBookFields.author} TEXT NOT NULL,
         ${SqliteBookFields.allPagesAmount} INTEGER NOT NULL,
         ${SqliteBookFields.readPagesAmount} INTEGER NOT NULL,
-        ${SqliteBookFields.isDeleted} INTEGER NOT NULL
+        ${SqliteBookFields.syncState} TEXT NOT NULL
       )
     ''';
 
-  Future<List<DbBook>> loadUserBooks({required String userId}) async {
-    final List<Map<String, Object?>> booksJson = await _queryUserBooks(userId);
-    return _convertBooksJsonsToDbBooks(booksJson);
+  Future<SqliteBook> loadBook({required String bookId}) async {
+    final Map<String, Object?> bookJson = await _queryBook(bookId);
+    return SqliteBook.fromJson(bookJson);
   }
 
-  Future<List<String>> loadIdsOfUserBooksMarkedAsDeleted({
+  Future<List<SqliteBook>> loadUserBooks({
     required String userId,
+    SyncState syncState = SyncState.none,
   }) async {
-    final List<Map<String, Object?>> booksIdsJsons =
-        await _queryIdsOfUserDeletedBooks(userId);
-    return _convertBooksIdsJsonsToStrings(booksIdsJsons);
-  }
-
-  Future<DbBook> addBook({required DbBook dbBook}) async {
-    final String bookId = dbBook.id ?? _generateNewId();
-    final DbBook updatedBook = dbBook.copyWith(id: bookId);
-    await _insertNewBook(
-      updatedBook.toSqliteBook(isDeleted: false),
+    final List<Map<String, Object?>> booksInJson = await _queryUserBooks(
+      userId,
+      syncState,
     );
-    return updatedBook;
+    return booksInJson.map(SqliteBook.fromJson).toList();
   }
 
-  Future<void> markBookAsDeleted({required String bookId}) async {
+  Future<void> addBook({required SqliteBook sqliteBook}) async {
+    final Database db = await SqliteDatabase.instance.database;
+    await db.insert(SqliteTables.booksTable, sqliteBook.toJson());
+  }
+
+  Future<SqliteBook> updateBook({
+    required String bookId,
+    String? status,
+    String? title,
+    String? author,
+    int? readPagesAmount,
+    int? allPagesAmount,
+    SyncState? syncState,
+  }) async {
     final Map<String, Object?> bookJson = await _queryBook(bookId);
     final SqliteBook sqliteBook = SqliteBook.fromJson(bookJson);
-    final SqliteBook updatedSqliteBook = sqliteBook.copyWith(isDeleted: true);
+    final SqliteBook updatedSqliteBook = sqliteBook.copyWith(
+      status: status,
+      title: title,
+      author: author,
+      readPagesAmount: readPagesAmount,
+      allPagesAmount: allPagesAmount,
+      syncState: syncState,
+    );
     await _updateBook(updatedSqliteBook);
+    return updatedSqliteBook;
   }
 
   Future<void> deleteBook({required String bookId}) async {
@@ -59,26 +71,16 @@ class SqliteBookService {
     );
   }
 
-  Future<List<Map<String, Object?>>> _queryUserBooks(String userId) async {
-    final Database db = await SqliteDatabase.instance.database;
-    return await db.query(
-      SqliteTables.booksTable,
-      where:
-          '${SqliteBookFields.userId} = ? AND ${SqliteBookFields.isDeleted} = ?',
-      whereArgs: [userId, 0],
-    );
-  }
-
-  Future<List<Map<String, Object?>>> _queryIdsOfUserDeletedBooks(
+  Future<List<Map<String, Object?>>> _queryUserBooks(
     String userId,
+    SyncState syncState,
   ) async {
     final Database db = await SqliteDatabase.instance.database;
     return await db.query(
       SqliteTables.booksTable,
-      columns: [SqliteBookFields.id],
       where:
-          '${SqliteBookFields.userId} = ? AND ${SqliteBookFields.isDeleted} = ?',
-      whereArgs: [userId, 1],
+          '${SqliteBookFields.userId} = ? AND ${SqliteBookFields.syncState} = ?',
+      whereArgs: [userId, syncState.name],
     );
   }
 
@@ -101,27 +103,5 @@ class SqliteBookService {
       where: '${SqliteBookFields.id} = ?',
       whereArgs: [sqliteBook.id],
     );
-  }
-
-  List<DbBook> _convertBooksJsonsToDbBooks(List<Map<String, Object?>> jsons) {
-    return jsons
-        .map(SqliteBook.fromJson)
-        .map((SqliteBook sqliteBook) => sqliteBook.toDbBook())
-        .toList();
-  }
-
-  List<String> _convertBooksIdsJsonsToStrings(
-    List<Map<String, Object?>> jsons,
-  ) {
-    return jsons.map(SqliteBook.fromJsonToId).toList();
-  }
-
-  Future<void> _insertNewBook(SqliteBook sqliteBook) async {
-    final Database db = await SqliteDatabase.instance.database;
-    await db.insert(SqliteTables.booksTable, sqliteBook.toJson());
-  }
-
-  String _generateNewId() {
-    return _uuid.v4();
   }
 }

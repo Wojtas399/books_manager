@@ -25,15 +25,11 @@ class LibraryContent extends StatelessWidget {
   }
 
   Widget _buildBookItem(Book book) {
-    final String? bookId = book.id;
-    if (bookId == null) {
-      return const SizedBox();
-    }
     return LibraryBookItem(
       imageData: book.imageData,
       title: book.title,
       author: book.author,
-      onPressed: () => _onBookPressed(bookId),
+      onPressed: () => _onBookPressed(book.id),
     );
   }
 

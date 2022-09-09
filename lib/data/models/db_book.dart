@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:equatable/equatable.dart';
 
 class DbBook extends Equatable {
-  final String? id;
+  final String id;
   final Uint8List? imageData;
   final String userId;
   final String status;
@@ -13,7 +13,7 @@ class DbBook extends Equatable {
   final int allPagesAmount;
 
   const DbBook({
-    this.id,
+    required this.id,
     this.imageData,
     required this.userId,
     required this.status,
@@ -25,7 +25,7 @@ class DbBook extends Equatable {
 
   @override
   List<Object> get props => [
-        id ?? '',
+        id,
         imageData ?? '',
         userId,
         status,
@@ -59,7 +59,7 @@ class DbBook extends Equatable {
 }
 
 DbBook createDbBook({
-  String? id,
+  String id = 'b1',
   Uint8List? imageData,
   String userId = '',
   String status = 'unread',

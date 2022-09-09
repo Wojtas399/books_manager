@@ -8,6 +8,7 @@ import 'package:app/data/data_sources/remote_db/book_remote_db_service.dart';
 import 'package:app/data/data_sources/remote_db/firebase/services/firebase_auth_service.dart';
 import 'package:app/data/data_sources/remote_db/firebase/services/firebase_firestore_book_service.dart';
 import 'package:app/data/data_sources/remote_db/firebase/services/firebase_storage_service.dart';
+import 'package:app/data/id_generator.dart';
 import 'package:app/data/repositories/auth_repository.dart';
 import 'package:app/data/repositories/book_repository.dart';
 import 'package:app/data/synchronizers/book_synchronizer.dart';
@@ -36,6 +37,7 @@ class DataProvider {
       bookLocalDbService: _provideBookLocalDbService(),
       bookRemoteDbService: _provideBookRemoteDbService(),
       device: DeviceProvider.provide(),
+      idGenerator: IdGenerator(),
     );
   }
 

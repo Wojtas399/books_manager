@@ -12,8 +12,6 @@ class MockGetLoggedUserIdUseCase extends Mock
 
 class MockAddBookUseCase extends Mock implements AddBookUseCase {}
 
-class FakeBook extends Fake implements Book {}
-
 void main() {
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
   final addBookUseCase = MockAddBookUseCase();
@@ -53,10 +51,6 @@ void main() {
       readPagesAmount: readPagesAmount,
     );
   }
-
-  setUpAll(() {
-    registerFallbackValue(FakeBook());
-  });
 
   tearDown(() {
     reset(getLoggedUserIdUseCase);
@@ -149,30 +143,33 @@ void main() {
       const String author = 'author';
       const int readPagesAmount = 20;
       const int allPagesAmount = 200;
-      final Book book = createBook(
-        userId: loggedUserId,
-        imageData: null,
-        title: title,
-        author: author,
-        readPagesAmount: readPagesAmount,
-        allPagesAmount: allPagesAmount,
-      );
+
+      setUp(() {
+        when(
+          () => addBookUseCase.execute(
+            userId: any(named: 'userId'),
+            status: BookStatus.unread,
+            imageData: any(named: 'imageData'),
+            title: any(named: 'title'),
+            author: any(named: 'author'),
+            readPagesAmount: any(named: 'readPagesAmount'),
+            allPagesAmount: any(named: 'allPagesAmount'),
+          ),
+        ).thenAnswer((_) async => '');
+      });
 
       blocTest(
         'should call use case responsible for adding new book',
         build: () => createBloc(
-          title: book.title,
-          author: book.author,
-          readPagesAmount: book.readPagesAmount,
-          allPagesAmount: book.allPagesAmount,
+          title: title,
+          author: author,
+          readPagesAmount: readPagesAmount,
+          allPagesAmount: allPagesAmount,
         ),
         setUp: () {
           when(
             () => getLoggedUserIdUseCase.execute(),
           ).thenAnswer((_) => Stream.value(loggedUserId));
-          when(
-            () => addBookUseCase.execute(book: book),
-          ).thenAnswer((_) async => '');
         },
         act: (BookCreatorBloc bloc) {
           bloc.add(
@@ -199,7 +196,15 @@ void main() {
         ],
         verify: (_) {
           verify(
-            () => addBookUseCase.execute(book: book),
+            () => addBookUseCase.execute(
+              userId: loggedUserId,
+              status: BookStatus.unread,
+              imageData: null,
+              title: title,
+              author: author,
+              readPagesAmount: readPagesAmount,
+              allPagesAmount: allPagesAmount,
+            ),
           ).called(1);
         },
       );
@@ -211,9 +216,6 @@ void main() {
           when(
             () => getLoggedUserIdUseCase.execute(),
           ).thenAnswer((_) => Stream.value(null));
-          when(
-            () => addBookUseCase.execute(book: any(named: 'book')),
-          ).thenAnswer((_) async => '');
         },
         act: (BookCreatorBloc bloc) {
           bloc.add(
@@ -230,7 +232,15 @@ void main() {
         ],
         verify: (_) {
           verifyNever(
-            () => addBookUseCase.execute(book: any(named: 'book')),
+            () => addBookUseCase.execute(
+              userId: any(named: 'userId'),
+              status: BookStatus.unread,
+              imageData: any(named: 'imageData'),
+              title: any(named: 'title'),
+              author: any(named: 'author'),
+              readPagesAmount: any(named: 'readPagesAmount'),
+              allPagesAmount: any(named: 'allPagesAmount'),
+            ),
           );
         },
       );

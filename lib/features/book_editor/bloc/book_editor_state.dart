@@ -44,12 +44,12 @@ class BookEditorState extends BlocState {
     String? author,
     int? readPagesAmount,
     int? allPagesAmount,
-    bool deleteImage = false,
+    bool deletedImage = false,
   }) {
     return BookEditorState(
       status: status ?? const BlocStatusInProgress(),
       originalBook: originalBook ?? this.originalBook,
-      imageData: deleteImage ? null : imageData ?? this.imageData,
+      imageData: deletedImage ? null : imageData ?? this.imageData,
       title: title ?? this.title,
       author: author ?? this.author,
       readPagesAmount: readPagesAmount ?? this.readPagesAmount,

@@ -13,7 +13,7 @@ class CupertinoDialogs implements DialogInterface {
   bool _isLoadingDialogOpened = false;
 
   @override
-  Future<int?> askForAction({
+  Future<String?> askForAction({
     required String title,
     required List<ActionSheetAction> actions,
     BuildContext? context,
@@ -24,8 +24,7 @@ class CupertinoDialogs implements DialogInterface {
         context: buildContext,
         builder: (_) => CupertinoCustomActionSheet(
           title: title,
-          actionsLabels:
-              actions.map((ActionSheetAction action) => action.label).toList(),
+          actions: actions,
         ),
       );
     }

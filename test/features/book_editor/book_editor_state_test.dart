@@ -221,12 +221,12 @@ void main() {
   );
 
   test(
-    'copy with delete image',
+    'copy with deleted image',
     () {
       final Uint8List imageData = Uint8List(1);
 
       state = state.copyWith(imageData: imageData);
-      final state2 = state.copyWith(deleteImage: true);
+      final state2 = state.copyWith(deletedImage: true);
 
       expect(state.imageData, imageData);
       expect(state2.imageData, null);

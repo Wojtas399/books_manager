@@ -40,7 +40,6 @@ class BookEditorBloc extends Bloc<BookEditorEvent, BookEditorState> {
     on<BookEditorEventInitialize>(_initialize);
     on<BookEditorEventImageChanged>(_imageChanged);
     on<BookEditorEventRestoreOriginalImage>(_restoreOriginalImage);
-    on<BookEditorEventDeleteImage>(_deleteImage);
     on<BookEditorEventTitleChanged>(_titleChanged);
     on<BookEditorEventAuthorChanged>(_authorChanged);
     on<BookEditorEventReadPagesAmountChanged>(_readPagesAmountChanged);
@@ -74,6 +73,7 @@ class BookEditorBloc extends Bloc<BookEditorEvent, BookEditorState> {
   ) {
     emit(state.copyWith(
       imageData: event.imageData,
+      deletedImage: event.imageData == null,
     ));
   }
 
@@ -83,15 +83,6 @@ class BookEditorBloc extends Bloc<BookEditorEvent, BookEditorState> {
   ) {
     emit(state.copyWith(
       imageData: state.originalBook?.imageData,
-    ));
-  }
-
-  void _deleteImage(
-    BookEditorEventDeleteImage event,
-    Emitter<BookEditorState> emit,
-  ) {
-    emit(state.copyWith(
-      deleteImage: true,
     ));
   }
 

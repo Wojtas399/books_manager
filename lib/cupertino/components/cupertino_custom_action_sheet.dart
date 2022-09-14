@@ -1,13 +1,14 @@
+import 'package:app/models/action_sheet_action.dart';
 import 'package:flutter/cupertino.dart';
 
 class CupertinoCustomActionSheet extends StatelessWidget {
   final String title;
-  final List<String> actionsLabels;
+  final List<ActionSheetAction> actions;
 
   const CupertinoCustomActionSheet({
     super.key,
     required this.title,
-    required this.actionsLabels,
+    required this.actions,
   });
 
   @override
@@ -26,13 +27,10 @@ class CupertinoCustomActionSheet extends StatelessWidget {
               .copyWith(color: CupertinoColors.destructiveRed),
         ),
       ),
-      actions: actionsLabels
-          .asMap()
-          .entries
+      actions: actions
           .map(
-            (MapEntry<int, String> entry) => _createCupertinoAction(
-              label: entry.value,
-              index: entry.key,
+            (ActionSheetAction action) => _createCupertinoAction(
+              action: action,
               context: context,
             ),
           )
@@ -41,16 +39,15 @@ class CupertinoCustomActionSheet extends StatelessWidget {
   }
 
   Widget _createCupertinoAction({
-    required String label,
-    required int index,
+    required ActionSheetAction action,
     required BuildContext context,
   }) {
     return CupertinoActionSheetAction(
       onPressed: () {
-        Navigator.pop(context, index);
+        Navigator.pop(context, action.id);
       },
       child: Text(
-        label,
+        action.label,
         style: CupertinoTheme.of(context)
             .textTheme
             .actionTextStyle

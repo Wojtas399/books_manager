@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
@@ -18,7 +18,7 @@ class BookCreatorBloc extends Bloc<BookCreatorEvent, BookCreatorState> {
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
     required AddBookUseCase addBookUseCase,
     BlocStatus status = const BlocStatusInitial(),
-    String? imagePath,
+    Uint8List? imageData,
     String title = '',
     String author = '',
     int allPagesAmount = 0,
@@ -26,7 +26,7 @@ class BookCreatorBloc extends Bloc<BookCreatorEvent, BookCreatorState> {
   }) : super(
           BookCreatorState(
             status: status,
-            imagePath: imagePath,
+            imageData: imageData,
             title: title,
             author: author,
             allPagesAmount: allPagesAmount,
@@ -35,8 +35,7 @@ class BookCreatorBloc extends Bloc<BookCreatorEvent, BookCreatorState> {
         ) {
     _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
     _addBookUseCase = addBookUseCase;
-    on<BookCreatorEventChangeImagePath>(_changeImagePath);
-    on<BookCreatorEventRemoveImage>(_removeImage);
+    on<BookCreatorEventChangeImage>(_changeImage);
     on<BookCreatorEventTitleChanged>(_titleChanged);
     on<BookCreatorEventAuthorChanged>(_authorChanged);
     on<BookCreatorEventReadPagesAmountChanged>(_readPagesAmountChanged);
@@ -44,21 +43,13 @@ class BookCreatorBloc extends Bloc<BookCreatorEvent, BookCreatorState> {
     on<BookCreatorEventSubmit>(_submit);
   }
 
-  void _changeImagePath(
-    BookCreatorEventChangeImagePath event,
+  void _changeImage(
+    BookCreatorEventChangeImage event,
     Emitter<BookCreatorState> emit,
   ) {
     emit(state.copyWith(
-      imagePath: event.imagePath,
-    ));
-  }
-
-  void _removeImage(
-    BookCreatorEventRemoveImage event,
-    Emitter<BookCreatorState> emit,
-  ) {
-    emit(state.copyWith(
-      removedImagePath: true,
+      imageData: event.imageData,
+      deletedImage: event.imageData == null,
     ));
   }
 
@@ -119,11 +110,10 @@ class BookCreatorBloc extends Bloc<BookCreatorEvent, BookCreatorState> {
   }
 
   Future<void> _addBook(String loggedUserId) async {
-    final String? imagePath = state.imagePath;
     await _addBookUseCase.execute(
       userId: loggedUserId,
       status: BookStatus.unread,
-      imageData: imagePath != null ? File(imagePath).readAsBytesSync() : null,
+      imageData: state.imageData,
       title: state.title,
       author: state.author,
       readPagesAmount: state.readPagesAmount,

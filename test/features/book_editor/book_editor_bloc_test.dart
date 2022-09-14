@@ -38,7 +38,7 @@ void main() {
   }
 
   BookEditorState createState({
-    BlocStatus status = const BlocStatusInitial(),
+    BlocStatus status = const BlocStatusInProgress(),
     Book? originalBook,
     Uint8List? imageData,
     String title = '',
@@ -111,8 +111,24 @@ void main() {
     },
     expect: () => [
       createState(
-        status: const BlocStatusInProgress(),
         imageData: Uint8List(1),
+      ),
+    ],
+  );
+
+  blocTest(
+    'image changed, should set image data as null if given image data is null',
+    build: () => createBloc(
+      imageData: Uint8List(1),
+    ),
+    act: (BookEditorBloc bloc) {
+      bloc.add(
+        const BookEditorEventImageChanged(imageData: null),
+      );
+    },
+    expect: () => [
+      createState(
+        imageData: null,
       ),
     ],
   );
@@ -133,31 +149,12 @@ void main() {
         },
         expect: () => [
           createState(
-            status: const BlocStatusInProgress(),
             originalBook: book,
             imageData: imageData,
           ),
         ],
       );
     },
-  );
-
-  blocTest(
-    'delete image, should set image data as null',
-    build: () => createBloc(
-      imageData: Uint8List(1),
-    ),
-    act: (BookEditorBloc bloc) {
-      bloc.add(
-        const BookEditorEventDeleteImage(),
-      );
-    },
-    expect: () => [
-      createState(
-        status: const BlocStatusInProgress(),
-        imageData: null,
-      ),
-    ],
   );
 
   blocTest(
@@ -170,7 +167,6 @@ void main() {
     },
     expect: () => [
       createState(
-        status: const BlocStatusInProgress(),
         title: 'title',
       ),
     ],
@@ -186,7 +182,6 @@ void main() {
     },
     expect: () => [
       createState(
-        status: const BlocStatusInProgress(),
         author: 'author',
       ),
     ],
@@ -202,7 +197,6 @@ void main() {
     },
     expect: () => [
       createState(
-        status: const BlocStatusInProgress(),
         readPagesAmount: 20,
       ),
     ],
@@ -218,7 +212,6 @@ void main() {
     },
     expect: () => [
       createState(
-        status: const BlocStatusInProgress(),
         allPagesAmount: 100,
       ),
     ],

@@ -12,7 +12,7 @@ class MaterialDialogs implements DialogInterface {
   bool _isLoadingDialogOpened = false;
 
   @override
-  Future<int?> askForAction({
+  Future<String?> askForAction({
     required String title,
     required List<ActionSheetAction> actions,
     BuildContext? context,

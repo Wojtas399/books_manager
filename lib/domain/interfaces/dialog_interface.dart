@@ -2,7 +2,7 @@ import 'package:app/models/action_sheet_action.dart';
 import 'package:flutter/widgets.dart';
 
 abstract class DialogInterface {
-  Future<int?> askForAction({
+  Future<String?> askForAction({
     required String title,
     required List<ActionSheetAction> actions,
     BuildContext? context,

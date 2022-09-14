@@ -11,17 +11,13 @@ class BookEditorEventInitialize extends BookEditorEvent {
 }
 
 class BookEditorEventImageChanged extends BookEditorEvent {
-  final Uint8List imageData;
+  final Uint8List? imageData;
 
   const BookEditorEventImageChanged({required this.imageData});
 }
 
 class BookEditorEventRestoreOriginalImage extends BookEditorEvent {
   const BookEditorEventRestoreOriginalImage();
-}
-
-class BookEditorEventDeleteImage extends BookEditorEvent {
-  const BookEditorEventDeleteImage();
 }
 
 class BookEditorEventTitleChanged extends BookEditorEvent {

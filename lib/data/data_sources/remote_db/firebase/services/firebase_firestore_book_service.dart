@@ -41,8 +41,9 @@ class FirebaseFirestoreBookService {
         allPagesAmount: allPagesAmount,
       );
       await bookRef.set(updatedFirebaseBook);
+    } else {
+      throw 'Cannot load book from firebase';
     }
-    throw 'Cannot load book from firebase';
   }
 
   Future<void> deleteBook({

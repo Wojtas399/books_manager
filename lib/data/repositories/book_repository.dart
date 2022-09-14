@@ -45,11 +45,11 @@ class BookRepository implements BookInterface {
       await _bookSynchronizer.synchronizeUserBooksMarkedAsDeleted(
         userId: userId,
       );
-      await _bookSynchronizer.synchronizeUnmodifiedUserBooks(userId: userId);
       await _bookSynchronizer.synchronizeUserBooksMarkedAsAdded(userId: userId);
       await _bookSynchronizer.synchronizeUserBooksMarkedAsUpdated(
         userId: userId,
       );
+      await _bookSynchronizer.synchronizeUnmodifiedUserBooks(userId: userId);
     }
   }
 

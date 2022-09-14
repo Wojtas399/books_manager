@@ -25,7 +25,7 @@ class SqliteBookService {
 
   Future<List<SqliteBook>> loadUserBooks({
     required String userId,
-    SyncState syncState = SyncState.none,
+    SyncState? syncState,
   }) async {
     final List<Map<String, Object?>> booksInJson = await _queryUserBooks(
       userId,
@@ -73,14 +73,24 @@ class SqliteBookService {
 
   Future<List<Map<String, Object?>>> _queryUserBooks(
     String userId,
-    SyncState syncState,
+    SyncState? syncState,
   ) async {
     final Database db = await SqliteDatabase.instance.database;
+    List<String> syncStatesNames = [
+      SyncState.none.name,
+      SyncState.added.name,
+      SyncState.updated.name,
+    ];
+    if (syncState != null) {
+      syncStatesNames = [syncState.name];
+    }
+    const String userIdQuery = '${SqliteBookFields.userId} = ?';
+    final String syncStateQuery =
+        '${SqliteBookFields.syncState} IN (${syncStatesNames.map((_) => '?').join(', ')})';
     return await db.query(
       SqliteTables.booksTable,
-      where:
-          '${SqliteBookFields.userId} = ? AND ${SqliteBookFields.syncState} = ?',
-      whereArgs: [userId, syncState.name],
+      where: '$userIdQuery AND $syncStateQuery',
+      whereArgs: [userId, ...syncStatesNames],
     );
   }
 

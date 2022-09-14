@@ -21,7 +21,7 @@ class BookLocalDbService {
 
   Future<List<DbBook>> loadUserBooks({
     required String userId,
-    SyncState syncState = SyncState.none,
+    SyncState? syncState,
   }) async {
     final List<SqliteBook> sqliteBooks = await _sqliteBookService.loadUserBooks(
       userId: userId,

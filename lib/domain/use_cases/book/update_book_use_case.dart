@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 
 class UpdateBookUseCase {
@@ -15,7 +14,6 @@ class UpdateBookUseCase {
     required String userId,
     Uint8List? imageData,
     bool deleteImage = false,
-    BookStatus? bookStatus,
     String? title,
     String? author,
     int? readPagesAmount,
@@ -37,7 +35,6 @@ class UpdateBookUseCase {
     await _bookInterface.updateBookData(
       bookId: bookId,
       userId: userId,
-      bookStatus: bookStatus,
       title: title,
       author: author,
       readPagesAmount: readPagesAmount,

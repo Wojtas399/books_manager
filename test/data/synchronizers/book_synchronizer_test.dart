@@ -52,7 +52,10 @@ void main() {
         createDbBook(id: 'b2'),
       ];
       when(
-        () => bookLocalDbService.loadUserBooks(userId: userId),
+        () => bookLocalDbService.loadUserBooks(
+          userId: userId,
+          syncState: SyncState.none,
+        ),
       ).thenAnswer((_) async => localBooks);
       when(
         () => bookRemoteDbService.loadUserBooks(userId: userId),
@@ -71,6 +74,64 @@ void main() {
       ).called(1);
       verify(
         () => bookRemoteDbService.addBook(dbBook: localBooks.last),
+      ).called(1);
+    },
+  );
+
+  test(
+    'synchronize unmodified user books, should update book in local db if there are two books with the same id in both databases',
+    () async {
+      final List<DbBook> localBooks = [
+        createDbBook(id: 'b1', title: 'title'),
+      ];
+      final List<DbBook> remoteBooks = [
+        createDbBook(id: 'b1', title: 'wow'),
+      ];
+      when(
+        () => bookLocalDbService.loadUserBooks(
+          userId: userId,
+          syncState: SyncState.none,
+        ),
+      ).thenAnswer((_) async => localBooks);
+      when(
+        () => bookRemoteDbService.loadUserBooks(userId: userId),
+      ).thenAnswer((_) async => remoteBooks);
+      when(
+        () => bookLocalDbService.updateBookData(
+          bookId: remoteBooks.first.id,
+          status: remoteBooks.first.status,
+          title: remoteBooks.first.title,
+          author: remoteBooks.first.author,
+          readPagesAmount: remoteBooks.first.readPagesAmount,
+          allPagesAmount: remoteBooks.first.allPagesAmount,
+        ),
+      ).thenAnswer((_) async => createDbBook());
+      when(
+        () => bookLocalDbService.updateBookImage(
+          bookId: remoteBooks.first.id,
+          userId: remoteBooks.first.userId,
+          imageData: remoteBooks.first.imageData,
+        ),
+      ).thenAnswer((_) async => createDbBook());
+
+      await synchronizer.synchronizeUnmodifiedUserBooks(userId: userId);
+
+      verify(
+        () => bookLocalDbService.updateBookData(
+          bookId: remoteBooks.first.id,
+          status: remoteBooks.first.status,
+          title: remoteBooks.first.title,
+          author: remoteBooks.first.author,
+          readPagesAmount: remoteBooks.first.readPagesAmount,
+          allPagesAmount: remoteBooks.first.allPagesAmount,
+        ),
+      ).called(1);
+      verify(
+        () => bookLocalDbService.updateBookImage(
+          bookId: remoteBooks.first.id,
+          userId: remoteBooks.first.userId,
+          imageData: remoteBooks.first.imageData,
+        ),
       ).called(1);
     },
   );

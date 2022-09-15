@@ -10,6 +10,10 @@ import 'package:app/providers/navigator_key_provider.dart';
 import 'package:flutter/widgets.dart';
 
 class Navigation {
+  static void moveBack() {
+    _getNavigatorState()?.pop();
+  }
+
   static void navigateToSignInScreen({BuildContext? context}) {
     final BuildContext? buildContext =
         context ?? NavigatorKeyProvider.getContext();

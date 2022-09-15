@@ -1,5 +1,7 @@
 import 'package:app/components/custom_bloc_listener.dart';
+import 'package:app/config/navigation.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
+import 'package:app/domain/interfaces/dialog_interface.dart';
 import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
 import 'package:app/domain/use_cases/book/update_book_use_case.dart';
 import 'package:app/features/book_editor/bloc/book_editor_bloc.dart';
@@ -59,7 +61,31 @@ class _BookEditorBlocListener extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomBlocListener<BookEditorBloc, BookEditorState,
         BookEditorBlocInfo, dynamic>(
+      onCompletionInfo: (BookEditorBlocInfo? blocInfo) => _onCompletionInfo(
+        blocInfo,
+        context,
+      ),
       child: child,
     );
+  }
+
+  void _onCompletionInfo(
+    BookEditorBlocInfo? blocInfo,
+    BuildContext context,
+  ) {
+    if (blocInfo != null) {
+      switch (blocInfo) {
+        case BookEditorBlocInfo.bookHasBeenUpdated:
+          _onBookUpdate(context);
+          break;
+      }
+    }
+  }
+
+  void _onBookUpdate(BuildContext context) {
+    Navigation.moveBack();
+    context.read<DialogInterface>().showSnackBar(
+          message: 'Pomyślnie zaktualizowano książkę',
+        );
   }
 }

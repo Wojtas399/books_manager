@@ -106,7 +106,6 @@ void main() {
     setUp: () {
       when(
         () => deleteBookUseCase.execute(
-          userId: any(named: 'userId'),
           bookId: any(named: 'bookId'),
         ),
       ).thenAnswer((_) async => '');
@@ -120,7 +119,6 @@ void main() {
     verify: (_) {
       verifyNever(
         () => deleteBookUseCase.execute(
-          userId: any(named: 'userId'),
           bookId: any(named: 'bookId'),
         ),
       );
@@ -130,11 +128,11 @@ void main() {
   blocTest(
     'delete book, should call use case responsible for deleting book if book id and user id are not null',
     build: () => createBloc(
-      book: createBook(id: 'b1', userId: 'u1'),
+      book: createBook(id: 'b1'),
     ),
     setUp: () {
       when(
-        () => deleteBookUseCase.execute(userId: 'u1', bookId: 'b1'),
+        () => deleteBookUseCase.execute(bookId: 'b1'),
       ).thenAnswer((_) async => '');
     },
     act: (BookPreviewBloc bloc) {
@@ -145,18 +143,18 @@ void main() {
     expect: () => [
       createState(
         status: const BlocStatusLoading(),
-        book: createBook(id: 'b1', userId: 'u1'),
+        book: createBook(id: 'b1'),
       ),
       createState(
         status: const BlocStatusComplete<BookPreviewBlocInfo>(
           info: BookPreviewBlocInfo.bookHasBeenDeleted,
         ),
-        book: createBook(id: 'b1', userId: 'u1'),
+        book: createBook(id: 'b1'),
       ),
     ],
     verify: (_) {
       verify(
-        () => deleteBookUseCase.execute(userId: 'u1', bookId: 'b1'),
+        () => deleteBookUseCase.execute(bookId: 'b1'),
       ).called(1);
     },
   );

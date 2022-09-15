@@ -364,7 +364,6 @@ void main() {
 
           await repository.updateBookData(
             bookId: bookId,
-            userId: userId,
             title: newTitle,
           );
 
@@ -398,7 +397,6 @@ void main() {
 
           await repository.updateBookData(
             bookId: bookId,
-            userId: userId,
             title: newTitle,
           );
 
@@ -470,7 +468,6 @@ void main() {
 
           await repository.updateBookImage(
             bookId: bookId,
-            userId: userId,
             imageData: imageData,
           );
 
@@ -510,7 +507,6 @@ void main() {
 
           await repository.updateBookImage(
             bookId: bookId,
-            userId: userId,
             imageData: imageData,
           );
 
@@ -536,53 +532,65 @@ void main() {
     },
   );
 
-  test(
-    'delete book, should call methods responsible for deleting book from remote and local db if device has internet connection',
-    () async {
+  group(
+    'delete book',
+    () {
       const String bookId = 'b1';
-      when(
-        () => device.hasInternetConnection(),
-      ).thenAnswer((_) async => true);
-      when(
-        () => bookRemoteDbService.deleteBook(userId: userId, bookId: bookId),
-      ).thenAnswer((_) async => '');
-      when(
-        () => bookLocalDbService.deleteBook(userId: userId, bookId: bookId),
-      ).thenAnswer((_) async => '');
+      final Book book = createBook(id: bookId, userId: userId);
 
-      await repository.deleteBook(userId: userId, bookId: bookId);
+      setUp(() {
+        repository = createRepository(books: [book]);
+      });
 
-      verify(
-        () => bookRemoteDbService.deleteBook(userId: userId, bookId: bookId),
-      ).called(1);
-      verify(
-        () => bookLocalDbService.deleteBook(userId: userId, bookId: bookId),
-      ).called(1);
-    },
-  );
+      test(
+        'should call methods responsible for deleting book from remote and local db if device has internet connection',
+        () async {
+          when(
+            () => device.hasInternetConnection(),
+          ).thenAnswer((_) async => true);
+          when(
+            () =>
+                bookRemoteDbService.deleteBook(userId: userId, bookId: bookId),
+          ).thenAnswer((_) async => '');
+          when(
+            () => bookLocalDbService.deleteBook(userId: userId, bookId: bookId),
+          ).thenAnswer((_) async => '');
 
-  test(
-    'delete book, should call method responsible for updating book with sync state as deleted if device has not internet connection',
-    () async {
-      const String bookId = 'b1';
-      when(
-        () => device.hasInternetConnection(),
-      ).thenAnswer((_) async => false);
-      when(
-        () => bookLocalDbService.updateBookData(
-          bookId: bookId,
-          syncState: SyncState.deleted,
-        ),
-      ).thenAnswer((_) async => createDbBook());
+          await repository.deleteBook(bookId: bookId);
 
-      await repository.deleteBook(userId: userId, bookId: bookId);
+          verify(
+            () =>
+                bookRemoteDbService.deleteBook(userId: userId, bookId: bookId),
+          ).called(1);
+          verify(
+            () => bookLocalDbService.deleteBook(userId: userId, bookId: bookId),
+          ).called(1);
+        },
+      );
 
-      verify(
-        () => bookLocalDbService.updateBookData(
-          bookId: bookId,
-          syncState: SyncState.deleted,
-        ),
-      ).called(1);
+      test(
+        'should call method responsible for updating book with sync state as deleted if device has not internet connection',
+        () async {
+          when(
+            () => device.hasInternetConnection(),
+          ).thenAnswer((_) async => false);
+          when(
+            () => bookLocalDbService.updateBookData(
+              bookId: bookId,
+              syncState: SyncState.deleted,
+            ),
+          ).thenAnswer((_) async => createDbBook());
+
+          await repository.deleteBook(bookId: bookId);
+
+          verify(
+            () => bookLocalDbService.updateBookData(
+              bookId: bookId,
+              syncState: SyncState.deleted,
+            ),
+          ).called(1);
+        },
+      );
     },
   );
 

@@ -126,14 +126,13 @@ class BookEditorBloc extends Bloc<BookEditorEvent, BookEditorState> {
     BookEditorEventSubmit event,
     Emitter<BookEditorState> emit,
   ) async {
-    final Book? originalBook = state.originalBook;
-    if (originalBook != null) {
+    final String? bookId = state.originalBook?.id;
+    if (bookId != null) {
       emit(state.copyWith(
         status: const BlocStatusLoading(),
       ));
       await _updateBookUseCase.execute(
-        bookId: originalBook.id,
-        userId: originalBook.userId,
+        bookId: bookId,
         imageData: state.imageData,
         deleteImage: state.imageData == null,
         title: state.title,

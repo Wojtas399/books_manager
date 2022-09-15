@@ -14,21 +14,18 @@ void main() {
     'should update book with status set as in progress',
     () async {
       const String bookId = 'b1';
-      const String userId = 'u1';
       when(
         () => bookInterface.updateBookData(
           bookId: bookId,
-          userId: userId,
           bookStatus: BookStatus.inProgress,
         ),
       ).thenAnswer((_) async => '');
 
-      await useCase.execute(bookId: bookId, userId: userId);
+      await useCase.execute(bookId: bookId);
 
       verify(
         () => bookInterface.updateBookData(
           bookId: bookId,
-          userId: userId,
           bookStatus: BookStatus.inProgress,
         ),
       ).called(1);

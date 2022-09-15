@@ -11,14 +11,12 @@ void main() {
   final bookInterface = MockBookInterface();
   late UpdateBookUseCase useCase;
   const String bookId = 'b1';
-  const String userId = 'u1';
 
   setUp(() {
     useCase = UpdateBookUseCase(bookInterface: bookInterface);
     when(
       () => bookInterface.updateBookData(
         bookId: bookId,
-        userId: userId,
         title: any(named: 'title'),
         author: any(named: 'author'),
         readPagesAmount: any(named: 'readPagesAmount'),
@@ -28,7 +26,6 @@ void main() {
     when(
       () => bookInterface.updateBookImage(
         bookId: bookId,
-        userId: userId,
         imageData: any(named: 'imageData'),
       ),
     ).thenAnswer((_) async => '');
@@ -48,7 +45,6 @@ void main() {
 
       await useCase.execute(
         bookId: bookId,
-        userId: userId,
         title: newTitle,
         author: newAuthor,
         readPagesAmount: newReadPagesAmount,
@@ -58,7 +54,6 @@ void main() {
       verify(
         () => bookInterface.updateBookData(
           bookId: bookId,
-          userId: userId,
           title: newTitle,
           author: newAuthor,
           readPagesAmount: newReadPagesAmount,
@@ -68,7 +63,6 @@ void main() {
       verifyNever(
         () => bookInterface.updateBookImage(
           bookId: bookId,
-          userId: userId,
           imageData: null,
         ),
       );
@@ -82,14 +76,12 @@ void main() {
 
       await useCase.execute(
         bookId: bookId,
-        userId: userId,
         imageData: newImageData,
       );
 
       verify(
         () => bookInterface.updateBookImage(
           bookId: bookId,
-          userId: userId,
           imageData: newImageData,
         ),
       ).called(1);
@@ -101,14 +93,12 @@ void main() {
     () async {
       await useCase.execute(
         bookId: bookId,
-        userId: userId,
         deleteImage: true,
       );
 
       verify(
         () => bookInterface.updateBookImage(
           bookId: bookId,
-          userId: userId,
           imageData: null,
         ),
       ).called(1);

@@ -23,7 +23,6 @@ abstract class BookInterface {
 
   Future<void> updateBookData({
     required String bookId,
-    required String userId,
     BookStatus? bookStatus,
     String? title,
     String? author,
@@ -33,14 +32,10 @@ abstract class BookInterface {
 
   Future<void> updateBookImage({
     required String bookId,
-    required String userId,
     required Uint8List? imageData,
   });
 
-  Future<void> deleteBook({
-    required String userId,
-    required String bookId,
-  });
+  Future<void> deleteBook({required String bookId});
 
   void reset();
 }

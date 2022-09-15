@@ -11,7 +11,6 @@ class UpdateBookUseCase {
 
   Future<void> execute({
     required String bookId,
-    required String userId,
     Uint8List? imageData,
     bool deleteImage = false,
     String? title,
@@ -22,19 +21,16 @@ class UpdateBookUseCase {
     if (imageData != null) {
       await _bookInterface.updateBookImage(
         bookId: bookId,
-        userId: userId,
         imageData: imageData,
       );
     } else if (deleteImage) {
       await _bookInterface.updateBookImage(
         bookId: bookId,
-        userId: userId,
         imageData: null,
       );
     }
     await _bookInterface.updateBookData(
       bookId: bookId,
-      userId: userId,
       title: title,
       author: author,
       readPagesAmount: readPagesAmount,

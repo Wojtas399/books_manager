@@ -220,7 +220,7 @@ void main() {
   group(
     'submit',
     () {
-      final Book originalBook = createBook(id: 'b1', userId: 'u1');
+      final Book originalBook = createBook(id: 'b1');
       const String newTitle = 'new title';
       const String newAuthor = 'new author';
       const int newReadPagesAmount = 20;
@@ -237,7 +237,6 @@ void main() {
         when(
           () => updateBookUseCase.execute(
             bookId: originalBook.id,
-            userId: originalBook.userId,
             imageData: any(named: 'imageData'),
             deleteImage: any(named: 'deleteImage'),
             title: newTitle,
@@ -279,7 +278,6 @@ void main() {
           verify(
             () => updateBookUseCase.execute(
               bookId: originalBook.id,
-              userId: originalBook.userId,
               imageData: Uint8List(1),
               title: newTitle,
               author: newAuthor,
@@ -319,7 +317,6 @@ void main() {
           verify(
             () => updateBookUseCase.execute(
               bookId: originalBook.id,
-              userId: originalBook.userId,
               deleteImage: true,
               title: newTitle,
               author: newAuthor,

@@ -65,12 +65,11 @@ class BookPreviewBloc extends Bloc<BookPreviewEvent, BookPreviewState> {
     Emitter<BookPreviewState> emit,
   ) async {
     final String? bookId = state._book?.id;
-    final String? userId = state._book?.userId;
-    if (bookId != null && userId != null) {
+    if (bookId != null) {
       emit(state.copyWith(
         status: const BlocStatusLoading(),
       ));
-      await _deleteBookUseCase.execute(userId: userId, bookId: bookId);
+      await _deleteBookUseCase.execute(bookId: bookId);
       emit(state.copyWithInfo(
         BookPreviewBlocInfo.bookHasBeenDeleted,
       ));

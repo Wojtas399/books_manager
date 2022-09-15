@@ -1,8 +1,7 @@
+import 'package:app/domain/interfaces/auth_interface.dart';
+import 'package:app/domain/use_cases/auth/delete_user_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-
-import 'package:app/domain/use_cases/auth/delete_user_use_case.dart';
-import 'package:app/interfaces/auth_interface.dart';
 
 class MockAuthInterface extends Mock implements AuthInterface {}
 

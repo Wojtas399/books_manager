@@ -1,5 +1,6 @@
 import 'package:app/config/routes.dart';
 import 'package:app/features/book_creator/book_creator_screen.dart';
+import 'package:app/features/book_editor/book_editor_screen.dart';
 import 'package:app/features/book_preview/book_preview_screen.dart';
 import 'package:app/features/home/components/home_content.dart';
 import 'package:app/features/settings/settings_screen.dart';
@@ -47,6 +48,12 @@ class _HomeRouterState extends State<HomeRouter> {
       case Routes.bookPreview:
         return MaterialPageRoute(
           builder: (_) => BookPreviewScreen(
+            bookId: routeSettings.arguments as String,
+          ),
+        );
+      case Routes.bookEditor:
+        return MaterialPageRoute(
+          builder: (_) => BookEditorScreen(
             bookId: routeSettings.arguments as String,
           ),
         );

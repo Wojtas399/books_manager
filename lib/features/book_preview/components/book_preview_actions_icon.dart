@@ -1,10 +1,14 @@
+import 'package:app/config/navigation.dart';
+import 'package:app/domain/interfaces/dialog_interface.dart';
 import 'package:app/features/book_preview/bloc/book_preview_bloc.dart';
-import 'package:app/interfaces/dialog_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class BookPreviewActionsIcon extends StatelessWidget {
+  final editAction = 'Edit';
+  final deleteAction = 'Delete';
+
   const BookPreviewActionsIcon({super.key});
 
   @override
@@ -13,10 +17,11 @@ class BookPreviewActionsIcon extends StatelessWidget {
       padding: const EdgeInsets.only(right: 4),
       child: PopupMenuButton(
         icon: const Icon(MdiIcons.dotsVertical),
+        onSelected: (String action) => _manageAction(action, context),
         itemBuilder: (BuildContext context) {
-          return [
+          return <PopupMenuItem<String>>[
             PopupMenuItem(
-              onTap: _onEditPressed,
+              value: editAction,
               child: Row(
                 children: const [
                   Icon(MdiIcons.pencil),
@@ -26,7 +31,7 @@ class BookPreviewActionsIcon extends StatelessWidget {
               ),
             ),
             PopupMenuItem(
-              onTap: () => _onDeletePressed(context),
+              value: deleteAction,
               child: Row(
                 children: const [
                   Icon(MdiIcons.delete),
@@ -41,8 +46,19 @@ class BookPreviewActionsIcon extends StatelessWidget {
     );
   }
 
-  void _onEditPressed() {
-    //TODO
+  void _manageAction(String action, BuildContext context) {
+    if (action == editAction) {
+      _onEditPressed(context);
+    } else if (action == deleteAction) {
+      _onDeletePressed(context);
+    }
+  }
+
+  void _onEditPressed(BuildContext context) {
+    final String? bookId = context.read<BookPreviewBloc>().state.bookId;
+    if (bookId != null) {
+      Navigation.navigateToBookEditor(bookId: bookId);
+    }
   }
 
   Future<void> _onDeletePressed(BuildContext context) async {

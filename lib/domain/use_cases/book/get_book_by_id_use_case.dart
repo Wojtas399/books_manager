@@ -1,5 +1,5 @@
 import 'package:app/domain/entities/book.dart';
-import 'package:app/interfaces/book_interface.dart';
+import 'package:app/domain/interfaces/book_interface.dart';
 
 class GetBookByIdUseCase {
   late final BookInterface _bookInterface;

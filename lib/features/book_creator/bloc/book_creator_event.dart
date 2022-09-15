@@ -4,14 +4,10 @@ abstract class BookCreatorEvent {
   const BookCreatorEvent();
 }
 
-class BookCreatorEventChangeImagePath extends BookCreatorEvent {
-  final String imagePath;
+class BookCreatorEventChangeImage extends BookCreatorEvent {
+  final Uint8List? imageData;
 
-  const BookCreatorEventChangeImagePath({required this.imagePath});
-}
-
-class BookCreatorEventRemoveImage extends BookCreatorEvent {
-  const BookCreatorEventRemoveImage();
+  const BookCreatorEventChangeImage({required this.imageData});
 }
 
 class BookCreatorEventTitleChanged extends BookCreatorEvent {

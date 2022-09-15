@@ -1,16 +1,15 @@
+import 'package:app/components/custom_bloc_listener.dart';
+import 'package:app/config/navigation.dart';
+import 'package:app/domain/interfaces/auth_interface.dart';
+import 'package:app/domain/interfaces/book_interface.dart';
+import 'package:app/domain/interfaces/dialog_interface.dart';
+import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
+import 'package:app/domain/use_cases/book/add_book_use_case.dart';
+import 'package:app/features/book_creator/bloc/book_creator_bloc.dart';
+import 'package:app/features/book_creator/components/book_creator_content.dart';
+import 'package:app/features/home/bloc/home_bloc.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../components/custom_bloc_listener.dart';
-import '../../config/navigation.dart';
-import '../../domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import '../../domain/use_cases/book/add_book_use_case.dart';
-import '../../interfaces/auth_interface.dart';
-import '../../interfaces/book_interface.dart';
-import '../../interfaces/dialog_interface.dart';
-import '../home/bloc/home_bloc.dart';
-import 'bloc/book_creator_bloc.dart';
-import 'components/book_creator_content.dart';
 
 class BookCreatorScreen extends StatelessWidget {
   const BookCreatorScreen({super.key});

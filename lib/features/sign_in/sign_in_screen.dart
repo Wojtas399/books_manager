@@ -1,15 +1,14 @@
+import 'package:app/components/custom_bloc_listener.dart';
+import 'package:app/config/navigation.dart';
+import 'package:app/domain/interfaces/auth_interface.dart';
+import 'package:app/domain/interfaces/dialog_interface.dart';
+import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
+import 'package:app/domain/use_cases/auth/load_logged_user_id_use_case.dart';
+import 'package:app/domain/use_cases/auth/sign_in_use_case.dart';
+import 'package:app/features/sign_in/bloc/sign_in_bloc.dart';
+import 'package:app/features/sign_in/components/sign_in_content.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../components/custom_bloc_listener.dart';
-import '../../config/navigation.dart';
-import '../../domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import '../../domain/use_cases/auth/load_logged_user_id_use_case.dart';
-import '../../domain/use_cases/auth/sign_in_use_case.dart';
-import '../../interfaces/auth_interface.dart';
-import '../../interfaces/dialog_interface.dart';
-import 'bloc/sign_in_bloc.dart';
-import 'components/sign_in_content.dart';
 
 class SignInScreen extends StatelessWidget {
   const SignInScreen({super.key});

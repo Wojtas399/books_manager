@@ -1,14 +1,13 @@
+import 'package:app/config/navigation.dart';
+import 'package:app/domain/interfaces/auth_interface.dart';
+import 'package:app/domain/interfaces/dialog_interface.dart';
+import 'package:app/domain/use_cases/auth/delete_user_use_case.dart';
+import 'package:app/domain/use_cases/auth/sign_out_use_case.dart';
+import 'package:app/features/settings/bloc/settings_bloc.dart';
+import 'package:app/features/settings/components/settings_content.dart';
+import 'package:app/models/bloc_status.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../config/navigation.dart';
-import '../../domain/use_cases/auth/delete_user_use_case.dart';
-import '../../domain/use_cases/auth/sign_out_use_case.dart';
-import '../../interfaces/auth_interface.dart';
-import '../../interfaces/dialog_interface.dart';
-import '../../models/bloc_status.dart';
-import 'bloc/settings_bloc.dart';
-import 'components/settings_content.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});

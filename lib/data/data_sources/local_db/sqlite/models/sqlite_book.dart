@@ -1,76 +1,50 @@
-import 'dart:typed_data';
+import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
+import 'package:equatable/equatable.dart';
 
-import 'package:app/data/models/db_book.dart';
-
-class SqliteBook extends DbBook {
-  final bool isDeleted;
+class SqliteBook extends Equatable {
+  final String id;
+  final String userId;
+  final String status;
+  final String title;
+  final String author;
+  final int readPagesAmount;
+  final int allPagesAmount;
+  final SyncState syncState;
 
   const SqliteBook({
-    super.id,
-    super.imageData,
-    required super.userId,
-    required super.status,
-    required super.title,
-    required super.author,
-    required super.readPagesAmount,
-    required super.allPagesAmount,
-    required this.isDeleted,
+    required this.id,
+    required this.userId,
+    required this.status,
+    required this.title,
+    required this.author,
+    required this.readPagesAmount,
+    required this.allPagesAmount,
+    required this.syncState,
   });
-
-  @override
-  List<Object> get props => [
-        id ?? '',
-        imageData ?? '',
-        userId,
-        status,
-        title,
-        author,
-        readPagesAmount,
-        allPagesAmount,
-        isDeleted,
-      ];
-
-  @override
-  SqliteBook copyWith({
-    String? id,
-    Uint8List? imageData,
-    String? userId,
-    String? status,
-    String? title,
-    String? author,
-    int? readPagesAmount,
-    int? allPagesAmount,
-    bool? isDeleted,
-  }) {
-    return SqliteBook(
-      id: id ?? this.id,
-      imageData: imageData ?? this.imageData,
-      userId: userId ?? this.userId,
-      status: status ?? this.status,
-      title: title ?? this.title,
-      author: author ?? this.author,
-      readPagesAmount: readPagesAmount ?? this.readPagesAmount,
-      allPagesAmount: allPagesAmount ?? this.allPagesAmount,
-      isDeleted: isDeleted ?? this.isDeleted,
-    );
-  }
 
   SqliteBook.fromJson(Map<String, Object?> json)
       : this(
-          id: json[SqliteBookFields.id] as String?,
-          imageData: null,
+          id: json[SqliteBookFields.id] as String,
           userId: json[SqliteBookFields.userId] as String,
           status: json[SqliteBookFields.status] as String,
           title: json[SqliteBookFields.title] as String,
           author: json[SqliteBookFields.author] as String,
           readPagesAmount: json[SqliteBookFields.readPagesAmount] as int,
           allPagesAmount: json[SqliteBookFields.allPagesAmount] as int,
-          isDeleted: (json[SqliteBookFields.isDeleted] as int) == 1,
+          syncState: (json[SqliteBookFields.syncState] as String).toSyncState(),
         );
 
-  static String fromJsonToId(Map<String, Object?> json) {
-    return json[SqliteBookFields.id] as String;
-  }
+  @override
+  List<Object> get props => [
+        id,
+        userId,
+        status,
+        title,
+        author,
+        readPagesAmount,
+        allPagesAmount,
+        syncState,
+      ];
 
   Map<String, Object?> toJson() => {
         SqliteBookFields.id: id,
@@ -80,19 +54,28 @@ class SqliteBook extends DbBook {
         SqliteBookFields.author: author,
         SqliteBookFields.readPagesAmount: readPagesAmount,
         SqliteBookFields.allPagesAmount: allPagesAmount,
-        SqliteBookFields.isDeleted: isDeleted ? 1 : 0,
+        SqliteBookFields.syncState: syncState.name,
       };
 
-  DbBook toDbBook() => DbBook(
-        id: id,
-        imageData: imageData,
-        userId: userId,
-        status: status,
-        title: title,
-        author: author,
-        readPagesAmount: readPagesAmount,
-        allPagesAmount: allPagesAmount,
-      );
+  SqliteBook copyWith({
+    String? status,
+    String? title,
+    String? author,
+    int? readPagesAmount,
+    int? allPagesAmount,
+    SyncState? syncState,
+  }) {
+    return SqliteBook(
+      id: id,
+      userId: userId,
+      status: status ?? this.status,
+      title: title ?? this.title,
+      author: author ?? this.author,
+      readPagesAmount: readPagesAmount ?? this.readPagesAmount,
+      allPagesAmount: allPagesAmount ?? this.allPagesAmount,
+      syncState: syncState ?? this.syncState,
+    );
+  }
 }
 
 class SqliteBookFields {
@@ -103,21 +86,27 @@ class SqliteBookFields {
   static const String author = 'author';
   static const String readPagesAmount = 'readPagesAmount';
   static const String allPagesAmount = 'allPagesAmount';
-  static const String isDeleted = 'isDeleted';
+  static const String syncState = 'syncState';
 }
 
-extension SqliteDbBookExtensions on DbBook {
-  SqliteBook toSqliteBook({required bool isDeleted}) {
-    return SqliteBook(
-      id: id,
-      imageData: imageData,
-      userId: userId,
-      status: status,
-      title: title,
-      author: author,
-      readPagesAmount: readPagesAmount,
-      allPagesAmount: allPagesAmount,
-      isDeleted: isDeleted,
-    );
-  }
+SqliteBook createSqliteBook({
+  String id = '',
+  String userId = '',
+  String status = 'unread',
+  String title = '',
+  String author = '',
+  int readPagesAmount = 0,
+  int allPagesAmount = 0,
+  SyncState syncState = SyncState.none,
+}) {
+  return SqliteBook(
+    id: id,
+    userId: userId,
+    status: status,
+    title: title,
+    author: author,
+    readPagesAmount: readPagesAmount,
+    allPagesAmount: allPagesAmount,
+    syncState: syncState,
+  );
 }

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:app/features/book_creator/bloc/book_creator_bloc.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,7 +10,7 @@ void main() {
   setUp(() {
     state = const BookCreatorState(
       status: BlocStatusInitial(),
-      imagePath: null,
+      imageData: null,
       title: '',
       author: '',
       allPagesAmount: 0,
@@ -100,15 +102,15 @@ void main() {
   );
 
   test(
-    'copy with image path',
+    'copy with image data',
     () {
-      const String expectedPath = 'path';
+      final Uint8List expectedImageData = Uint8List(1);
 
-      state = state.copyWith(imagePath: expectedPath);
+      state = state.copyWith(imageData: expectedImageData);
       final state2 = state.copyWith();
 
-      expect(state.imagePath, expectedPath);
-      expect(state2.imagePath, expectedPath);
+      expect(state.imageData, expectedImageData);
+      expect(state2.imageData, expectedImageData);
     },
   );
 
@@ -165,13 +167,13 @@ void main() {
   );
 
   test(
-    'copy with removed image path',
+    'copy with deleted image',
     () {
-      state = state.copyWith(imagePath: 'path');
-      final state2 = state.copyWith(removedImagePath: true);
+      state = state.copyWith(imageData: Uint8List(1));
+      final state2 = state.copyWith(deletedImage: true);
 
-      expect(state.imagePath, 'path');
-      expect(state2.imagePath, null);
+      expect(state.imageData, Uint8List(1));
+      expect(state2.imageData, null);
     },
   );
 

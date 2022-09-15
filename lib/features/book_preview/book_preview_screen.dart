@@ -1,10 +1,10 @@
 import 'package:app/components/custom_bloc_listener.dart';
+import 'package:app/domain/interfaces/book_interface.dart';
+import 'package:app/domain/interfaces/dialog_interface.dart';
 import 'package:app/domain/use_cases/book/delete_book_use_case.dart';
 import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
 import 'package:app/features/book_preview/bloc/book_preview_bloc.dart';
 import 'package:app/features/book_preview/components/book_preview_content.dart';
-import 'package:app/interfaces/book_interface.dart';
-import 'package:app/interfaces/dialog_interface.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

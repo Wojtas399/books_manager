@@ -10,13 +10,16 @@ import 'package:app/providers/navigator_key_provider.dart';
 import 'package:flutter/widgets.dart';
 
 class Navigation {
+  static void moveBack() {
+    _getNavigatorState()?.pop();
+  }
+
   static void navigateToSignInScreen({BuildContext? context}) {
-    final BuildContext? buildContext = context ?? _getNavigatorContext();
+    final BuildContext? buildContext =
+        context ?? NavigatorKeyProvider.getContext();
     if (buildContext != null) {
       Navigator.of(buildContext).pushReplacement(
-        SlideRightRouteAnimation(
-          page: const SignInScreen(),
-        ),
+        SlideRightRouteAnimation(page: const SignInScreen()),
       );
     }
   }
@@ -31,54 +34,37 @@ class Navigation {
 
   static void navigateToResetPasswordScreen({required BuildContext context}) {
     Navigator.of(context).push(
-      SlideUpRouteAnimation(
-        page: const ResetPasswordScreen(),
-      ),
+      SlideUpRouteAnimation(page: const ResetPasswordScreen()),
     );
   }
 
   static void navigateToHome({required BuildContext context}) {
     Navigator.of(context).pushReplacement(
-      SlideLeftRouteAnimation(
-        page: const Home(),
-      ),
+      SlideLeftRouteAnimation(page: const Home()),
     );
   }
 
   static void backHome() {
-    final BuildContext? buildContext = _getNavigatorContext();
-    if (buildContext != null) {
-      Navigator.of(buildContext).popUntil(
-        ModalRoute.withName(Routes.home),
-      );
-    }
+    _getNavigatorState()?.popUntil(ModalRoute.withName(Routes.home));
   }
 
   static void navigateToSettings() {
-    final BuildContext? buildContext = _getNavigatorContext();
-    if (buildContext != null) {
-      Navigator.of(buildContext).pushNamed(Routes.settings);
-    }
+    _getNavigatorState()?.pushNamed(Routes.settings);
   }
 
   static void navigateToBookCreator() {
-    final BuildContext? buildContext = _getNavigatorContext();
-    if (buildContext != null) {
-      Navigator.of(buildContext).pushNamed(Routes.bookCreator);
-    }
+    _getNavigatorState()?.pushNamed(Routes.bookCreator);
   }
 
   static void navigateToBookPreview({required String bookId}) {
-    final BuildContext? buildContext = _getNavigatorContext();
-    if (buildContext != null) {
-      Navigator.of(buildContext).pushNamed(
-        Routes.bookPreview,
-        arguments: bookId,
-      );
-    }
+    _getNavigatorState()?.pushNamed(Routes.bookPreview, arguments: bookId);
   }
 
-  static BuildContext? _getNavigatorContext() {
-    return NavigatorKeyProvider.getContext();
+  static void navigateToBookEditor({required String bookId}) {
+    _getNavigatorState()?.pushNamed(Routes.bookEditor, arguments: bookId);
+  }
+
+  static NavigatorState? _getNavigatorState() {
+    return NavigatorKeyProvider.getState();
   }
 }

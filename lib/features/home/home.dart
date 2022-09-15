@@ -1,15 +1,14 @@
+import 'package:app/domain/interfaces/auth_interface.dart';
+import 'package:app/domain/interfaces/book_interface.dart';
+import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/initialize_user_data_use_case.dart';
+import 'package:app/features/home/bloc/home_bloc.dart';
+import 'package:app/features/home/components/home_loading_screen.dart';
+import 'package:app/features/home/components/home_provider.dart';
+import 'package:app/features/home/components/home_router.dart';
+import 'package:app/models/bloc_status.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import '../../interfaces/auth_interface.dart';
-import '../../interfaces/book_interface.dart';
-import '../../models/bloc_status.dart';
-import 'bloc/home_bloc.dart';
-import 'components/home_loading_screen.dart';
-import 'components/home_provider.dart';
-import 'components/home_router.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});

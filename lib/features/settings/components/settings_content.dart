@@ -1,10 +1,9 @@
+import 'package:app/components/custom_button.dart';
+import 'package:app/components/custom_scaffold.dart';
+import 'package:app/domain/interfaces/dialog_interface.dart';
+import 'package:app/features/settings/bloc/settings_bloc.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../components/custom_button.dart';
-import '../../../components/custom_scaffold.dart';
-import '../../../interfaces/dialog_interface.dart';
-import '../bloc/settings_bloc.dart';
 
 class SettingsContent extends StatelessWidget {
   const SettingsContent({super.key});

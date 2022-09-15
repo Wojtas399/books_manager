@@ -27,15 +27,12 @@ class MaterialCustomActionSheet extends StatelessWidget {
                 ?.copyWith(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 16),
-          ...actions.asMap().entries.map(
-                (MapEntry<int, ActionSheetAction> entry) =>
-                    _createMaterialAction(
-                  label: entry.value.label,
-                  iconData: entry.value.iconData,
-                  index: entry.key,
-                  context: context,
-                ),
-              ),
+          ...actions.map(
+            (ActionSheetAction action) => _createMaterialAction(
+              action: action,
+              context: context,
+            ),
+          ),
           ListTile(
             title: const Text(
               'Anuluj',
@@ -52,16 +49,14 @@ class MaterialCustomActionSheet extends StatelessWidget {
   }
 
   Widget _createMaterialAction({
-    required String label,
-    required IconData iconData,
-    required int index,
+    required ActionSheetAction action,
     required BuildContext context,
   }) {
     return ListTile(
-      title: Text(label),
-      leading: Icon(iconData),
+      title: Text(action.label),
+      leading: Icon(action.iconData),
       onTap: () {
-        Navigator.pop(context, index);
+        Navigator.pop(context, action.id);
       },
     );
   }

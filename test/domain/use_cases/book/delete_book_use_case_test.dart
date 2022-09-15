@@ -1,5 +1,5 @@
+import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/use_cases/book/delete_book_use_case.dart';
-import 'package:app/interfaces/book_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

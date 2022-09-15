@@ -1,15 +1,14 @@
+import 'package:app/components/custom_bloc_listener.dart';
+import 'package:app/config/navigation.dart';
+import 'package:app/domain/interfaces/auth_interface.dart';
+import 'package:app/domain/interfaces/dialog_interface.dart';
+import 'package:app/domain/use_cases/auth/sign_up_use_case.dart';
+import 'package:app/features/sign_up/bloc/sign_up_bloc.dart';
+import 'package:app/features/sign_up/components/sign_up_content.dart';
+import 'package:app/validators/email_validator.dart';
+import 'package:app/validators/password_validator.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../components/custom_bloc_listener.dart';
-import '../../config/navigation.dart';
-import '../../domain/use_cases/auth/sign_up_use_case.dart';
-import '../../interfaces/auth_interface.dart';
-import '../../interfaces/dialog_interface.dart';
-import '../../validators/email_validator.dart';
-import '../../validators/password_validator.dart';
-import 'bloc/sign_up_bloc.dart';
-import 'components/sign_up_content.dart';
 
 class SignUpScreen extends StatelessWidget {
   const SignUpScreen({super.key});

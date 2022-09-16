@@ -49,4 +49,16 @@ void main() {
       expect(str, expectedString);
     },
   );
+
+  test(
+    'to int',
+    () {
+      const String numberAsString = ' 0,2,0.1-0,';
+      const int expectedNumber = 2010;
+
+      final int number = numberAsString.toInt();
+
+      expect(number, expectedNumber);
+    },
+  );
 }

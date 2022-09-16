@@ -14,4 +14,13 @@ extension StringExtensions on String {
   String removeAllDashes() {
     return replaceAll('-', '');
   }
+
+  int toInt() {
+    final String numberAsString =
+        removeAllSpaces().removeAllCommas().removeAllDots().removeAllDashes();
+    if (numberAsString.isNotEmpty) {
+      return int.parse(numberAsString);
+    }
+    return 0;
+  }
 }

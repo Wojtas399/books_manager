@@ -1,3 +1,4 @@
+import 'package:app/config/errors.dart';
 import 'package:app/domain/use_cases/auth/delete_user_use_case.dart';
 import 'package:app/domain/use_cases/auth/sign_out_use_case.dart';
 import 'package:app/features/settings/bloc/settings_bloc.dart';

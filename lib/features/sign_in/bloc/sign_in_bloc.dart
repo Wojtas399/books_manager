@@ -1,13 +1,13 @@
 import 'dart:async';
 
+import 'package:app/config/errors.dart';
+import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
+import 'package:app/domain/use_cases/auth/load_logged_user_id_use_case.dart';
+import 'package:app/domain/use_cases/auth/sign_in_use_case.dart';
+import 'package:app/models/bloc_state.dart';
+import 'package:app/models/bloc_status.dart';
+import 'package:app/models/error.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import '../../../domain/use_cases/auth/load_logged_user_id_use_case.dart';
-import '../../../domain/use_cases/auth/sign_in_use_case.dart';
-import '../../../models/bloc_state.dart';
-import '../../../models/bloc_status.dart';
-import '../../../models/error.dart';
 
 part 'sign_in_event.dart';
 part 'sign_in_state.dart';

@@ -1,3 +1,4 @@
+import 'package:app/config/errors.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class CustomError extends Equatable {
@@ -19,14 +20,7 @@ class NetworkError extends CustomError {
       : super(code: networkErrorCode.name);
 }
 
-enum AuthErrorCode {
-  invalidEmail,
-  wrongPassword,
-  userNotFound,
-  emailAlreadyInUse,
-  unknown,
-}
-
-enum NetworkErrorCode {
-  lossOfConnection,
+class BookError extends CustomError {
+  BookError({required BookErrorCode bookErrorCode})
+      : super(code: bookErrorCode.name);
 }

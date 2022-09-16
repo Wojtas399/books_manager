@@ -1,3 +1,4 @@
+import 'package:app/config/errors.dart';
 import 'package:app/data/data_sources/local_db/auth_local_db_service.dart';
 import 'package:app/data/data_sources/remote_db/auth_remote_db_service.dart';
 import 'package:app/data/repositories/auth_repository.dart';

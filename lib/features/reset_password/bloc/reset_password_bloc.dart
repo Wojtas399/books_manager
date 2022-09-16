@@ -1,12 +1,12 @@
 import 'dart:async';
 
+import 'package:app/config/errors.dart';
+import 'package:app/domain/use_cases/auth/send_reset_password_email_use_case.dart';
+import 'package:app/models/bloc_state.dart';
+import 'package:app/models/bloc_status.dart';
+import 'package:app/models/error.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../domain/use_cases/auth/send_reset_password_email_use_case.dart';
-import '../../../models/bloc_state.dart';
-import '../../../models/bloc_status.dart';
-import '../../../models/error.dart';
 
 part 'reset_password_event.dart';
 part 'reset_password_state.dart';

@@ -68,30 +68,52 @@ class _BookPreviewBlocListener extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomBlocListener<BookPreviewBloc, BookPreviewState,
-        BookPreviewBlocInfo, dynamic>(
+        BookPreviewBlocInfo, BookPreviewBlocError>(
       onCompletionInfo: (BookPreviewBlocInfo info) => _onCompletionInfo(
         info,
         context,
       ),
+      onError: (BookPreviewBlocError error) => _onError(error, context),
       child: child,
     );
   }
 
   void _onCompletionInfo(BookPreviewBlocInfo info, BuildContext context) {
     switch (info) {
+      case BookPreviewBlocInfo.currentPageNumberHasBeenUpdated:
+        _onCurrentPageUpdate(context);
+        break;
       case BookPreviewBlocInfo.bookHasBeenDeleted:
         _onBookDeletion(context);
         break;
-      case BookPreviewBlocInfo.currentPageNumberHasBeenUpdated:
-        // TODO: Handle this case.
+    }
+  }
+
+  void _onError(BookPreviewBlocError error, BuildContext context) {
+    switch (error) {
+      case BookPreviewBlocError.newCurrentPageNumberIsTooHigh:
+        _onTooHighNumberOfNewCurrentPage(context);
         break;
     }
+  }
+
+  void _onCurrentPageUpdate(BuildContext context) {
+    context.read<DialogInterface>().showSnackBar(
+          message: 'Pomyślnie zaktualizowano numer bieżącej strony',
+        );
   }
 
   void _onBookDeletion(BuildContext context) {
     Navigator.pop(context);
     context.read<DialogInterface>().showSnackBar(
           message: 'Pomyślnie usunięto książkę',
+        );
+  }
+
+  void _onTooHighNumberOfNewCurrentPage(BuildContext context) {
+    context.read<DialogInterface>().showInfoDialog(
+          title: 'Niepoprawny numer strony',
+          info: 'Podany numer strony jest wyższy od liczby wszystkich stron...',
         );
   }
 }

@@ -1,32 +1,23 @@
+import 'package:app/config/errors.dart';
 import 'package:equatable/equatable.dart';
 
-abstract class CustomError extends Equatable {
-  final String code;
+abstract class CustomError<T> extends Equatable {
+  final T code;
 
   const CustomError({required this.code});
 
   @override
-  List<Object> get props => [code];
+  List<T> get props => [code];
 }
 
-class AuthError extends CustomError {
-  AuthError({required AuthErrorCode authErrorCode})
-      : super(code: authErrorCode.name);
+class AuthError extends CustomError<AuthErrorCode> {
+  const AuthError({required super.code});
 }
 
-class NetworkError extends CustomError {
-  NetworkError({required NetworkErrorCode networkErrorCode})
-      : super(code: networkErrorCode.name);
+class NetworkError extends CustomError<NetworkErrorCode> {
+  const NetworkError({required super.code});
 }
 
-enum AuthErrorCode {
-  invalidEmail,
-  wrongPassword,
-  userNotFound,
-  emailAlreadyInUse,
-  unknown,
-}
-
-enum NetworkErrorCode {
-  lossOfConnection,
+class BookError extends CustomError<BookErrorCode> {
+  const BookError({required super.code});
 }

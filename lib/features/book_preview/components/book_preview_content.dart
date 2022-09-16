@@ -13,6 +13,7 @@ class BookPreviewContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
+      resizeToAvoidBottomInset: false,
       appBarTitle: 'Podgląd książki',
       trailing: const BookPreviewActionsIcon(),
       trailingRightPadding: 0,

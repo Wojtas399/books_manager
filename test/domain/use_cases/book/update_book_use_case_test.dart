@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/use_cases/book/update_book_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,15 +11,12 @@ void main() {
   final bookInterface = MockBookInterface();
   late UpdateBookUseCase useCase;
   const String bookId = 'b1';
-  const String userId = 'u1';
 
   setUp(() {
     useCase = UpdateBookUseCase(bookInterface: bookInterface);
     when(
       () => bookInterface.updateBookData(
         bookId: bookId,
-        userId: userId,
-        bookStatus: any(named: 'bookStatus'),
         title: any(named: 'title'),
         author: any(named: 'author'),
         readPagesAmount: any(named: 'readPagesAmount'),
@@ -30,7 +26,6 @@ void main() {
     when(
       () => bookInterface.updateBookImage(
         bookId: bookId,
-        userId: userId,
         imageData: any(named: 'imageData'),
       ),
     ).thenAnswer((_) async => '');
@@ -43,7 +38,6 @@ void main() {
   test(
     'should call method responsible for updating book data',
     () async {
-      const BookStatus newBookStatus = BookStatus.inProgress;
       const String newTitle = 'title';
       const String newAuthor = 'author';
       const int newReadPagesAmount = 20;
@@ -51,8 +45,6 @@ void main() {
 
       await useCase.execute(
         bookId: bookId,
-        userId: userId,
-        bookStatus: newBookStatus,
         title: newTitle,
         author: newAuthor,
         readPagesAmount: newReadPagesAmount,
@@ -62,8 +54,6 @@ void main() {
       verify(
         () => bookInterface.updateBookData(
           bookId: bookId,
-          userId: userId,
-          bookStatus: newBookStatus,
           title: newTitle,
           author: newAuthor,
           readPagesAmount: newReadPagesAmount,
@@ -73,7 +63,6 @@ void main() {
       verifyNever(
         () => bookInterface.updateBookImage(
           bookId: bookId,
-          userId: userId,
           imageData: null,
         ),
       );
@@ -87,14 +76,12 @@ void main() {
 
       await useCase.execute(
         bookId: bookId,
-        userId: userId,
         imageData: newImageData,
       );
 
       verify(
         () => bookInterface.updateBookImage(
           bookId: bookId,
-          userId: userId,
           imageData: newImageData,
         ),
       ).called(1);
@@ -106,14 +93,12 @@ void main() {
     () async {
       await useCase.execute(
         bookId: bookId,
-        userId: userId,
         deleteImage: true,
       );
 
       verify(
         () => bookInterface.updateBookImage(
           bookId: bookId,
-          userId: userId,
           imageData: null,
         ),
       ).called(1);

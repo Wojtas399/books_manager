@@ -1,3 +1,4 @@
+import 'package:app/config/errors.dart';
 import 'package:app/domain/use_cases/auth/sign_up_use_case.dart';
 import 'package:app/features/sign_up/bloc/sign_up_bloc.dart';
 import 'package:app/models/bloc_status.dart';
@@ -162,7 +163,7 @@ void main() {
           when(
             () => signUpUseCase.execute(email: email, password: password),
           ).thenThrow(
-            AuthError(authErrorCode: AuthErrorCode.emailAlreadyInUse),
+            const AuthError(code: AuthErrorCode.emailAlreadyInUse),
           );
         },
         act: (SignUpBloc bloc) {
@@ -193,7 +194,7 @@ void main() {
           when(
             () => signUpUseCase.execute(email: email, password: password),
           ).thenThrow(
-            NetworkError(networkErrorCode: NetworkErrorCode.lossOfConnection),
+            const NetworkError(code: NetworkErrorCode.lossOfConnection),
           );
         },
         act: (SignUpBloc bloc) {

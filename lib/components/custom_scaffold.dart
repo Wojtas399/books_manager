@@ -12,6 +12,7 @@ class CustomScaffold extends StatelessWidget {
   final double? trailingRightPadding;
   final Widget? bottomNavigationBar;
   final FloatingActionButton? floatingActionButton;
+  final bool resizeToAvoidBottomInset;
 
   const CustomScaffold({
     super.key,
@@ -25,6 +26,7 @@ class CustomScaffold extends StatelessWidget {
     this.trailingRightPadding,
     this.bottomNavigationBar,
     this.floatingActionButton,
+    this.resizeToAvoidBottomInset = true,
   });
 
   @override
@@ -32,6 +34,7 @@ class CustomScaffold extends StatelessWidget {
     final IconData? leadingIcon = this.leadingIcon;
 
     return Scaffold(
+      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       appBar: _AppBar(
         appBarTitle: appBarTitle,
         appBarColor: appBarColor,

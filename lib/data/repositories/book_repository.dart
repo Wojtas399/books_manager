@@ -117,13 +117,13 @@ class BookRepository implements BookInterface {
   @override
   Future<void> updateBookData({
     required String bookId,
-    required String userId,
     BookStatus? bookStatus,
     String? title,
     String? author,
     int? readPagesAmount,
     int? allPagesAmount,
   }) async {
+    final String userId = _getIdOfUserAssignedToBook(bookId);
     SyncState syncState = SyncState.updated;
     if (await _device.hasInternetConnection()) {
       await _bookRemoteDbService.updateBookData(
@@ -153,9 +153,9 @@ class BookRepository implements BookInterface {
   @override
   Future<void> updateBookImage({
     required String bookId,
-    required String userId,
     required Uint8List? imageData,
   }) async {
+    final String userId = _getIdOfUserAssignedToBook(bookId);
     SyncState? newSyncState;
     if (await _device.hasInternetConnection()) {
       await _bookRemoteDbService.updateBookImage(
@@ -182,10 +182,8 @@ class BookRepository implements BookInterface {
   }
 
   @override
-  Future<void> deleteBook({
-    required String userId,
-    required String bookId,
-  }) async {
+  Future<void> deleteBook({required String bookId}) async {
+    final String userId = _getIdOfUserAssignedToBook(bookId);
     if (await _device.hasInternetConnection()) {
       await _bookRemoteDbService.deleteBook(userId: userId, bookId: bookId);
       await _bookLocalDbService.deleteBook(userId: userId, bookId: bookId);
@@ -201,6 +199,10 @@ class BookRepository implements BookInterface {
   @override
   void reset() {
     _books$.add([]);
+  }
+
+  String _getIdOfUserAssignedToBook(String bookId) {
+    return _books$.value.firstWhere((Book book) => book.id == bookId).userId;
   }
 
   void _addNewBookToList(Book book) {

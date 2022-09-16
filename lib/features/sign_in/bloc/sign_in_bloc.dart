@@ -1,13 +1,13 @@
 import 'dart:async';
 
+import 'package:app/config/errors.dart';
+import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
+import 'package:app/domain/use_cases/auth/load_logged_user_id_use_case.dart';
+import 'package:app/domain/use_cases/auth/sign_in_use_case.dart';
+import 'package:app/models/bloc_state.dart';
+import 'package:app/models/bloc_status.dart';
+import 'package:app/models/error.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import '../../../domain/use_cases/auth/load_logged_user_id_use_case.dart';
-import '../../../domain/use_cases/auth/sign_in_use_case.dart';
-import '../../../models/bloc_state.dart';
-import '../../../models/bloc_status.dart';
-import '../../../models/error.dart';
 
 part 'sign_in_event.dart';
 part 'sign_in_state.dart';
@@ -114,15 +114,15 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   }
 
   void _manageAuthError(AuthError authError, Emitter<SignInState> emit) {
-    if (authError.code == AuthErrorCode.invalidEmail.name) {
+    if (authError.code == AuthErrorCode.invalidEmail) {
       emit(state.copyWithError(
         SignInBlocError.invalidEmail,
       ));
-    } else if (authError.code == AuthErrorCode.wrongPassword.name) {
+    } else if (authError.code == AuthErrorCode.wrongPassword) {
       emit(state.copyWithError(
         SignInBlocError.wrongPassword,
       ));
-    } else if (authError.code == AuthErrorCode.userNotFound.name) {
+    } else if (authError.code == AuthErrorCode.userNotFound) {
       emit(state.copyWithError(
         SignInBlocError.userNotFound,
       ));
@@ -133,7 +133,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     NetworkError networkError,
     Emitter<SignInState> emit,
   ) {
-    if (networkError.code == NetworkErrorCode.lossOfConnection.name) {
+    if (networkError.code == NetworkErrorCode.lossOfConnection) {
       emit(state.copyWith(
         status: const BlocStatusLossOfInternetConnection(),
       ));

@@ -1,10 +1,10 @@
+import 'package:app/config/errors.dart';
+import 'package:app/domain/use_cases/auth/delete_user_use_case.dart';
+import 'package:app/domain/use_cases/auth/sign_out_use_case.dart';
+import 'package:app/models/bloc_status.dart';
+import 'package:app/models/error.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../domain/use_cases/auth/delete_user_use_case.dart';
-import '../../../domain/use_cases/auth/sign_out_use_case.dart';
-import '../../../models/bloc_status.dart';
-import '../../../models/error.dart';
 
 part 'settings_event.dart';
 part 'settings_state.dart';
@@ -60,7 +60,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     AuthError authError,
     Emitter<SettingsState> emit,
   ) {
-    if (authError.code == AuthErrorCode.wrongPassword.name) {
+    if (authError.code == AuthErrorCode.wrongPassword) {
       emit(state.copyWithError(
         SettingsBlocError.wrongPassword,
       ));

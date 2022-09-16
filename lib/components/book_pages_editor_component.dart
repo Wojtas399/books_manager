@@ -151,17 +151,6 @@ class _PagesAmount extends StatelessWidget {
           keyboardType: TextInputType.number,
           acceptLabel: 'Zapisz',
         );
-    if (numberAsString == null) {
-      return null;
-    }
-    numberAsString = numberAsString
-        .removeAllSpaces()
-        .removeAllCommas()
-        .removeAllDots()
-        .removeAllDashes();
-    if (numberAsString.isNotEmpty) {
-      return int.parse(numberAsString);
-    }
-    return 0;
+    return numberAsString?.toInt();
   }
 }

@@ -1,13 +1,13 @@
 import 'dart:async';
 
+import 'package:app/config/errors.dart';
+import 'package:app/domain/use_cases/auth/sign_up_use_case.dart';
+import 'package:app/models/bloc_state.dart';
+import 'package:app/models/bloc_status.dart';
+import 'package:app/models/error.dart';
+import 'package:app/validators/email_validator.dart';
+import 'package:app/validators/password_validator.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../domain/use_cases/auth/sign_up_use_case.dart';
-import '../../../models/bloc_state.dart';
-import '../../../models/bloc_status.dart';
-import '../../../models/error.dart';
-import '../../../validators/email_validator.dart';
-import '../../../validators/password_validator.dart';
 
 part 'sign_up_event.dart';
 part 'sign_up_state.dart';
@@ -103,7 +103,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
   }
 
   void _manageAuthError(AuthError authError, Emitter<SignUpState> emit) {
-    if (authError.code == AuthErrorCode.emailAlreadyInUse.name) {
+    if (authError.code == AuthErrorCode.emailAlreadyInUse) {
       emit(state.copyWithError(
         SignUpBlocError.emailIsAlreadyTaken,
       ));
@@ -114,7 +114,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     NetworkError networkError,
     Emitter<SignUpState> emit,
   ) {
-    if (networkError.code == NetworkErrorCode.lossOfConnection.name) {
+    if (networkError.code == NetworkErrorCode.lossOfConnection) {
       emit(state.copyWith(
         status: const BlocStatusLossOfInternetConnection(),
       ));

@@ -1,3 +1,4 @@
+import 'package:app/config/errors.dart';
 import 'package:app/data/data_sources/local_db/auth_local_db_service.dart';
 import 'package:app/data/data_sources/remote_db/auth_remote_db_service.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
@@ -92,17 +93,17 @@ class AuthRepository implements AuthInterface {
   void _manageFirebaseAuthException(String code) {
     switch (code) {
       case 'invalid-email':
-        throw AuthError(authErrorCode: AuthErrorCode.invalidEmail);
+        throw const AuthError(code: AuthErrorCode.invalidEmail);
       case 'wrong-password':
-        throw AuthError(authErrorCode: AuthErrorCode.wrongPassword);
+        throw const AuthError(code: AuthErrorCode.wrongPassword);
       case 'user-not-found':
-        throw AuthError(authErrorCode: AuthErrorCode.userNotFound);
+        throw const AuthError(code: AuthErrorCode.userNotFound);
       case 'email-already-in-use':
-        throw AuthError(authErrorCode: AuthErrorCode.emailAlreadyInUse);
+        throw const AuthError(code: AuthErrorCode.emailAlreadyInUse);
       case 'network-request-failed':
-        throw NetworkError(networkErrorCode: NetworkErrorCode.lossOfConnection);
+        throw const NetworkError(code: NetworkErrorCode.lossOfConnection);
       default:
-        throw AuthError(authErrorCode: AuthErrorCode.unknown);
+        throw const AuthError(code: AuthErrorCode.unknown);
     }
   }
 }

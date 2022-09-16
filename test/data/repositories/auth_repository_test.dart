@@ -1,3 +1,4 @@
+import 'package:app/config/errors.dart';
 import 'package:app/data/data_sources/local_db/auth_local_db_service.dart';
 import 'package:app/data/data_sources/remote_db/auth_remote_db_service.dart';
 import 'package:app/data/repositories/auth_repository.dart';
@@ -78,6 +79,10 @@ void main() {
       test(
         'should throw appropriate auth error if email is invalid',
         () async {
+          const AuthError expectedAuthError = AuthError(
+            code: AuthErrorCode.invalidEmail,
+          );
+
           when(
             () => authRemoteDbService.signIn(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'invalid-email'));
@@ -85,10 +90,7 @@ void main() {
           try {
             await repository.signIn(email: email, password: password);
           } on AuthError catch (error) {
-            expect(
-              error,
-              AuthError(authErrorCode: AuthErrorCode.invalidEmail),
-            );
+            expect(error, expectedAuthError);
           }
         },
       );
@@ -96,6 +98,10 @@ void main() {
       test(
         'should throw appropriate auth error if password is wrong',
         () async {
+          const AuthError expectedAuthError = AuthError(
+            code: AuthErrorCode.wrongPassword,
+          );
+
           when(
             () => authRemoteDbService.signIn(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'wrong-password'));
@@ -103,10 +109,7 @@ void main() {
           try {
             await repository.signIn(email: email, password: password);
           } on AuthError catch (error) {
-            expect(
-              error,
-              AuthError(authErrorCode: AuthErrorCode.wrongPassword),
-            );
+            expect(error, expectedAuthError);
           }
         },
       );
@@ -114,6 +117,10 @@ void main() {
       test(
         'should throw appropriate auth error if user has not been found',
         () async {
+          const AuthError expectedAuthError = AuthError(
+            code: AuthErrorCode.userNotFound,
+          );
+
           when(
             () => authRemoteDbService.signIn(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'user-not-found'));
@@ -121,10 +128,7 @@ void main() {
           try {
             await repository.signIn(email: email, password: password);
           } on AuthError catch (error) {
-            expect(
-              error,
-              AuthError(authErrorCode: AuthErrorCode.userNotFound),
-            );
+            expect(error, expectedAuthError);
           }
         },
       );
@@ -132,6 +136,10 @@ void main() {
       test(
         'should throw appropriate network error if network connection has been lost',
         () async {
+          const NetworkError expectedNetworkError = NetworkError(
+            code: NetworkErrorCode.lossOfConnection,
+          );
+
           when(
             () => authRemoteDbService.signIn(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'network-request-failed'));
@@ -139,10 +147,7 @@ void main() {
           try {
             await repository.signIn(email: email, password: password);
           } on NetworkError catch (error) {
-            expect(
-              error,
-              NetworkError(networkErrorCode: NetworkErrorCode.lossOfConnection),
-            );
+            expect(error, expectedNetworkError);
           }
         },
       );
@@ -185,6 +190,10 @@ void main() {
       test(
         'should throw appropriate auth error if email is already in use',
         () async {
+          const AuthError expectedAuthError = AuthError(
+            code: AuthErrorCode.emailAlreadyInUse,
+          );
+
           when(
             () => authRemoteDbService.signUp(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'email-already-in-use'));
@@ -192,10 +201,7 @@ void main() {
           try {
             await repository.signUp(email: email, password: password);
           } on AuthError catch (error) {
-            expect(
-              error,
-              AuthError(authErrorCode: AuthErrorCode.emailAlreadyInUse),
-            );
+            expect(error, expectedAuthError);
           }
         },
       );
@@ -225,6 +231,10 @@ void main() {
       test(
         'should throw auth error if email is invalid',
         () async {
+          const AuthError expectedAuthError = AuthError(
+            code: AuthErrorCode.invalidEmail,
+          );
+
           when(
             () => authRemoteDbService.sendPasswordResetEmail(email: email),
           ).thenThrow(FirebaseAuthException(code: 'invalid-email'));
@@ -232,10 +242,7 @@ void main() {
           try {
             await repository.sendPasswordResetEmail(email: email);
           } on AuthError catch (error) {
-            expect(
-              error,
-              AuthError(authErrorCode: AuthErrorCode.invalidEmail),
-            );
+            expect(error, expectedAuthError);
           }
         },
       );
@@ -243,6 +250,10 @@ void main() {
       test(
         'should throw auth error if user has not been found',
         () async {
+          const AuthError expectedAuthError = AuthError(
+            code: AuthErrorCode.userNotFound,
+          );
+
           when(
             () => authRemoteDbService.sendPasswordResetEmail(email: email),
           ).thenThrow(FirebaseAuthException(code: 'user-not-found'));
@@ -250,10 +261,7 @@ void main() {
           try {
             await repository.sendPasswordResetEmail(email: email);
           } on AuthError catch (error) {
-            expect(
-              error,
-              AuthError(authErrorCode: AuthErrorCode.userNotFound),
-            );
+            expect(error, expectedAuthError);
           }
         },
       );
@@ -308,6 +316,9 @@ void main() {
     'delete logged user, should throw auth error if password is wrong',
     () async {
       const String password = 'password';
+      const AuthError expectedAuthError = AuthError(
+        code: AuthErrorCode.wrongPassword,
+      );
       when(
         () => authRemoteDbService.deleteLoggedUser(password: password),
       ).thenThrow(FirebaseAuthException(code: 'wrong-password'));
@@ -315,10 +326,7 @@ void main() {
       try {
         await repository.deleteLoggedUser(password: password);
       } on AuthError catch (error) {
-        expect(
-          error,
-          AuthError(authErrorCode: AuthErrorCode.wrongPassword),
-        );
+        expect(error, expectedAuthError);
       }
     },
   );

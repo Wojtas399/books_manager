@@ -8,25 +8,48 @@ class MockBookInterface extends Mock implements BookInterface {}
 
 void main() {
   final bookInterface = MockBookInterface();
-  final useCase = StartReadingBookUseCase(bookInterface: bookInterface);
+  late StartReadingBookUseCase useCase;
+  const String bookId = 'b1';
+
+  setUp(() {
+    useCase = StartReadingBookUseCase(bookInterface: bookInterface);
+    when(
+      () => bookInterface.updateBookData(
+        bookId: bookId,
+        bookStatus: any(named: 'bookStatus'),
+        readPagesAmount: any(named: 'readPagesAmount'),
+      ),
+    ).thenAnswer((_) async => '');
+  });
+
+  tearDown(() {
+    reset(bookInterface);
+  });
 
   test(
-    'should update book with status set as in progress',
+    'should call method responsible for updating book with book status set as in progress',
     () async {
-      const String bookId = 'b1';
-      when(
-        () => bookInterface.updateBookData(
-          bookId: bookId,
-          bookStatus: BookStatus.inProgress,
-        ),
-      ).thenAnswer((_) async => '');
-
       await useCase.execute(bookId: bookId);
 
       verify(
         () => bookInterface.updateBookData(
           bookId: bookId,
           bookStatus: BookStatus.inProgress,
+        ),
+      ).called(1);
+    },
+  );
+
+  test(
+    'from beginning, should call method responsible for updating book with book status set as in progress and read pages amount set as 0',
+    () async {
+      await useCase.execute(bookId: bookId, fromBeginning: true);
+
+      verify(
+        () => bookInterface.updateBookData(
+          bookId: bookId,
+          bookStatus: BookStatus.inProgress,
+          readPagesAmount: 0,
         ),
       ).called(1);
     },

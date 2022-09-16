@@ -8,10 +8,14 @@ class StartReadingBookUseCase {
     _bookInterface = bookInterface;
   }
 
-  Future<void> execute({required String bookId}) async {
+  Future<void> execute({
+    required String bookId,
+    bool fromBeginning = false,
+  }) async {
     await _bookInterface.updateBookData(
       bookId: bookId,
       bookStatus: BookStatus.inProgress,
+      readPagesAmount: fromBeginning ? 0 : null,
     );
   }
 }

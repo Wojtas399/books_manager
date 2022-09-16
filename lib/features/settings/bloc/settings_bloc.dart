@@ -60,7 +60,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     AuthError authError,
     Emitter<SettingsState> emit,
   ) {
-    if (authError.code == AuthErrorCode.wrongPassword.name) {
+    if (authError.code == AuthErrorCode.wrongPassword) {
       emit(state.copyWithError(
         SettingsBlocError.wrongPassword,
       ));

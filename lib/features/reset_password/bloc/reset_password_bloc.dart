@@ -71,11 +71,11 @@ class ResetPasswordBloc extends Bloc<ResetPasswordEvent, ResetPasswordState> {
     AuthError authError,
     Emitter<ResetPasswordState> emit,
   ) {
-    if (authError.code == AuthErrorCode.invalidEmail.name) {
+    if (authError.code == AuthErrorCode.invalidEmail) {
       emit(state.copyWithError(
         ResetPasswordBlocError.invalidEmail,
       ));
-    } else if (authError.code == AuthErrorCode.userNotFound.name) {
+    } else if (authError.code == AuthErrorCode.userNotFound) {
       emit(state.copyWithError(
         ResetPasswordBlocError.userNotFound,
       ));
@@ -86,7 +86,7 @@ class ResetPasswordBloc extends Bloc<ResetPasswordEvent, ResetPasswordState> {
     NetworkError networkError,
     Emitter<ResetPasswordState> emit,
   ) {
-    if (networkError.code == NetworkErrorCode.lossOfConnection.name) {
+    if (networkError.code == NetworkErrorCode.lossOfConnection) {
       emit(state.copyWith(
         status: const BlocStatusLossOfInternetConnection(),
       ));

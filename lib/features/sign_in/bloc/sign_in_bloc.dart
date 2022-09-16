@@ -114,15 +114,15 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   }
 
   void _manageAuthError(AuthError authError, Emitter<SignInState> emit) {
-    if (authError.code == AuthErrorCode.invalidEmail.name) {
+    if (authError.code == AuthErrorCode.invalidEmail) {
       emit(state.copyWithError(
         SignInBlocError.invalidEmail,
       ));
-    } else if (authError.code == AuthErrorCode.wrongPassword.name) {
+    } else if (authError.code == AuthErrorCode.wrongPassword) {
       emit(state.copyWithError(
         SignInBlocError.wrongPassword,
       ));
-    } else if (authError.code == AuthErrorCode.userNotFound.name) {
+    } else if (authError.code == AuthErrorCode.userNotFound) {
       emit(state.copyWithError(
         SignInBlocError.userNotFound,
       ));
@@ -133,7 +133,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     NetworkError networkError,
     Emitter<SignInState> emit,
   ) {
-    if (networkError.code == NetworkErrorCode.lossOfConnection.name) {
+    if (networkError.code == NetworkErrorCode.lossOfConnection) {
       emit(state.copyWith(
         status: const BlocStatusLossOfInternetConnection(),
       ));

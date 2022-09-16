@@ -94,7 +94,9 @@ void main() {
         setUp: () {
           when(
             () => sendResetPasswordEmailUseCase.execute(email: email),
-          ).thenThrow(AuthError(authErrorCode: AuthErrorCode.invalidEmail));
+          ).thenThrow(
+            const AuthError(code: AuthErrorCode.invalidEmail),
+          );
         },
         act: (ResetPasswordBloc bloc) {
           bloc.add(
@@ -121,7 +123,9 @@ void main() {
         setUp: () {
           when(
             () => sendResetPasswordEmailUseCase.execute(email: email),
-          ).thenThrow(AuthError(authErrorCode: AuthErrorCode.userNotFound));
+          ).thenThrow(
+            const AuthError(code: AuthErrorCode.userNotFound),
+          );
         },
         act: (ResetPasswordBloc bloc) {
           bloc.add(
@@ -149,7 +153,7 @@ void main() {
           when(
             () => sendResetPasswordEmailUseCase.execute(email: email),
           ).thenThrow(
-            NetworkError(networkErrorCode: NetworkErrorCode.lossOfConnection),
+            const NetworkError(code: NetworkErrorCode.lossOfConnection),
           );
         },
         act: (ResetPasswordBloc bloc) {

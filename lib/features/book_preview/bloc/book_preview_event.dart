@@ -22,6 +22,14 @@ class BookPreviewEventStartReading extends BookPreviewEvent {
   const BookPreviewEventStartReading({this.fromBeginning = false});
 }
 
+class BookPreviewEventUpdateCurrentPageNumber extends BookPreviewEvent {
+  final int currentPageNumber;
+
+  const BookPreviewEventUpdateCurrentPageNumber({
+    required this.currentPageNumber,
+  });
+}
+
 class BookPreviewEventDeleteBook extends BookPreviewEvent {
   const BookPreviewEventDeleteBook();
 }

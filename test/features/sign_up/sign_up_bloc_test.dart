@@ -163,7 +163,7 @@ void main() {
           when(
             () => signUpUseCase.execute(email: email, password: password),
           ).thenThrow(
-            AuthError(authErrorCode: AuthErrorCode.emailAlreadyInUse),
+            const AuthError(code: AuthErrorCode.emailAlreadyInUse),
           );
         },
         act: (SignUpBloc bloc) {
@@ -194,7 +194,7 @@ void main() {
           when(
             () => signUpUseCase.execute(email: email, password: password),
           ).thenThrow(
-            NetworkError(networkErrorCode: NetworkErrorCode.lossOfConnection),
+            const NetworkError(code: NetworkErrorCode.lossOfConnection),
           );
         },
         act: (SignUpBloc bloc) {

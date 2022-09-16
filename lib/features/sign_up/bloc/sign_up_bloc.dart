@@ -103,7 +103,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
   }
 
   void _manageAuthError(AuthError authError, Emitter<SignUpState> emit) {
-    if (authError.code == AuthErrorCode.emailAlreadyInUse.name) {
+    if (authError.code == AuthErrorCode.emailAlreadyInUse) {
       emit(state.copyWithError(
         SignUpBlocError.emailIsAlreadyTaken,
       ));
@@ -114,7 +114,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     NetworkError networkError,
     Emitter<SignUpState> emit,
   ) {
-    if (networkError.code == NetworkErrorCode.lossOfConnection.name) {
+    if (networkError.code == NetworkErrorCode.lossOfConnection) {
       emit(state.copyWith(
         status: const BlocStatusLossOfInternetConnection(),
       ));

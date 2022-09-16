@@ -133,7 +133,7 @@ void main() {
   );
 
   test(
-    'copy with status',
+    'copy with info',
     () {
       const BookPreviewBlocInfo expectedInfo =
           BookPreviewBlocInfo.bookHasBeenDeleted;
@@ -144,6 +144,23 @@ void main() {
         state.status,
         const BlocStatusComplete<BookPreviewBlocInfo>(
           info: expectedInfo,
+        ),
+      );
+    },
+  );
+
+  test(
+    'copy with error',
+    () {
+      const BookPreviewBlocError expectedError =
+          BookPreviewBlocError.newCurrentPageNumberIsTooHigh;
+
+      state = state.copyWithError(expectedError);
+
+      expect(
+        state.status,
+        const BlocStatusError<BookPreviewBlocError>(
+          error: expectedError,
         ),
       );
     },

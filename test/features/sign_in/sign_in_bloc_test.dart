@@ -170,7 +170,9 @@ void main() {
         setUp: () {
           when(
             () => signInUseCase.execute(email: email, password: password),
-          ).thenThrow(AuthError(authErrorCode: AuthErrorCode.invalidEmail));
+          ).thenThrow(
+            const AuthError(code: AuthErrorCode.invalidEmail),
+          );
         },
         act: (SignInBloc bloc) {
           bloc.add(
@@ -199,7 +201,9 @@ void main() {
         setUp: () {
           when(
             () => signInUseCase.execute(email: email, password: password),
-          ).thenThrow(AuthError(authErrorCode: AuthErrorCode.wrongPassword));
+          ).thenThrow(
+            const AuthError(code: AuthErrorCode.wrongPassword),
+          );
         },
         act: (SignInBloc bloc) {
           bloc.add(
@@ -228,7 +232,9 @@ void main() {
         setUp: () {
           when(
             () => signInUseCase.execute(email: email, password: password),
-          ).thenThrow(AuthError(authErrorCode: AuthErrorCode.userNotFound));
+          ).thenThrow(
+            const AuthError(code: AuthErrorCode.userNotFound),
+          );
         },
         act: (SignInBloc bloc) {
           bloc.add(
@@ -258,7 +264,7 @@ void main() {
           when(
             () => signInUseCase.execute(email: email, password: password),
           ).thenThrow(
-            NetworkError(networkErrorCode: NetworkErrorCode.lossOfConnection),
+            const NetworkError(code: NetworkErrorCode.lossOfConnection),
           );
         },
         act: (SignInBloc bloc) {

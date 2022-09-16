@@ -1,9 +1,12 @@
+import 'package:app/config/errors.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/use_cases/book/delete_book_use_case.dart';
 import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
 import 'package:app/domain/use_cases/book/start_reading_book_use_case.dart';
+import 'package:app/domain/use_cases/book/update_current_page_number_in_book_use_case.dart';
 import 'package:app/features/book_preview/bloc/book_preview_bloc.dart';
 import 'package:app/models/bloc_status.dart';
+import 'package:app/models/error.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -13,11 +16,16 @@ class MockGetBookByIdUseCase extends Mock implements GetBookByIdUseCase {}
 class MockStartReadingBookUseCase extends Mock
     implements StartReadingBookUseCase {}
 
+class MockUpdateCurrentPageNumberInBookUseCase extends Mock
+    implements UpdateCurrentPageNumberInBookUseCase {}
+
 class MockDeleteBookUseCase extends Mock implements DeleteBookUseCase {}
 
 void main() {
   final getBookByIdUseCase = MockGetBookByIdUseCase();
   final startReadingBookUseCase = MockStartReadingBookUseCase();
+  final updateCurrentPageNumberInBookUseCase =
+      MockUpdateCurrentPageNumberInBookUseCase();
   final deleteBookUseCase = MockDeleteBookUseCase();
 
   BookPreviewBloc createBloc({
@@ -26,6 +34,8 @@ void main() {
     return BookPreviewBloc(
       getBookByIdUseCase: getBookByIdUseCase,
       startReadingBookUseCase: startReadingBookUseCase,
+      updateCurrentPageNumberInBookUseCase:
+          updateCurrentPageNumberInBookUseCase,
       deleteBookUseCase: deleteBookUseCase,
       book: book,
     );
@@ -158,6 +168,119 @@ void main() {
               bookId: bookId,
               fromBeginning: true,
             ),
+          ).called(1);
+        },
+      );
+    },
+  );
+
+  group(
+    'update current page number',
+    () {
+      const String bookId = 'b1';
+      const int newCurrentPageNumber = 50;
+
+      void callUpdateCurrentPageNumberInBookUseCase() =>
+          updateCurrentPageNumberInBookUseCase.execute(
+            bookId: bookId,
+            newCurrentPageNumber: newCurrentPageNumber,
+          );
+
+      blocTest(
+        'book is null, should not call use case responsible for updating current page number',
+        build: () => createBloc(),
+        setUp: () {
+          when(
+            () => updateCurrentPageNumberInBookUseCase.execute(
+              bookId: any(named: 'bookId'),
+              newCurrentPageNumber: newCurrentPageNumber,
+            ),
+          ).thenAnswer((_) async => '');
+        },
+        act: (BookPreviewBloc bloc) {
+          bloc.add(
+            const BookPreviewEventUpdateCurrentPageNumber(
+              currentPageNumber: newCurrentPageNumber,
+            ),
+          );
+        },
+        expect: () => [],
+        verify: (_) {
+          verifyNever(
+            () => updateCurrentPageNumberInBookUseCase.execute(
+              bookId: any(named: 'bookId'),
+              newCurrentPageNumber: newCurrentPageNumber,
+            ),
+          );
+        },
+      );
+
+      blocTest(
+        'book is not null, should try to call use case responsible for updating current page number',
+        build: () => createBloc(book: createBook(id: bookId)),
+        setUp: () {
+          when(
+            callUpdateCurrentPageNumberInBookUseCase,
+          ).thenAnswer((_) async => '');
+        },
+        act: (BookPreviewBloc bloc) {
+          bloc.add(
+            const BookPreviewEventUpdateCurrentPageNumber(
+              currentPageNumber: newCurrentPageNumber,
+            ),
+          );
+        },
+        expect: () => [
+          createState(
+            status: const BlocStatusLoading(),
+            book: createBook(id: bookId),
+          ),
+          createState(
+            status: const BlocStatusComplete<BookPreviewBlocInfo>(
+              info: BookPreviewBlocInfo.currentPageNumberHasBeenUpdated,
+            ),
+            book: createBook(id: bookId),
+          ),
+        ],
+        verify: (_) {
+          verify(
+            callUpdateCurrentPageNumberInBookUseCase,
+          ).called(1);
+        },
+      );
+
+      blocTest(
+        'book is not null, should emit appropriate error if called use case throws book error',
+        build: () => createBloc(book: createBook(id: bookId)),
+        setUp: () {
+          when(
+            callUpdateCurrentPageNumberInBookUseCase,
+          ).thenThrow(
+            const BookError(code: BookErrorCode.newCurrentPageIsTooHigh),
+          );
+        },
+        act: (BookPreviewBloc bloc) {
+          bloc.add(
+            const BookPreviewEventUpdateCurrentPageNumber(
+              currentPageNumber: newCurrentPageNumber,
+            ),
+          );
+        },
+        expect: () => [
+          createState(
+            status: const BlocStatusLoading(),
+            book: createBook(id: bookId),
+          ),
+          createState(
+            status: const BlocStatusError<BookPreviewBlocError>(
+              error: BookPreviewBlocError.newCurrentPageNumberIsTooHigh,
+            ),
+            book: createBook(id: bookId),
+          ),
+        ],
+        verify: (_) {
+          verify(
+            callUpdateCurrentPageNumberInBookUseCase,
           ).called(1);
         },
       );

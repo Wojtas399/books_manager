@@ -102,7 +102,9 @@ void main() {
     setUp: () {
       when(
         () => deleteUserUseCase.execute(password: 'password'),
-      ).thenThrow(AuthError(authErrorCode: AuthErrorCode.wrongPassword));
+      ).thenThrow(
+        const AuthError(code: AuthErrorCode.wrongPassword),
+      );
     },
     act: (SettingsBloc bloc) {
       bloc.add(

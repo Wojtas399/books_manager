@@ -45,8 +45,19 @@ class BookPreviewState extends BlocState {
       status: BlocStatusComplete<BookPreviewBlocInfo>(info: info),
     );
   }
+
+  BookPreviewState copyWithError(BookPreviewBlocError error) {
+    return copyWith(
+      status: BlocStatusError<BookPreviewBlocError>(error: error),
+    );
+  }
 }
 
 enum BookPreviewBlocInfo {
+  currentPageNumberHasBeenUpdated,
   bookHasBeenDeleted,
+}
+
+enum BookPreviewBlocError {
+  newCurrentPageNumberIsTooHigh,
 }

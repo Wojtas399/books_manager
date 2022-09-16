@@ -1,7 +1,7 @@
 import 'package:app/config/errors.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
-import 'package:app/domain/use_cases/book/update_current_page_use_case.dart';
+import 'package:app/domain/use_cases/book/update_current_page_number_in_book_use_case.dart';
 import 'package:app/models/error.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -10,12 +10,14 @@ class MockBookInterface extends Mock implements BookInterface {}
 
 void main() {
   final bookInterface = MockBookInterface();
-  late UpdateCurrentPageUseCase useCase;
+  late UpdateCurrentPageNumberInBookUseCase useCase;
   const String bookId = 'b1';
   final Book book = createBook(id: bookId, allPagesAmount: 100);
 
   setUp(() {
-    useCase = UpdateCurrentPageUseCase(bookInterface: bookInterface);
+    useCase = UpdateCurrentPageNumberInBookUseCase(
+      bookInterface: bookInterface,
+    );
     when(
       () => bookInterface.getBookById(bookId: bookId),
     ).thenAnswer((_) => Stream.value(book));
@@ -35,10 +37,14 @@ void main() {
   test(
     'new current page number is higher than all pages amount, should throw book error',
     () async {
+      const BookError expectedBookError = BookError(
+        code: BookErrorCode.newCurrentPageIsTooHigh,
+      );
+
       try {
-        await useCase.execute(bookId: bookId, newCurrentPage: 101);
+        await useCase.execute(bookId: bookId, newCurrentPageNumber: 101);
       } on BookError catch (error) {
-        expect(error.code, BookErrorCode.newCurrentPageIsTooHigh.name);
+        expect(error, expectedBookError);
       }
     },
   );
@@ -48,7 +54,10 @@ void main() {
     () async {
       const int newCurrentPage = 20;
 
-      await useCase.execute(bookId: bookId, newCurrentPage: newCurrentPage);
+      await useCase.execute(
+        bookId: bookId,
+        newCurrentPageNumber: newCurrentPage,
+      );
 
       verify(
         () => bookInterface.updateBookData(
@@ -64,7 +73,10 @@ void main() {
     () async {
       final int newCurrentPage = book.allPagesAmount;
 
-      await useCase.execute(bookId: bookId, newCurrentPage: newCurrentPage);
+      await useCase.execute(
+        bookId: bookId,
+        newCurrentPageNumber: newCurrentPage,
+      );
 
       verify(
         () => bookInterface.updateBookData(

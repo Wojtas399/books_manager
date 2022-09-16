@@ -4,6 +4,7 @@ import 'package:app/domain/interfaces/dialog_interface.dart';
 import 'package:app/domain/use_cases/book/delete_book_use_case.dart';
 import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
 import 'package:app/domain/use_cases/book/start_reading_book_use_case.dart';
+import 'package:app/domain/use_cases/book/update_current_page_number_in_book_use_case.dart';
 import 'package:app/features/book_preview/bloc/book_preview_bloc.dart';
 import 'package:app/features/book_preview/components/book_preview_content.dart';
 import 'package:flutter/widgets.dart';
@@ -44,6 +45,10 @@ class _BookPreviewBlocProvider extends StatelessWidget {
         startReadingBookUseCase: StartReadingBookUseCase(
           bookInterface: context.read<BookInterface>(),
         ),
+        updateCurrentPageNumberInBookUseCase:
+            UpdateCurrentPageNumberInBookUseCase(
+          bookInterface: context.read<BookInterface>(),
+        ),
         deleteBookUseCase: DeleteBookUseCase(
           bookInterface: context.read<BookInterface>(),
         ),
@@ -76,6 +81,9 @@ class _BookPreviewBlocListener extends StatelessWidget {
     switch (info) {
       case BookPreviewBlocInfo.bookHasBeenDeleted:
         _onBookDeletion(context);
+        break;
+      case BookPreviewBlocInfo.currentPageNumberHasBeenUpdated:
+        // TODO: Handle this case.
         break;
     }
   }

@@ -16,6 +16,12 @@ class BookPreviewEventBookUpdated extends BookPreviewEvent {
   const BookPreviewEventBookUpdated({required this.book});
 }
 
+class BookPreviewEventStartReading extends BookPreviewEvent {
+  final bool fromBeginning;
+
+  const BookPreviewEventStartReading({this.fromBeginning = false});
+}
+
 class BookPreviewEventDeleteBook extends BookPreviewEvent {
   const BookPreviewEventDeleteBook();
 }

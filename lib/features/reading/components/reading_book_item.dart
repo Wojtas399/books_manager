@@ -149,7 +149,9 @@ class _Pages extends StatelessWidget {
       child: PagesProgressBarComponent(
         readPagesAmount: readPagesAmount,
         allPagesAmount: allPagesAmount,
-        height: 24,
+        height: 20,
+        borderRadius: 6,
+        fontSize: 12,
       ),
     );
   }

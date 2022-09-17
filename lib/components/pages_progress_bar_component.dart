@@ -5,6 +5,8 @@ class PagesProgressBarComponent extends StatelessWidget {
   final int readPagesAmount;
   final int allPagesAmount;
   final double height;
+  final double? borderRadius;
+  final double? fontSize;
   final Color? progressBarColor;
 
   const PagesProgressBarComponent({
@@ -12,6 +14,8 @@ class PagesProgressBarComponent extends StatelessWidget {
     required this.readPagesAmount,
     required this.allPagesAmount,
     this.height = 32,
+    this.borderRadius,
+    this.fontSize,
     this.progressBarColor,
   });
 
@@ -23,11 +27,13 @@ class PagesProgressBarComponent extends StatelessWidget {
           _ProgressBar(
             percentage: _countPercentage(),
             height: height,
+            borderRadius: borderRadius,
             progressBarColor: progressBarColor,
           ),
           _NumbersInfo(
             readPagesAmount: readPagesAmount,
             allPagesAmount: allPagesAmount,
+            fontSize: fontSize,
           ),
         ],
       ),
@@ -45,10 +51,12 @@ class PagesProgressBarComponent extends StatelessWidget {
 class _NumbersInfo extends StatelessWidget {
   final int readPagesAmount;
   final int allPagesAmount;
+  final double? fontSize;
 
   const _NumbersInfo({
     required this.readPagesAmount,
     required this.allPagesAmount,
+    this.fontSize,
   });
 
   @override
@@ -61,7 +69,10 @@ class _NumbersInfo extends StatelessWidget {
         children: [
           Text(
             '$readPagesAmount/$allPagesAmount',
-            style: const TextStyle(fontWeight: FontWeight.w500),
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
@@ -72,11 +83,13 @@ class _NumbersInfo extends StatelessWidget {
 class _ProgressBar extends StatelessWidget {
   final double percentage;
   final double? height;
+  final double? borderRadius;
   final Color? progressBarColor;
 
   const _ProgressBar({
     required this.percentage,
     this.height,
+    this.borderRadius,
     this.progressBarColor,
   });
 
@@ -88,7 +101,7 @@ class _ProgressBar extends StatelessWidget {
       height: height,
       decoration: BoxDecoration(
         color: (color ?? AppColors.primary).withOpacity(0.2),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(borderRadius ?? 8),
       ),
       clipBehavior: Clip.hardEdge,
       child: LayoutBuilder(
@@ -109,7 +122,7 @@ class _ProgressBar extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     color: color ?? AppColors.primary,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(borderRadius ?? 8),
                   ),
                 ),
               )

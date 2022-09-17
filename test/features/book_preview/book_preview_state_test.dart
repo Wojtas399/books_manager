@@ -11,25 +11,14 @@ void main() {
   setUp(() {
     state = BookPreviewState(
       status: const BlocStatusInitial(),
+      bookId: 'b1',
+      initialBookImageData: null,
       book: null,
     );
   });
 
   test(
-    'book id, should return id of the book',
-    () {
-      const String expectedBookId = 'b1';
-      final Book book = createBook(id: expectedBookId);
-      state = state.copyWith(book: book);
-
-      final String? bookId = state.bookId;
-
-      expect(bookId, expectedBookId);
-    },
-  );
-
-  test(
-    'image data, should return book image data',
+    'book image data, should return book image data',
     () {
       final Uint8List expectedImageData = Uint8List(10);
       final Book book = createBook(imageData: expectedImageData);

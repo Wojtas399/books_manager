@@ -55,10 +55,8 @@ class BookPreviewActionsIcon extends StatelessWidget {
   }
 
   void _onEditPressed(BuildContext context) {
-    final String? bookId = context.read<BookPreviewBloc>().state.bookId;
-    if (bookId != null) {
-      Navigation.navigateToBookEditor(bookId: bookId);
-    }
+    final String bookId = context.read<BookPreviewBloc>().state.bookId;
+    Navigation.navigateToBookEditor(bookId: bookId);
   }
 
   Future<void> _onDeletePressed(BuildContext context) async {

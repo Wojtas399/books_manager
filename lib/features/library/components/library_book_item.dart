@@ -1,26 +1,27 @@
 import 'dart:typed_data';
 
 import 'package:app/components/book_image_component.dart';
+import 'package:app/config/navigation.dart';
 import 'package:flutter/material.dart';
 
 class LibraryBookItem extends StatelessWidget {
+  final String bookId;
   final Uint8List? imageData;
   final String title;
   final String author;
-  final VoidCallback? onPressed;
 
   const LibraryBookItem({
     super.key,
+    required this.bookId,
     required this.imageData,
     required this.title,
     required this.author,
-    this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onPressed,
+      onTap: _onPressed,
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
@@ -31,7 +32,7 @@ class LibraryBookItem extends StatelessWidget {
             children: [
               SizedBox(
                 height: 180,
-                child: _Image(imageData: imageData),
+                child: _Image(bookId: bookId, imageData: imageData),
               ),
               const SizedBox(height: 16),
               Expanded(
@@ -43,25 +44,32 @@ class LibraryBookItem extends StatelessWidget {
       ),
     );
   }
+
+  void _onPressed() {
+    Navigation.navigateToBookPreview(bookId: bookId, imageData: imageData);
+  }
 }
 
 class _Image extends StatelessWidget {
+  final String bookId;
   final Uint8List? imageData;
 
-  const _Image({required this.imageData});
+  const _Image({required this.bookId, required this.imageData});
 
   @override
   Widget build(BuildContext context) {
     final Uint8List? imageData = this.imageData;
+    Image? image;
+    if (imageData != null) {
+      image = Image.memory(imageData);
+    }
 
-    return BookImageComponent(
-      image: imageData != null
-          ? Image.memory(
-              imageData,
-              fit: BoxFit.contain,
-            )
-          : null,
-      bookIconSize: 100,
+    return Hero(
+      tag: bookId,
+      child: BookImageComponent(
+        image: image,
+        bookIconSize: 100,
+      ),
     );
   }
 }

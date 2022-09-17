@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:app/components/custom_bloc_listener.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/interfaces/dialog_interface.dart';
@@ -6,19 +8,24 @@ import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
 import 'package:app/domain/use_cases/book/start_reading_book_use_case.dart';
 import 'package:app/domain/use_cases/book/update_current_page_number_in_book_use_case.dart';
 import 'package:app/features/book_preview/bloc/book_preview_bloc.dart';
+import 'package:app/features/book_preview/book_preview_arguments.dart';
 import 'package:app/features/book_preview/components/book_preview_content.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BookPreviewScreen extends StatelessWidget {
-  final String bookId;
+  final BookPreviewArguments arguments;
 
-  const BookPreviewScreen({super.key, required this.bookId});
+  const BookPreviewScreen({
+    super.key,
+    required this.arguments,
+  });
 
   @override
   Widget build(BuildContext context) {
     return _BookPreviewBlocProvider(
-      bookId: bookId,
+      bookId: arguments.bookId,
+      initialBookImageData: arguments.imageData,
       child: const _BookPreviewBlocListener(
         child: BookPreviewContent(),
       ),
@@ -28,10 +35,12 @@ class BookPreviewScreen extends StatelessWidget {
 
 class _BookPreviewBlocProvider extends StatelessWidget {
   final String bookId;
+  final Uint8List? initialBookImageData;
   final Widget child;
 
   const _BookPreviewBlocProvider({
     required this.bookId,
+    required this.initialBookImageData,
     required this.child,
   });
 
@@ -52,6 +61,8 @@ class _BookPreviewBlocProvider extends StatelessWidget {
         deleteBookUseCase: DeleteBookUseCase(
           bookInterface: context.read<BookInterface>(),
         ),
+        bookId: bookId,
+        initialBookImageData: initialBookImageData,
       )..add(
           BookPreviewEventInitialize(bookId: bookId),
         ),

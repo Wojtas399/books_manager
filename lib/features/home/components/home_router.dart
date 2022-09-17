@@ -1,6 +1,8 @@
+import 'package:app/config/animations/fade_route_animation.dart';
 import 'package:app/config/routes.dart';
 import 'package:app/features/book_creator/book_creator_screen.dart';
 import 'package:app/features/book_editor/book_editor_screen.dart';
+import 'package:app/features/book_preview/book_preview_arguments.dart';
 import 'package:app/features/book_preview/book_preview_screen.dart';
 import 'package:app/features/home/components/home_content.dart';
 import 'package:app/features/settings/settings_screen.dart';
@@ -26,6 +28,9 @@ class _HomeRouterState extends State<HomeRouter> {
     return Navigator(
       key: NavigatorKeyProvider.getKey(),
       initialRoute: Routes.home,
+      observers: [
+        HeroController(),
+      ],
       onGenerateRoute: _onGenerateRoute,
     );
   }
@@ -46,9 +51,9 @@ class _HomeRouterState extends State<HomeRouter> {
           builder: (_) => const BookCreatorScreen(),
         );
       case Routes.bookPreview:
-        return MaterialPageRoute(
-          builder: (_) => BookPreviewScreen(
-            bookId: routeSettings.arguments as String,
+        return FadeRouteAnimation(
+          page: BookPreviewScreen(
+            arguments: routeSettings.arguments as BookPreviewArguments,
           ),
         );
       case Routes.bookEditor:

@@ -1,5 +1,4 @@
 import 'package:app/components/animated_scroll_view_item_component.dart';
-import 'package:app/config/navigation.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/features/library/bloc/library_bloc.dart';
 import 'package:app/features/library/components/library_book_item.dart';
@@ -29,17 +28,13 @@ class LibraryContent extends StatelessWidget {
         final Book book = books[index];
         return AnimatedScrollViewItemComponent(
           child: LibraryBookItem(
+            bookId: book.id,
             imageData: book.imageData,
             title: book.title,
             author: book.author,
-            onPressed: () => _onBookPressed(book.id),
           ),
         );
       },
     );
-  }
-
-  void _onBookPressed(String bookId) {
-    Navigation.navigateToBookPreview(bookId: bookId);
   }
 }

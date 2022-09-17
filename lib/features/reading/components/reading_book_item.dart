@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:app/components/book_image_component.dart';
 import 'package:app/components/pages_progress_bar_component.dart';
+import 'package:app/config/navigation.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:flutter/material.dart';
 
@@ -12,39 +13,50 @@ class ReadingBookItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 150,
-      margin: const EdgeInsets.only(bottom: 4),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              _BookImage(imageData: book.imageData),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _BookInfo(
-                  title: book.title,
-                  author: book.author,
-                  readPagesAmount: book.readPagesAmount,
-                  allPagesAmount: book.allPagesAmount,
+    return GestureDetector(
+      onTap: _onPressed,
+      child: Container(
+        height: 150,
+        margin: const EdgeInsets.only(bottom: 4),
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                _BookImage(bookId: book.id, imageData: book.imageData),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _BookInfo(
+                    title: book.title,
+                    author: book.author,
+                    readPagesAmount: book.readPagesAmount,
+                    allPagesAmount: book.allPagesAmount,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
+  void _onPressed() {
+    Navigation.navigateToBookPreview(
+      bookId: book.id,
+      imageData: book.imageData,
+    );
+  }
 }
 
 class _BookImage extends StatelessWidget {
+  final String bookId;
   final Uint8List? imageData;
 
-  const _BookImage({required this.imageData});
+  const _BookImage({required this.bookId, required this.imageData});
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +66,10 @@ class _BookImage extends StatelessWidget {
       image = Image.memory(imageData);
     }
 
-    return BookImageComponent(image: image);
+    return Hero(
+      tag: bookId,
+      child: BookImageComponent(image: image),
+    );
   }
 }
 

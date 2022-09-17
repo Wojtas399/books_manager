@@ -27,6 +27,7 @@ void main() {
   final updateCurrentPageNumberInBookUseCase =
       MockUpdateCurrentPageNumberInBookUseCase();
   final deleteBookUseCase = MockDeleteBookUseCase();
+  const String bookId = 'b1';
 
   BookPreviewBloc createBloc({
     Book? book,
@@ -37,6 +38,7 @@ void main() {
       updateCurrentPageNumberInBookUseCase:
           updateCurrentPageNumberInBookUseCase,
       deleteBookUseCase: deleteBookUseCase,
+      bookId: bookId,
       book: book,
     );
   }
@@ -47,6 +49,8 @@ void main() {
   }) {
     return BookPreviewState(
       status: status,
+      bookId: bookId,
+      initialBookImageData: null,
       book: book,
     );
   }
@@ -59,7 +63,6 @@ void main() {
   group(
     'initialize',
     () {
-      const String bookId = 'b1';
       final Book book = createBook(id: bookId);
 
       blocTest(
@@ -109,68 +112,41 @@ void main() {
     ],
   );
 
-  group(
-    'start reading',
-    () {
-      const String bookId = 'b1';
-
-      setUp(() {
-        when(
-          () => startReadingBookUseCase.execute(
-            bookId: bookId,
-            fromBeginning: any(named: 'fromBeginning'),
-          ),
-        ).thenAnswer((_) async => '');
-      });
-
-      blocTest(
-        'book is null, should not call use case responsible for starting reading book',
-        build: () => createBloc(),
-        act: (BookPreviewBloc bloc) {
-          bloc.add(
-            const BookPreviewEventStartReading(),
-          );
-        },
-        expect: () => [],
-        verify: (_) {
-          verifyNever(
-            () => startReadingBookUseCase.execute(
-              bookId: any(named: 'bookId'),
-              fromBeginning: any(named: 'fromBeginning'),
-            ),
-          );
-        },
-      );
-
-      blocTest(
-        'book is not null, should call use case responsible for starting reading book',
-        build: () => createBloc(
-          book: createBook(id: bookId),
+  blocTest(
+    'start reading, should call use case responsible for starting reading book',
+    build: () => createBloc(
+      book: createBook(id: bookId),
+    ),
+    setUp: () {
+      when(
+        () => startReadingBookUseCase.execute(
+          bookId: bookId,
+          fromBeginning: true,
         ),
-        act: (BookPreviewBloc bloc) {
-          bloc.add(
-            const BookPreviewEventStartReading(fromBeginning: true),
-          );
-        },
-        expect: () => [
-          createState(
-            status: const BlocStatusLoading(),
-            book: createBook(id: bookId),
-          ),
-          createState(
-            status: const BlocStatusComplete(),
-            book: createBook(id: bookId),
-          ),
-        ],
-        verify: (_) {
-          verify(
-            () => startReadingBookUseCase.execute(
-              bookId: bookId,
-              fromBeginning: true,
-            ),
-          ).called(1);
-        },
+      ).thenAnswer((_) async => '');
+    },
+    act: (BookPreviewBloc bloc) {
+      bloc.add(
+        const BookPreviewEventStartReading(fromBeginning: true),
       );
+    },
+    expect: () => [
+      createState(
+        status: const BlocStatusLoading(),
+        book: createBook(id: bookId),
+      ),
+      createState(
+        status: const BlocStatusComplete(),
+        book: createBook(id: bookId),
+      ),
+    ],
+    verify: (_) {
+      verify(
+        () => startReadingBookUseCase.execute(
+          bookId: bookId,
+          fromBeginning: true,
+        ),
+      ).called(1);
     },
   );
 
@@ -187,36 +163,7 @@ void main() {
           );
 
       blocTest(
-        'book is null, should not call use case responsible for updating current page number',
-        build: () => createBloc(),
-        setUp: () {
-          when(
-            () => updateCurrentPageNumberInBookUseCase.execute(
-              bookId: any(named: 'bookId'),
-              newCurrentPageNumber: newCurrentPageNumber,
-            ),
-          ).thenAnswer((_) async => '');
-        },
-        act: (BookPreviewBloc bloc) {
-          bloc.add(
-            const BookPreviewEventUpdateCurrentPageNumber(
-              currentPageNumber: newCurrentPageNumber,
-            ),
-          );
-        },
-        expect: () => [],
-        verify: (_) {
-          verifyNever(
-            () => updateCurrentPageNumberInBookUseCase.execute(
-              bookId: any(named: 'bookId'),
-              newCurrentPageNumber: newCurrentPageNumber,
-            ),
-          );
-        },
-      );
-
-      blocTest(
-        'book is not null, should try to call use case responsible for updating current page number',
+        'should try to call use case responsible for updating current page number',
         build: () => createBloc(book: createBook(id: bookId)),
         setUp: () {
           when(
@@ -250,7 +197,7 @@ void main() {
       );
 
       blocTest(
-        'book is not null, should emit appropriate error if called use case throws book error',
+        'should emit appropriate error if called use case throws book error',
         build: () => createBloc(book: createBook(id: bookId)),
         setUp: () {
           when(
@@ -287,65 +234,37 @@ void main() {
     },
   );
 
-  group(
-    'delete book',
-    () {
-      const String bookId = 'b1';
-
-      setUp(() {
-        when(
-          () => deleteBookUseCase.execute(
-            bookId: any(named: 'bookId'),
-          ),
-        ).thenAnswer((_) async => '');
-      });
-
-      blocTest(
-        'book is null, should not call use case responsible for deleting book',
-        build: () => createBloc(),
-        act: (BookPreviewBloc bloc) {
-          bloc.add(
-            const BookPreviewEventDeleteBook(),
-          );
-        },
-        expect: () => [],
-        verify: (_) {
-          verifyNever(
-            () => deleteBookUseCase.execute(
-              bookId: any(named: 'bookId'),
-            ),
-          );
-        },
+  blocTest(
+    'delete book, should call use case responsible for deleting book',
+    build: () => createBloc(
+      book: createBook(id: bookId),
+    ),
+    setUp: () {
+      when(
+        () => deleteBookUseCase.execute(bookId: bookId),
+      ).thenAnswer((_) async => '');
+    },
+    act: (BookPreviewBloc bloc) {
+      bloc.add(
+        const BookPreviewEventDeleteBook(),
       );
-
-      blocTest(
-        'book is not null, should call use case responsible for deleting book',
-        build: () => createBloc(
-          book: createBook(id: bookId),
+    },
+    expect: () => [
+      createState(
+        status: const BlocStatusLoading(),
+        book: createBook(id: bookId),
+      ),
+      createState(
+        status: const BlocStatusComplete<BookPreviewBlocInfo>(
+          info: BookPreviewBlocInfo.bookHasBeenDeleted,
         ),
-        act: (BookPreviewBloc bloc) {
-          bloc.add(
-            const BookPreviewEventDeleteBook(),
-          );
-        },
-        expect: () => [
-          createState(
-            status: const BlocStatusLoading(),
-            book: createBook(id: bookId),
-          ),
-          createState(
-            status: const BlocStatusComplete<BookPreviewBlocInfo>(
-              info: BookPreviewBlocInfo.bookHasBeenDeleted,
-            ),
-            book: createBook(id: bookId),
-          ),
-        ],
-        verify: (_) {
-          verify(
-            () => deleteBookUseCase.execute(bookId: bookId),
-          ).called(1);
-        },
-      );
+        book: createBook(id: bookId),
+      ),
+    ],
+    verify: (_) {
+      verify(
+        () => deleteBookUseCase.execute(bookId: bookId),
+      ).called(1);
     },
   );
 }

@@ -1,5 +1,7 @@
+import 'package:app/components/animated_scroll_view_item_component.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/features/reading/bloc/reading_bloc.dart';
+import 'package:app/features/reading/components/reading_book_item.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,8 +14,17 @@ class ReadingContent extends StatelessWidget {
       (ReadingBloc bloc) => bloc.state.booksInProgress,
     );
 
-    return Column(
-      children: booksInProgress.map((Book book) => Text(book.title)).toList(),
+    return ListView.builder(
+      cacheExtent: 0,
+      itemCount: booksInProgress.length,
+      padding: const EdgeInsets.all(12),
+      itemBuilder: (_, int index) {
+        return AnimatedScrollViewItemComponent(
+          child: ReadingBookItem(
+            book: booksInProgress[index],
+          ),
+        );
+      },
     );
   }
 }

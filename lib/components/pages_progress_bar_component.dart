@@ -4,12 +4,14 @@ import 'package:flutter/widgets.dart';
 class PagesProgressBarComponent extends StatelessWidget {
   final int readPagesAmount;
   final int allPagesAmount;
+  final double height;
   final Color? progressBarColor;
 
   const PagesProgressBarComponent({
     super.key,
     required this.readPagesAmount,
     required this.allPagesAmount,
+    this.height = 32,
     this.progressBarColor,
   });
 
@@ -20,6 +22,7 @@ class PagesProgressBarComponent extends StatelessWidget {
         children: [
           _ProgressBar(
             percentage: _countPercentage(),
+            height: height,
             progressBarColor: progressBarColor,
           ),
           _NumbersInfo(
@@ -68,10 +71,12 @@ class _NumbersInfo extends StatelessWidget {
 
 class _ProgressBar extends StatelessWidget {
   final double percentage;
+  final double? height;
   final Color? progressBarColor;
 
   const _ProgressBar({
     required this.percentage,
+    this.height,
     this.progressBarColor,
   });
 
@@ -80,7 +85,7 @@ class _ProgressBar extends StatelessWidget {
     final Color? color = progressBarColor;
 
     return Container(
-      height: 32,
+      height: height,
       decoration: BoxDecoration(
         color: (color ?? AppColors.primary).withOpacity(0.2),
         borderRadius: BorderRadius.circular(8),

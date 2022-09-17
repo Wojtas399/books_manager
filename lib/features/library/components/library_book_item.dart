@@ -92,6 +92,7 @@ class _Description extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             author,
+            maxLines: 1,
             style: TextStyle(color: Colors.black.withOpacity(0.5)),
           ),
         ],

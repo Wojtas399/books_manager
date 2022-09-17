@@ -87,7 +87,7 @@ class BookRepository implements BookInterface {
     );
     final List<Book> books =
         dbBooks.map(BookMapper.mapFromDbModelToEntity).toList();
-    _books$.add(books);
+    _addNewBooksToList(books);
   }
 
   @override
@@ -117,7 +117,7 @@ class BookRepository implements BookInterface {
     }
     await _bookLocalDbService.addBook(dbBook: dbBook, syncState: syncState);
     final Book addedBook = BookMapper.mapFromDbModelToEntity(dbBook);
-    _addNewBookToList(addedBook);
+    _addNewBooksToList([addedBook]);
   }
 
   @override
@@ -211,9 +211,9 @@ class BookRepository implements BookInterface {
     return _books$.value.firstWhere((Book book) => book.id == bookId).userId;
   }
 
-  void _addNewBookToList(Book book) {
+  void _addNewBooksToList(List<Book> books) {
     List<Book> updatedCollection = [..._books$.value];
-    updatedCollection.add(book);
+    updatedCollection.addAll(books);
     _books$.add(updatedCollection.removeRepetitions());
   }
 

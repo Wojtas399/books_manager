@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/entities/book.dart';
 import '../../../domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import '../../../domain/use_cases/book/get_books_by_user_id_use_case.dart';
-import '../../../domain/use_cases/book/load_all_books_by_user_id_use_case.dart';
+import '../../../domain/use_cases/book/load_all_user_books_use_case.dart';
 import '../../../models/bloc_state.dart';
 import '../../../models/bloc_status.dart';
 
@@ -13,13 +13,13 @@ part 'library_event.dart';
 part 'library_state.dart';
 
 class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
-  late final LoadAllBooksByUserIdUseCase _loadAllBooksByUserIdUseCase;
+  late final LoadAllUserBooksUseCase _loadAllUserBooksUseCase;
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
   late final GetBooksByUserIdUseCase _getBooksByUserIdUseCase;
   StreamSubscription<List<Book>>? _booksListener;
 
   LibraryBloc({
-    required LoadAllBooksByUserIdUseCase loadAllBooksByUserIdUseCase,
+    required LoadAllUserBooksUseCase loadAllUserBooksUseCase,
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
     required GetBooksByUserIdUseCase getBooksByUserIdUseCase,
     BlocStatus status = const BlocStatusInitial(),
@@ -30,7 +30,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
             books: books,
           ),
         ) {
-    _loadAllBooksByUserIdUseCase = loadAllBooksByUserIdUseCase;
+    _loadAllUserBooksUseCase = loadAllUserBooksUseCase;
     _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
     _getBooksByUserIdUseCase = getBooksByUserIdUseCase;
     on<LibraryEventInitialize>(_initialize);
@@ -56,7 +56,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
         status: const BlocStatusLoggedUserNotFound(),
       ));
     } else {
-      await _loadAllBooksByUserIdUseCase.execute(userId: loggedUserId);
+      await _loadAllUserBooksUseCase.execute(userId: loggedUserId);
       _setBooksListener(loggedUserId);
     }
   }

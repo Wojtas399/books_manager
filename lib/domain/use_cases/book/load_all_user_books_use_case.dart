@@ -1,9 +1,9 @@
 import 'package:app/domain/interfaces/book_interface.dart';
 
-class LoadAllBooksByUserIdUseCase {
+class LoadAllUserBooksUseCase {
   late final BookInterface _bookInterface;
 
-  LoadAllBooksByUserIdUseCase({
+  LoadAllUserBooksUseCase({
     required BookInterface bookInterface,
   }) {
     _bookInterface = bookInterface;

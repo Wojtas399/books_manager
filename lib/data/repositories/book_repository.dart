@@ -10,6 +10,7 @@ import 'package:app/data/synchronizers/book_synchronizer.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/extensions/book_extensions.dart';
+import 'package:app/extensions/list_extensions.dart';
 import 'package:app/models/device.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -76,12 +77,17 @@ class BookRepository implements BookInterface {
   }
 
   @override
-  Future<void> loadAllBooksByUserId({required String userId}) async {
-    final List<DbBook> dbBooks =
-        await _bookLocalDbService.loadUserBooks(userId: userId);
+  Future<void> loadUserBooks({
+    required String userId,
+    BookStatus? bookStatus,
+  }) async {
+    final List<DbBook> dbBooks = await _bookLocalDbService.loadUserBooks(
+      userId: userId,
+      bookStatus: bookStatus?.name,
+    );
     final List<Book> books =
         dbBooks.map(BookMapper.mapFromDbModelToEntity).toList();
-    _books$.add(books);
+    _addNewBooksToList(books);
   }
 
   @override
@@ -111,7 +117,7 @@ class BookRepository implements BookInterface {
     }
     await _bookLocalDbService.addBook(dbBook: dbBook, syncState: syncState);
     final Book addedBook = BookMapper.mapFromDbModelToEntity(dbBook);
-    _addNewBookToList(addedBook);
+    _addNewBooksToList([addedBook]);
   }
 
   @override
@@ -205,10 +211,10 @@ class BookRepository implements BookInterface {
     return _books$.value.firstWhere((Book book) => book.id == bookId).userId;
   }
 
-  void _addNewBookToList(Book book) {
-    final List<Book> updatedCollection = [..._books$.value];
-    updatedCollection.add(book);
-    _books$.add(updatedCollection);
+  void _addNewBooksToList(List<Book> books) {
+    List<Book> updatedCollection = [..._books$.value];
+    updatedCollection.addAll(books);
+    _books$.add(updatedCollection.removeRepetitions());
   }
 
   void _updateBookInList(Book updatedBook) {
@@ -217,12 +223,12 @@ class BookRepository implements BookInterface {
       (Book book) => book.id == updatedBook.id,
     );
     updatedBooksList[updatedBookIndex] = updatedBook;
-    _books$.add(updatedBooksList);
+    _books$.add(updatedBooksList.removeRepetitions());
   }
 
   void _removeBookFromList(String bookId) {
     final List<Book> updatedCollection = [..._books$.value];
     updatedCollection.removeWhere((Book book) => book.id == bookId);
-    _books$.add(updatedCollection);
+    _books$.add(updatedCollection.removeRepetitions());
   }
 }

@@ -28,18 +28,28 @@ class _BookImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String bookId = context.select(
+      (BookPreviewBloc bloc) => bloc.state.bookId,
+    );
+    final Uint8List? initialImageData = context.select(
+      (BookPreviewBloc bloc) => bloc.state.initialBookImageData,
+    );
     final Uint8List? imageData = context.select(
       (BookPreviewBloc bloc) => bloc.state.bookImageData,
     );
+    Image? image;
+    if (imageData != null) {
+      image = Image.memory(imageData);
+    } else if (initialImageData != null) {
+      image = Image.memory(initialImageData);
+    }
 
-    return BookImageComponent(
-      image: imageData != null
-          ? Image.memory(
-              imageData,
-              fit: BoxFit.contain,
-            )
-          : null,
-      bookIconSize: 120,
+    return Hero(
+      tag: bookId,
+      child: BookImageComponent(
+        image: image,
+        bookIconSize: 120,
+      ),
     );
   }
 }

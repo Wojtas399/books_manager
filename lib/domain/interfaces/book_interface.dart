@@ -9,7 +9,10 @@ abstract class BookInterface {
 
   Stream<List<Book>> getBooksByUserId({required String userId});
 
-  Future<void> loadAllBooksByUserId({required String userId});
+  Future<void> loadUserBooks({
+    required String userId,
+    BookStatus? bookStatus,
+  });
 
   Future<void> addNewBook({
     required String userId,

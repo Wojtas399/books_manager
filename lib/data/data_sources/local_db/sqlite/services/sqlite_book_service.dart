@@ -25,11 +25,13 @@ class SqliteBookService {
 
   Future<List<SqliteBook>> loadUserBooks({
     required String userId,
+    String? bookStatus,
     SyncState? syncState,
   }) async {
     final List<Map<String, Object?>> booksInJson = await _queryUserBooks(
-      userId,
-      syncState,
+      userId: userId,
+      bookStatus: bookStatus,
+      syncState: syncState,
     );
     return booksInJson.map(SqliteBook.fromJson).toList();
   }
@@ -71,27 +73,25 @@ class SqliteBookService {
     );
   }
 
-  Future<List<Map<String, Object?>>> _queryUserBooks(
-    String userId,
+  Future<List<Map<String, Object?>>> _queryUserBooks({
+    required String userId,
+    String? bookStatus,
     SyncState? syncState,
-  ) async {
+  }) async {
     final Database db = await SqliteDatabase.instance.database;
-    List<String> syncStatesNames = [
-      SyncState.none.name,
-      SyncState.added.name,
-      SyncState.updated.name,
-    ];
-    if (syncState != null) {
-      syncStatesNames = [syncState.name];
+    String query = "SELECT * FROM ${SqliteTables.booksTable}";
+    query += " WHERE ${SqliteBookFields.userId} = '$userId'";
+    if (bookStatus != null) {
+      query += " AND ${SqliteBookFields.status} = '$bookStatus'";
     }
-    const String userIdQuery = '${SqliteBookFields.userId} = ?';
-    final String syncStateQuery =
-        '${SqliteBookFields.syncState} IN (${syncStatesNames.map((_) => '?').join(', ')})';
-    return await db.query(
-      SqliteTables.booksTable,
-      where: '$userIdQuery AND $syncStateQuery',
-      whereArgs: [userId, ...syncStatesNames],
-    );
+    if (syncState != null) {
+      query += " AND ${SqliteBookFields.syncState} = '${syncState.name}'";
+    } else {
+      final String syncStates =
+          "('${SyncState.none.name}', '${SyncState.added.name}', '${SyncState.updated.name}')";
+      query += " AND ${SqliteBookFields.syncState} IN $syncStates";
+    }
+    return await db.rawQuery(query);
   }
 
   Future<Map<String, Object?>> _queryBook(String bookId) async {

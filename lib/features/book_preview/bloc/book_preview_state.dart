@@ -1,10 +1,14 @@
 part of 'book_preview_bloc.dart';
 
 class BookPreviewState extends BlocState {
+  late final String bookId;
+  late final Uint8List? initialBookImageData;
   late final Book? _book;
 
   BookPreviewState({
     required super.status,
+    required this.bookId,
+    required this.initialBookImageData,
     required Book? book,
   }) {
     _book = book;
@@ -13,10 +17,10 @@ class BookPreviewState extends BlocState {
   @override
   List<Object> get props => [
         status,
+        bookId,
+        initialBookImageData ?? '',
         _book ?? '',
       ];
-
-  String? get bookId => _book?.id;
 
   Uint8List? get bookImageData => _book?.imageData;
 
@@ -35,8 +39,10 @@ class BookPreviewState extends BlocState {
     Book? book,
   }) {
     return BookPreviewState(
+      bookId: bookId,
       status: status ?? const BlocStatusInProgress(),
       book: book ?? _book,
+      initialBookImageData: initialBookImageData,
     );
   }
 

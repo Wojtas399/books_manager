@@ -1,15 +1,15 @@
 import 'package:app/domain/interfaces/book_interface.dart';
 
-class LoadAllBooksByUserIdUseCase {
+class LoadAllUserBooksUseCase {
   late final BookInterface _bookInterface;
 
-  LoadAllBooksByUserIdUseCase({
+  LoadAllUserBooksUseCase({
     required BookInterface bookInterface,
   }) {
     _bookInterface = bookInterface;
   }
 
   Future<void> execute({required String userId}) async {
-    await _bookInterface.loadAllBooksByUserId(userId: userId);
+    await _bookInterface.loadUserBooks(userId: userId);
   }
 }

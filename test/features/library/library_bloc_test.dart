@@ -1,26 +1,26 @@
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import 'package:app/domain/use_cases/book/get_books_by_user_id_use_case.dart';
-import 'package:app/domain/use_cases/book/load_all_books_by_user_id_use_case.dart';
+import 'package:app/domain/use_cases/book/get_all_user_books_use_case.dart';
+import 'package:app/domain/use_cases/book/load_all_user_books_use_case.dart';
 import 'package:app/features/library/bloc/library_bloc.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockLoadAllBooksByUserIdUseCase extends Mock
-    implements LoadAllBooksByUserIdUseCase {}
+class MockLoadAllUserBooksUseCase extends Mock
+    implements LoadAllUserBooksUseCase {}
 
 class MockGetLoggedUserIdUseCase extends Mock
     implements GetLoggedUserIdUseCase {}
 
-class MockGetBooksByUserIdUseCase extends Mock
-    implements GetBooksByUserIdUseCase {}
+class MockGetAllUserBooksUseCase extends Mock
+    implements GetAllUserBooksUseCase {}
 
 void main() {
-  final loadAllBooksByUserIdUseCase = MockLoadAllBooksByUserIdUseCase();
+  final loadAllUserBooksUseCase = MockLoadAllUserBooksUseCase();
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
-  final getBooksByUserIdUseCase = MockGetBooksByUserIdUseCase();
+  final getAllUserBooksUseCase = MockGetAllUserBooksUseCase();
   final List<Book> userBooks = [
     createBook(id: 'b1'),
     createBook(id: 'b2'),
@@ -28,9 +28,9 @@ void main() {
 
   LibraryBloc createBloc() {
     return LibraryBloc(
-      loadAllBooksByUserIdUseCase: loadAllBooksByUserIdUseCase,
+      loadAllUserBooksUseCase: loadAllUserBooksUseCase,
       getLoggedUserIdUseCase: getLoggedUserIdUseCase,
-      getBooksByUserIdUseCase: getBooksByUserIdUseCase,
+      getAllUserBooksUseCase: getAllUserBooksUseCase,
     );
   }
 
@@ -45,9 +45,9 @@ void main() {
   }
 
   tearDown(() {
-    reset(loadAllBooksByUserIdUseCase);
+    reset(loadAllUserBooksUseCase);
     reset(getLoggedUserIdUseCase);
-    reset(getBooksByUserIdUseCase);
+    reset(getAllUserBooksUseCase);
   });
 
   blocTest(
@@ -81,10 +81,10 @@ void main() {
         () => getLoggedUserIdUseCase.execute(),
       ).thenAnswer((_) => Stream.value('u1'));
       when(
-        () => loadAllBooksByUserIdUseCase.execute(userId: 'u1'),
+        () => loadAllUserBooksUseCase.execute(userId: 'u1'),
       ).thenAnswer((_) async => '');
       when(
-        () => getBooksByUserIdUseCase.execute(userId: 'u1'),
+        () => getAllUserBooksUseCase.execute(userId: 'u1'),
       ).thenAnswer((_) => Stream.value(userBooks));
     },
     act: (LibraryBloc bloc) {
@@ -102,7 +102,7 @@ void main() {
     ],
     verify: (_) {
       verify(
-        () => loadAllBooksByUserIdUseCase.execute(userId: 'u1'),
+        () => loadAllUserBooksUseCase.execute(userId: 'u1'),
       ).called(1);
     },
   );

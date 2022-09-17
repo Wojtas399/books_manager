@@ -29,11 +29,15 @@ class BookPreviewBloc extends Bloc<BookPreviewEvent, BookPreviewState> {
     required UpdateCurrentPageNumberInBookUseCase
         updateCurrentPageNumberInBookUseCase,
     required DeleteBookUseCase deleteBookUseCase,
+    required String bookId,
     BlocStatus status = const BlocStatusInitial(),
+    Uint8List? initialBookImageData,
     Book? book,
   }) : super(
           BookPreviewState(
             status: status,
+            bookId: bookId,
+            initialBookImageData: initialBookImageData,
             book: book,
           ),
         ) {
@@ -79,41 +83,35 @@ class BookPreviewBloc extends Bloc<BookPreviewEvent, BookPreviewState> {
     BookPreviewEventStartReading event,
     Emitter<BookPreviewState> emit,
   ) async {
-    final String? bookId = state.bookId;
-    if (bookId != null) {
-      emit(state.copyWith(
-        status: const BlocStatusLoading(),
-      ));
-      await _startReadingBookUseCase.execute(
-        bookId: bookId,
-        fromBeginning: event.fromBeginning,
-      );
-      emit(state.copyWith(
-        status: const BlocStatusComplete(),
-      ));
-    }
+    emit(state.copyWith(
+      status: const BlocStatusLoading(),
+    ));
+    await _startReadingBookUseCase.execute(
+      bookId: state.bookId,
+      fromBeginning: event.fromBeginning,
+    );
+    emit(state.copyWith(
+      status: const BlocStatusComplete(),
+    ));
   }
 
   Future<void> _updateCurrentPageNumber(
     BookPreviewEventUpdateCurrentPageNumber event,
     Emitter<BookPreviewState> emit,
   ) async {
-    final String? bookId = state.bookId;
-    if (bookId != null) {
-      emit(state.copyWith(
-        status: const BlocStatusLoading(),
+    emit(state.copyWith(
+      status: const BlocStatusLoading(),
+    ));
+    try {
+      await _updateCurrentPageNumberInBookUseCase.execute(
+        bookId: state.bookId,
+        newCurrentPageNumber: event.currentPageNumber,
+      );
+      emit(state.copyWithInfo(
+        BookPreviewBlocInfo.currentPageNumberHasBeenUpdated,
       ));
-      try {
-        await _updateCurrentPageNumberInBookUseCase.execute(
-          bookId: bookId,
-          newCurrentPageNumber: event.currentPageNumber,
-        );
-        emit(state.copyWithInfo(
-          BookPreviewBlocInfo.currentPageNumberHasBeenUpdated,
-        ));
-      } on BookError catch (bookError) {
-        _manageBookError(bookError, emit);
-      }
+    } on BookError catch (bookError) {
+      _manageBookError(bookError, emit);
     }
   }
 
@@ -121,16 +119,13 @@ class BookPreviewBloc extends Bloc<BookPreviewEvent, BookPreviewState> {
     BookPreviewEventDeleteBook event,
     Emitter<BookPreviewState> emit,
   ) async {
-    final String? bookId = state.bookId;
-    if (bookId != null) {
-      emit(state.copyWith(
-        status: const BlocStatusLoading(),
-      ));
-      await _deleteBookUseCase.execute(bookId: bookId);
-      emit(state.copyWithInfo(
-        BookPreviewBlocInfo.bookHasBeenDeleted,
-      ));
-    }
+    emit(state.copyWith(
+      status: const BlocStatusLoading(),
+    ));
+    await _deleteBookUseCase.execute(bookId: state.bookId);
+    emit(state.copyWithInfo(
+      BookPreviewBlocInfo.bookHasBeenDeleted,
+    ));
   }
 
   void _setBookListener(String bookId) {

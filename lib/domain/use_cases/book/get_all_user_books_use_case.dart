@@ -1,10 +1,10 @@
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 
-class GetBooksByUserIdUseCase {
+class GetAllUserBooksUseCase {
   late final BookInterface _bookInterface;
 
-  GetBooksByUserIdUseCase({
+  GetAllUserBooksUseCase({
     required BookInterface bookInterface,
   }) {
     _bookInterface = bookInterface;

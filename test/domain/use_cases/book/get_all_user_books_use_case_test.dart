@@ -1,6 +1,6 @@
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
-import 'package:app/domain/use_cases/book/get_books_by_user_id_use_case.dart';
+import 'package:app/domain/use_cases/book/get_all_user_books_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -8,7 +8,7 @@ class MockBookInterface extends Mock implements BookInterface {}
 
 void main() {
   final bookInterface = MockBookInterface();
-  final useCase = GetBooksByUserIdUseCase(bookInterface: bookInterface);
+  final useCase = GetAllUserBooksUseCase(bookInterface: bookInterface);
 
   test(
     'should return stream which contains books belonging to user',

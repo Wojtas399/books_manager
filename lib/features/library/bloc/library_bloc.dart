@@ -1,13 +1,12 @@
 import 'dart:async';
 
+import 'package:app/domain/entities/book.dart';
+import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
+import 'package:app/domain/use_cases/book/get_all_user_books_use_case.dart';
+import 'package:app/domain/use_cases/book/load_all_user_books_use_case.dart';
+import 'package:app/models/bloc_state.dart';
+import 'package:app/models/bloc_status.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../domain/entities/book.dart';
-import '../../../domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import '../../../domain/use_cases/book/get_books_by_user_id_use_case.dart';
-import '../../../domain/use_cases/book/load_all_user_books_use_case.dart';
-import '../../../models/bloc_state.dart';
-import '../../../models/bloc_status.dart';
 
 part 'library_event.dart';
 part 'library_state.dart';
@@ -15,13 +14,13 @@ part 'library_state.dart';
 class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   late final LoadAllUserBooksUseCase _loadAllUserBooksUseCase;
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
-  late final GetBooksByUserIdUseCase _getBooksByUserIdUseCase;
+  late final GetAllUserBooksUseCase _getAllUserBooksUseCase;
   StreamSubscription<List<Book>>? _booksListener;
 
   LibraryBloc({
     required LoadAllUserBooksUseCase loadAllUserBooksUseCase,
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
-    required GetBooksByUserIdUseCase getBooksByUserIdUseCase,
+    required GetAllUserBooksUseCase getAllUserBooksUseCase,
     BlocStatus status = const BlocStatusInitial(),
     List<Book> books = const [],
   }) : super(
@@ -32,7 +31,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
         ) {
     _loadAllUserBooksUseCase = loadAllUserBooksUseCase;
     _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
-    _getBooksByUserIdUseCase = getBooksByUserIdUseCase;
+    _getAllUserBooksUseCase = getAllUserBooksUseCase;
     on<LibraryEventInitialize>(_initialize);
     on<LibraryEventBooksUpdated>(_booksUpdated);
   }
@@ -72,7 +71,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
 
   void _setBooksListener(String loggedUserId) {
     _booksListener ??=
-        _getBooksByUserIdUseCase.execute(userId: loggedUserId).listen(
+        _getAllUserBooksUseCase.execute(userId: loggedUserId).listen(
               (List<Book> books) => add(
                 LibraryEventBooksUpdated(books: books),
               ),

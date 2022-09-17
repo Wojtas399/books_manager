@@ -8,7 +8,7 @@ class MockBookInterface extends Mock implements BookInterface {}
 
 void main() {
   final bookInterface = MockBookInterface();
-  final useCase = LoadUserBooksInProgress(bookInterface: bookInterface);
+  final useCase = LoadUserBooksInProgressUseCase(bookInterface: bookInterface);
 
   test(
     'should call method responsible for loading user books with status set as in progress',

@@ -1,10 +1,10 @@
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 
-class LoadUserBooksInProgress {
+class LoadUserBooksInProgressUseCase {
   late final BookInterface _bookInterface;
 
-  LoadUserBooksInProgress({required BookInterface bookInterface}) {
+  LoadUserBooksInProgressUseCase({required BookInterface bookInterface}) {
     _bookInterface = bookInterface;
   }
 

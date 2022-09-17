@@ -1,6 +1,6 @@
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
-import 'package:app/domain/use_cases/book/get_user_books_by_status_use_case.dart';
+import 'package:app/domain/use_cases/book/get_user_books_in_progress_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -8,10 +8,10 @@ class MockBookInterface extends Mock implements BookInterface {}
 
 void main() {
   final bookInterface = MockBookInterface();
-  final useCase = GetUserBooksByStatusUseCase(bookInterface: bookInterface);
+  final useCase = GetUserBooksInProgressUseCase(bookInterface: bookInterface);
 
   test(
-    'should return stream which contains books matching to given status',
+    'should return stream which contains books in progress',
     () async {
       const String userId = 'u1';
       final List<Book> userBooks = [
@@ -25,10 +25,7 @@ void main() {
         () => bookInterface.getBooksByUserId(userId: userId),
       ).thenAnswer((_) => Stream.value(userBooks));
 
-      final Stream<List<Book>> books$ = useCase.execute(
-        userId: userId,
-        bookStatus: BookStatus.inProgress,
-      );
+      final Stream<List<Book>> books$ = useCase.execute(userId: userId);
 
       expect(await books$.first, expectedBooks);
     },

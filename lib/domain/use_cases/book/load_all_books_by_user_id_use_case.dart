@@ -10,6 +10,6 @@ class LoadAllBooksByUserIdUseCase {
   }
 
   Future<void> execute({required String userId}) async {
-    await _bookInterface.loadAllBooksByUserId(userId: userId);
+    await _bookInterface.loadUserBooks(userId: userId);
   }
 }

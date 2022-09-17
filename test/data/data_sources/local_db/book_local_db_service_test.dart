@@ -34,6 +34,7 @@ void main() {
     'load user books, should load user books data from sqlite and their images from local storage',
     () async {
       const String userId = 'u1';
+      const String bookStatus = 'finished';
       const SyncState syncState = SyncState.added;
       final Uint8List b1ImageData = Uint8List(20);
       final List<SqliteBook> sqliteBooks = [
@@ -47,6 +48,7 @@ void main() {
       when(
         () => sqliteBookService.loadUserBooks(
           userId: userId,
+          bookStatus: bookStatus,
           syncState: syncState,
         ),
       ).thenAnswer((_) async => sqliteBooks);
@@ -63,8 +65,11 @@ void main() {
         ),
       ).thenAnswer((_) async => null);
 
-      final List<DbBook> loadedDbBooks =
-          await service.loadUserBooks(userId: userId, syncState: syncState);
+      final List<DbBook> loadedDbBooks = await service.loadUserBooks(
+        userId: userId,
+        bookStatus: bookStatus,
+        syncState: syncState,
+      );
 
       expect(loadedDbBooks, expectedDbBooks);
     },

@@ -14,13 +14,13 @@ void main() {
     () async {
       const String userId = 'u1';
       when(
-        () => bookInterface.loadAllBooksByUserId(userId: userId),
+        () => bookInterface.loadUserBooks(userId: userId),
       ).thenAnswer((_) async => '');
 
       await useCase.execute(userId: userId);
 
       verify(
-        () => bookInterface.loadAllBooksByUserId(userId: userId),
+        () => bookInterface.loadUserBooks(userId: userId),
       ).called(1);
     },
   );

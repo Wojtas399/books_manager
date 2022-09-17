@@ -187,26 +187,36 @@ void main() {
   );
 
   test(
-    'load all books by user id, should load all user books from local db and assign them to stream',
+    'load user books, should load user books from local db and assign them to stream',
     () async {
+      const BookStatus bookStatus = BookStatus.unread;
       final List<DbBook> dbBooks = [
-        createDbBook(id: 'b1', userId: userId, status: BookStatus.unread.name),
-        createDbBook(id: 'b2', userId: userId, status: BookStatus.unread.name),
+        createDbBook(id: 'b1', userId: userId, status: bookStatus.name),
+        createDbBook(id: 'b2', userId: userId, status: bookStatus.name),
       ];
       final List<Book> expectedBooks = [
-        createBook(id: 'b1', userId: userId, status: BookStatus.unread),
-        createBook(id: 'b2', userId: userId, status: BookStatus.unread),
+        createBook(id: 'b1', userId: userId, status: bookStatus),
+        createBook(id: 'b2', userId: userId, status: bookStatus),
       ];
       when(
-        () => bookLocalDbService.loadUserBooks(userId: userId),
+        () => bookLocalDbService.loadUserBooks(
+          userId: userId,
+          bookStatus: bookStatus.name,
+        ),
       ).thenAnswer((_) async => dbBooks);
 
-      await repository.loadAllBooksByUserId(userId: userId);
+      await repository.loadUserBooks(userId: userId, bookStatus: bookStatus);
 
       expect(
         await repository.getBooksByUserId(userId: userId).first,
         expectedBooks,
       );
+      verify(
+        () => bookLocalDbService.loadUserBooks(
+          userId: userId,
+          bookStatus: bookStatus.name,
+        ),
+      ).called(1);
     },
   );
 

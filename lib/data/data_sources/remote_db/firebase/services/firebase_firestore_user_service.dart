@@ -1,4 +1,3 @@
-import 'package:app/data/data_sources/remote_db/firebase/firebase_instances.dart';
 import 'package:app/data/data_sources/remote_db/firebase/firebase_references.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -40,17 +39,8 @@ class FirebaseFirestoreUserService {
   }
 
   Future<void> deleteUser({required String userId}) async {
-    final WriteBatch batch = FireInstances.firestore.batch();
-    final CollectionReference booksRef = FireReferences.getBooksRef(
-      userId: userId,
-    );
-    final QuerySnapshot books = await booksRef.get();
     final DocumentReference userRef = _getUserRef(userId);
-    for (final book in books.docs) {
-      batch.delete(book.reference);
-    }
-    batch.delete(userRef);
-    await batch.commit();
+    await userRef.delete();
   }
 
   DocumentReference<FirebaseUser> _getUserRef(String userId) {

@@ -64,3 +64,17 @@ class SqliteUserFields {
       'isDarkModeCompatibilityWithSystemOn';
   static const String syncState = 'syncState';
 }
+
+SqliteUser createSqliteUser({
+  String id = '',
+  bool isDarkModeOn = false,
+  bool isDarkModeCompatibilityWithSystemOn = false,
+  SyncState syncState = SyncState.none,
+}) {
+  return SqliteUser(
+    id: id,
+    isDarkModeOn: isDarkModeOn,
+    isDarkModeCompatibilityWithSystemOn: isDarkModeCompatibilityWithSystemOn,
+    syncState: syncState,
+  );
+}

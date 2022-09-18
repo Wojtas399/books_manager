@@ -1,3 +1,5 @@
+import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_user.dart';
+import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_user.dart';
 import 'package:app/data/models/db_user.dart';
 import 'package:app/domain/entities/user.dart';
@@ -18,6 +20,28 @@ class UserMapper {
       isDarkModeOn: user.isDarkModeOn,
       isDarkModeCompatibilityWithSystemOn:
           user.isDarkModeCompatibilityWithSystemOn,
+    );
+  }
+
+  static DbUser mapFromSqliteModelToDbModel(SqliteUser sqliteUser) {
+    return DbUser(
+      id: sqliteUser.id,
+      isDarkModeOn: sqliteUser.isDarkModeOn,
+      isDarkModeCompatibilityWithSystemOn:
+          sqliteUser.isDarkModeCompatibilityWithSystemOn,
+    );
+  }
+
+  static SqliteUser mapFromDbModelToSqliteModel(
+    DbUser dbUser,
+    SyncState syncState,
+  ) {
+    return SqliteUser(
+      id: dbUser.id,
+      isDarkModeOn: dbUser.isDarkModeOn,
+      isDarkModeCompatibilityWithSystemOn:
+          dbUser.isDarkModeCompatibilityWithSystemOn,
+      syncState: syncState,
     );
   }
 

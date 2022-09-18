@@ -1,4 +1,5 @@
 import 'package:app/data/data_sources/local_db/sqlite/services/sqlite_book_service.dart';
+import 'package:app/data/data_sources/local_db/sqlite/services/sqlite_user_service.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -29,6 +30,7 @@ class SqliteDatabase {
   }
 
   Future<void> _createDatabase(Database db, int version) async {
+    await db.execute(SqliteUserService.tableCreationCommand);
     await db.execute(SqliteBookService.tableCreationCommand);
   }
 }

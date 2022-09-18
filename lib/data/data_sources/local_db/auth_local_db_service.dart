@@ -1,25 +1,27 @@
-import 'package:app/data/data_sources/local_db/shared_preferences_service.dart';
+import 'package:app/data/data_sources/local_db/shared_preferences/logged_user_shared_preferences_service.dart';
 
 class AuthLocalDbService {
-  late final SharedPreferencesService _sharedPreferencesService;
+  late final LoggedUserSharedPreferencesService
+      _loggedUserSharedPreferencesService;
 
   AuthLocalDbService({
-    required SharedPreferencesService sharedPreferencesService,
+    required LoggedUserSharedPreferencesService
+        loggedUserSharedPreferencesService,
   }) {
-    _sharedPreferencesService = sharedPreferencesService;
+    _loggedUserSharedPreferencesService = loggedUserSharedPreferencesService;
   }
 
   Future<String?> loadLoggedUserId() async {
-    return await _sharedPreferencesService.loadLoggedUserId();
+    return await _loggedUserSharedPreferencesService.loadLoggedUserId();
   }
 
   Future<void> saveLoggedUserId({required String loggedUserId}) async {
-    await _sharedPreferencesService.saveLoggedUserId(
+    await _loggedUserSharedPreferencesService.saveLoggedUserId(
       loggedUserId: loggedUserId,
     );
   }
 
   Future<void> removeLoggedUserId() async {
-    await _sharedPreferencesService.removeLoggedUserId();
+    await _loggedUserSharedPreferencesService.removeLoggedUserId();
   }
 }

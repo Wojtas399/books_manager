@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-class LoggedUserSharedPreferencesService {
+class SharedPreferencesService {
   final String _loggedUserIdKey = 'loggedUserId';
 
   Future<void> saveLoggedUserId({required String loggedUserId}) async {

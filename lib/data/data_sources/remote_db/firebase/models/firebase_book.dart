@@ -72,8 +72,6 @@ class FirebaseBook extends Equatable {
 }
 
 class FirebaseBookFields {
-  static const String id = 'id';
-  static const String userId = 'userId';
   static const String status = 'status';
   static const String title = 'title';
   static const String author = 'author';

@@ -1,7 +1,34 @@
+import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
+import 'package:app/data/data_sources/local_db/user_local_db_service.dart';
+import 'package:app/data/data_sources/remote_db/user_remote_db_service.dart';
+import 'package:app/data/mappers/user_mapper.dart';
+import 'package:app/data/models/db_user.dart';
 import 'package:app/domain/entities/user.dart';
 import 'package:app/domain/interfaces/user_interface.dart';
+import 'package:app/extensions/list_extensions.dart';
+import 'package:app/models/device.dart';
+import 'package:rxdart/rxdart.dart';
 
 class UserRepository implements UserInterface {
+  late final UserLocalDbService _userLocalDbService;
+  late final UserRemoteDbService _userRemoteDbService;
+  late final Device _device;
+  final BehaviorSubject<List<User>> _users$ = BehaviorSubject<List<User>>();
+
+  UserRepository({
+    required UserLocalDbService userLocalDbService,
+    required UserRemoteDbService userRemoteDbService,
+    required Device device,
+    List<User> users = const [],
+  }) {
+    _userLocalDbService = userLocalDbService;
+    _userRemoteDbService = userRemoteDbService;
+    _device = device;
+    _users$.add(users);
+  }
+
+  Stream<List<User>> get _usersStream$ => _users$.stream;
+
   @override
   Future<void> refreshUser({required String userId}) {
     // TODO: implement refreshUser
@@ -9,21 +36,35 @@ class UserRepository implements UserInterface {
   }
 
   @override
-  Stream<User> getUser({required String userId}) {
-    // TODO: implement getUser
-    throw UnimplementedError();
+  Stream<User?> getUser({required String userId}) {
+    return _usersStream$.map(
+      (List<User> users) {
+        final List<User?> allUsers = [...users];
+        return allUsers.firstWhere(
+          (User? user) => user?.id == userId,
+          orElse: () => null,
+        );
+      },
+    );
   }
 
   @override
-  Future<void> loadUser({required String userId}) {
-    // TODO: implement loadUser
-    throw UnimplementedError();
+  Future<void> loadUser({required String userId}) async {
+    final DbUser dbUser = await _userLocalDbService.loadUser(userId: userId);
+    final User user = UserMapper.mapFromDbModelToEntity(dbUser);
+    _addUserToList(user);
   }
 
   @override
-  Future<void> addUser({required User user}) {
-    // TODO: implement addUser
-    throw UnimplementedError();
+  Future<void> addUser({required User user}) async {
+    final DbUser dbUser = UserMapper.mapFromEntityToDbModel(user);
+    SyncState syncState = SyncState.added;
+    if (await _device.hasInternetConnection()) {
+      await _userRemoteDbService.addUser(dbUser: dbUser);
+      syncState = SyncState.none;
+    }
+    await _userLocalDbService.addUser(dbUser: dbUser, syncState: syncState);
+    _addUserToList(user);
   }
 
   @override
@@ -31,19 +72,65 @@ class UserRepository implements UserInterface {
     required String userId,
     bool? isDarkModeOn,
     bool? isDarkModeCompatibilityWithSystemOn,
-  }) {
-    // TODO: implement updateUser
-    throw UnimplementedError();
+  }) async {
+    SyncState? syncState = SyncState.updated;
+    if (await _device.hasInternetConnection()) {
+      await _userRemoteDbService.updateUser(
+        userId: userId,
+        isDarkModeOn: isDarkModeOn,
+        isDarkModeCompatibilityWithSystemOn:
+            isDarkModeCompatibilityWithSystemOn,
+      );
+      syncState = SyncState.none;
+    }
+    final DbUser updatedDbUser = await _userLocalDbService.updateUser(
+      userId: userId,
+      isDarkModeOn: isDarkModeOn,
+      isDarkModeCompatibilityWithSystemOn: isDarkModeCompatibilityWithSystemOn,
+      syncState: syncState,
+    );
+    final User updatedUser = UserMapper.mapFromDbModelToEntity(updatedDbUser);
+    _updateUserInList(updatedUser);
   }
 
   @override
-  Future<void> deleteUser({required String userId}) {
-    // TODO: implement deleteUser
-    throw UnimplementedError();
+  Future<void> deleteUser({required String userId}) async {
+    if (await _device.hasInternetConnection()) {
+      await _userRemoteDbService.deleteUser(userId: userId);
+      await _userLocalDbService.deleteUser(userId: userId);
+    } else {
+      await _userLocalDbService.updateUser(
+        userId: userId,
+        syncState: SyncState.deleted,
+      );
+    }
+    _deleteUserFromList(userId);
   }
 
-  @override
-  void reset() {
-    // TODO: implement reset
+  void _addUserToList(User user) {
+    final List<User> users = [..._users$.value];
+    users.add(user);
+    _users$.add(
+      users.removeRepetitions(),
+    );
+  }
+
+  void _updateUserInList(User updatedUser) {
+    final List<User> users = [..._users$.value];
+    final int index = users.indexWhere(
+      (User user) => user.id == updatedUser.id,
+    );
+    users[index] = updatedUser;
+    _users$.add(
+      users.removeRepetitions(),
+    );
+  }
+
+  void _deleteUserFromList(String userId) {
+    final List<User> users = [..._users$.value];
+    users.removeWhere((User user) => user.id == userId);
+    _users$.add(
+      users.removeRepetitions(),
+    );
   }
 }

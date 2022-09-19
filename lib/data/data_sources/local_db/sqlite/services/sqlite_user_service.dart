@@ -14,37 +14,46 @@ class SqliteUserService {
     )
   ''';
 
-  Future<SqliteUser> loadUser({required String userId}) async {
-    final Map<String, Object?> userJson = await _queryUser(userId);
-    return SqliteUser.fromJson(userJson);
+  Future<SqliteUser?> loadUser({required String userId}) async {
+    final Map<String, Object?>? userJson = await _queryUser(userId);
+    if (userJson != null) {
+      return SqliteUser.fromJson(userJson);
+    } else {
+      return null;
+    }
   }
 
   Future<void> addUser({required SqliteUser sqliteUser}) async {
     await _insertUser(sqliteUser);
   }
 
-  Future<SqliteUser> updateUser({
+  Future<SqliteUser?> updateUser({
     required String userId,
     bool? isDarkModeOn,
     bool? isDarkModeCompatibilityWithSystemOn,
     SyncState? syncState,
   }) async {
-    final Map<String, Object?> userJson = await _queryUser(userId);
-    final SqliteUser sqliteUser = SqliteUser.fromJson(userJson);
-    final SqliteUser updatedSqliteUser = sqliteUser.copyWith(
-      isDarkModeOn: isDarkModeOn,
-      isDarkModeCompatibilityWithSystemOn: isDarkModeCompatibilityWithSystemOn,
-      syncState: syncState,
-    );
-    await _updateUser(updatedSqliteUser);
-    return updatedSqliteUser;
+    final Map<String, Object?>? userJson = await _queryUser(userId);
+    if (userJson != null) {
+      final SqliteUser sqliteUser = SqliteUser.fromJson(userJson);
+      final SqliteUser updatedSqliteUser = sqliteUser.copyWith(
+        isDarkModeOn: isDarkModeOn,
+        isDarkModeCompatibilityWithSystemOn:
+            isDarkModeCompatibilityWithSystemOn,
+        syncState: syncState,
+      );
+      await _updateUser(updatedSqliteUser);
+      return updatedSqliteUser;
+    } else {
+      return null;
+    }
   }
 
   Future<void> deleteUser({required String userId}) async {
     await _deleteUser(userId);
   }
 
-  Future<Map<String, Object?>> _queryUser(String userId) async {
+  Future<Map<String, Object?>?> _queryUser(String userId) async {
     final Database db = await SqliteDatabase.instance.database;
     final List<Map<String, Object?>> rows = await db.query(
       SqliteTables.usersTable,
@@ -54,9 +63,8 @@ class SqliteUserService {
     );
     if (rows.isNotEmpty) {
       return rows.first;
-    } else {
-      throw 'Cannot load user from sqlite';
     }
+    return null;
   }
 
   Future<void> _insertUser(SqliteUser sqliteUser) async {

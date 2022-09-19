@@ -2,6 +2,7 @@ import 'package:app/components/custom_bloc_listener.dart';
 import 'package:app/config/navigation.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/dialog_interface.dart';
+import 'package:app/domain/interfaces/user_interface.dart';
 import 'package:app/domain/use_cases/auth/sign_up_use_case.dart';
 import 'package:app/features/sign_up/bloc/sign_up_bloc.dart';
 import 'package:app/features/sign_up/components/sign_up_content.dart';
@@ -36,6 +37,7 @@ class _SignUpBlocProvider extends StatelessWidget {
         passwordValidator: PasswordValidator(),
         signUpUseCase: SignUpUseCase(
           authInterface: context.read<AuthInterface>(),
+          userInterface: context.read<UserInterface>(),
         ),
       ),
       child: child,

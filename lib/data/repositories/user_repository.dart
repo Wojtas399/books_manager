@@ -3,6 +3,7 @@ import 'package:app/data/data_sources/local_db/user_local_db_service.dart';
 import 'package:app/data/data_sources/remote_db/user_remote_db_service.dart';
 import 'package:app/data/mappers/user_mapper.dart';
 import 'package:app/data/models/db_user.dart';
+import 'package:app/data/synchronizers/user_synchronizer.dart';
 import 'package:app/domain/entities/user.dart';
 import 'package:app/domain/interfaces/user_interface.dart';
 import 'package:app/extensions/list_extensions.dart';
@@ -10,17 +11,20 @@ import 'package:app/models/device.dart';
 import 'package:rxdart/rxdart.dart';
 
 class UserRepository implements UserInterface {
+  late final UserSynchronizer _userSynchronizer;
   late final UserLocalDbService _userLocalDbService;
   late final UserRemoteDbService _userRemoteDbService;
   late final Device _device;
   final BehaviorSubject<List<User>> _users$ = BehaviorSubject<List<User>>();
 
   UserRepository({
+    required UserSynchronizer userSynchronizer,
     required UserLocalDbService userLocalDbService,
     required UserRemoteDbService userRemoteDbService,
     required Device device,
     List<User> users = const [],
   }) {
+    _userSynchronizer = userSynchronizer;
     _userLocalDbService = userLocalDbService;
     _userRemoteDbService = userRemoteDbService;
     _device = device;
@@ -30,9 +34,10 @@ class UserRepository implements UserInterface {
   Stream<List<User>> get _usersStream$ => _users$.stream;
 
   @override
-  Future<void> refreshUser({required String userId}) {
-    // TODO: implement refreshUser
-    throw UnimplementedError();
+  Future<void> refreshUser({required String userId}) async {
+    if (await _device.hasInternetConnection()) {
+      await _userSynchronizer.synchronizeUser(userId: userId);
+    }
   }
 
   @override

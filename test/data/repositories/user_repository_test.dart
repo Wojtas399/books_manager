@@ -3,10 +3,13 @@ import 'package:app/data/data_sources/local_db/user_local_db_service.dart';
 import 'package:app/data/data_sources/remote_db/user_remote_db_service.dart';
 import 'package:app/data/models/db_user.dart';
 import 'package:app/data/repositories/user_repository.dart';
+import 'package:app/data/synchronizers/user_synchronizer.dart';
 import 'package:app/domain/entities/user.dart';
 import 'package:app/models/device.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+
+class MockUserSynchronizer extends Mock implements UserSynchronizer {}
 
 class MockUserLocalDbService extends Mock implements UserLocalDbService {}
 
@@ -15,6 +18,7 @@ class MockUserRemoteDbService extends Mock implements UserRemoteDbService {}
 class MockDevice extends Mock implements Device {}
 
 void main() {
+  final userSynchronizer = MockUserSynchronizer();
   final userLocalDbService = MockUserLocalDbService();
   final userRemoteDbService = MockUserRemoteDbService();
   final device = MockDevice();
@@ -24,6 +28,7 @@ void main() {
     List<User> users = const [],
   }) {
     return UserRepository(
+      userSynchronizer: userSynchronizer,
       userLocalDbService: userLocalDbService,
       userRemoteDbService: userRemoteDbService,
       device: device,
@@ -46,10 +51,54 @@ void main() {
   });
 
   tearDown(() {
+    reset(userSynchronizer);
     reset(userLocalDbService);
     reset(userRemoteDbService);
     reset(device);
   });
+
+  group(
+    'refresh user',
+    () {
+      const String userId = 'u1';
+
+      setUp(() {
+        when(
+          () => userSynchronizer.synchronizeUser(userId: userId),
+        ).thenAnswer((_) async => '');
+      });
+
+      test(
+        'device has internet connection, should call method from user synchronizer responsible for synchronizing user',
+        () async {
+          when(
+            () => device.hasInternetConnection(),
+          ).thenAnswer((_) async => true);
+
+          await repository.refreshUser(userId: userId);
+
+          verify(
+            () => userSynchronizer.synchronizeUser(userId: userId),
+          ).called(1);
+        },
+      );
+
+      test(
+        'device has not internet connection, should not do anything',
+        () async {
+          when(
+            () => device.hasInternetConnection(),
+          ).thenAnswer((_) async => false);
+
+          await repository.refreshUser(userId: userId);
+
+          verifyNever(
+            () => userSynchronizer.synchronizeUser(userId: userId),
+          );
+        },
+      );
+    },
+  );
 
   test(
     'get user, should return stream which contains matching user',

@@ -50,29 +50,32 @@ void main() {
       const String password = 'password123';
 
       test(
-        'should call methods responsible for signing in user in remote db and for saving logged user id in local db',
+        'should call methods responsible for signing in user in remote db, for saving logged user id in local db and should return signed in user id',
         () async {
-          const String loggedUserId = 'userId';
+          const String signedInUserId = 'u1';
           when(
             () => authRemoteDbService.signIn(email: email, password: password),
-          ).thenAnswer((_) async => loggedUserId);
+          ).thenAnswer((_) async => signedInUserId);
           when(
             () => authLocalDbService.saveLoggedUserId(
-              loggedUserId: loggedUserId,
+              loggedUserId: signedInUserId,
             ),
           ).thenAnswer((_) async => '');
 
-          await repository.signIn(email: email, password: password);
+          final String userId = await repository.signIn(
+            email: email,
+            password: password,
+          );
 
           verify(
             () => authRemoteDbService.signIn(email: email, password: password),
           ).called(1);
           verify(
             () => authLocalDbService.saveLoggedUserId(
-              loggedUserId: loggedUserId,
+              loggedUserId: signedInUserId,
             ),
           ).called(1);
-          expect(await repository.loggedUserId$.first, loggedUserId);
+          expect(userId, signedInUserId);
         },
       );
 
@@ -161,29 +164,32 @@ void main() {
       const String password = 'password123';
 
       test(
-        'should call methods responsible for signing up user in remote db and for saving logged user id in local db',
+        'should call methods responsible for signing up user in remote db, for saving logged user id in local db and should return signed up user id',
         () async {
-          const String loggedUserId = 'userId';
+          const String signedUpUserId = 'u1';
           when(
             () => authRemoteDbService.signUp(email: email, password: password),
-          ).thenAnswer((_) async => loggedUserId);
+          ).thenAnswer((_) async => signedUpUserId);
           when(
             () => authLocalDbService.saveLoggedUserId(
-              loggedUserId: loggedUserId,
+              loggedUserId: signedUpUserId,
             ),
           ).thenAnswer((_) async => '');
 
-          await repository.signUp(email: email, password: password);
+          final String userId = await repository.signUp(
+            email: email,
+            password: password,
+          );
 
           verify(
             () => authRemoteDbService.signUp(email: email, password: password),
           ).called(1);
           verify(
             () => authLocalDbService.saveLoggedUserId(
-              loggedUserId: loggedUserId,
+              loggedUserId: signedUpUserId,
             ),
           ).called(1);
-          expect(await repository.loggedUserId$.first, loggedUserId);
+          expect(userId, signedUpUserId);
         },
       );
 

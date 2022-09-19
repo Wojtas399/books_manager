@@ -3,12 +3,12 @@ abstract class AuthInterface {
 
   Future<void> loadLoggedUserId();
 
-  Future<void> signIn({
+  Future<String> signIn({
     required String email,
     required String password,
   });
 
-  Future<void> signUp({
+  Future<String> signUp({
     required String email,
     required String password,
   });

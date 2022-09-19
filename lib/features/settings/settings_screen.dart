@@ -1,7 +1,9 @@
 import 'package:app/config/navigation.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
+import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/interfaces/dialog_interface.dart';
-import 'package:app/domain/use_cases/auth/delete_user_use_case.dart';
+import 'package:app/domain/interfaces/user_interface.dart';
+import 'package:app/domain/use_cases/auth/delete_logged_user_use_case.dart';
 import 'package:app/domain/use_cases/auth/sign_out_use_case.dart';
 import 'package:app/features/settings/bloc/settings_bloc.dart';
 import 'package:app/features/settings/components/settings_content.dart';
@@ -34,7 +36,9 @@ class _SettingsBlocProvider extends StatelessWidget {
         signOutUseCase: SignOutUseCase(
           authInterface: context.read<AuthInterface>(),
         ),
-        deleteUserUseCase: DeleteUserUseCase(
+        deleteLoggedUserUseCase: DeleteLoggedUserUseCase(
+          bookInterface: context.read<BookInterface>(),
+          userInterface: context.read<UserInterface>(),
           authInterface: context.read<AuthInterface>(),
         ),
       ),

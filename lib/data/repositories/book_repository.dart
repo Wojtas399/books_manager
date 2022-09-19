@@ -203,6 +203,12 @@ class BookRepository implements BookInterface {
   }
 
   @override
+  Future<void> deleteAllUserBooks({required String userId}) async {
+    throw UnimplementedError();
+    //TODO
+  }
+
+  @override
   void reset() {
     _books$.add([]);
   }

@@ -1,5 +1,5 @@
 import 'package:app/config/errors.dart';
-import 'package:app/domain/use_cases/auth/delete_user_use_case.dart';
+import 'package:app/domain/use_cases/auth/delete_logged_user_use_case.dart';
 import 'package:app/domain/use_cases/auth/sign_out_use_case.dart';
 import 'package:app/features/settings/bloc/settings_bloc.dart';
 import 'package:app/models/bloc_status.dart';
@@ -10,16 +10,17 @@ import 'package:mocktail/mocktail.dart';
 
 class MockSignOutUseCase extends Mock implements SignOutUseCase {}
 
-class MockDeleteUserUseCase extends Mock implements DeleteUserUseCase {}
+class MockDeleteLoggedUserUseCase extends Mock
+    implements DeleteLoggedUserUseCase {}
 
 void main() {
   final signOutUseCase = MockSignOutUseCase();
-  final deleteUserUseCase = MockDeleteUserUseCase();
+  final deleteLoggedUserUseCase = MockDeleteLoggedUserUseCase();
 
   SettingsBloc createBloc() {
     return SettingsBloc(
       signOutUseCase: signOutUseCase,
-      deleteUserUseCase: deleteUserUseCase,
+      deleteLoggedUserUseCase: deleteLoggedUserUseCase,
     );
   }
 
@@ -33,7 +34,7 @@ void main() {
 
   tearDown(() {
     reset(signOutUseCase);
-    reset(deleteUserUseCase);
+    reset(deleteLoggedUserUseCase);
   });
 
   blocTest(
@@ -67,11 +68,11 @@ void main() {
   );
 
   blocTest(
-    'delete account, should call use case responsible for deleting user',
+    'delete account, should call use case responsible for deleting logged user',
     build: () => createBloc(),
     setUp: () {
       when(
-        () => deleteUserUseCase.execute(password: 'password'),
+        () => deleteLoggedUserUseCase.execute(password: 'password'),
       ).thenAnswer((_) async => '');
     },
     act: (SettingsBloc bloc) {
@@ -91,7 +92,7 @@ void main() {
     ],
     verify: (_) {
       verify(
-        () => deleteUserUseCase.execute(password: 'password'),
+        () => deleteLoggedUserUseCase.execute(password: 'password'),
       ).called(1);
     },
   );
@@ -101,7 +102,7 @@ void main() {
     build: () => createBloc(),
     setUp: () {
       when(
-        () => deleteUserUseCase.execute(password: 'password'),
+        () => deleteLoggedUserUseCase.execute(password: 'password'),
       ).thenThrow(
         const AuthError(code: AuthErrorCode.wrongPassword),
       );

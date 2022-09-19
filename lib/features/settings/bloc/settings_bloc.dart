@@ -1,5 +1,5 @@
 import 'package:app/config/errors.dart';
-import 'package:app/domain/use_cases/auth/delete_user_use_case.dart';
+import 'package:app/domain/use_cases/auth/delete_logged_user_use_case.dart';
 import 'package:app/domain/use_cases/auth/sign_out_use_case.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/error.dart';
@@ -11,17 +11,17 @@ part 'settings_state.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   late final SignOutUseCase _signOutUseCase;
-  late final DeleteUserUseCase _deleteUserUseCase;
+  late final DeleteLoggedUserUseCase _deleteLoggedUserUseCase;
 
   SettingsBloc({
     required SignOutUseCase signOutUseCase,
-    required DeleteUserUseCase deleteUserUseCase,
+    required DeleteLoggedUserUseCase deleteLoggedUserUseCase,
     BlocStatus status = const BlocStatusInitial(),
   }) : super(
           SettingsState(status: status),
         ) {
     _signOutUseCase = signOutUseCase;
-    _deleteUserUseCase = deleteUserUseCase;
+    _deleteLoggedUserUseCase = deleteLoggedUserUseCase;
     on<SettingsEventSignOut>(_signOut);
     on<SettingsEventDeleteAccount>(_deleteAccount);
   }
@@ -47,7 +47,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       emit(state.copyWith(
         status: const BlocStatusLoading(),
       ));
-      await _deleteUserUseCase.execute(password: event.password);
+      await _deleteLoggedUserUseCase.execute(password: event.password);
       emit(state.copyWithInfo(
         SettingsBlocInfo.userAccountHasBeenDeleted,
       ));

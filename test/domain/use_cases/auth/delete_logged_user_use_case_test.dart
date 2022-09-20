@@ -1,17 +1,16 @@
-import 'package:app/domain/interfaces/auth_interface.dart';
-import 'package:app/domain/interfaces/book_interface.dart';
-import 'package:app/domain/interfaces/user_interface.dart';
+import 'package:app/config/errors.dart';
 import 'package:app/domain/use_cases/auth/delete_logged_user_use_case.dart';
+import 'package:app/models/error.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockBookInterface extends Mock implements BookInterface {}
-
-class MockUserInterface extends Mock implements UserInterface {}
-
-class MockAuthInterface extends Mock implements AuthInterface {}
+import '../../../mocks/interfaces/mock_auth_interface.dart';
+import '../../../mocks/interfaces/mock_book_interface.dart';
+import '../../../mocks/interfaces/mock_user_interface.dart';
+import '../../../mocks/mock_device.dart';
 
 void main() {
+  final device = MockDevice();
   final bookInterface = MockBookInterface();
   final userInterface = MockUserInterface();
   final authInterface = MockAuthInterface();
@@ -20,60 +19,86 @@ void main() {
 
   setUp(() {
     useCase = DeleteLoggedUserUseCase(
+      device: device,
       bookInterface: bookInterface,
       userInterface: userInterface,
       authInterface: authInterface,
     );
 
-    when(
-      () => bookInterface.deleteAllUserBooks(userId: any(named: 'userId')),
-    ).thenAnswer((_) async => '');
-    when(
-      () => userInterface.deleteUser(userId: any(named: 'userId')),
-    ).thenAnswer((_) async => '');
-    when(
-      () => authInterface.deleteLoggedUser(password: password),
-    ).thenAnswer((_) async => '');
+    bookInterface.mockDeleteAllUserBooks();
+    userInterface.mockDeleteUser();
+    authInterface.mockDeleteLoggedUser();
   });
 
   tearDown(() {
+    reset(device);
     reset(bookInterface);
     reset(userInterface);
     reset(authInterface);
   });
 
   test(
-    'should do nothing if logged user does not exist',
+    'device has not internet connection, should throw network error',
     () async {
-      when(
-        () => authInterface.loggedUserId$,
-      ).thenAnswer((_) => Stream.value(null));
+      device.mockHasDeviceInternetConnection(value: false);
 
-      await useCase.execute(password: password);
-
-      verifyNever(
-        () => bookInterface.deleteAllUserBooks(
-          userId: any(named: 'userId'),
-        ),
-      );
-      verifyNever(
-        () => userInterface.deleteUser(
-          userId: any(named: 'userId'),
-        ),
-      );
-      verifyNever(
-        () => authInterface.deleteLoggedUser(password: password),
-      );
+      try {
+        await useCase.execute(password: password);
+      } on NetworkError catch (networkError) {
+        expect(
+          networkError,
+          const NetworkError(code: NetworkErrorCode.lossOfConnection),
+        );
+      }
     },
   );
 
   test(
-    'should call methods responsible for deleting all logged user books, deleting logged user data and for deleting logged user account',
+    'device has internet connection, logged user does not exist, should throw auth error with user not found error code',
+    () async {
+      device.mockHasDeviceInternetConnection(value: true);
+      authInterface.mockGetLoggedUserId(loggedUserId: null);
+
+      try {
+        await useCase.execute(password: password);
+      } on AuthError catch (authError) {
+        expect(
+          authError,
+          const AuthError(code: AuthErrorCode.userNotFound),
+        );
+      }
+    },
+  );
+
+  test(
+    'device has internet connection, logged user exists, password is wrong, should throw auth error with wrong password error code',
+    () async {
+      device.mockHasDeviceInternetConnection(value: true);
+      authInterface.mockGetLoggedUserId(loggedUserId: 'u1');
+      authInterface.mockCheckLoggedUserPasswordCorrectness(
+        isPasswordCorrect: false,
+      );
+
+      try {
+        await useCase.execute(password: password);
+      } on AuthError catch (authError) {
+        expect(
+          authError,
+          const AuthError(code: AuthErrorCode.wrongPassword),
+        );
+      }
+    },
+  );
+
+  test(
+    'device has internet connection, logged user exists, password is correct, should call methods responsible for deleting all logged user books, deleting logged user data and for deleting logged user account',
     () async {
       const String loggedUserId = 'u1';
-      when(
-        () => authInterface.loggedUserId$,
-      ).thenAnswer((_) => Stream.value(loggedUserId));
+      device.mockHasDeviceInternetConnection(value: true);
+      authInterface.mockGetLoggedUserId(loggedUserId: loggedUserId);
+      authInterface.mockCheckLoggedUserPasswordCorrectness(
+        isPasswordCorrect: true,
+      );
 
       await useCase.execute(password: password);
 

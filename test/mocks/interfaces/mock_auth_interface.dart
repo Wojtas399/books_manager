@@ -50,6 +50,15 @@ class MockAuthInterface extends Mock implements AuthInterface {
     ).thenAnswer((_) async => isPasswordCorrect);
   }
 
+  void mockChangeLoggedUserPassword() {
+    when(
+      () => changeLoggedUserPassword(
+        currentPassword: any(named: 'currentPassword'),
+        newPassword: any(named: 'newPassword'),
+      ),
+    ).thenAnswer((_) async => '');
+  }
+
   void mockSignOut() {
     when(
       () => signOut(),

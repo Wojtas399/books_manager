@@ -1,26 +1,17 @@
 import 'dart:typed_data';
 
-import 'package:app/data/data_sources/local_db/book_local_db_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
-import 'package:app/data/data_sources/remote_db/book_remote_db_service.dart';
-import 'package:app/data/id_generator.dart';
 import 'package:app/data/models/db_book.dart';
 import 'package:app/data/repositories/book_repository.dart';
-import 'package:app/data/synchronizers/book_synchronizer.dart';
 import 'package:app/domain/entities/book.dart';
-import 'package:app/models/device.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockBookSynchronizer extends Mock implements BookSynchronizer {}
-
-class MockBookLocalDbService extends Mock implements BookLocalDbService {}
-
-class MockBookRemoteDbService extends Mock implements BookRemoteDbService {}
-
-class MockDevice extends Mock implements Device {}
-
-class MockIdGenerator extends Mock implements IdGenerator {}
+import '../mocks/mock_book_local_db_service.dart';
+import '../mocks/mock_book_remote_db_service.dart';
+import '../mocks/mock_book_synchronizer.dart';
+import '../mocks/mock_device.dart';
+import '../mocks/mock_id_generator.dart';
 
 void main() {
   final bookSynchronizer = MockBookSynchronizer();
@@ -59,36 +50,24 @@ void main() {
   group(
     'refresh user books',
     () {
+      Future<void> callRefreshUserBooksMethod() async {
+        await repository.refreshUserBooks(userId: userId);
+      }
+
       setUp(() {
         repository = createRepository();
-        when(
-          () => bookSynchronizer.synchronizeUnmodifiedUserBooks(userId: userId),
-        ).thenAnswer((_) async => '');
-        when(
-          () => bookSynchronizer.synchronizeUserBooksMarkedAsDeleted(
-            userId: userId,
-          ),
-        ).thenAnswer((_) async => '');
-        when(
-          () => bookSynchronizer.synchronizeUserBooksMarkedAsAdded(
-            userId: userId,
-          ),
-        ).thenAnswer((_) async => '');
-        when(
-          () => bookSynchronizer.synchronizeUserBooksMarkedAsUpdated(
-            userId: userId,
-          ),
-        ).thenAnswer((_) async => '');
+        bookSynchronizer.mockSynchronizeUnmodifiedUserBooks();
+        bookSynchronizer.mockSynchronizeUserBooksMarkedAsDeleted();
+        bookSynchronizer.mockSynchronizeUserBooksMarkedAsAdded();
+        bookSynchronizer.mockSynchronizeUserBooksMarkedAsUpdated();
       });
 
       test(
         'device has not internet connection, should not do anything',
         () async {
-          when(
-            () => device.hasInternetConnection(),
-          ).thenAnswer((_) async => false);
+          device.mockHasDeviceInternetConnection(value: false);
 
-          await repository.refreshUserBooks(userId: userId);
+          await callRefreshUserBooksMethod();
 
           verifyNever(
             () => bookSynchronizer.synchronizeUnmodifiedUserBooks(
@@ -116,11 +95,9 @@ void main() {
       test(
         'device has internet connection, should call methods responsible for synchronization process',
         () async {
-          when(
-            () => device.hasInternetConnection(),
-          ).thenAnswer((_) async => true);
+          device.mockHasDeviceInternetConnection(value: true);
 
-          await repository.refreshUserBooks(userId: userId);
+          await callRefreshUserBooksMethod();
 
           verify(
             () => bookSynchronizer.synchronizeUnmodifiedUserBooks(
@@ -198,12 +175,7 @@ void main() {
         createBook(id: 'b1', userId: userId, status: bookStatus),
         createBook(id: 'b2', userId: userId, status: bookStatus),
       ];
-      when(
-        () => bookLocalDbService.loadUserBooks(
-          userId: userId,
-          bookStatus: bookStatus.name,
-        ),
-      ).thenAnswer((_) async => dbBooks);
+      bookLocalDbService.mockLoadUserBooks(dbBooks: dbBooks);
 
       await repository.loadUserBooks(userId: userId, bookStatus: bookStatus);
 
@@ -252,35 +224,31 @@ void main() {
         allPagesAmount: allPagesAmount,
       );
 
+      Future<void> callAddNewBookMethod() async {
+        await repository.addNewBook(
+          userId: userId,
+          status: status,
+          imageData: imageData,
+          title: title,
+          author: author,
+          readPagesAmount: readPagesAmount,
+          allPagesAmount: allPagesAmount,
+        );
+      }
+
       setUp(() {
-        when(
-          () => idGenerator.generateRandomId(),
-        ).thenReturn(bookId);
+        bookLocalDbService.mockAddBook();
+        bookRemoteDbService.mockAddBook();
+        idGenerator.mockGenerateRandomId(id: bookId);
       });
 
       test(
         'should only call method responsible for adding book to local db with sync state as added if device has not internet connection',
         () async {
           const SyncState syncState = SyncState.added;
-          when(
-            () => device.hasInternetConnection(),
-          ).thenAnswer((_) async => false);
-          when(
-            () => bookLocalDbService.addBook(
-              dbBook: dbBook,
-              syncState: syncState,
-            ),
-          ).thenAnswer((_) async => '');
+          device.mockHasDeviceInternetConnection(value: false);
 
-          await repository.addNewBook(
-            userId: userId,
-            status: status,
-            imageData: imageData,
-            title: title,
-            author: author,
-            readPagesAmount: readPagesAmount,
-            allPagesAmount: allPagesAmount,
-          );
+          await callAddNewBookMethod();
 
           verify(
             () => bookLocalDbService.addBook(
@@ -298,35 +266,12 @@ void main() {
       test(
         'should call methods responsible for adding book to local and remote db if device has internet connection',
         () async {
-          const SyncState syncState = SyncState.none;
-          when(
-            () => device.hasInternetConnection(),
-          ).thenAnswer((_) async => true);
-          when(
-            () => bookLocalDbService.addBook(
-              dbBook: dbBook,
-              syncState: syncState,
-            ),
-          ).thenAnswer((_) async => '');
-          when(
-            () => bookRemoteDbService.addBook(dbBook: dbBook),
-          ).thenAnswer((_) async => '');
+          device.mockHasDeviceInternetConnection(value: true);
 
-          await repository.addNewBook(
-            userId: userId,
-            status: status,
-            imageData: imageData,
-            title: title,
-            author: author,
-            readPagesAmount: readPagesAmount,
-            allPagesAmount: allPagesAmount,
-          );
+          await callAddNewBookMethod();
 
           verify(
-            () => bookLocalDbService.addBook(
-              dbBook: dbBook,
-              syncState: syncState,
-            ),
+            () => bookLocalDbService.addBook(dbBook: dbBook),
           ).called(1);
           verify(
             () => bookRemoteDbService.addBook(dbBook: dbBook),
@@ -354,34 +299,32 @@ void main() {
       );
       final Book updatedBook = currentBook.copyWith(title: newTitle);
 
+      Future<void> callUpdateBookDataMethod() async {
+        await repository.updateBookData(
+          bookId: bookId,
+          title: newTitle,
+        );
+      }
+
       setUp(() {
-        when(
-          () => bookLocalDbService.updateBookData(
-            bookId: bookId,
-            title: newTitle,
-            syncState: any(named: 'syncState'),
-          ),
-        ).thenAnswer((_) async => updatedDbBook);
+        bookLocalDbService.mockUpdateBookData(dbBook: updatedDbBook);
+        bookRemoteDbService.mockUpdateBookData();
         repository = createRepository(books: [currentBook]);
       });
 
       test(
         'device has not internet connection, should only call method responsible for updating book data in local db with sync state set to updated and should update book in list',
         () async {
-          when(
-            () => device.hasInternetConnection(),
-          ).thenAnswer((_) async => false);
+          const SyncState syncState = SyncState.updated;
+          device.mockHasDeviceInternetConnection(value: false);
 
-          await repository.updateBookData(
-            bookId: bookId,
-            title: newTitle,
-          );
+          await callUpdateBookDataMethod();
 
           verify(
             () => bookLocalDbService.updateBookData(
               bookId: bookId,
               title: newTitle,
-              syncState: SyncState.updated,
+              syncState: syncState,
             ),
           ).called(1);
           expect(
@@ -394,21 +337,9 @@ void main() {
       test(
         'device has internet connection, should call methods responsible for updating book data in local and remote db and should update book in list',
         () async {
-          when(
-            () => device.hasInternetConnection(),
-          ).thenAnswer((_) async => true);
-          when(
-            () => bookRemoteDbService.updateBookData(
-              bookId: bookId,
-              userId: userId,
-              title: newTitle,
-            ),
-          ).thenAnswer((_) async => '');
+          device.mockHasDeviceInternetConnection(value: true);
 
-          await repository.updateBookData(
-            bookId: bookId,
-            title: newTitle,
-          );
+          await callUpdateBookDataMethod();
 
           verify(
             () => bookRemoteDbService.updateBookData(
@@ -451,35 +382,25 @@ void main() {
       );
       final Book updatedBook = originalBook.copyWith(imageData: imageData);
 
+      Future<void> callUpdateBookImageMethod() async {
+        await repository.updateBookImage(
+          bookId: bookId,
+          imageData: imageData,
+        );
+      }
+
       setUp(() {
-        when(
-          () => bookLocalDbService.updateBookImage(
-            bookId: bookId,
-            userId: userId,
-            imageData: imageData,
-          ),
-        ).thenAnswer((_) async => updatedDbBook);
+        bookLocalDbService.mockUpdateBookImage(dbBook: updatedDbBook);
+        bookRemoteDbService.mockUpdateBookImage();
         repository = createRepository(books: [originalBook]);
       });
 
       test(
         'device has internet connection, should update image in remote and local db and should update book in list',
         () async {
-          when(
-            () => device.hasInternetConnection(),
-          ).thenAnswer((_) async => true);
-          when(
-            () => bookRemoteDbService.updateBookImage(
-              bookId: bookId,
-              userId: userId,
-              imageData: imageData,
-            ),
-          ).thenAnswer((_) async => '');
+          device.mockHasDeviceInternetConnection(value: true);
 
-          await repository.updateBookImage(
-            bookId: bookId,
-            imageData: imageData,
-          );
+          await callUpdateBookImageMethod();
 
           verify(
             () => bookRemoteDbService.updateBookImage(
@@ -505,20 +426,10 @@ void main() {
       test(
         'device has not internet connection, should update image in local db, should set book sync state to updated in local db and should update book in list',
         () async {
-          when(
-            () => device.hasInternetConnection(),
-          ).thenAnswer((_) async => false);
-          when(
-            () => bookLocalDbService.updateBookData(
-              bookId: bookId,
-              syncState: SyncState.updated,
-            ),
-          ).thenAnswer((_) async => updatedDbBook);
+          device.mockHasDeviceInternetConnection(value: false);
+          bookLocalDbService.mockUpdateBookData(dbBook: updatedDbBook);
 
-          await repository.updateBookImage(
-            bookId: bookId,
-            imageData: imageData,
-          );
+          await callUpdateBookImageMethod();
 
           verify(
             () => bookLocalDbService.updateBookImage(
@@ -555,16 +466,9 @@ void main() {
       test(
         'should call methods responsible for deleting book from remote and local db if device has internet connection',
         () async {
-          when(
-            () => device.hasInternetConnection(),
-          ).thenAnswer((_) async => true);
-          when(
-            () =>
-                bookRemoteDbService.deleteBook(userId: userId, bookId: bookId),
-          ).thenAnswer((_) async => '');
-          when(
-            () => bookLocalDbService.deleteBook(userId: userId, bookId: bookId),
-          ).thenAnswer((_) async => '');
+          device.mockHasDeviceInternetConnection(value: true);
+          bookLocalDbService.mockDeleteBook();
+          bookRemoteDbService.mockDeleteBook();
 
           await repository.deleteBook(bookId: bookId);
 
@@ -581,21 +485,88 @@ void main() {
       test(
         'should call method responsible for updating book with sync state as deleted if device has not internet connection',
         () async {
-          when(
-            () => device.hasInternetConnection(),
-          ).thenAnswer((_) async => false);
-          when(
-            () => bookLocalDbService.updateBookData(
-              bookId: bookId,
-              syncState: SyncState.deleted,
-            ),
-          ).thenAnswer((_) async => createDbBook());
+          device.mockHasDeviceInternetConnection(value: false);
+          bookLocalDbService.mockUpdateBookData(dbBook: createDbBook());
 
           await repository.deleteBook(bookId: bookId);
 
           verify(
             () => bookLocalDbService.updateBookData(
               bookId: bookId,
+              syncState: SyncState.deleted,
+            ),
+          ).called(1);
+        },
+      );
+    },
+  );
+
+  group(
+    'delete all user books',
+    () {
+      const String userId = 'u1';
+      final List<DbBook> userDbBooks = [
+        createDbBook(id: 'b1', userId: userId),
+        createDbBook(id: 'b2', userId: userId),
+      ];
+
+      setUp(() {
+        bookLocalDbService.mockLoadUserBooks(dbBooks: userDbBooks);
+        bookLocalDbService.mockDeleteBook();
+        bookLocalDbService.mockUpdateBookData(dbBook: createDbBook());
+        bookRemoteDbService.mockDeleteBook();
+      });
+
+      test(
+        'device has internet connection, should delete each book and its image from remote and local db',
+        () async {
+          device.mockHasDeviceInternetConnection(value: true);
+
+          await repository.deleteAllUserBooks(userId: userId);
+
+          verify(
+            () => bookLocalDbService.deleteBook(
+              userId: userId,
+              bookId: userDbBooks.first.id,
+            ),
+          ).called(1);
+          verify(
+            () => bookRemoteDbService.deleteBook(
+              userId: userId,
+              bookId: userDbBooks.first.id,
+            ),
+          ).called(1);
+          verify(
+            () => bookLocalDbService.deleteBook(
+              userId: userId,
+              bookId: userDbBooks.last.id,
+            ),
+          ).called(1);
+          verify(
+            () => bookRemoteDbService.deleteBook(
+              userId: userId,
+              bookId: userDbBooks.last.id,
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'device has not internet connection, should update each book in local db with sync state set as deleted',
+        () async {
+          device.mockHasDeviceInternetConnection(value: false);
+
+          await repository.deleteAllUserBooks(userId: userId);
+
+          verify(
+            () => bookLocalDbService.updateBookData(
+              bookId: userDbBooks.first.id,
+              syncState: SyncState.deleted,
+            ),
+          ).called(1);
+          verify(
+            () => bookLocalDbService.updateBookData(
+              bookId: userDbBooks.last.id,
               syncState: SyncState.deleted,
             ),
           ).called(1);

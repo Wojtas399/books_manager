@@ -76,6 +76,15 @@ class AuthRepository implements AuthInterface {
   }
 
   @override
+  Future<bool> checkLoggedUserPasswordCorrectness({
+    required String password,
+  }) async {
+    return await _authRemoteDbService.checkLoggedUserPasswordCorrectness(
+      password: password,
+    );
+  }
+
+  @override
   Future<void> signOut() async {
     await _authRemoteDbService.signOut();
     await _authLocalDbService.removeLoggedUserId();

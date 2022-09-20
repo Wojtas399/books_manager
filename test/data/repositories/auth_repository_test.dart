@@ -1,15 +1,12 @@
 import 'package:app/config/errors.dart';
-import 'package:app/data/data_sources/local_db/auth_local_db_service.dart';
-import 'package:app/data/data_sources/remote_db/auth_remote_db_service.dart';
 import 'package:app/data/repositories/auth_repository.dart';
 import 'package:app/models/error.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockAuthLocalDbService extends Mock implements AuthLocalDbService {}
-
-class MockAuthRemoteDbService extends Mock implements AuthRemoteDbService {}
+import '../mocks/mock_auth_local_db_service.dart';
+import '../mocks/mock_auth_remote_db_service.dart';
 
 void main() {
   final authLocalDbService = MockAuthLocalDbService();
@@ -32,9 +29,7 @@ void main() {
     'load logged user id, should load id of logged user from local db and assign it to stream',
     () async {
       const String loggedUserId = 'userId';
-      when(
-        () => authLocalDbService.loadLoggedUserId(),
-      ).thenAnswer((_) async => loggedUserId);
+      authLocalDbService.mockLoadLoggedUserId(loggedUserId: loggedUserId);
 
       await repository.loadLoggedUserId();
       final Stream<String?> loggedUserId$ = repository.loggedUserId$;
@@ -53,14 +48,8 @@ void main() {
         'should call methods responsible for signing in user in remote db, for saving logged user id in local db and should return signed in user id',
         () async {
           const String signedInUserId = 'u1';
-          when(
-            () => authRemoteDbService.signIn(email: email, password: password),
-          ).thenAnswer((_) async => signedInUserId);
-          when(
-            () => authLocalDbService.saveLoggedUserId(
-              loggedUserId: signedInUserId,
-            ),
-          ).thenAnswer((_) async => '');
+          authRemoteDbService.mockSignIn(signedInUserId: signedInUserId);
+          authLocalDbService.mockSaveLoggedUserId();
 
           final String userId = await repository.signIn(
             email: email,
@@ -85,7 +74,6 @@ void main() {
           const AuthError expectedAuthError = AuthError(
             code: AuthErrorCode.invalidEmail,
           );
-
           when(
             () => authRemoteDbService.signIn(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'invalid-email'));
@@ -104,7 +92,6 @@ void main() {
           const AuthError expectedAuthError = AuthError(
             code: AuthErrorCode.wrongPassword,
           );
-
           when(
             () => authRemoteDbService.signIn(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'wrong-password'));
@@ -123,7 +110,6 @@ void main() {
           const AuthError expectedAuthError = AuthError(
             code: AuthErrorCode.userNotFound,
           );
-
           when(
             () => authRemoteDbService.signIn(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'user-not-found'));
@@ -142,7 +128,6 @@ void main() {
           const NetworkError expectedNetworkError = NetworkError(
             code: NetworkErrorCode.lossOfConnection,
           );
-
           when(
             () => authRemoteDbService.signIn(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'network-request-failed'));
@@ -167,14 +152,8 @@ void main() {
         'should call methods responsible for signing up user in remote db, for saving logged user id in local db and should return signed up user id',
         () async {
           const String signedUpUserId = 'u1';
-          when(
-            () => authRemoteDbService.signUp(email: email, password: password),
-          ).thenAnswer((_) async => signedUpUserId);
-          when(
-            () => authLocalDbService.saveLoggedUserId(
-              loggedUserId: signedUpUserId,
-            ),
-          ).thenAnswer((_) async => '');
+          authRemoteDbService.mockSignUp(signedUpUserId: signedUpUserId);
+          authLocalDbService.mockSaveLoggedUserId();
 
           final String userId = await repository.signUp(
             email: email,
@@ -199,7 +178,6 @@ void main() {
           const AuthError expectedAuthError = AuthError(
             code: AuthErrorCode.emailAlreadyInUse,
           );
-
           when(
             () => authRemoteDbService.signUp(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'email-already-in-use'));
@@ -222,9 +200,7 @@ void main() {
       test(
         'should call method from remote db responsible for sending password reset email',
         () async {
-          when(
-            () => authRemoteDbService.sendPasswordResetEmail(email: email),
-          ).thenAnswer((_) async => '');
+          authRemoteDbService.mockSendPasswordResetEmail();
 
           await repository.sendPasswordResetEmail(email: email);
 
@@ -240,7 +216,6 @@ void main() {
           const AuthError expectedAuthError = AuthError(
             code: AuthErrorCode.invalidEmail,
           );
-
           when(
             () => authRemoteDbService.sendPasswordResetEmail(email: email),
           ).thenThrow(FirebaseAuthException(code: 'invalid-email'));
@@ -259,7 +234,6 @@ void main() {
           const AuthError expectedAuthError = AuthError(
             code: AuthErrorCode.userNotFound,
           );
-
           when(
             () => authRemoteDbService.sendPasswordResetEmail(email: email),
           ).thenThrow(FirebaseAuthException(code: 'user-not-found'));
@@ -275,14 +249,25 @@ void main() {
   );
 
   test(
+    'check logged user password correctness, should return result of method from remote db responsible for checking logged user password correctness',
+    () async {
+      const bool expectedValue = false;
+      authRemoteDbService.mockCheckLoggedUserPasswordCorrectness(
+        isPasswordCorrect: expectedValue,
+      );
+
+      final bool isPasswordCorrect = await repository
+          .checkLoggedUserPasswordCorrectness(password: 'password');
+
+      expect(isPasswordCorrect, expectedValue);
+    },
+  );
+
+  test(
     'sign out, should call methods responsible for signing out user from remote db and for removing user id from local db',
     () async {
-      when(
-        () => authRemoteDbService.signOut(),
-      ).thenAnswer((_) async => '');
-      when(
-        () => authLocalDbService.removeLoggedUserId(),
-      ).thenAnswer((_) async => '');
+      authRemoteDbService.mockSignOut();
+      authLocalDbService.mockRemoveLoggedUserId();
 
       await repository.signOut();
 
@@ -300,12 +285,8 @@ void main() {
     'delete logged user, should call methods responsible for deleting user from remote db and for removing user id from local db',
     () async {
       const String password = 'password';
-      when(
-        () => authRemoteDbService.deleteLoggedUser(password: password),
-      ).thenAnswer((_) async => '');
-      when(
-        () => authLocalDbService.removeLoggedUserId(),
-      ).thenAnswer((_) async => '');
+      authRemoteDbService.mockDeleteLoggedUser();
+      authLocalDbService.mockRemoveLoggedUserId();
 
       await repository.deleteLoggedUser(password: password);
 

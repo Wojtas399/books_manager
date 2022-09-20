@@ -44,16 +44,25 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     Emitter<SettingsState> emit,
   ) async {
     try {
-      emit(state.copyWith(
-        status: const BlocStatusLoading(),
-      ));
-      await _deleteLoggedUserUseCase.execute(password: event.password);
-      emit(state.copyWithInfo(
-        SettingsBlocInfo.userAccountHasBeenDeleted,
-      ));
+      await _tryDeleteLoggedUserAccount(event.password, emit);
     } on AuthError catch (authError) {
       _manageAuthError(authError, emit);
+    } on NetworkError catch (networkError) {
+      _manageNetworkError(networkError, emit);
     }
+  }
+
+  Future<void> _tryDeleteLoggedUserAccount(
+    String password,
+    Emitter<SettingsState> emit,
+  ) async {
+    emit(state.copyWith(
+      status: const BlocStatusLoading(),
+    ));
+    await _deleteLoggedUserUseCase.execute(password: password);
+    emit(state.copyWithInfo(
+      SettingsBlocInfo.userAccountHasBeenDeleted,
+    ));
   }
 
   void _manageAuthError(
@@ -63,6 +72,21 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     if (authError.code == AuthErrorCode.wrongPassword) {
       emit(state.copyWithError(
         SettingsBlocError.wrongPassword,
+      ));
+    } else if (authError.code == AuthErrorCode.userNotFound) {
+      emit(state.copyWith(
+        status: const BlocStatusLoggedUserNotFound(),
+      ));
+    }
+  }
+
+  void _manageNetworkError(
+    NetworkError networkError,
+    Emitter<SettingsState> emit,
+  ) {
+    if (networkError.code == NetworkErrorCode.lossOfConnection) {
+      emit(state.copyWith(
+        status: const BlocStatusLossOfInternetConnection(),
       ));
     }
   }

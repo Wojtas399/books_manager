@@ -85,6 +85,21 @@ class AuthRepository implements AuthInterface {
   }
 
   @override
+  Future<void> changeLoggedUserPassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await _authRemoteDbService.changeLoggedUserPassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+    } on FirebaseAuthException catch (exception) {
+      throw _convertFirebaseAuthExceptionToCustomError(exception.code);
+    }
+  }
+
+  @override
   Future<void> signOut() async {
     await _authRemoteDbService.signOut();
     await _authLocalDbService.removeLoggedUserId();

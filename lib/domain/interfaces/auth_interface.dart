@@ -17,6 +17,11 @@ abstract class AuthInterface {
 
   Future<bool> checkLoggedUserPasswordCorrectness({required String password});
 
+  Future<void> changeLoggedUserPassword({
+    required String currentPassword,
+    required String newPassword,
+  });
+
   Future<void> signOut();
 
   Future<void> deleteLoggedUser({required String password});

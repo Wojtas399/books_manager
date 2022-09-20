@@ -129,6 +129,27 @@ void main() {
   );
 
   test(
+    'change logged user password, should call method from firebase auth responsible for change logged user password',
+    () async {
+      const String currentPassword = 'currentPassword';
+      const String newPassword = 'newPassword';
+      firebaseAuthService.mockChangeLoggedUserPassword();
+
+      await service.changeLoggedUserPassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+
+      verify(
+        () => firebaseAuthService.changeLoggedUserPassword(
+          currentPassword: currentPassword,
+          newPassword: newPassword,
+        ),
+      ).called(1);
+    },
+  );
+
+  test(
     'sign out, should call method from firebase auth service responsible for signing out user',
     () async {
       firebaseAuthService.mockSignOut();

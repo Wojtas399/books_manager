@@ -28,6 +28,15 @@ class MockFirebaseAuthService extends Mock implements FirebaseAuthService {
     ).thenAnswer((_) async => '');
   }
 
+  void mockChangeLoggedUserPassword() {
+    when(
+      () => changeLoggedUserPassword(
+        currentPassword: any(named: 'currentPassword'),
+        newPassword: any(named: 'newPassword'),
+      ),
+    ).thenAnswer((_) async => '');
+  }
+
   void mockSignOut() {
     when(
       () => signOut(),

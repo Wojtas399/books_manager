@@ -49,6 +49,16 @@ class AuthRemoteDbService {
     }
   }
 
+  Future<void> changeLoggedUserPassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    await _firebaseAuthService.changeLoggedUserPassword(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    );
+  }
+
   Future<void> signOut() async {
     await _firebaseAuthService.signOut();
   }

@@ -30,6 +30,14 @@ class FirebaseAuthService {
     await FireInstances.auth.sendPasswordResetEmail(email: email);
   }
 
+  Future<void> changeLoggedUserPassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    await reauthenticateLoggedUserWithPassword(password: currentPassword);
+    await FireInstances.auth.currentUser?.updatePassword(newPassword);
+  }
+
   Future<void> signOut() async {
     await FireInstances.auth.signOut();
   }

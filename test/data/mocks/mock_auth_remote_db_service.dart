@@ -38,6 +38,14 @@ class MockAuthRemoteDbService extends Mock implements AuthRemoteDbService {
     ).thenAnswer((_) async => isPasswordCorrect);
   }
 
+  void mockChangeLoggedUserPassword({Object? throwable}) {
+    if (throwable != null) {
+      when(_changeLoggedUserPasswordMethodCall).thenThrow(throwable);
+    } else {
+      when(_changeLoggedUserPasswordMethodCall).thenAnswer((_) async => '');
+    }
+  }
+
   void mockSignOut() {
     when(
       () => signOut(),
@@ -50,5 +58,12 @@ class MockAuthRemoteDbService extends Mock implements AuthRemoteDbService {
         password: any(named: 'password'),
       ),
     ).thenAnswer((_) async => '');
+  }
+
+  Future<void> _changeLoggedUserPasswordMethodCall() {
+    return changeLoggedUserPassword(
+      currentPassword: any(named: 'currentPassword'),
+      newPassword: any(named: 'newPassword'),
+    );
   }
 }

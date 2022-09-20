@@ -71,72 +71,84 @@ void main() {
       test(
         'should throw appropriate auth error if email is invalid',
         () async {
-          const AuthError expectedAuthError = AuthError(
-            code: AuthErrorCode.invalidEmail,
-          );
           when(
             () => authRemoteDbService.signIn(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'invalid-email'));
 
+          AuthError? authError;
           try {
             await repository.signIn(email: email, password: password);
           } on AuthError catch (error) {
-            expect(error, expectedAuthError);
+            authError = error;
           }
+
+          expect(
+            authError,
+            const AuthError(code: AuthErrorCode.invalidEmail),
+          );
         },
       );
 
       test(
         'should throw appropriate auth error if password is wrong',
         () async {
-          const AuthError expectedAuthError = AuthError(
-            code: AuthErrorCode.wrongPassword,
-          );
           when(
             () => authRemoteDbService.signIn(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'wrong-password'));
 
+          AuthError? authError;
           try {
             await repository.signIn(email: email, password: password);
           } on AuthError catch (error) {
-            expect(error, expectedAuthError);
+            authError = error;
           }
+
+          expect(
+            authError,
+            const AuthError(code: AuthErrorCode.wrongPassword),
+          );
         },
       );
 
       test(
         'should throw appropriate auth error if user has not been found',
         () async {
-          const AuthError expectedAuthError = AuthError(
-            code: AuthErrorCode.userNotFound,
-          );
           when(
             () => authRemoteDbService.signIn(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'user-not-found'));
 
+          AuthError? authError;
           try {
             await repository.signIn(email: email, password: password);
           } on AuthError catch (error) {
-            expect(error, expectedAuthError);
+            authError = error;
           }
+
+          expect(
+            authError,
+            const AuthError(code: AuthErrorCode.userNotFound),
+          );
         },
       );
 
       test(
         'should throw appropriate network error if network connection has been lost',
         () async {
-          const NetworkError expectedNetworkError = NetworkError(
-            code: NetworkErrorCode.lossOfConnection,
-          );
           when(
             () => authRemoteDbService.signIn(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'network-request-failed'));
 
+          NetworkError? networkError;
           try {
             await repository.signIn(email: email, password: password);
           } on NetworkError catch (error) {
-            expect(error, expectedNetworkError);
+            networkError = error;
           }
+
+          expect(
+            networkError,
+            const NetworkError(code: NetworkErrorCode.lossOfConnection),
+          );
         },
       );
     },
@@ -175,18 +187,21 @@ void main() {
       test(
         'should throw appropriate auth error if email is already in use',
         () async {
-          const AuthError expectedAuthError = AuthError(
-            code: AuthErrorCode.emailAlreadyInUse,
-          );
           when(
             () => authRemoteDbService.signUp(email: email, password: password),
           ).thenThrow(FirebaseAuthException(code: 'email-already-in-use'));
 
+          AuthError? authError;
           try {
             await repository.signUp(email: email, password: password);
           } on AuthError catch (error) {
-            expect(error, expectedAuthError);
+            authError = error;
           }
+
+          expect(
+            authError,
+            const AuthError(code: AuthErrorCode.emailAlreadyInUse),
+          );
         },
       );
     },
@@ -213,36 +228,42 @@ void main() {
       test(
         'should throw auth error if email is invalid',
         () async {
-          const AuthError expectedAuthError = AuthError(
-            code: AuthErrorCode.invalidEmail,
-          );
           when(
             () => authRemoteDbService.sendPasswordResetEmail(email: email),
           ).thenThrow(FirebaseAuthException(code: 'invalid-email'));
 
+          AuthError? authError;
           try {
             await repository.sendPasswordResetEmail(email: email);
           } on AuthError catch (error) {
-            expect(error, expectedAuthError);
+            authError = error;
           }
+
+          expect(
+            authError,
+            const AuthError(code: AuthErrorCode.invalidEmail),
+          );
         },
       );
 
       test(
         'should throw auth error if user has not been found',
         () async {
-          const AuthError expectedAuthError = AuthError(
-            code: AuthErrorCode.userNotFound,
-          );
           when(
             () => authRemoteDbService.sendPasswordResetEmail(email: email),
           ).thenThrow(FirebaseAuthException(code: 'user-not-found'));
 
+          AuthError? authError;
           try {
             await repository.sendPasswordResetEmail(email: email);
           } on AuthError catch (error) {
-            expect(error, expectedAuthError);
+            authError = error;
           }
+
+          expect(
+            authError,
+            const AuthError(code: AuthErrorCode.userNotFound),
+          );
         },
       );
     },
@@ -260,6 +281,57 @@ void main() {
           .checkLoggedUserPasswordCorrectness(password: 'password');
 
       expect(isPasswordCorrect, expectedValue);
+    },
+  );
+
+  group(
+    'change logged user password',
+    () {
+      const String currentPassword = 'currentPassword';
+      const String newPassword = 'newPassword';
+
+      test(
+        'should call method from remote db responsible for changing logged user password',
+        () async {
+          authRemoteDbService.mockChangeLoggedUserPassword();
+
+          await repository.changeLoggedUserPassword(
+            currentPassword: currentPassword,
+            newPassword: newPassword,
+          );
+
+          verify(
+            () => authRemoteDbService.changeLoggedUserPassword(
+              currentPassword: currentPassword,
+              newPassword: newPassword,
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'should throw auth error if current password is wrong',
+        () async {
+          authRemoteDbService.mockChangeLoggedUserPassword(
+            throwable: FirebaseAuthException(code: 'wrong-password'),
+          );
+
+          AuthError? authError;
+          try {
+            await repository.changeLoggedUserPassword(
+              currentPassword: currentPassword,
+              newPassword: newPassword,
+            );
+          } on AuthError catch (error) {
+            authError = error;
+          }
+
+          expect(
+            authError,
+            const AuthError(code: AuthErrorCode.wrongPassword),
+          );
+        },
+      );
     },
   );
 
@@ -303,18 +375,21 @@ void main() {
     'delete logged user, should throw auth error if password is wrong',
     () async {
       const String password = 'password';
-      const AuthError expectedAuthError = AuthError(
-        code: AuthErrorCode.wrongPassword,
-      );
       when(
         () => authRemoteDbService.deleteLoggedUser(password: password),
       ).thenThrow(FirebaseAuthException(code: 'wrong-password'));
 
+      AuthError? authError;
       try {
         await repository.deleteLoggedUser(password: password);
       } on AuthError catch (error) {
-        expect(error, expectedAuthError);
+        authError = error;
       }
+
+      expect(
+        authError,
+        const AuthError(code: AuthErrorCode.wrongPassword),
+      );
     },
   );
 }

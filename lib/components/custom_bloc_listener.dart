@@ -76,6 +76,7 @@ class CustomBlocListener<Bloc extends StateStreamable<State>,
   }
 
   Future<void> _manageLoggedUserNotFoundStatus(BuildContext context) async {
+    context.read<DialogInterface>().closeLoadingDialog(context: context);
     await context.read<DialogInterface>().showInfoDialog(
           title: 'Brak zalogowanego użytkownika',
           info:
@@ -85,6 +86,7 @@ class CustomBlocListener<Bloc extends StateStreamable<State>,
   }
 
   void _manageLossOfInternetConnection(BuildContext context) {
+    context.read<DialogInterface>().closeLoadingDialog(context: context);
     context.read<DialogInterface>().showInfoDialog(
           title: 'Brak połączenia internetowego',
           info:
@@ -93,6 +95,7 @@ class CustomBlocListener<Bloc extends StateStreamable<State>,
   }
 
   void _manageTimeoutException(BuildContext context) {
+    context.read<DialogInterface>().closeLoadingDialog(context: context);
     context.read<DialogInterface>().showInfoDialog(
           title: 'Przekroczony czas wykonania operacji',
           info:

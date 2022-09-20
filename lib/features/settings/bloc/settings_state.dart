@@ -1,10 +1,8 @@
 part of 'settings_bloc.dart';
 
-class SettingsState extends Equatable {
-  final BlocStatus status;
-
+class SettingsState extends BlocState {
   const SettingsState({
-    required this.status,
+    required super.status,
   });
 
   @override

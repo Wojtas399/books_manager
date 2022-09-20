@@ -1,3 +1,4 @@
+import 'package:app/components/custom_bloc_listener.dart';
 import 'package:app/config/navigation.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
@@ -7,7 +8,6 @@ import 'package:app/domain/use_cases/auth/delete_logged_user_use_case.dart';
 import 'package:app/domain/use_cases/auth/sign_out_use_case.dart';
 import 'package:app/features/settings/bloc/settings_bloc.dart';
 import 'package:app/features/settings/components/settings_content.dart';
-import 'package:app/models/bloc_status.dart';
 import 'package:app/providers/device_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -56,45 +56,18 @@ class _SettingsBlocListener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<SettingsBloc, SettingsState>(
-      listener: (BuildContext context, SettingsState state) {
-        final BlocStatus blocStatus = state.status;
-        if (blocStatus is BlocStatusLoading) {
-          _manageBlocLoadingStatus(context);
-        } else if (blocStatus is BlocStatusComplete) {
-          _manageBlocCompleteStatus(blocStatus, context);
-        } else if (blocStatus is BlocStatusError) {
-          _manageBlocErrorStatus(blocStatus, context);
-        }
-      },
+    return CustomBlocListener<SettingsBloc, SettingsState, SettingsBlocInfo,
+        SettingsBlocError>(
+      onCompletionInfo: (SettingsBlocInfo blocInfo) => _manageSettingsBlocInfo(
+        blocInfo,
+        context,
+      ),
+      onError: (SettingsBlocError blocError) => _manageSettingsBlocError(
+        blocError,
+        context,
+      ),
       child: child,
     );
-  }
-
-  void _manageBlocLoadingStatus(BuildContext context) {
-    context.read<DialogInterface>().showLoadingDialog(context: context);
-  }
-
-  void _manageBlocCompleteStatus(
-    BlocStatusComplete completeStatus,
-    BuildContext context,
-  ) {
-    context.read<DialogInterface>().closeLoadingDialog(context: context);
-    final SettingsBlocInfo? blocInfo = completeStatus.info;
-    if (blocInfo != null) {
-      _manageSettingsBlocInfo(blocInfo, context);
-    }
-  }
-
-  void _manageBlocErrorStatus(
-    BlocStatusError errorStatus,
-    BuildContext context,
-  ) {
-    context.read<DialogInterface>().closeLoadingDialog(context: context);
-    final SettingsBlocError? blocError = errorStatus.error;
-    if (blocError != null) {
-      _manageSettingsBlocError(blocError, context);
-    }
   }
 
   void _manageSettingsBlocInfo(

@@ -18,7 +18,7 @@ class SettingsSignOut extends StatelessWidget {
 
   void _onPressed(BuildContext context) {
     context.read<SettingsBloc>().add(
-          SettingsEventSignOut(),
+          const SettingsEventSignOut(),
         );
   }
 }

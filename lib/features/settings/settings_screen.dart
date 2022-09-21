@@ -4,8 +4,13 @@ import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/interfaces/dialog_interface.dart';
 import 'package:app/domain/interfaces/user_interface.dart';
+import 'package:app/domain/use_cases/auth/change_logged_user_password_use_case.dart';
 import 'package:app/domain/use_cases/auth/delete_logged_user_use_case.dart';
+import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/auth/sign_out_use_case.dart';
+import 'package:app/domain/use_cases/user/get_user_use_case.dart';
+import 'package:app/domain/use_cases/user/load_user_use_case.dart';
+import 'package:app/domain/use_cases/user/update_theme_settings_use_case.dart';
 import 'package:app/features/settings/bloc/settings_bloc.dart';
 import 'package:app/features/settings/components/settings_content.dart';
 import 'package:app/providers/device_provider.dart';
@@ -34,6 +39,21 @@ class _SettingsBlocProvider extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (BuildContext context) => SettingsBloc(
+        getLoggedUserIdUseCase: GetLoggedUserIdUseCase(
+          authInterface: context.read<AuthInterface>(),
+        ),
+        loadUserUseCase: LoadUserUseCase(
+          userInterface: context.read<UserInterface>(),
+        ),
+        getUserUseCase: GetUserUseCase(
+          userInterface: context.read<UserInterface>(),
+        ),
+        updateThemeSettingsUseCase: UpdateThemeSettingsUseCase(
+          userInterface: context.read<UserInterface>(),
+        ),
+        changeLoggedUserPasswordUseCase: ChangeLoggedUserPasswordUseCase(
+          authInterface: context.read<AuthInterface>(),
+        ),
         signOutUseCase: SignOutUseCase(
           authInterface: context.read<AuthInterface>(),
         ),
@@ -80,6 +100,9 @@ class _SettingsBlocListener extends StatelessWidget {
         break;
       case SettingsBlocInfo.userAccountHasBeenDeleted:
         _onUserAccountDeletion(context);
+        break;
+      case SettingsBlocInfo.passwordHasBeenChanged:
+        // TODO: Handle this case.
         break;
     }
   }

@@ -149,7 +149,7 @@ class _SettingsBlocListener extends StatelessWidget {
           context: context,
           title: 'Błędne hasło',
           info:
-              'Nie można przeprowadzić operacji usuwania konta, ponieważ podane hasło jest błędne.',
+              'Nie można przeprowadzić tej operacji, ponieważ podano błędne hasło',
         );
   }
 }

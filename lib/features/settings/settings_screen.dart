@@ -63,7 +63,9 @@ class _SettingsBlocProvider extends StatelessWidget {
           userInterface: context.read<UserInterface>(),
           authInterface: context.read<AuthInterface>(),
         ),
-      ),
+      )..add(
+          const SettingsEventInitialize(),
+        ),
       child: child,
     );
   }
@@ -102,7 +104,7 @@ class _SettingsBlocListener extends StatelessWidget {
         _onUserAccountDeletion(context);
         break;
       case SettingsBlocInfo.passwordHasBeenChanged:
-        // TODO: Handle this case.
+        _onPasswordChange(context);
         break;
     }
   }
@@ -125,6 +127,12 @@ class _SettingsBlocListener extends StatelessWidget {
   void _onUserAccountDeletion(BuildContext context) {
     Navigation.navigateToSignInScreen();
     _accountDeletionInfo(context);
+  }
+
+  void _onPasswordChange(BuildContext context) {
+    context.read<DialogInterface>().showSnackBar(
+          message: 'Pomyślnie zmieniono hasło',
+        );
   }
 
   void _accountDeletionInfo(BuildContext context) {

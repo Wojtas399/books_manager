@@ -64,6 +64,12 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<SettingsEventDeleteAccount>(_deleteAccount);
   }
 
+  @override
+  Future<void> close() async {
+    super.close();
+    _userListener?.cancel();
+  }
+
   Future<void> _initialize(
     SettingsEventInitialize event,
     Emitter<SettingsState> emit,

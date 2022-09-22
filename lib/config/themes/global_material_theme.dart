@@ -13,6 +13,10 @@ class GlobalMaterialTheme {
         floatingActionButtonTheme: _floatingActionButtonTheme,
       );
 
+  static ThemeData get darkTheme => ThemeData(
+        scaffoldBackgroundColor: Colors.pink,
+      );
+
   static final ColorScheme _colorScheme = const ColorScheme.light().copyWith(
     primary: AppColors.primary,
     secondary: AppColors.secondary,

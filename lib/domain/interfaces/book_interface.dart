@@ -40,5 +40,7 @@ abstract class BookInterface {
 
   Future<void> deleteBook({required String bookId});
 
+  Future<void> deleteAllUserBooks({required String userId});
+
   void reset();
 }

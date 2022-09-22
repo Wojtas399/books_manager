@@ -91,16 +91,6 @@ class BookRemoteDbService {
     );
   }
 
-  Future<void> deleteBookImage({
-    required String userId,
-    required String bookId,
-  }) async {
-    await _firebaseStorageService.deleteBookImageData(
-      userId: userId,
-      bookId: bookId,
-    );
-  }
-
   Future<List<DbBook>> _convertFirebaseBooksToDbBooks(
     List<FirebaseBook> firebaseBooks,
   ) async {

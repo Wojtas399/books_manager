@@ -18,6 +18,10 @@ class NetworkError extends CustomError<NetworkErrorCode> {
   const NetworkError({required super.code});
 }
 
+class UserError extends CustomError<UserErrorCode> {
+  const UserError({required super.code});
+}
+
 class BookError extends CustomError<BookErrorCode> {
   const BookError({required super.code});
 }

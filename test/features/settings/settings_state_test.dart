@@ -8,6 +8,8 @@ void main() {
   setUp(() {
     state = const SettingsState(
       status: BlocStatusInitial(),
+      isDarkModeOn: false,
+      isDarkModeCompatibilityWithSystemOn: false,
     );
   });
 
@@ -21,6 +23,34 @@ void main() {
 
       expect(state.status, expectedStatus);
       expect(state2.status, const BlocStatusInProgress());
+    },
+  );
+
+  test(
+    'copy with is dark mode on',
+    () {
+      const bool expectedValue = true;
+
+      state = state.copyWith(isDarkModeOn: expectedValue);
+      final state2 = state.copyWith();
+
+      expect(state.isDarkModeOn, expectedValue);
+      expect(state2.isDarkModeOn, expectedValue);
+    },
+  );
+
+  test(
+    'copy with is dark mode compatibility with system on',
+    () {
+      const bool expectedValue = true;
+
+      state = state.copyWith(
+        isDarkModeCompatibilityWithSystemOn: expectedValue,
+      );
+      final state2 = state.copyWith();
+
+      expect(state.isDarkModeCompatibilityWithSystemOn, expectedValue);
+      expect(state2.isDarkModeCompatibilityWithSystemOn, expectedValue);
     },
   );
 

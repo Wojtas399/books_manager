@@ -18,6 +18,9 @@ class GlobalProvider extends StatelessWidget {
         RepositoryProvider(
           create: (_) => DataProvider.provideAuthInterface(),
         ),
+        RepositoryProvider(
+          create: (_) => DataProvider.provideUserInterface(),
+        ),
       ],
       child: child,
     );

@@ -8,12 +8,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class CustomBlocListener<Bloc extends StateStreamable<State>,
     State extends BlocState, Info, Error> extends StatelessWidget {
   final Widget child;
+  final void Function(State state)? onStateChanged;
   final void Function(Info info)? onCompletionInfo;
   final void Function(Error error)? onError;
 
   const CustomBlocListener({
     super.key,
     required this.child,
+    this.onStateChanged,
     this.onCompletionInfo,
     this.onError,
   });
@@ -21,7 +23,9 @@ class CustomBlocListener<Bloc extends StateStreamable<State>,
   @override
   Widget build(BuildContext context) {
     return BlocListener<Bloc, State>(
-      listener: (BuildContext context, BlocState state) {
+      listener: (BuildContext context, State state) {
+        _manageState(state);
+
         final BlocStatus blocStatus = state.status;
         if (blocStatus is BlocStatusLoading) {
           _manageLoadingStatus(context);
@@ -39,6 +43,13 @@ class CustomBlocListener<Bloc extends StateStreamable<State>,
       },
       child: child,
     );
+  }
+
+  void _manageState(State newState) {
+    final void Function(State state)? onStateChanged = this.onStateChanged;
+    if (onStateChanged != null) {
+      onStateChanged(newState);
+    }
   }
 
   void _manageLoadingStatus(BuildContext context) {
@@ -76,6 +87,7 @@ class CustomBlocListener<Bloc extends StateStreamable<State>,
   }
 
   Future<void> _manageLoggedUserNotFoundStatus(BuildContext context) async {
+    context.read<DialogInterface>().closeLoadingDialog(context: context);
     await context.read<DialogInterface>().showInfoDialog(
           title: 'Brak zalogowanego użytkownika',
           info:
@@ -85,6 +97,7 @@ class CustomBlocListener<Bloc extends StateStreamable<State>,
   }
 
   void _manageLossOfInternetConnection(BuildContext context) {
+    context.read<DialogInterface>().closeLoadingDialog(context: context);
     context.read<DialogInterface>().showInfoDialog(
           title: 'Brak połączenia internetowego',
           info:
@@ -93,6 +106,7 @@ class CustomBlocListener<Bloc extends StateStreamable<State>,
   }
 
   void _manageTimeoutException(BuildContext context) {
+    context.read<DialogInterface>().closeLoadingDialog(context: context);
     context.read<DialogInterface>().showInfoDialog(
           title: 'Przekroczony czas wykonania operacji',
           info:

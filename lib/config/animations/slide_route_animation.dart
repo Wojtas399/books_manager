@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-class SlideRouteAnimation extends PageRouteBuilder {
+class SlideRouteAnimation<T> extends PageRouteBuilder<T> {
   final Widget page;
   final double dx;
   final double dy;

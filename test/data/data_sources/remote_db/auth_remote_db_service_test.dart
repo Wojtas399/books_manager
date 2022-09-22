@@ -1,9 +1,9 @@
 import 'package:app/data/data_sources/remote_db/auth_remote_db_service.dart';
-import 'package:app/data/data_sources/remote_db/firebase/services/firebase_auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockFirebaseAuthService extends Mock implements FirebaseAuthService {}
+import '../mocks/mock_firebase_auth_service.dart';
 
 void main() {
   final firebaseAuthService = MockFirebaseAuthService();
@@ -22,15 +22,18 @@ void main() {
     () async {
       const String email = 'email@example.com';
       const String password = 'password';
-      when(
-        () => firebaseAuthService.signIn(email: email, password: password),
-      ).thenAnswer((_) async => '');
+      const String signedInUserId = 'u1';
+      firebaseAuthService.mockSignIn(signedInUserId: signedInUserId);
 
-      await service.signIn(email: email, password: password);
+      final String userId = await service.signIn(
+        email: email,
+        password: password,
+      );
 
       verify(
         () => firebaseAuthService.signIn(email: email, password: password),
       ).called(1);
+      expect(userId, signedInUserId);
     },
   );
 
@@ -39,15 +42,18 @@ void main() {
     () async {
       const String email = 'email@example.com';
       const String password = 'password';
-      when(
-        () => firebaseAuthService.signUp(email: email, password: password),
-      ).thenAnswer((_) async => '');
+      const String signedUpUserId = 'u1';
+      firebaseAuthService.mockSignUp(signedUpUserId: signedUpUserId);
 
-      await service.signUp(email: email, password: password);
+      final String userId = await service.signUp(
+        email: email,
+        password: password,
+      );
 
       verify(
         () => firebaseAuthService.signUp(email: email, password: password),
       ).called(1);
+      expect(userId, signedUpUserId);
     },
   );
 
@@ -55,9 +61,7 @@ void main() {
     'send password reset email, should call method from firebase auth service responsible for sending password reset email',
     () async {
       const String email = 'email@example.com';
-      when(
-        () => firebaseAuthService.sendPasswordResetEmail(email: email),
-      ).thenAnswer((_) async => '');
+      firebaseAuthService.mockSendPasswordResetEmail();
 
       await service.sendPasswordResetEmail(email: email);
 
@@ -67,12 +71,88 @@ void main() {
     },
   );
 
+  group(
+    'check logged user password correctness',
+    () {
+      const String password = 'password';
+
+      test(
+        'should return true if firebase method responsible for reauthentication does not throw error',
+        () async {
+          firebaseAuthService.mockReauthenticateLoggedUserWithPassword();
+
+          final bool isCorrect = await service
+              .checkLoggedUserPasswordCorrectness(password: password);
+
+          expect(isCorrect, true);
+        },
+      );
+
+      test(
+        'should return false if firebase method responsible for reauthentication throw wrong password error',
+        () async {
+          when(
+            () => firebaseAuthService.reauthenticateLoggedUserWithPassword(
+              password: password,
+            ),
+          ).thenThrow(FirebaseAuthException(code: 'wrong-password'));
+
+          final bool isCorrect = await service
+              .checkLoggedUserPasswordCorrectness(password: password);
+
+          expect(isCorrect, false);
+        },
+      );
+
+      test(
+        'should rethrow error if firebase method responsible for reauthentication throw error different than wrong password',
+        () async {
+          when(
+            () => firebaseAuthService.reauthenticateLoggedUserWithPassword(
+              password: password,
+            ),
+          ).thenThrow(FirebaseAuthException(code: 'unknown'));
+
+          try {
+            await service.checkLoggedUserPasswordCorrectness(
+              password: password,
+            );
+          } on FirebaseAuthException catch (authException) {
+            expect(
+              authException,
+              FirebaseAuthException(code: 'unknown'),
+            );
+          }
+        },
+      );
+    },
+  );
+
+  test(
+    'change logged user password, should call method from firebase auth responsible for change logged user password',
+    () async {
+      const String currentPassword = 'currentPassword';
+      const String newPassword = 'newPassword';
+      firebaseAuthService.mockChangeLoggedUserPassword();
+
+      await service.changeLoggedUserPassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+
+      verify(
+        () => firebaseAuthService.changeLoggedUserPassword(
+          currentPassword: currentPassword,
+          newPassword: newPassword,
+        ),
+      ).called(1);
+    },
+  );
+
   test(
     'sign out, should call method from firebase auth service responsible for signing out user',
     () async {
-      when(
-        () => firebaseAuthService.signOut(),
-      ).thenAnswer((_) async => '');
+      firebaseAuthService.mockSignOut();
 
       await service.signOut();
 
@@ -86,9 +166,7 @@ void main() {
     'delete logged user, should call method from firebase auth service responsible for deleting logged user',
     () async {
       const String password = 'password';
-      when(
-        () => firebaseAuthService.deleteLoggedUser(password: password),
-      ).thenAnswer((_) async => '');
+      firebaseAuthService.mockDeleteLoggedUser();
 
       await service.deleteLoggedUser(password: password);
 

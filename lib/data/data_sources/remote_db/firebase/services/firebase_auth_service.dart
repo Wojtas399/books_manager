@@ -30,25 +30,26 @@ class FirebaseAuthService {
     await FireInstances.auth.sendPasswordResetEmail(email: email);
   }
 
+  Future<void> changeLoggedUserPassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    await reauthenticateLoggedUserWithPassword(password: currentPassword);
+    await FireInstances.auth.currentUser?.updatePassword(newPassword);
+  }
+
   Future<void> signOut() async {
     await FireInstances.auth.signOut();
   }
 
   Future<void> deleteLoggedUser({required String password}) async {
-    await _reauthenticateLoggedUserWithPassword(password);
+    await reauthenticateLoggedUserWithPassword(password: password);
     await FireInstances.auth.currentUser?.delete();
   }
 
-  String _readUserIdFromCredential(UserCredential credential) {
-    final String? userId = credential.user?.uid;
-    if (userId != null) {
-      return userId;
-    } else {
-      throw 'Cannot read user id';
-    }
-  }
-
-  Future<void> _reauthenticateLoggedUserWithPassword(String password) async {
+  Future<void> reauthenticateLoggedUserWithPassword({
+    required String password,
+  }) async {
     final User? loggedUser = FireInstances.auth.currentUser;
     final String? loggedUserEmail = loggedUser?.email;
     if (loggedUser != null && loggedUserEmail != null) {
@@ -57,6 +58,15 @@ class FirebaseAuthService {
         password: password,
       );
       await loggedUser.reauthenticateWithCredential(credential);
+    }
+  }
+
+  String _readUserIdFromCredential(UserCredential credential) {
+    final String? userId = credential.user?.uid;
+    if (userId != null) {
+      return userId;
+    } else {
+      throw 'Cannot read user id';
     }
   }
 }

@@ -256,27 +256,4 @@ void main() {
       ).called(1);
     },
   );
-
-  test(
-    'delete book image, should call method responsible for deleting image from firebase storage',
-    () async {
-      const String userId = 'u1';
-      const String bookId = 'b1';
-      when(
-        () => firebaseStorageService.deleteBookImageData(
-          userId: userId,
-          bookId: bookId,
-        ),
-      ).thenAnswer((_) async => '');
-
-      await service.deleteBookImage(userId: userId, bookId: bookId);
-
-      verify(
-        () => firebaseStorageService.deleteBookImageData(
-          userId: userId,
-          bookId: bookId,
-        ),
-      ).called(1);
-    },
-  );
 }

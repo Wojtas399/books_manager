@@ -203,12 +203,50 @@ class BookRepository implements BookInterface {
   }
 
   @override
+  Future<void> deleteAllUserBooks({required String userId}) async {
+    final List<DbBook> userDbBooks = await _bookLocalDbService.loadUserBooks(
+      userId: userId,
+    );
+    if (await _device.hasInternetConnection()) {
+      await _deleteEachBookFromBothDatabases(userDbBooks);
+    } else {
+      await _markEachBookAsDeletedInLocalDb(userDbBooks);
+    }
+  }
+
+  @override
   void reset() {
     _books$.add([]);
   }
 
   String _getIdOfUserAssignedToBook(String bookId) {
     return _books$.value.firstWhere((Book book) => book.id == bookId).userId;
+  }
+
+  Future<void> _deleteEachBookFromBothDatabases(
+    List<DbBook> dbBooksToDelete,
+  ) async {
+    for (final DbBook dbBook in dbBooksToDelete) {
+      await _bookRemoteDbService.deleteBook(
+        userId: dbBook.userId,
+        bookId: dbBook.id,
+      );
+      await _bookLocalDbService.deleteBook(
+        userId: dbBook.userId,
+        bookId: dbBook.id,
+      );
+    }
+  }
+
+  Future<void> _markEachBookAsDeletedInLocalDb(
+    List<DbBook> dbBooksToMark,
+  ) async {
+    for (final DbBook dbBook in dbBooksToMark) {
+      await _bookLocalDbService.updateBookData(
+        bookId: dbBook.id,
+        syncState: SyncState.deleted,
+      );
+    }
   }
 
   void _addNewBooksToList(List<Book> books) {

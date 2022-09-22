@@ -31,7 +31,7 @@ class AuthRepository implements AuthInterface {
   }
 
   @override
-  Future<void> signIn({
+  Future<String> signIn({
     required String email,
     required String password,
   }) async {
@@ -42,13 +42,14 @@ class AuthRepository implements AuthInterface {
       );
       await _authLocalDbService.saveLoggedUserId(loggedUserId: loggedUserId);
       _loggedUserId$.add(loggedUserId);
+      return loggedUserId;
     } on FirebaseAuthException catch (exception) {
-      _manageFirebaseAuthException(exception.code);
+      throw _convertFirebaseAuthExceptionToCustomError(exception.code);
     }
   }
 
   @override
-  Future<void> signUp({
+  Future<String> signUp({
     required String email,
     required String password,
   }) async {
@@ -59,8 +60,9 @@ class AuthRepository implements AuthInterface {
       );
       await _authLocalDbService.saveLoggedUserId(loggedUserId: loggedUserId);
       _loggedUserId$.add(loggedUserId);
+      return loggedUserId;
     } on FirebaseAuthException catch (exception) {
-      _manageFirebaseAuthException(exception.code);
+      throw _convertFirebaseAuthExceptionToCustomError(exception.code);
     }
   }
 
@@ -69,7 +71,31 @@ class AuthRepository implements AuthInterface {
     try {
       await _authRemoteDbService.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (exception) {
-      _manageFirebaseAuthException(exception.code);
+      throw _convertFirebaseAuthExceptionToCustomError(exception.code);
+    }
+  }
+
+  @override
+  Future<bool> checkLoggedUserPasswordCorrectness({
+    required String password,
+  }) async {
+    return await _authRemoteDbService.checkLoggedUserPasswordCorrectness(
+      password: password,
+    );
+  }
+
+  @override
+  Future<void> changeLoggedUserPassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await _authRemoteDbService.changeLoggedUserPassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+    } on FirebaseAuthException catch (exception) {
+      throw _convertFirebaseAuthExceptionToCustomError(exception.code);
     }
   }
 
@@ -86,24 +112,24 @@ class AuthRepository implements AuthInterface {
       await _authRemoteDbService.deleteLoggedUser(password: password);
       await _authLocalDbService.removeLoggedUserId();
     } on FirebaseAuthException catch (exception) {
-      _manageFirebaseAuthException(exception.code);
+      throw _convertFirebaseAuthExceptionToCustomError(exception.code);
     }
   }
 
-  void _manageFirebaseAuthException(String code) {
+  CustomError _convertFirebaseAuthExceptionToCustomError(String code) {
     switch (code) {
       case 'invalid-email':
-        throw const AuthError(code: AuthErrorCode.invalidEmail);
+        return const AuthError(code: AuthErrorCode.invalidEmail);
       case 'wrong-password':
-        throw const AuthError(code: AuthErrorCode.wrongPassword);
+        return const AuthError(code: AuthErrorCode.wrongPassword);
       case 'user-not-found':
-        throw const AuthError(code: AuthErrorCode.userNotFound);
+        return const AuthError(code: AuthErrorCode.userNotFound);
       case 'email-already-in-use':
-        throw const AuthError(code: AuthErrorCode.emailAlreadyInUse);
+        return const AuthError(code: AuthErrorCode.emailAlreadyInUse);
       case 'network-request-failed':
-        throw const NetworkError(code: NetworkErrorCode.lossOfConnection);
+        return const NetworkError(code: NetworkErrorCode.lossOfConnection);
       default:
-        throw const AuthError(code: AuthErrorCode.unknown);
+        return const AuthError(code: AuthErrorCode.unknown);
     }
   }
 }

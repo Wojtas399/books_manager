@@ -7,6 +7,7 @@ class CustomScaffold extends StatelessWidget {
   final String? appBarTitle;
   final bool appBarWithElevation;
   final Color? appBarColor;
+  final Color? foregroundColor;
   final bool automaticallyImplyLeading;
   final Widget? trailing;
   final double? trailingRightPadding;
@@ -21,6 +22,7 @@ class CustomScaffold extends StatelessWidget {
     this.appBarTitle,
     this.appBarWithElevation = true,
     this.appBarColor,
+    this.foregroundColor,
     this.automaticallyImplyLeading = true,
     this.trailing,
     this.trailingRightPadding,
@@ -38,6 +40,7 @@ class CustomScaffold extends StatelessWidget {
       appBar: _AppBar(
         appBarTitle: appBarTitle,
         appBarColor: appBarColor,
+        foregroundColor: foregroundColor,
         appBarWithElevation: appBarWithElevation,
         automaticallyImplyLeading: automaticallyImplyLeading,
         leadingIcon: leadingIcon,
@@ -54,6 +57,7 @@ class CustomScaffold extends StatelessWidget {
 class _AppBar extends StatelessWidget with PreferredSizeWidget {
   final String? appBarTitle;
   final Color? appBarColor;
+  final Color? foregroundColor;
   final bool appBarWithElevation;
   final bool automaticallyImplyLeading;
   final IconData? leadingIcon;
@@ -63,6 +67,7 @@ class _AppBar extends StatelessWidget with PreferredSizeWidget {
   const _AppBar({
     this.appBarTitle,
     this.appBarColor,
+    this.foregroundColor,
     this.appBarWithElevation = true,
     this.automaticallyImplyLeading = true,
     this.leadingIcon,
@@ -90,6 +95,7 @@ class _AppBar extends StatelessWidget with PreferredSizeWidget {
       ],
       elevation: appBarWithElevation ? 2 : 0,
       backgroundColor: appBarColor,
+      foregroundColor: foregroundColor,
     );
   }
 }

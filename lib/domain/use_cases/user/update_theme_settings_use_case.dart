@@ -12,7 +12,7 @@ class UpdateThemeSettingsUseCase {
     bool? isDarkModeOn,
     bool? isDarkModeCompatibilityWithSystemOn,
   }) async {
-    await _userInterface.updateUser(
+    await _userInterface.updateUserThemeSettings(
       userId: userId,
       isDarkModeOn: isDarkModeOn,
       isDarkModeCompatibilityWithSystemOn: isDarkModeCompatibilityWithSystemOn,

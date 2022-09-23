@@ -36,10 +36,7 @@ class BookPagesEditorComponent extends StatelessWidget {
                   onChanged: onReadPagesAmountChanged,
                 ),
               ),
-              VerticalDivider(
-                thickness: 1,
-                color: Colors.black.withOpacity(0.25),
-              ),
+              const VerticalDivider(thickness: 1),
               Expanded(
                 child: _AllPagesAmount(
                   amount: allPagesAmount,

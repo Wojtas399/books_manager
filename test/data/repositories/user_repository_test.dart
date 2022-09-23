@@ -1,21 +1,14 @@
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
-import 'package:app/data/data_sources/local_db/user_local_db_service.dart';
-import 'package:app/data/data_sources/remote_db/user_remote_db_service.dart';
 import 'package:app/data/models/db_user.dart';
 import 'package:app/data/repositories/user_repository.dart';
-import 'package:app/data/synchronizers/user_synchronizer.dart';
 import 'package:app/domain/entities/user.dart';
-import 'package:app/models/device.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockUserSynchronizer extends Mock implements UserSynchronizer {}
-
-class MockUserLocalDbService extends Mock implements UserLocalDbService {}
-
-class MockUserRemoteDbService extends Mock implements UserRemoteDbService {}
-
-class MockDevice extends Mock implements Device {}
+import '../../mocks/db_services/mock_user_local_db_service.dart';
+import '../../mocks/db_services/mock_user_remote_db_service.dart';
+import '../../mocks/mock_device.dart';
+import '../../mocks/synchronizers/mock_user_synchronizer.dart';
 
 void main() {
   final userSynchronizer = MockUserSynchronizer();
@@ -36,16 +29,6 @@ void main() {
     );
   }
 
-  void mockHasDeviceInternetConnection({required bool hasInternetConnection}) {
-    when(
-      () => device.hasInternetConnection(),
-    ).thenAnswer((_) async => hasInternetConnection);
-  }
-
-  setUpAll(() {
-    registerFallbackValue(SyncState.none);
-  });
-
   setUp(() {
     repository = createRepository();
   });
@@ -63,17 +46,13 @@ void main() {
       const String userId = 'u1';
 
       setUp(() {
-        when(
-          () => userSynchronizer.synchronizeUser(userId: userId),
-        ).thenAnswer((_) async => '');
+        userSynchronizer.mockSynchronizeUser();
       });
 
       test(
         'device has internet connection, should call method from user synchronizer responsible for synchronizing user',
         () async {
-          when(
-            () => device.hasInternetConnection(),
-          ).thenAnswer((_) async => true);
+          device.mockHasDeviceInternetConnection(value: true);
 
           await repository.refreshUser(userId: userId);
 
@@ -86,9 +65,7 @@ void main() {
       test(
         'device has not internet connection, should not do anything',
         () async {
-          when(
-            () => device.hasInternetConnection(),
-          ).thenAnswer((_) async => false);
+          device.mockHasDeviceInternetConnection(value: false);
 
           await repository.refreshUser(userId: userId);
 
@@ -129,9 +106,7 @@ void main() {
         isDarkModeCompatibilityWithSystemOn:
             dbUser.isDarkModeCompatibilityWithSystemOn,
       );
-      when(
-        () => userLocalDbService.loadUser(userId: userId),
-      ).thenAnswer((_) async => dbUser);
+      userLocalDbService.mockLoadUser(dbUser: dbUser);
 
       await repository.loadUser(userId: userId);
       final Stream<User?> user$ = repository.getUser(userId: userId);
@@ -151,37 +126,27 @@ void main() {
             user.isDarkModeCompatibilityWithSystemOn,
       );
 
-      Future<void> localDbServiceAddMethodCall({SyncState? syncState}) =>
-          userLocalDbService.addUser(
-            dbUser: dbUser,
-            syncState: syncState ?? any(named: 'syncState'),
-          );
-
-      Future<void> remoteDbServiceAddMethodCall() =>
-          userRemoteDbService.addUser(dbUser: dbUser);
-
       setUp(() {
-        when(
-          () => localDbServiceAddMethodCall(),
-        ).thenAnswer((_) async => '');
-        when(
-          () => remoteDbServiceAddMethodCall(),
-        ).thenAnswer((_) async => '');
+        userLocalDbService.mockAddUser();
+        userRemoteDbService.mockAddUser();
       });
 
       test(
         'device has internet connection, should call methods responsible for adding user to remote and local databases and should add new user to list',
         () async {
-          mockHasDeviceInternetConnection(hasInternetConnection: true);
+          device.mockHasDeviceInternetConnection(value: true);
 
           await repository.addUser(user: user);
           final Stream<User?> user$ = repository.getUser(userId: user.id);
 
           verify(
-            () => localDbServiceAddMethodCall(syncState: SyncState.none),
+            () => userLocalDbService.addUser(
+              dbUser: dbUser,
+              syncState: SyncState.none,
+            ),
           ).called(1);
           verify(
-            () => remoteDbServiceAddMethodCall(),
+            () => userRemoteDbService.addUser(dbUser: dbUser),
           ).called(1);
           expect(await user$.first, user);
         },
@@ -190,16 +155,19 @@ void main() {
       test(
         'device has not internet connection, should only call method responsible for adding user to local db with sync state set as added and should add new user to list',
         () async {
-          mockHasDeviceInternetConnection(hasInternetConnection: false);
+          device.mockHasDeviceInternetConnection(value: false);
 
           await repository.addUser(user: user);
           final Stream<User?> user$ = repository.getUser(userId: user.id);
 
           verify(
-            () => localDbServiceAddMethodCall(syncState: SyncState.added),
+            () => userLocalDbService.addUser(
+              dbUser: dbUser,
+              syncState: SyncState.added,
+            ),
           ).called(1);
           verifyNever(
-            () => remoteDbServiceAddMethodCall(),
+            () => userRemoteDbService.addUser(dbUser: dbUser),
           );
           expect(await user$.first, user);
         },
@@ -208,7 +176,7 @@ void main() {
   );
 
   group(
-    'update user',
+    'update user theme settings',
     () {
       const String userId = 'u1';
       const bool isDarkModeOn = false;
@@ -231,73 +199,95 @@ void main() {
             isDarkModeCompatibilityWithSystemOn,
       );
 
-      Future<void> callRepositoryUpdateMethod() => repository.updateUser(
-            userId: userId,
-            isDarkModeOn: isDarkModeOn,
-            isDarkModeCompatibilityWithSystemOn:
-                isDarkModeCompatibilityWithSystemOn,
-          );
-
-      Future<DbUser> localDbServiceUpdateMethodCall({SyncState? syncState}) =>
-          userLocalDbService.updateUser(
-            userId: userId,
-            isDarkModeOn: isDarkModeOn,
-            isDarkModeCompatibilityWithSystemOn:
-                isDarkModeCompatibilityWithSystemOn,
-            syncState: syncState ?? any(named: 'syncState'),
-          );
-
-      Future<void> remoteDbServiceUpdateMethodCall() =>
-          userRemoteDbService.updateUser(
-            userId: userId,
-            isDarkModeOn: isDarkModeOn,
-            isDarkModeCompatibilityWithSystemOn:
-                isDarkModeCompatibilityWithSystemOn,
-          );
-
       setUp(() {
         repository = createRepository(users: [originalUser]);
-        when(
-          () => localDbServiceUpdateMethodCall(),
-        ).thenAnswer((_) async => updatedDbUser);
-        when(
-          () => remoteDbServiceUpdateMethodCall(),
-        ).thenAnswer((_) async => '');
+        userLocalDbService.mockUpdateUser(updatedDbUser: updatedDbUser);
+        userRemoteDbService.mockUpdateUser();
       });
 
       test(
-        'device has internet connection, should call methods responsible for updating user in remote and local databases and should update user in list',
+        'device has internet connection, should update user in list and then should call methods responsible for updating user in remote and local databases',
         () async {
-          mockHasDeviceInternetConnection(hasInternetConnection: true);
+          device.mockHasDeviceInternetConnection(value: true);
 
-          await callRepositoryUpdateMethod();
+          await repository.updateUserThemeSettings(
+            userId: userId,
+            isDarkModeOn: isDarkModeOn,
+            isDarkModeCompatibilityWithSystemOn:
+                isDarkModeCompatibilityWithSystemOn,
+          );
           final Stream<User?> user$ = repository.getUser(userId: userId);
 
           verify(
-            () => localDbServiceUpdateMethodCall(syncState: SyncState.none),
+            () => userLocalDbService.updateUser(
+              userId: userId,
+              isDarkModeOn: isDarkModeOn,
+              isDarkModeCompatibilityWithSystemOn:
+                  isDarkModeCompatibilityWithSystemOn,
+              syncState: SyncState.none,
+            ),
           ).called(1);
           verify(
-            () => remoteDbServiceUpdateMethodCall(),
+            () => userRemoteDbService.updateUser(
+              userId: userId,
+              isDarkModeOn: isDarkModeOn,
+              isDarkModeCompatibilityWithSystemOn:
+                  isDarkModeCompatibilityWithSystemOn,
+            ),
           ).called(1);
           expect(await user$.first, updatedUser);
         },
       );
 
       test(
-        'device has not internet connection, should only call method responsible for updating user in local db with sync state set as updated and should update user in list',
+        'device has not internet connection, should update user in list and then should call method responsible for updating user in local db with sync state set as updated',
         () async {
-          mockHasDeviceInternetConnection(hasInternetConnection: false);
+          device.mockHasDeviceInternetConnection(value: false);
 
-          await callRepositoryUpdateMethod();
+          await repository.updateUserThemeSettings(
+            userId: userId,
+            isDarkModeOn: isDarkModeOn,
+            isDarkModeCompatibilityWithSystemOn:
+                isDarkModeCompatibilityWithSystemOn,
+          );
           final Stream<User?> user$ = repository.getUser(userId: userId);
 
           verify(
-            () => localDbServiceUpdateMethodCall(syncState: SyncState.updated),
+            () => userLocalDbService.updateUser(
+              userId: userId,
+              isDarkModeOn: isDarkModeOn,
+              isDarkModeCompatibilityWithSystemOn:
+                  isDarkModeCompatibilityWithSystemOn,
+              syncState: SyncState.updated,
+            ),
           ).called(1);
           verifyNever(
-            () => remoteDbServiceUpdateMethodCall(),
+            () => userRemoteDbService.updateUser(
+              userId: userId,
+              isDarkModeOn: isDarkModeOn,
+              isDarkModeCompatibilityWithSystemOn:
+                  isDarkModeCompatibilityWithSystemOn,
+            ),
           );
           expect(await user$.first, updatedUser);
+        },
+      );
+
+      test(
+        'should set previous user data if one of called methods throws error',
+        () async {
+          device.mockHasDeviceInternetConnection(value: true);
+          userRemoteDbService.mockUpdateUser(throwable: 'Error...');
+
+          await repository.updateUserThemeSettings(
+            userId: userId,
+            isDarkModeOn: isDarkModeOn,
+            isDarkModeCompatibilityWithSystemOn:
+                isDarkModeCompatibilityWithSystemOn,
+          );
+          final Stream<User?> user$ = repository.getUser(userId: userId);
+
+          expect(await user$.first, originalUser);
         },
       );
     },
@@ -308,37 +298,27 @@ void main() {
     () {
       const String userId = 'u1';
 
-      Future<void> localDbServiceDeleteMethodCall() =>
-          userLocalDbService.deleteUser(userId: userId);
-
-      Future<void> remoteDbServiceDeleteMethodCall() =>
-          userRemoteDbService.deleteUser(userId: userId);
-
       setUp(() {
         repository = createRepository(
           users: [createUser(id: userId)],
         );
-        when(
-          () => localDbServiceDeleteMethodCall(),
-        ).thenAnswer((_) async => '');
-        when(
-          () => remoteDbServiceDeleteMethodCall(),
-        ).thenAnswer((_) async => '');
+        userLocalDbService.mockDeleteUser();
+        userRemoteDbService.mockDeleteUser();
       });
 
       test(
         'device has internet connection, should call methods responsible for deleting user from local and remote databases and should delete user from list',
         () async {
-          mockHasDeviceInternetConnection(hasInternetConnection: true);
+          device.mockHasDeviceInternetConnection(value: true);
 
           await repository.deleteUser(userId: userId);
           final Stream<User?> user$ = repository.getUser(userId: userId);
 
           verify(
-            () => localDbServiceDeleteMethodCall(),
+            () => userLocalDbService.deleteUser(userId: userId),
           ).called(1);
           verify(
-            () => remoteDbServiceDeleteMethodCall(),
+            () => userRemoteDbService.deleteUser(userId: userId),
           ).called(1);
           expect(await user$.first, null);
         },
@@ -347,22 +327,17 @@ void main() {
       test(
         'device has not internet connection, should only call method responsible for updating user in local db with sync state set as deleted and should delete user from list',
         () async {
-          mockHasDeviceInternetConnection(hasInternetConnection: false);
-          when(
-            () => userLocalDbService.updateUser(
-              userId: userId,
-              syncState: SyncState.deleted,
-            ),
-          ).thenAnswer((_) async => createDbUser());
+          device.mockHasDeviceInternetConnection(value: false);
+          userLocalDbService.mockUpdateUser(updatedDbUser: createDbUser());
 
           await repository.deleteUser(userId: userId);
           final Stream<User?> user$ = repository.getUser(userId: userId);
 
           verifyNever(
-            () => localDbServiceDeleteMethodCall(),
+            () => userLocalDbService.deleteUser(userId: userId),
           );
           verifyNever(
-            () => remoteDbServiceDeleteMethodCall(),
+            () => userRemoteDbService.deleteUser(userId: userId),
           );
           verify(
             () => userLocalDbService.updateUser(

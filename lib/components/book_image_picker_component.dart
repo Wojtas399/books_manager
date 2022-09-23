@@ -26,22 +26,15 @@ class BookImagePickerComponent extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => _onPressed(context),
-      child: Container(
+      child: SizedBox(
         height: 300,
         width: 260,
-        clipBehavior: Clip.hardEdge,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              blurRadius: 7,
-              spreadRadius: 5,
-            ),
-          ],
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: _Image(imageData: imageData),
         ),
-        child: _Image(imageData: imageData),
       ),
     );
   }

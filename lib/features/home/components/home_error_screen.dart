@@ -12,7 +12,7 @@ class HomeErrorScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.background,
+      color: AppColors.lightBackground,
       padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -35,7 +35,9 @@ class _Title extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       'Wystąpił nieoczekiwany błąd z ładowaniem aplikacji :(',
-      style: Theme.of(context).textTheme.headline5,
+      style: Theme.of(context).textTheme.headline5?.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
     );
   }
 }
@@ -46,11 +48,11 @@ class _Message extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      'Spróbuj zalogować/zarejestrować się jeszcze raz. Jeśli błąd nie zniknie musisz uzbroić się w cierpliwość. Nieustannie pracujemy nad naprawianiem pojawiających się problemów. \nPrzepraszamy za niedogodności...',
-      style: Theme.of(context)
-          .textTheme
-          .subtitle1
-          ?.copyWith(color: Colors.black.withOpacity(0.5)),
+      'Spróbuj zalogować/zarejestrować się jeszcze raz. Jeśli błąd nie zniknie musisz uzbroić się w cierpliwość. Nieustannie pracujemy nad rozwiązywaniem pojawiających się problemów. \nPrzepraszamy za niedogodności...',
+      style: Theme.of(context).textTheme.subtitle1?.copyWith(
+            color: Colors.black.withOpacity(0.5),
+            height: 1.4,
+          ),
     );
   }
 }

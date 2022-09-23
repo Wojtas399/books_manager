@@ -1,16 +1,11 @@
-import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import 'package:app/domain/use_cases/initialize_user_data_use_case.dart';
 import 'package:app/features/home/bloc/home_bloc.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockGetLoggedUserIdUseCase extends Mock
-    implements GetLoggedUserIdUseCase {}
-
-class MockInitializeUserDataUseCase extends Mock
-    implements InitializeUserDataUseCase {}
+import '../../mocks/use_cases/auth/mock_get_logged_user_id_use_case.dart';
+import '../../mocks/use_cases/mock_initialize_user_data_use_case.dart';
 
 void main() {
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
@@ -39,12 +34,10 @@ void main() {
   });
 
   blocTest(
-    'initialize, should emit appropriate status if logged user id is null',
+    'initialize, logged user does not exists, should emit appropriate status',
     build: () => createBloc(),
     setUp: () {
-      when(
-        () => getLoggedUserIdUseCase.execute(),
-      ).thenAnswer((_) => Stream.value(null));
+      getLoggedUserIdUseCase.mock();
     },
     act: (HomeBloc bloc) {
       bloc.add(
@@ -62,15 +55,11 @@ void main() {
   );
 
   blocTest(
-    'initialize, should call use case responsible for initializing user data if logged user id is not null',
+    'initialize, logged user exists, should call use cases responsible for initializing user data',
     build: () => createBloc(),
     setUp: () {
-      when(
-        () => getLoggedUserIdUseCase.execute(),
-      ).thenAnswer((_) => Stream.value('u1'));
-      when(
-        () => initializeUserDataUseCase.execute(userId: 'u1'),
-      ).thenAnswer((_) async => '');
+      getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
+      initializeUserDataUseCase.mock();
     },
     act: (HomeBloc bloc) {
       bloc.add(

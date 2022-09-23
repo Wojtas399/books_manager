@@ -2,9 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 class AppColors {
-  static final Color primary = HexColor('#EF6C57');
-  static final Color secondary = HexColor('#5AC6AC');
-  static final Color background = HexColor('#DAFBFF');
-  static final Color pastelRed = HexColor('#F97374');
-  static final Color lightGrey = HexColor('#F3F2F6');
+  static final Color primary = HexColor('#70AF85');
+  static final Color lightBackground = HexColor('#e9edf1');
+  static final Color darkSurface = HexColor('#424242');
 }

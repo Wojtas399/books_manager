@@ -73,29 +73,29 @@ class UserRepository implements UserInterface {
   }
 
   @override
-  Future<void> updateUser({
+  Future<void> updateUserThemeSettings({
     required String userId,
     bool? isDarkModeOn,
     bool? isDarkModeCompatibilityWithSystemOn,
   }) async {
-    SyncState? syncState = SyncState.updated;
-    if (await _device.hasInternetConnection()) {
-      await _userRemoteDbService.updateUser(
-        userId: userId,
-        isDarkModeOn: isDarkModeOn,
-        isDarkModeCompatibilityWithSystemOn:
-            isDarkModeCompatibilityWithSystemOn,
-      );
-      syncState = SyncState.none;
+    final User? originalUser = await getUser(userId: userId).first;
+    if (originalUser == null) {
+      return;
     }
-    final DbUser updatedDbUser = await _userLocalDbService.updateUser(
-      userId: userId,
+    final User updatedUser = originalUser.copyWith(
       isDarkModeOn: isDarkModeOn,
       isDarkModeCompatibilityWithSystemOn: isDarkModeCompatibilityWithSystemOn,
-      syncState: syncState,
     );
-    final User updatedUser = UserMapper.mapFromDbModelToEntity(updatedDbUser);
     _updateUserInList(updatedUser);
+    try {
+      await _tryUpdateUserThemeSettings(
+        userId,
+        isDarkModeOn,
+        isDarkModeCompatibilityWithSystemOn,
+      );
+    } catch (_) {
+      _updateUserInList(originalUser);
+    }
   }
 
   @override
@@ -110,6 +110,29 @@ class UserRepository implements UserInterface {
       );
     }
     _deleteUserFromList(userId);
+  }
+
+  Future<void> _tryUpdateUserThemeSettings(
+    String userId,
+    bool? isDarkModeOn,
+    bool? isDarkModeCompatibilityWithSystemOn,
+  ) async {
+    SyncState? syncState = SyncState.updated;
+    if (await _device.hasInternetConnection()) {
+      await _userRemoteDbService.updateUser(
+        userId: userId,
+        isDarkModeOn: isDarkModeOn,
+        isDarkModeCompatibilityWithSystemOn:
+            isDarkModeCompatibilityWithSystemOn,
+      );
+      syncState = SyncState.none;
+    }
+    await _userLocalDbService.updateUser(
+      userId: userId,
+      isDarkModeOn: isDarkModeOn,
+      isDarkModeCompatibilityWithSystemOn: isDarkModeCompatibilityWithSystemOn,
+      syncState: syncState,
+    );
   }
 
   void _addUserToList(User user) {

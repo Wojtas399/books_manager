@@ -13,6 +13,7 @@ class BookPreviewActionsIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color? iconColor = Theme.of(context).textTheme.bodyText1?.color;
     return Padding(
       padding: const EdgeInsets.only(right: 4),
       child: PopupMenuButton(
@@ -23,20 +24,20 @@ class BookPreviewActionsIcon extends StatelessWidget {
             PopupMenuItem(
               value: editAction,
               child: Row(
-                children: const [
-                  Icon(MdiIcons.pencil),
-                  SizedBox(width: 8),
-                  Text('Edytuj'),
+                children: [
+                  Icon(MdiIcons.pencil, color: iconColor),
+                  const SizedBox(width: 8),
+                  const Text('Edytuj'),
                 ],
               ),
             ),
             PopupMenuItem(
               value: deleteAction,
               child: Row(
-                children: const [
-                  Icon(MdiIcons.delete),
-                  SizedBox(width: 8),
-                  Text('Usuń'),
+                children: [
+                  Icon(MdiIcons.delete, color: iconColor),
+                  const SizedBox(width: 8),
+                  const Text('Usuń'),
                 ],
               ),
             ),

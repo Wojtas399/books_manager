@@ -87,6 +87,7 @@ class _Content extends StatelessWidget {
           placeholder: placeholder,
           keyboardType: keyboardType,
           controller: controller,
+          style: CupertinoTheme.of(context).textTheme.textStyle,
         ),
       ],
     );

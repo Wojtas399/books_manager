@@ -7,6 +7,7 @@ import 'package:app/features/home/bloc/home_bloc.dart';
 import 'package:app/features/home/components/home_loading_screen.dart';
 import 'package:app/features/home/components/home_provider.dart';
 import 'package:app/features/home/components/home_router.dart';
+import 'package:app/features/home/components/home_user_settings_listener.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,7 +19,9 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return const HomeProvider(
       child: _HomeBlocProvider(
-        child: _HomeView(),
+        child: HomeUserSettingsListener(
+          child: _HomeView(),
+        ),
       ),
     );
   }

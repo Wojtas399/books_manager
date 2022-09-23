@@ -1,12 +1,9 @@
-import 'package:app/domain/interfaces/book_interface.dart';
-import 'package:app/domain/interfaces/user_interface.dart';
 import 'package:app/domain/use_cases/initialize_user_data_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockUserInterface extends Mock implements UserInterface {}
-
-class MockBookInterface extends Mock implements BookInterface {}
+import '../../mocks/interfaces/mock_book_interface.dart';
+import '../../mocks/interfaces/mock_user_interface.dart';
 
 void main() {
   final userInterface = MockUserInterface();
@@ -17,15 +14,12 @@ void main() {
   );
 
   test(
-    'should call methods responsible for refreshing user and his books',
+    'should call methods responsible for refreshing user and his books and should call method responsible for loading user data',
     () async {
       const String userId = 'u1';
-      when(
-        () => userInterface.refreshUser(userId: userId),
-      ).thenAnswer((_) async => '');
-      when(
-        () => bookInterface.refreshUserBooks(userId: userId),
-      ).thenAnswer((_) async => '');
+      userInterface.mockRefreshUser();
+      bookInterface.mockRefreshUserBooks();
+      userInterface.mockLoadUser();
 
       await useCase.execute(userId: userId);
 
@@ -34,6 +28,9 @@ void main() {
       ).called(1);
       verify(
         () => bookInterface.refreshUserBooks(userId: userId),
+      ).called(1);
+      verify(
+        () => userInterface.loadUser(userId: userId),
       ).called(1);
     },
   );

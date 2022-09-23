@@ -1,24 +1,24 @@
+import 'package:app/components/on_tap_focus_lose_area_component.dart';
+import 'package:app/config/navigation.dart';
+import 'package:app/config/themes/app_colors.dart';
+import 'package:app/config/themes/global_material_theme.dart';
+import 'package:app/features/sign_in/bloc/sign_in_bloc.dart';
+import 'package:app/features/sign_in/components/sign_in_form_card.dart';
+import 'package:app/features/sign_in/components/sign_in_inputs.dart';
+import 'package:app/features/sign_in/components/sign_in_submit_button.dart';
+import 'package:app/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../components/on_tap_focus_lose_area_component.dart';
-import '../../../config/navigation.dart';
-import '../../../config/themes/app_colors.dart';
-import '../../../utils/utils.dart';
-import '../bloc/sign_in_bloc.dart';
-import 'sign_in_background.dart';
-import 'sign_in_form_card.dart';
-import 'sign_in_inputs.dart';
-import 'sign_in_submit_button.dart';
 
 class SignInContent extends StatelessWidget {
   const SignInContent({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SignInBackground(
-        child: SafeArea(
+    return Theme(
+      data: GlobalMaterialTheme.lightTheme,
+      child: Scaffold(
+        body: SafeArea(
           child: OnTapFocusLoseAreaComponent(
             child: Center(
               child: SingleChildScrollView(
@@ -56,7 +56,7 @@ class _Logo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 320,
+      width: 330,
       child: Image.asset('assets/images/Logo.png'),
     );
   }

@@ -38,9 +38,9 @@ class MockUserInterface extends Mock implements UserInterface {
     ).thenAnswer((_) async => '');
   }
 
-  void mockUpdateUser() {
+  void mockUpdateUserThemeSettings() {
     when(
-      () => updateUser(
+      () => updateUserThemeSettings(
         userId: any(named: 'userId'),
         isDarkModeOn: any(named: 'isDarkModeOn'),
         isDarkModeCompatibilityWithSystemOn: any(

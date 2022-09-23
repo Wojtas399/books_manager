@@ -9,12 +9,12 @@ void main() {
   final useCase = UpdateThemeSettingsUseCase(userInterface: userInterface);
 
   test(
-    'should call method responsible for updating user only with theme params',
+    'should call method responsible for updating user theme settings',
     () async {
       const String userId = 'u1';
       const bool isDarkModeOn = true;
       const bool isDarkModeCompatibilityWithSystemOn = false;
-      userInterface.mockUpdateUser();
+      userInterface.mockUpdateUserThemeSettings();
 
       useCase.execute(
         userId: userId,
@@ -24,7 +24,7 @@ void main() {
       );
 
       verify(
-        () => userInterface.updateUser(
+        () => userInterface.updateUserThemeSettings(
           userId: userId,
           isDarkModeOn: isDarkModeOn,
           isDarkModeCompatibilityWithSystemOn:

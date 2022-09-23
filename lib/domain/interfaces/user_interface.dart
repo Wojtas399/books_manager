@@ -9,7 +9,7 @@ abstract class UserInterface {
 
   Future<void> addUser({required User user});
 
-  Future<void> updateUser({
+  Future<void> updateUserThemeSettings({
     required String userId,
     bool? isDarkModeOn,
     bool? isDarkModeCompatibilityWithSystemOn,

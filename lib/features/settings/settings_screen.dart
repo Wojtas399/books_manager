@@ -14,7 +14,6 @@ import 'package:app/domain/use_cases/user/update_theme_settings_use_case.dart';
 import 'package:app/features/settings/bloc/settings_bloc.dart';
 import 'package:app/features/settings/components/settings_content.dart';
 import 'package:app/providers/device_provider.dart';
-import 'package:app/providers/theme_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -81,10 +80,6 @@ class _SettingsBlocListener extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomBlocListener<SettingsBloc, SettingsState, SettingsBlocInfo,
         SettingsBlocError>(
-      onStateChanged: (SettingsState state) => _manageSettingsState(
-        state,
-        context,
-      ),
       onCompletionInfo: (SettingsBlocInfo blocInfo) => _manageSettingsBlocInfo(
         blocInfo,
         context,
@@ -95,17 +90,6 @@ class _SettingsBlocListener extends StatelessWidget {
       ),
       child: child,
     );
-  }
-
-  void _manageSettingsState(SettingsState state, BuildContext context) {
-    final ThemeProvider themeProvider = context.read<ThemeProvider>();
-    if (state.isDarkModeCompatibilityWithSystemOn) {
-      themeProvider.turnOnSystemTheme();
-    } else if (state.isDarkModeOn) {
-      themeProvider.turnOnDarkTheme();
-    } else {
-      themeProvider.turnOnLightTheme();
-    }
   }
 
   void _manageSettingsBlocInfo(

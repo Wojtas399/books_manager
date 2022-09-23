@@ -16,5 +16,6 @@ class InitializeUserDataUseCase {
   Future<void> execute({required String userId}) async {
     await _userInterface.refreshUser(userId: userId);
     await _bookInterface.refreshUserBooks(userId: userId);
+    await _userInterface.loadUser(userId: userId);
   }
 }

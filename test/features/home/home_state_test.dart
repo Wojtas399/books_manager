@@ -9,8 +9,6 @@ void main() {
     state = const HomeState(
       status: BlocStatusInitial(),
       currentPageIndex: 0,
-      isDarkModeOn: false,
-      isDarkModeCompatibilityWithSystemOn: false,
     );
   });
 
@@ -37,34 +35,6 @@ void main() {
 
       expect(state.currentPageIndex, expectedIndex);
       expect(state2.currentPageIndex, expectedIndex);
-    },
-  );
-
-  test(
-    'copy with is dark mode on',
-    () {
-      const bool expectedValue = true;
-
-      state = state.copyWith(isDarkModeOn: expectedValue);
-      final state2 = state.copyWith();
-
-      expect(state.isDarkModeOn, expectedValue);
-      expect(state2.isDarkModeOn, expectedValue);
-    },
-  );
-
-  test(
-    'copy with is dark mode compatibility with system on',
-    () {
-      const bool expectedValue = true;
-
-      state = state.copyWith(
-        isDarkModeCompatibilityWithSystemOn: expectedValue,
-      );
-      final state2 = state.copyWith();
-
-      expect(state.isDarkModeCompatibilityWithSystemOn, expectedValue);
-      expect(state2.isDarkModeCompatibilityWithSystemOn, expectedValue);
     },
   );
 }

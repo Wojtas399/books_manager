@@ -9,6 +9,12 @@ abstract class UserInterface {
 
   Future<void> addUser({required User user});
 
+  Future<void> addReadPagesForUser({
+    required String userId,
+    required String bookId,
+    required int readPagesAmount,
+  });
+
   Future<void> updateUserThemeSettings({
     required String userId,
     bool? isDarkModeOn,

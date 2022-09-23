@@ -73,6 +73,16 @@ class UserRepository implements UserInterface {
   }
 
   @override
+  Future<void> addReadPagesForUser({
+    required String userId,
+    required String bookId,
+    required int readPagesAmount,
+  }) async {
+    throw UnimplementedError();
+    //TODO: implement method
+  }
+
+  @override
   Future<void> updateUserThemeSettings({
     required String userId,
     bool? isDarkModeOn,

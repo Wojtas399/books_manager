@@ -181,7 +181,7 @@ void main() {
   );
 
   blocTest(
-    'switch dark mode, should update dark mode status in state and should call use case responsible for updating theme settings',
+    'switch dark mode, should call use case responsible for updating theme settings',
     build: () => createBloc(),
     setUp: () {
       getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
@@ -192,37 +192,7 @@ void main() {
         const SettingsEventSwitchDarkMode(isSwitched: true),
       );
     },
-    expect: () => [
-      createState(
-        isDarkModeOn: true,
-      ),
-    ],
-    verify: (_) {
-      verify(
-        () => updateThemeSettingsUseCase.execute(
-          userId: 'u1',
-          isDarkModeOn: true,
-        ),
-      ).called(1);
-    },
-  );
-
-  blocTest(
-    'switch dark mode, should set previous dark mode status in state if use case responsible for updating theme settings throws error',
-    build: () => createBloc(),
-    setUp: () {
-      getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
-      updateThemeSettingsUseCase.mock(throwable: 'Error');
-    },
-    act: (SettingsBloc bloc) {
-      bloc.add(
-        const SettingsEventSwitchDarkMode(isSwitched: true),
-      );
-    },
-    expect: () => [
-      createState(isDarkModeOn: true),
-      createState(isDarkModeOn: false),
-    ],
+    expect: () => [],
     verify: (_) {
       verify(
         () => updateThemeSettingsUseCase.execute(
@@ -262,7 +232,7 @@ void main() {
   );
 
   blocTest(
-    'switch dark mode compatibility with system, should update dark mode compatibility with system status in state and should call use case responsible for updating theme settings',
+    'switch dark mode compatibility with system, should call use case responsible for updating theme settings',
     build: () => createBloc(),
     setUp: () {
       getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
@@ -275,39 +245,7 @@ void main() {
         ),
       );
     },
-    expect: () => [
-      createState(
-        isDarkModeCompatibilityWithSystemOn: true,
-      ),
-    ],
-    verify: (_) {
-      verify(
-        () => updateThemeSettingsUseCase.execute(
-          userId: 'u1',
-          isDarkModeCompatibilityWithSystemOn: true,
-        ),
-      ).called(1);
-    },
-  );
-
-  blocTest(
-    'switch dark mode compatibility with system, should set previous dark mode compatibility with system status in state if use case responsible for updating theme settings throws error',
-    build: () => createBloc(),
-    setUp: () {
-      getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
-      updateThemeSettingsUseCase.mock(throwable: 'Error');
-    },
-    act: (SettingsBloc bloc) {
-      bloc.add(
-        const SettingsEventSwitchDarkModeCompatibilityWithSystem(
-          isSwitched: true,
-        ),
-      );
-    },
-    expect: () => [
-      createState(isDarkModeCompatibilityWithSystemOn: true),
-      createState(isDarkModeCompatibilityWithSystemOn: false),
-    ],
+    expect: () => [],
     verify: (_) {
       verify(
         () => updateThemeSettingsUseCase.execute(

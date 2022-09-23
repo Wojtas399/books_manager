@@ -108,20 +108,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     if (loggedUserId == null) {
       return;
     }
-    final bool previousValue = state.isDarkModeOn;
-    emit(state.copyWith(
+    await _updateThemeSettingsUseCase.execute(
+      userId: loggedUserId,
       isDarkModeOn: event.isSwitched,
-    ));
-    try {
-      await _updateThemeSettingsUseCase.execute(
-        userId: loggedUserId,
-        isDarkModeOn: event.isSwitched,
-      );
-    } catch (_) {
-      emit(state.copyWith(
-        isDarkModeOn: previousValue,
-      ));
-    }
+    );
   }
 
   Future<void> _switchDarkModeCompatibilityWithSystem(
@@ -132,20 +122,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     if (loggedUserId == null) {
       return;
     }
-    final bool previousValue = state.isDarkModeCompatibilityWithSystemOn;
-    emit(state.copyWith(
+    await _updateThemeSettingsUseCase.execute(
+      userId: loggedUserId,
       isDarkModeCompatibilityWithSystemOn: event.isSwitched,
-    ));
-    try {
-      await _updateThemeSettingsUseCase.execute(
-        userId: loggedUserId,
-        isDarkModeCompatibilityWithSystemOn: event.isSwitched,
-      );
-    } catch (error) {
-      emit(state.copyWith(
-        isDarkModeCompatibilityWithSystemOn: previousValue,
-      ));
-    }
+    );
   }
 
   Future<void> _changePassword(

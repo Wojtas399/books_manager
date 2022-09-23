@@ -101,7 +101,13 @@ class _Description extends StatelessWidget {
           Text(
             author,
             maxLines: 1,
-            style: TextStyle(color: Colors.black.withOpacity(0.5)),
+            style: TextStyle(
+              color: Theme.of(context)
+                  .textTheme
+                  .bodyText2
+                  ?.color
+                  ?.withOpacity(0.5),
+            ),
           ),
         ],
       ),

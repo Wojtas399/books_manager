@@ -15,7 +15,8 @@ class SignUpContent extends StatelessWidget {
     return CustomScaffold(
       leadingIcon: MdiIcons.close,
       appBarWithElevation: false,
-      appBarColor: AppColors.background,
+      appBarColor: AppColors.lightBackground,
+      foregroundColor: Colors.black,
       body: SafeArea(
         child: OnTapFocusLoseAreaComponent(
           child: Center(

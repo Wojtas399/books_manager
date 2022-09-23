@@ -1,3 +1,4 @@
+import 'package:app/config/themes/app_colors.dart';
 import 'package:app/features/settings/bloc/settings_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,6 +25,7 @@ class SettingsDarkMode extends StatelessWidget {
         onChanged: isDarkModeCompatibilityWithSystemOn
             ? null
             : (bool isSwitched) => _onSwitched(isSwitched, context),
+        activeColor: AppColors.primary,
       ),
     );
   }

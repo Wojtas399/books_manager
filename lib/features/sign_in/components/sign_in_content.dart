@@ -6,7 +6,6 @@ import '../../../config/navigation.dart';
 import '../../../config/themes/app_colors.dart';
 import '../../../utils/utils.dart';
 import '../bloc/sign_in_bloc.dart';
-import 'sign_in_background.dart';
 import 'sign_in_form_card.dart';
 import 'sign_in_inputs.dart';
 import 'sign_in_submit_button.dart';
@@ -17,30 +16,28 @@ class SignInContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SignInBackground(
-        child: SafeArea(
-          child: OnTapFocusLoseAreaComponent(
-            child: Center(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const _Logo(),
-                    const SizedBox(height: 32),
-                    SignInFormCard(
-                      child: Column(
-                        children: const [
-                          _Title(),
-                          SizedBox(height: 32),
-                          SignInInputs(),
-                          SizedBox(height: 32),
-                          SignInSubmitButton(),
-                          SizedBox(height: 16),
-                          _AlternativeOptions(),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
+      body: SafeArea(
+        child: OnTapFocusLoseAreaComponent(
+          child: Center(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const _Logo(),
+                  const SizedBox(height: 32),
+                  SignInFormCard(
+                    child: Column(
+                      children: const [
+                        _Title(),
+                        SizedBox(height: 32),
+                        SignInInputs(),
+                        SizedBox(height: 32),
+                        SignInSubmitButton(),
+                        SizedBox(height: 16),
+                        _AlternativeOptions(),
+                      ],
+                    ),
+                  )
+                ],
               ),
             ),
           ),

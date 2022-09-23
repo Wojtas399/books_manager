@@ -1,4 +1,3 @@
-import 'package:app/config/themes/app_colors.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -9,7 +8,7 @@ extension BookStatusExtensions on BookStatus {
       case BookStatus.unread:
         return Colors.red;
       case BookStatus.inProgress:
-        return AppColors.primary;
+        return Colors.deepOrangeAccent;
       case BookStatus.finished:
         return Colors.green;
     }

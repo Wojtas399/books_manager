@@ -4,6 +4,7 @@ import 'package:app/components/book_image_component.dart';
 import 'package:app/components/pages_progress_bar_component.dart';
 import 'package:app/config/navigation.dart';
 import 'package:app/domain/entities/book.dart';
+import 'package:app/extensions/book_status_extensions.dart';
 import 'package:flutter/material.dart';
 
 class ReadingBookItem extends StatelessWidget {
@@ -142,7 +143,10 @@ class _Pages extends StatelessWidget {
   final int readPagesAmount;
   final int allPagesAmount;
 
-  const _Pages({required this.readPagesAmount, required this.allPagesAmount});
+  const _Pages({
+    required this.readPagesAmount,
+    required this.allPagesAmount,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -153,6 +157,7 @@ class _Pages extends StatelessWidget {
         height: 20,
         borderRadius: 6,
         fontSize: 12,
+        progressBarColor: BookStatus.inProgress.toColor(),
       ),
     );
   }

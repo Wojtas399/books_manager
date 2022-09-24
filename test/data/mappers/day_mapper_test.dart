@@ -12,6 +12,7 @@ void main() {
   const String userId = 'u1';
   const String date = '22-09-2022';
   final Day entity = createDay(
+    userId: userId,
     date: DateTime(2022, 9, 22),
     booksWithReadPagesAmount: [
       createDayBook(
@@ -19,6 +20,20 @@ void main() {
         readPagesAmount: 20,
       ),
       createDayBook(
+        bookId: 'b2',
+        readPagesAmount: 100,
+      ),
+    ],
+  );
+  final DbDay dbModel = createDbDay(
+    userId: userId,
+    date: date,
+    booksWithReadPages: [
+      createDbDayBook(
+        bookId: 'b1',
+        readPagesAmount: 20,
+      ),
+      createDbDayBook(
         bookId: 'b2',
         readPagesAmount: 100,
       ),
@@ -38,20 +53,8 @@ void main() {
       readPagesAmount: 100,
     ),
   ];
-  final DbDay dbModel = createDbDay(
-    date: date,
-    booksWithReadPages: [
-      createDbDayBook(
-        bookId: 'b1',
-        readPagesAmount: 20,
-      ),
-      createDbDayBook(
-        bookId: 'b2',
-        readPagesAmount: 100,
-      ),
-    ],
-  );
   final FirebaseDay firebaseModel = createFirebaseDay(
+    userId: userId,
     date: date,
     booksWithReadPages: [
       createFirebaseDayBook(

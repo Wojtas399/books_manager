@@ -2,22 +2,28 @@ import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day_boo
 import 'package:equatable/equatable.dart';
 
 class FirebaseDay extends Equatable {
+  final String userId;
   final String date;
   final List<FirebaseDayBook> booksWithReadPages;
 
   const FirebaseDay({
+    required this.userId,
     required this.date,
     required this.booksWithReadPages,
   });
 
   @override
   List<Object> get props => [
+        userId,
         date,
         booksWithReadPages,
       ];
 
-  FirebaseDay.fromJson(Map<String, Object?> json)
-      : this(
+  FirebaseDay.fromJson({
+    required Map<String, Object?> json,
+    required String userId,
+  }) : this(
+          userId: userId,
           date: json[FirebaseDayFields.date] as String,
           booksWithReadPages:
               (json[FirebaseDayFields.booksWithReadPages] as List)
@@ -39,10 +45,12 @@ class FirebaseDayFields {
 }
 
 FirebaseDay createFirebaseDay({
+  String userId = '',
   String date = '',
   List<FirebaseDayBook> booksWithReadPages = const [],
 }) {
   return FirebaseDay(
+    userId: userId,
     date: date,
     booksWithReadPages: booksWithReadPages,
   );

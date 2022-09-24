@@ -26,7 +26,10 @@ class FirebaseUser extends Equatable {
           daysOfReading: (json[FirebaseUserFields.daysOfReading]
                   as List<Map<String, Object?>>)
               .map(
-                (Map<String, Object?> dayJson) => FirebaseDay.fromJson(dayJson),
+                (Map<String, Object?> dayJson) => FirebaseDay.fromJson(
+                  json: dayJson,
+                  userId: userId,
+                ),
               )
               .toList(),
         );

@@ -9,6 +9,7 @@ import 'package:app/domain/entities/day.dart';
 class DayMapper {
   static DbDay mapFromEntityToDbModel(Day day) {
     return DbDay(
+      userId: day.userId,
       date: DateMapper.mapFromDateTimeToString(day.date),
       booksWithReadPages: day.booksWithReadPagesAmount
           .map(DayBookMapper.mapFromEntityToDbModel)
@@ -18,6 +19,7 @@ class DayMapper {
 
   static Day mapFromDbModelToEntity(DbDay dbDay) {
     return Day(
+      userId: dbDay.userId,
       date: DateMapper.mapFromStringToDateTime(dbDay.date),
       booksWithReadPagesAmount: dbDay.booksWithReadPages
           .map(DayBookMapper.mapFromDbModelToEntity)
@@ -44,6 +46,7 @@ class DayMapper {
     List<SqliteDayBook> listOfSqliteDayBook,
   ) {
     return DbDay(
+      userId: listOfSqliteDayBook.first.userId,
       date: listOfSqliteDayBook.first.date,
       booksWithReadPages: listOfSqliteDayBook
           .map(DayBookMapper.mapFromSqliteModelToDbModel)
@@ -53,6 +56,7 @@ class DayMapper {
 
   static DbDay mapFromFirebaseModelToDbModel(FirebaseDay firebaseDay) {
     return DbDay(
+      userId: firebaseDay.userId,
       date: firebaseDay.date,
       booksWithReadPages: firebaseDay.booksWithReadPages
           .map(DayBookMapper.mapFromFirebaseModelToDbModel)
@@ -62,6 +66,7 @@ class DayMapper {
 
   static FirebaseDay mapFromDbModelToFirebaseModel(DbDay dbDay) {
     return FirebaseDay(
+      userId: dbDay.userId,
       date: dbDay.date,
       booksWithReadPages: dbDay.booksWithReadPages
           .map(DayBookMapper.mapFromDbModelToFirebaseModel)

@@ -21,4 +21,8 @@ class Utils {
     }
     return base64Encode(data);
   }
+
+  static String twoDigits(int number) {
+    return number.toString().padLeft(2, '0');
+  }
 }

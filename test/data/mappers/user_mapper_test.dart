@@ -1,5 +1,6 @@
 import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_user.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
+import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_user.dart';
 import 'package:app/data/mappers/user_mapper.dart';
 import 'package:app/data/models/db_user.dart';
@@ -31,6 +32,7 @@ void main() {
     id: userId,
     isDarkModeOn: isDarkModeOn,
     isDarkModeCompatibilityWithSystemOn: isDarkModeCompatibilityWithSystemOn,
+    daysOfReading: [],
   );
 
   test(
@@ -84,12 +86,32 @@ void main() {
   );
 
   test(
-    'map from db model to firebase model',
+    'map from db model to firebase model, without days of reading',
     () {
       final FirebaseUser mappedFirebaseModel =
-          UserMapper.mapFromDbModelToFirebaseModel(dbModel);
+          UserMapper.mapFromDbModelToFirebaseModel(dbUser: dbModel);
 
       expect(mappedFirebaseModel, firebaseModel);
+    },
+  );
+
+  test(
+    'map from db model to firebase model, with days of reading',
+    () {
+      final List<FirebaseDay> firebaseDays = [
+        createFirebaseDay(date: '22-09-2022'),
+        createFirebaseDay(date: '20-09-2022'),
+      ];
+      final FirebaseUser mappedFirebaseModel =
+          UserMapper.mapFromDbModelToFirebaseModel(
+        dbUser: dbModel,
+        daysOfReading: firebaseDays,
+      );
+
+      expect(
+        mappedFirebaseModel,
+        firebaseModel.copyWith(daysOfReading: firebaseDays),
+      );
     },
   );
 }

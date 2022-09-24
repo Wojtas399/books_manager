@@ -1,14 +1,17 @@
+import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day.dart';
 import 'package:equatable/equatable.dart';
 
 class FirebaseUser extends Equatable {
   final String id;
   final bool isDarkModeOn;
   final bool isDarkModeCompatibilityWithSystemOn;
+  final List<FirebaseDay> daysOfReading;
 
   const FirebaseUser({
     required this.id,
     required this.isDarkModeOn,
     required this.isDarkModeCompatibilityWithSystemOn,
+    required this.daysOfReading,
   });
 
   FirebaseUser.fromJson({
@@ -20,6 +23,12 @@ class FirebaseUser extends Equatable {
           isDarkModeCompatibilityWithSystemOn:
               json[FirebaseUserFields.isDarkModeCompatibilityWithSystemOn]
                   as bool,
+          daysOfReading: (json[FirebaseUserFields.daysOfReading]
+                  as List<Map<String, Object?>>)
+              .map(
+                (Map<String, Object?> dayJson) => FirebaseDay.fromJson(dayJson),
+              )
+              .toList(),
         );
 
   @override
@@ -27,17 +36,22 @@ class FirebaseUser extends Equatable {
         id,
         isDarkModeOn,
         isDarkModeCompatibilityWithSystemOn,
+        daysOfReading,
       ];
 
   Map<String, Object?> toJson() => {
         FirebaseUserFields.isDarkModeOn: isDarkModeOn,
         FirebaseUserFields.isDarkModeCompatibilityWithSystemOn:
             isDarkModeCompatibilityWithSystemOn,
+        FirebaseUserFields.daysOfReading: daysOfReading.map(
+          (FirebaseDay day) => day.toJson(),
+        ),
       };
 
   FirebaseUser copyWith({
     bool? isDarkModeOn,
     bool? isDarkModeCompatibilityWithSystemOn,
+    List<FirebaseDay>? daysOfReading,
   }) {
     return FirebaseUser(
       id: id,
@@ -45,6 +59,7 @@ class FirebaseUser extends Equatable {
       isDarkModeCompatibilityWithSystemOn:
           isDarkModeCompatibilityWithSystemOn ??
               this.isDarkModeCompatibilityWithSystemOn,
+      daysOfReading: daysOfReading ?? this.daysOfReading,
     );
   }
 }
@@ -53,16 +68,19 @@ class FirebaseUserFields {
   static const String isDarkModeOn = 'isDarkModeOn';
   static const String isDarkModeCompatibilityWithSystemOn =
       'isDarkModeCompatibilityWithSystemOn';
+  static const String daysOfReading = 'daysOfReading';
 }
 
 FirebaseUser createFirebaseUser({
   String id = '',
   bool isDarkModeOn = false,
   bool isDarkModeCompatibilityWithSystemOn = false,
+  List<FirebaseDay> daysOfReading = const [],
 }) {
   return FirebaseUser(
     id: id,
     isDarkModeOn: isDarkModeOn,
     isDarkModeCompatibilityWithSystemOn: isDarkModeCompatibilityWithSystemOn,
+    daysOfReading: daysOfReading,
   );
 }

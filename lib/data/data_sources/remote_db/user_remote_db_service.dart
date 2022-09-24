@@ -20,7 +20,7 @@ class UserRemoteDbService {
 
   Future<void> addUser({required DbUser dbUser}) async {
     final FirebaseUser firebaseUser =
-        UserMapper.mapFromDbModelToFirebaseModel(dbUser);
+        UserMapper.mapFromDbModelToFirebaseModel(dbUser: dbUser);
     await _firebaseFirestoreUserService.addUser(firebaseUser: firebaseUser);
   }
 

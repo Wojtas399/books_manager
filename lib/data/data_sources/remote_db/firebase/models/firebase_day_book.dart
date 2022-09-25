@@ -25,6 +25,16 @@ class FirebaseDayBook extends Equatable {
         FirebaseDayBookFields.bookId: bookId,
         FirebaseDayBookFields.readPagesAmount: readPagesAmount,
       };
+
+  FirebaseDayBook copyWith({
+    String? bookId,
+    int? readPagesAmount,
+  }) {
+    return FirebaseDayBook(
+      bookId: bookId ?? this.bookId,
+      readPagesAmount: readPagesAmount ?? this.readPagesAmount,
+    );
+  }
 }
 
 class FirebaseDayBookFields {

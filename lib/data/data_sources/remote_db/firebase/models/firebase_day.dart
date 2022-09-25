@@ -37,6 +37,18 @@ class FirebaseDay extends Equatable {
           (FirebaseDayBook dayBook) => dayBook.toJson(),
         ),
       };
+
+  FirebaseDay copyWith({
+    String? userId,
+    String? date,
+    List<FirebaseDayBook>? booksWithReadPages,
+  }) {
+    return FirebaseDay(
+      userId: userId ?? this.userId,
+      date: date ?? this.date,
+      booksWithReadPages: booksWithReadPages ?? this.booksWithReadPages,
+    );
+  }
 }
 
 class FirebaseDayFields {

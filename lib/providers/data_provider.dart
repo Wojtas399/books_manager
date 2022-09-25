@@ -21,6 +21,7 @@ import 'package:app/data/synchronizers/user_synchronizer.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/interfaces/user_interface.dart';
+import 'package:app/providers/date_provider.dart';
 import 'package:app/providers/device_provider.dart';
 
 class DataProvider {
@@ -69,6 +70,7 @@ class DataProvider {
   static UserRemoteDbService _provideUserRemoteDbService() {
     return UserRemoteDbService(
       firebaseFirestoreUserService: FirebaseFirestoreUserService(),
+      dateProvider: DateProvider(),
     );
   }
 

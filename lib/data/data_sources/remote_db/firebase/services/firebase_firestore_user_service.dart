@@ -1,4 +1,5 @@
 import 'package:app/data/data_sources/remote_db/firebase/firebase_references.dart';
+import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -22,6 +23,7 @@ class FirebaseFirestoreUserService {
     required String userId,
     bool? isDarkModeOn,
     bool? isDarkModeCompatibilityWithSystemOn,
+    List<FirebaseDay>? daysOfReading,
   }) async {
     final DocumentReference<FirebaseUser> docRef = _getUserRef(userId);
     final DocumentSnapshot<FirebaseUser> docSnapshot = await docRef.get();
@@ -31,6 +33,7 @@ class FirebaseFirestoreUserService {
         isDarkModeOn: isDarkModeOn,
         isDarkModeCompatibilityWithSystemOn:
             isDarkModeCompatibilityWithSystemOn,
+        daysOfReading: daysOfReading,
       );
       await docRef.set(updatedFirebaseUser);
     } else {

@@ -1,4 +1,4 @@
-import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_day_book.dart';
+import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_read_pages.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day_book.dart';
 import 'package:app/data/mappers/day_book_mapper.dart';
 import 'package:app/data/models/db_day_book.dart';
@@ -18,7 +18,7 @@ void main() {
     bookId: bookId,
     readPagesAmount: readPagesAmount,
   );
-  const SqliteDayBook sqliteModel = SqliteDayBook(
+  const SqliteReadPages sqliteModel = SqliteReadPages(
     userId: userId,
     date: date,
     bookId: bookId,
@@ -52,7 +52,7 @@ void main() {
   test(
     'map from db model to sqlite model',
     () {
-      final SqliteDayBook mappedSqliteModel =
+      final SqliteReadPages mappedSqliteModel =
           DayBookMapper.mapFromDbModelToSqliteModel(
         dbDayBook: dbModel,
         userId: userId,

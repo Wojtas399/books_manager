@@ -1,4 +1,4 @@
-import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_day_book.dart';
+import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_read_pages.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day.dart';
 import 'package:app/data/mappers/date_mapper.dart';
 import 'package:app/data/mappers/day_book_mapper.dart';
@@ -27,7 +27,7 @@ class DayMapper {
     );
   }
 
-  static List<SqliteDayBook> mapFromDbModelToListOfSqliteModels({
+  static List<SqliteReadPages> mapFromDbModelToListOfSqliteModels({
     required DbDay dbDay,
     required String userId,
   }) {
@@ -43,7 +43,7 @@ class DayMapper {
   }
 
   static DbDay mapFromListOfSqliteModelToDbModel(
-    List<SqliteDayBook> listOfSqliteDayBook,
+    List<SqliteReadPages> listOfSqliteDayBook,
   ) {
     return DbDay(
       userId: listOfSqliteDayBook.first.userId,

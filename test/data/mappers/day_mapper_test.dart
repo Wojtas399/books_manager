@@ -1,4 +1,4 @@
-import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_day_book.dart';
+import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_read_pages.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day_book.dart';
 import 'package:app/data/mappers/day_mapper.dart';
@@ -39,14 +39,14 @@ void main() {
       ),
     ],
   );
-  final List<SqliteDayBook> sqliteDayBookModels = [
-    createSqliteDayBook(
+  final List<SqliteReadPages> sqliteReadPagesModels = [
+    createSqliteReadPages(
       userId: userId,
       date: '22-09-2022',
       bookId: 'b1',
       readPagesAmount: 20,
     ),
-    createSqliteDayBook(
+    createSqliteReadPages(
       userId: userId,
       date: '22-09-2022',
       bookId: 'b2',
@@ -89,13 +89,13 @@ void main() {
   test(
     'map from db model to list of sqlite models',
     () {
-      final List<SqliteDayBook> mappedSqliteDayBookModels =
+      final List<SqliteReadPages> mappedSqliteReadPagesModels =
           DayMapper.mapFromDbModelToListOfSqliteModels(
         dbDay: dbModel,
         userId: userId,
       );
 
-      expect(mappedSqliteDayBookModels, sqliteDayBookModels);
+      expect(mappedSqliteReadPagesModels, sqliteReadPagesModels);
     },
   );
 
@@ -103,7 +103,7 @@ void main() {
     'map from list of sqlite models to db model',
     () {
       final DbDay mappedDbModel = DayMapper.mapFromListOfSqliteModelToDbModel(
-        sqliteDayBookModels,
+        sqliteReadPagesModels,
       );
 
       expect(mappedDbModel, dbModel);

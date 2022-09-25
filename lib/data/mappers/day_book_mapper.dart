@@ -1,4 +1,4 @@
-import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_day_book.dart';
+import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_read_pages.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day_book.dart';
 import 'package:app/data/models/db_day_book.dart';
 import 'package:app/domain/entities/day_book.dart';
@@ -18,12 +18,12 @@ class DayBookMapper {
     );
   }
 
-  static SqliteDayBook mapFromDbModelToSqliteModel({
+  static SqliteReadPages mapFromDbModelToSqliteModel({
     required DbDayBook dbDayBook,
     required String userId,
     required String date,
   }) {
-    return SqliteDayBook(
+    return SqliteReadPages(
       userId: userId,
       date: date,
       bookId: dbDayBook.bookId,
@@ -31,10 +31,12 @@ class DayBookMapper {
     );
   }
 
-  static DbDayBook mapFromSqliteModelToDbModel(SqliteDayBook sqliteDayBook) {
+  static DbDayBook mapFromSqliteModelToDbModel(
+    SqliteReadPages sqliteReadPages,
+  ) {
     return DbDayBook(
-      bookId: sqliteDayBook.bookId,
-      readPagesAmount: sqliteDayBook.readPagesAmount,
+      bookId: sqliteReadPages.bookId,
+      readPagesAmount: sqliteReadPages.readPagesAmount,
     );
   }
 

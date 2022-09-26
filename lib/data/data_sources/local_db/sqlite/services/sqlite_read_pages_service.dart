@@ -13,27 +13,56 @@ class SqliteReadPagesService {
     )
   ''';
 
-  Future<List<SqliteReadPages>> loadReadPagesByUserId({
+  Future<SqliteReadPages?> loadReadPages({
+    required String userId,
+    required String date,
+    required String bookId,
+  }) async {
+    final List<Map<String, Object?>> jsons = await _queryUserReadPages(
+      userId: userId,
+      date: date,
+      bookId: bookId,
+    );
+    if (jsons.isNotEmpty) {
+      return SqliteReadPages.fromJson(jsons.first);
+    } else {
+      return null;
+    }
+  }
+
+  Future<List<SqliteReadPages>> loadListOfReadPagesByUserId({
     required String userId,
   }) async {
     final List<Map<String, Object?>> jsons =
-        await _queryReadPagesByUserId(userId);
+        await _queryUserReadPages(userId: userId);
     return jsons.map(SqliteReadPages.fromJson).toList();
   }
 
-  Future<void> addReadPages({required SqliteReadPages readPages}) async {
-    await _insertReadPages(readPages);
+  Future<void> addReadPages({required SqliteReadPages sqliteReadPages}) async {
+    await _insertReadPages(sqliteReadPages);
   }
 
-  Future<List<Map<String, Object?>>> _queryReadPagesByUserId(
-    String userId,
-  ) async {
+  Future<void> updateReadPages({
+    required SqliteReadPages updatedReadPages,
+  }) async {
+    await _updateReadPages(updatedReadPages);
+  }
+
+  Future<List<Map<String, Object?>>> _queryUserReadPages({
+    required String userId,
+    String? date,
+    String? bookId,
+  }) async {
     final Database database = await SqliteDatabase.instance.database;
-    return await database.query(
-      SqliteTables.readPagesTable,
-      where: '${SqliteReadPagesFields.userId} = ?',
-      whereArgs: [userId],
-    );
+    String query = 'SELECT * FROM ${SqliteTables.readPagesTable}';
+    query += " WHERE ${SqliteReadPagesFields.userId} = '$userId'";
+    if (date != null) {
+      query += " AND ${SqliteReadPagesFields.date} = '$date'";
+    }
+    if (bookId != null) {
+      query += " AND ${SqliteReadPagesFields.bookId} = '$bookId'";
+    }
+    return await database.rawQuery(query);
   }
 
   Future<void> _insertReadPages(SqliteReadPages readPages) async {
@@ -41,6 +70,21 @@ class SqliteReadPagesService {
     await database.insert(
       SqliteTables.readPagesTable,
       readPages.toJson(),
+    );
+  }
+
+  Future<void> _updateReadPages(SqliteReadPages updatedReadPages) async {
+    final Database database = await SqliteDatabase.instance.database;
+    await database.update(
+      SqliteTables.readPagesTable,
+      updatedReadPages.toJson(),
+      where:
+          '${SqliteReadPagesFields.userId} = ? AND ${SqliteReadPagesFields.bookId} = ? AND ${SqliteReadPagesFields.date} = ?',
+      whereArgs: [
+        updatedReadPages.userId,
+        updatedReadPages.date,
+        updatedReadPages.bookId,
+      ],
     );
   }
 }

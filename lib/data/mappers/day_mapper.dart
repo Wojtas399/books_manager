@@ -42,7 +42,7 @@ class DayMapper {
         .toList();
   }
 
-  static DbDay mapFromListOfSqliteModelToDbModel(
+  static DbDay mapFromListOfSqliteModelsToDbModel(
     List<SqliteReadPages> listOfSqliteDayBook,
   ) {
     return DbDay(

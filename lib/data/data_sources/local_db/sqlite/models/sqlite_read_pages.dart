@@ -35,6 +35,15 @@ class SqliteReadPages extends Equatable {
         SqliteReadPagesFields.bookId: bookId,
         SqliteReadPagesFields.readPagesAmount: readPagesAmount,
       };
+
+  SqliteReadPages copyWithReadPagesAmount(int? newReadPagesAmount) {
+    return SqliteReadPages(
+      userId: userId,
+      date: date,
+      bookId: bookId,
+      readPagesAmount: newReadPagesAmount ?? readPagesAmount,
+    );
+  }
 }
 
 class SqliteReadPagesFields {

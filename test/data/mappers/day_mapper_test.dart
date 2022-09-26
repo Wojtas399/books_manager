@@ -102,7 +102,7 @@ void main() {
   test(
     'map from list of sqlite models to db model',
     () {
-      final DbDay mappedDbModel = DayMapper.mapFromListOfSqliteModelToDbModel(
+      final DbDay mappedDbModel = DayMapper.mapFromListOfSqliteModelsToDbModel(
         sqliteReadPagesModels,
       );
 

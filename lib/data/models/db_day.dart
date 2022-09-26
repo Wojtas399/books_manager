@@ -18,6 +18,18 @@ class DbDay extends Equatable {
         date,
         booksWithReadPages,
       ];
+
+  DbDay copyWith({
+    String? userId,
+    String? date,
+    List<DbDayBook>? booksWithReadPages,
+  }) {
+    return DbDay(
+      userId: userId ?? this.userId,
+      date: date ?? this.date,
+      booksWithReadPages: booksWithReadPages ?? this.booksWithReadPages,
+    );
+  }
 }
 
 DbDay createDbDay({

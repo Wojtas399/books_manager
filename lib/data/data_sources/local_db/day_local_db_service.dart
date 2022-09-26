@@ -21,8 +21,8 @@ class DayLocalDbService {
   }
 
   Future<List<DbDay>> loadUserDays({required String userId}) async {
-    final List<SqliteReadPages> listOfReadPages = await _sqliteReadPagesService
-        .loadListOfReadPagesByUserId(userId: userId);
+    final List<SqliteReadPages> listOfReadPages =
+        await _loadListOfUserReadPages(userId: userId);
     return _segregateListOfReadPagesIntoDbDays(listOfReadPages);
   }
 
@@ -32,26 +32,40 @@ class DayLocalDbService {
     required int readPagesAmount,
   }) async {
     final String todayDateStr = _getNowAsStr();
-    SqliteReadPages? sqliteReadPages =
-        await _sqliteReadPagesService.loadReadPages(
-      userId: userId,
-      date: todayDateStr,
-      bookId: bookId,
-    );
-    if (sqliteReadPages == null) {
-      sqliteReadPages = await _addNewReadPages(
+    final List<SqliteReadPages> readPagesFromToday =
+        await _loadListOfUserReadPages(userId: userId, date: todayDateStr);
+    final List<String> booksIds = readPagesFromToday
+        .map((SqliteReadPages sqliteReadPages) => sqliteReadPages.bookId)
+        .toList();
+    if (booksIds.contains(bookId)) {
+      final int todayBookReadPagesIndex = readPagesFromToday.indexWhere(
+        (SqliteReadPages sqliteReadPages) => sqliteReadPages.bookId == bookId,
+      );
+      final SqliteReadPages updatedSqliteReadPages = await _updateReadPages(
+        sqliteReadPages: readPagesFromToday[todayBookReadPagesIndex],
+        readPagesAmountToAdd: readPagesAmount,
+      );
+      readPagesFromToday[todayBookReadPagesIndex] = updatedSqliteReadPages;
+    } else {
+      final SqliteReadPages addedSqliteReadPages = await _addNewReadPages(
         userId: userId,
         date: todayDateStr,
         bookId: bookId,
         readPagesAmount: readPagesAmount,
       );
-    } else {
-      sqliteReadPages = await _updateReadPages(
-        sqliteReadPages: sqliteReadPages,
-        readPagesAmountToAdd: readPagesAmount,
-      );
+      readPagesFromToday.add(addedSqliteReadPages);
     }
-    return _createDbDayFromSqliteReadPages(sqliteReadPages);
+    return DayMapper.mapFromListOfSqliteModelsToDbModel(readPagesFromToday);
+  }
+
+  Future<List<SqliteReadPages>> _loadListOfUserReadPages({
+    required String userId,
+    String? date,
+  }) async {
+    return await _sqliteReadPagesService.loadListOfUserReadPages(
+      userId: userId,
+      date: date,
+    );
   }
 
   List<DbDay> _segregateListOfReadPagesIntoDbDays(
@@ -79,6 +93,20 @@ class DayLocalDbService {
     return dbDays;
   }
 
+  Future<SqliteReadPages> _updateReadPages({
+    required SqliteReadPages sqliteReadPages,
+    required int readPagesAmountToAdd,
+  }) async {
+    final int readPagesAmount = sqliteReadPages.readPagesAmount;
+    final int newReadPagesAmount = readPagesAmount + readPagesAmountToAdd;
+    final SqliteReadPages updatedReadPages =
+        sqliteReadPages.copyWithReadPagesAmount(newReadPagesAmount);
+    await _sqliteReadPagesService.updateReadPages(
+      updatedReadPages: updatedReadPages,
+    );
+    return updatedReadPages;
+  }
+
   Future<SqliteReadPages> _addNewReadPages({
     required String userId,
     required String date,
@@ -95,18 +123,8 @@ class DayLocalDbService {
     return newReadPages;
   }
 
-  Future<SqliteReadPages> _updateReadPages({
-    required SqliteReadPages sqliteReadPages,
-    required int readPagesAmountToAdd,
-  }) async {
-    final int readPagesAmount = sqliteReadPages.readPagesAmount;
-    final int newReadPagesAmount = readPagesAmount + readPagesAmountToAdd;
-    final SqliteReadPages updatedReadPages =
-        sqliteReadPages.copyWithReadPagesAmount(newReadPagesAmount);
-    await _sqliteReadPagesService.updateReadPages(
-      updatedReadPages: updatedReadPages,
-    );
-    return updatedReadPages;
+  String _getNowAsStr() {
+    return DateMapper.mapFromDateTimeToString(_dateProvider.getNow());
   }
 
   DbDay _createDbDayFromSqliteReadPages(SqliteReadPages sqliteReadPages) {
@@ -117,9 +135,5 @@ class DayLocalDbService {
     SqliteReadPages sqliteReadPages,
   ) {
     return DayBookMapper.mapFromSqliteModelToDbModel(sqliteReadPages);
-  }
-
-  String _getNowAsStr() {
-    return DateMapper.mapFromDateTimeToString(_dateProvider.getNow());
   }
 }

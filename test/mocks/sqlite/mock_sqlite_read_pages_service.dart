@@ -6,24 +6,15 @@ class FakeSqliteReadPages extends Fake implements SqliteReadPages {}
 
 class MockSqliteReadPagesService extends Mock
     implements SqliteReadPagesService {
-  void mockLoadReadPages({SqliteReadPages? sqliteReadPages}) {
-    when(
-      () => loadReadPages(
-        userId: any(named: 'userId'),
-        date: any(named: 'date'),
-        bookId: any(named: 'bookId'),
-      ),
-    ).thenAnswer((_) async => sqliteReadPages);
-  }
-
-  void mockLoadListOfReadPagesByUserId({
-    required List<SqliteReadPages> listOfSqliteReadPages,
+  void mockLoadListOfUserReadPages({
+    required List<SqliteReadPages> listOfUserReadPages,
   }) async {
     when(
-      () => loadListOfReadPagesByUserId(
+      () => loadListOfUserReadPages(
         userId: any(named: 'userId'),
+        date: any(named: 'date'),
       ),
-    ).thenAnswer((_) async => listOfSqliteReadPages);
+    ).thenAnswer((_) async => listOfUserReadPages);
   }
 
   void mockAddReadPages() {

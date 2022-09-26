@@ -91,8 +91,8 @@ void main() {
           ],
         ),
       ];
-      sqliteReadPagesService.mockLoadListOfReadPagesByUserId(
-        listOfSqliteReadPages: listOfSqliteReadPages,
+      sqliteReadPagesService.mockLoadListOfUserReadPages(
+        listOfUserReadPages: listOfSqliteReadPages,
       );
 
       final List<DbDay> dbDays = await service.loadUserDays(userId: userId);
@@ -110,24 +110,45 @@ void main() {
       final DateTime todayDate = DateTime(2022, 9, 23);
       final String todayDateStr = mapDateTimeToString(todayDate);
 
+      setUp(() {
+        dateProvider.mockGetNow(nowDateTime: todayDate);
+      });
+
       test(
-        'read pages for given book and today date does not exist in sqlite db, should add new read pages',
+        'book has not been read today, should add new read pages and should return db day with all read books',
         () async {
-          final SqliteReadPages newReadPages = SqliteReadPages(
+          final SqliteReadPages readPagesToAdd = createSqliteReadPages(
             userId: userId,
-            date: todayDateStr,
             bookId: bookId,
+            date: todayDateStr,
             readPagesAmount: readPagesAmount,
           );
+          final List<SqliteReadPages> userReadPagesFromToday = [
+            createSqliteReadPages(
+              userId: userId,
+              bookId: 'b2',
+              date: todayDateStr,
+              readPagesAmount: 100,
+            ),
+            createSqliteReadPages(
+              userId: userId,
+              bookId: 'b3',
+              date: todayDateStr,
+              readPagesAmount: 40,
+            ),
+          ];
           final DbDay expectedDbDay = createDbDay(
             userId: userId,
             date: todayDateStr,
             booksWithReadPages: [
+              createDbDayBook(bookId: 'b2', readPagesAmount: 100),
+              createDbDayBook(bookId: 'b3', readPagesAmount: 40),
               createDbDayBook(bookId: bookId, readPagesAmount: readPagesAmount),
             ],
           );
-          dateProvider.mockGetNow(nowDateTime: todayDate);
-          sqliteReadPagesService.mockLoadReadPages();
+          sqliteReadPagesService.mockLoadListOfUserReadPages(
+            listOfUserReadPages: userReadPagesFromToday,
+          );
           sqliteReadPagesService.mockAddReadPages();
 
           final DbDay dbDay = await service.addReadPagesForUser(
@@ -138,7 +159,7 @@ void main() {
 
           verify(
             () => sqliteReadPagesService.addReadPages(
-              sqliteReadPages: newReadPages,
+              sqliteReadPages: readPagesToAdd,
             ),
           ).called(1);
           expect(dbDay, expectedDbDay);
@@ -146,26 +167,37 @@ void main() {
       );
 
       test(
-        'read pages for given book and today date exists in sqlite db, should update read pages',
+        'book has been read today, should update read pages and should return db day with all read pages',
         () async {
-          final SqliteReadPages readPages = SqliteReadPages(
+          final SqliteReadPages bookReadPages = createSqliteReadPages(
             userId: userId,
             date: todayDateStr,
             bookId: bookId,
             readPagesAmount: 100,
           );
-          final int newAmount = readPages.readPagesAmount + readPagesAmount;
+          final List<SqliteReadPages> userReadPagesFromToday = [
+            bookReadPages,
+            createSqliteReadPages(
+              userId: userId,
+              date: todayDateStr,
+              bookId: 'b2',
+              readPagesAmount: 40,
+            ),
+          ];
+          final int newAmount = bookReadPages.readPagesAmount + readPagesAmount;
           final SqliteReadPages updatedReadPages =
-              readPages.copyWithReadPagesAmount(newAmount);
+              bookReadPages.copyWithReadPagesAmount(newAmount);
           final DbDay expectedDbDay = createDbDay(
             userId: userId,
             date: todayDateStr,
             booksWithReadPages: [
               createDbDayBook(bookId: bookId, readPagesAmount: newAmount),
+              createDbDayBook(bookId: 'b2', readPagesAmount: 40),
             ],
           );
-          dateProvider.mockGetNow(nowDateTime: todayDate);
-          sqliteReadPagesService.mockLoadReadPages(sqliteReadPages: readPages);
+          sqliteReadPagesService.mockLoadListOfUserReadPages(
+            listOfUserReadPages: userReadPagesFromToday,
+          );
           sqliteReadPagesService.mockUpdateReadPages();
 
           final DbDay dbDay = await service.addReadPagesForUser(

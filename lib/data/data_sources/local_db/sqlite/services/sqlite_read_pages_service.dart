@@ -13,28 +13,14 @@ class SqliteReadPagesService {
     )
   ''';
 
-  Future<SqliteReadPages?> loadReadPages({
+  Future<List<SqliteReadPages>> loadListOfUserReadPages({
     required String userId,
-    required String date,
-    required String bookId,
+    String? date,
   }) async {
     final List<Map<String, Object?>> jsons = await _queryUserReadPages(
       userId: userId,
       date: date,
-      bookId: bookId,
     );
-    if (jsons.isNotEmpty) {
-      return SqliteReadPages.fromJson(jsons.first);
-    } else {
-      return null;
-    }
-  }
-
-  Future<List<SqliteReadPages>> loadListOfReadPagesByUserId({
-    required String userId,
-  }) async {
-    final List<Map<String, Object?>> jsons =
-        await _queryUserReadPages(userId: userId);
     return jsons.map(SqliteReadPages.fromJson).toList();
   }
 
@@ -51,16 +37,12 @@ class SqliteReadPagesService {
   Future<List<Map<String, Object?>>> _queryUserReadPages({
     required String userId,
     String? date,
-    String? bookId,
   }) async {
     final Database database = await SqliteDatabase.instance.database;
     String query = 'SELECT * FROM ${SqliteTables.readPagesTable}';
     query += " WHERE ${SqliteReadPagesFields.userId} = '$userId'";
     if (date != null) {
       query += " AND ${SqliteReadPagesFields.date} = '$date'";
-    }
-    if (bookId != null) {
-      query += " AND ${SqliteReadPagesFields.bookId} = '$bookId'";
     }
     return await database.rawQuery(query);
   }

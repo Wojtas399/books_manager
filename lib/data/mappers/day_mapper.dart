@@ -1,9 +1,9 @@
-import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_read_pages.dart';
+import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_read_book.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day.dart';
 import 'package:app/data/mappers/date_mapper.dart';
-import 'package:app/data/mappers/day_book_mapper.dart';
+import 'package:app/data/mappers/read_book_mapper.dart';
 import 'package:app/data/models/db_day.dart';
-import 'package:app/data/models/db_day_book.dart';
+import 'package:app/data/models/db_read_book.dart';
 import 'package:app/domain/entities/day.dart';
 
 class DayMapper {
@@ -11,9 +11,8 @@ class DayMapper {
     return DbDay(
       userId: day.userId,
       date: DateMapper.mapFromDateTimeToString(day.date),
-      booksWithReadPages: day.booksWithReadPagesAmount
-          .map(DayBookMapper.mapFromEntityToDbModel)
-          .toList(),
+      readBooks:
+          day.readBooks.map(ReadBookMapper.mapFromEntityToDbModel).toList(),
     );
   }
 
@@ -21,20 +20,19 @@ class DayMapper {
     return Day(
       userId: dbDay.userId,
       date: DateMapper.mapFromStringToDateTime(dbDay.date),
-      booksWithReadPagesAmount: dbDay.booksWithReadPages
-          .map(DayBookMapper.mapFromDbModelToEntity)
-          .toList(),
+      readBooks:
+          dbDay.readBooks.map(ReadBookMapper.mapFromDbModelToEntity).toList(),
     );
   }
 
-  static List<SqliteReadPages> mapFromDbModelToListOfSqliteModels({
+  static List<SqliteReadBook> mapFromDbModelToSqliteModels({
     required DbDay dbDay,
     required String userId,
   }) {
-    return dbDay.booksWithReadPages
+    return dbDay.readBooks
         .map(
-          (DbDayBook dbDayBook) => DayBookMapper.mapFromDbModelToSqliteModel(
-            dbDayBook: dbDayBook,
+          (DbReadBook dbReadBook) => ReadBookMapper.mapFromDbModelToSqliteModel(
+            dbReadBook: dbReadBook,
             userId: userId,
             date: dbDay.date,
           ),
@@ -42,15 +40,12 @@ class DayMapper {
         .toList();
   }
 
-  static DbDay mapFromListOfSqliteModelsToDbModel(
-    List<SqliteReadPages> listOfSqliteDayBook,
-  ) {
+  static DbDay mapFromSqliteModelsToDbModel(List<SqliteReadBook> sqliteModels) {
     return DbDay(
-      userId: listOfSqliteDayBook.first.userId,
-      date: listOfSqliteDayBook.first.date,
-      booksWithReadPages: listOfSqliteDayBook
-          .map(DayBookMapper.mapFromSqliteModelToDbModel)
-          .toList(),
+      userId: sqliteModels.first.userId,
+      date: sqliteModels.first.date,
+      readBooks:
+          sqliteModels.map(ReadBookMapper.mapFromSqliteModelToDbModel).toList(),
     );
   }
 
@@ -58,8 +53,8 @@ class DayMapper {
     return DbDay(
       userId: firebaseDay.userId,
       date: firebaseDay.date,
-      booksWithReadPages: firebaseDay.booksWithReadPages
-          .map(DayBookMapper.mapFromFirebaseModelToDbModel)
+      readBooks: firebaseDay.readBooks
+          .map(ReadBookMapper.mapFromFirebaseModelToDbModel)
           .toList(),
     );
   }
@@ -68,8 +63,8 @@ class DayMapper {
     return FirebaseDay(
       userId: dbDay.userId,
       date: dbDay.date,
-      booksWithReadPages: dbDay.booksWithReadPages
-          .map(DayBookMapper.mapFromDbModelToFirebaseModel)
+      readBooks: dbDay.readBooks
+          .map(ReadBookMapper.mapFromDbModelToFirebaseModel)
           .toList(),
     );
   }

@@ -1,10 +1,10 @@
 import 'package:equatable/equatable.dart';
 
-class FirebaseDayBook extends Equatable {
+class FirebaseReadBook extends Equatable {
   final String bookId;
   final int readPagesAmount;
 
-  const FirebaseDayBook({
+  const FirebaseReadBook({
     required this.bookId,
     required this.readPagesAmount,
   });
@@ -15,38 +15,38 @@ class FirebaseDayBook extends Equatable {
         readPagesAmount,
       ];
 
-  FirebaseDayBook.fromJson(Map<String, Object?> json)
+  FirebaseReadBook.fromJson(Map<String, Object?> json)
       : this(
-          bookId: json[FirebaseDayBookFields.bookId] as String,
-          readPagesAmount: json[FirebaseDayBookFields.readPagesAmount] as int,
+          bookId: json[FirebaseReadBookFields.bookId] as String,
+          readPagesAmount: json[FirebaseReadBookFields.readPagesAmount] as int,
         );
 
   Map<String, Object?> toJson() => {
-        FirebaseDayBookFields.bookId: bookId,
-        FirebaseDayBookFields.readPagesAmount: readPagesAmount,
+        FirebaseReadBookFields.bookId: bookId,
+        FirebaseReadBookFields.readPagesAmount: readPagesAmount,
       };
 
-  FirebaseDayBook copyWith({
+  FirebaseReadBook copyWith({
     String? bookId,
     int? readPagesAmount,
   }) {
-    return FirebaseDayBook(
+    return FirebaseReadBook(
       bookId: bookId ?? this.bookId,
       readPagesAmount: readPagesAmount ?? this.readPagesAmount,
     );
   }
 }
 
-class FirebaseDayBookFields {
+class FirebaseReadBookFields {
   static const String bookId = 'bookId';
   static const String readPagesAmount = 'readPagesAmount';
 }
 
-FirebaseDayBook createFirebaseDayBook({
+FirebaseReadBook createFirebaseReadBook({
   String bookId = '',
   int readPagesAmount = 0,
 }) {
-  return FirebaseDayBook(
+  return FirebaseReadBook(
     bookId: bookId,
     readPagesAmount: readPagesAmount,
   );

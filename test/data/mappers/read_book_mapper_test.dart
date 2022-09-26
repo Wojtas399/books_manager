@@ -1,8 +1,8 @@
-import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_read_pages.dart';
-import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day_book.dart';
-import 'package:app/data/mappers/day_book_mapper.dart';
-import 'package:app/data/models/db_day_book.dart';
-import 'package:app/domain/entities/day_book.dart';
+import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_read_book.dart';
+import 'package:app/data/data_sources/remote_db/firebase/models/firebase_read_book.dart';
+import 'package:app/data/mappers/read_book_mapper.dart';
+import 'package:app/data/models/db_read_book.dart';
+import 'package:app/domain/entities/read_book.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -10,21 +10,21 @@ void main() {
   const String date = '20-09-2022';
   const String bookId = 'b1';
   const int readPagesAmount = 50;
-  const DayBook entity = DayBook(
+  const ReadBook entity = ReadBook(
     bookId: bookId,
     readPagesAmount: readPagesAmount,
   );
-  const DbDayBook dbModel = DbDayBook(
+  const DbReadBook dbModel = DbReadBook(
     bookId: bookId,
     readPagesAmount: readPagesAmount,
   );
-  const SqliteReadPages sqliteModel = SqliteReadPages(
+  const SqliteReadBook sqliteModel = SqliteReadBook(
     userId: userId,
     date: date,
     bookId: bookId,
     readPagesAmount: readPagesAmount,
   );
-  const FirebaseDayBook firebaseModel = FirebaseDayBook(
+  const FirebaseReadBook firebaseModel = FirebaseReadBook(
     bookId: bookId,
     readPagesAmount: readPagesAmount,
   );
@@ -32,9 +32,8 @@ void main() {
   test(
     'map from entity to db model',
     () {
-      final DbDayBook mappedDbModel = DayBookMapper.mapFromEntityToDbModel(
-        entity,
-      );
+      final DbReadBook mappedDbModel =
+          ReadBookMapper.mapFromEntityToDbModel(entity);
 
       expect(mappedDbModel, dbModel);
     },
@@ -43,7 +42,8 @@ void main() {
   test(
     'map from db model to entity',
     () {
-      final DayBook mappedModel = DayBookMapper.mapFromDbModelToEntity(dbModel);
+      final ReadBook mappedModel =
+          ReadBookMapper.mapFromDbModelToEntity(dbModel);
 
       expect(mappedModel, entity);
     },
@@ -52,9 +52,9 @@ void main() {
   test(
     'map from db model to sqlite model',
     () {
-      final SqliteReadPages mappedSqliteModel =
-          DayBookMapper.mapFromDbModelToSqliteModel(
-        dbDayBook: dbModel,
+      final SqliteReadBook mappedSqliteModel =
+          ReadBookMapper.mapFromDbModelToSqliteModel(
+        dbReadBook: dbModel,
         userId: userId,
         date: date,
       );
@@ -66,9 +66,8 @@ void main() {
   test(
     'map from sqlite model to db model',
     () {
-      final DbDayBook mappedDbModel = DayBookMapper.mapFromSqliteModelToDbModel(
-        sqliteModel,
-      );
+      final DbReadBook mappedDbModel =
+          ReadBookMapper.mapFromSqliteModelToDbModel(sqliteModel);
 
       expect(mappedDbModel, dbModel);
     },
@@ -77,8 +76,8 @@ void main() {
   test(
     'map from db model to firebase model',
     () {
-      final FirebaseDayBook mappedFirebaseModel =
-          DayBookMapper.mapFromDbModelToFirebaseModel(dbModel);
+      final FirebaseReadBook mappedFirebaseModel =
+          ReadBookMapper.mapFromDbModelToFirebaseModel(dbModel);
 
       expect(mappedFirebaseModel, firebaseModel);
     },
@@ -87,8 +86,8 @@ void main() {
   test(
     'map from firebase model to db model',
     () {
-      final DbDayBook mappedDbModel =
-          DayBookMapper.mapFromFirebaseModelToDbModel(firebaseModel);
+      final DbReadBook mappedDbModel =
+          ReadBookMapper.mapFromFirebaseModelToDbModel(firebaseModel);
 
       expect(mappedDbModel, dbModel);
     },

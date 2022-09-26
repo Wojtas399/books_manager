@@ -1,22 +1,22 @@
-import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day_book.dart';
+import 'package:app/data/data_sources/remote_db/firebase/models/firebase_read_book.dart';
 import 'package:equatable/equatable.dart';
 
 class FirebaseDay extends Equatable {
   final String userId;
   final String date;
-  final List<FirebaseDayBook> booksWithReadPages;
+  final List<FirebaseReadBook> readBooks;
 
   const FirebaseDay({
     required this.userId,
     required this.date,
-    required this.booksWithReadPages,
+    required this.readBooks,
   });
 
   @override
   List<Object> get props => [
         userId,
         date,
-        booksWithReadPages,
+        readBooks,
       ];
 
   FirebaseDay.fromJson({
@@ -25,45 +25,44 @@ class FirebaseDay extends Equatable {
   }) : this(
           userId: userId,
           date: json[FirebaseDayFields.date] as String,
-          booksWithReadPages:
-              (json[FirebaseDayFields.booksWithReadPages] as List)
-                  .map((dayBookJson) => FirebaseDayBook.fromJson(dayBookJson))
-                  .toList(),
+          readBooks: (json[FirebaseDayFields.readBooks] as List)
+              .map((readBookJson) => FirebaseReadBook.fromJson(readBookJson))
+              .toList(),
         );
 
   Map<String, Object?> toJson() => {
         FirebaseDayFields.date: date,
-        FirebaseDayFields.booksWithReadPages: booksWithReadPages.map(
-          (FirebaseDayBook dayBook) => dayBook.toJson(),
+        FirebaseDayFields.readBooks: readBooks.map(
+          (FirebaseReadBook readBook) => readBook.toJson(),
         ),
       };
 
   FirebaseDay copyWith({
     String? userId,
     String? date,
-    List<FirebaseDayBook>? booksWithReadPages,
+    List<FirebaseReadBook>? readBooks,
   }) {
     return FirebaseDay(
       userId: userId ?? this.userId,
       date: date ?? this.date,
-      booksWithReadPages: booksWithReadPages ?? this.booksWithReadPages,
+      readBooks: readBooks ?? this.readBooks,
     );
   }
 }
 
 class FirebaseDayFields {
   static const String date = 'date';
-  static const String booksWithReadPages = 'booksWithReadPages';
+  static const String readBooks = 'readBooks';
 }
 
 FirebaseDay createFirebaseDay({
   String userId = '',
   String date = '',
-  List<FirebaseDayBook> booksWithReadPages = const [],
+  List<FirebaseReadBook> readBooks = const [],
 }) {
   return FirebaseDay(
     userId: userId,
     date: date,
-    booksWithReadPages: booksWithReadPages,
+    readBooks: readBooks,
   );
 }

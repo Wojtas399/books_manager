@@ -1,11 +1,11 @@
-import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_read_pages.dart';
+import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_read_book.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day.dart';
-import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day_book.dart';
+import 'package:app/data/data_sources/remote_db/firebase/models/firebase_read_book.dart';
 import 'package:app/data/mappers/day_mapper.dart';
 import 'package:app/data/models/db_day.dart';
-import 'package:app/data/models/db_day_book.dart';
+import 'package:app/data/models/db_read_book.dart';
 import 'package:app/domain/entities/day.dart';
-import 'package:app/domain/entities/day_book.dart';
+import 'package:app/domain/entities/read_book.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -14,12 +14,12 @@ void main() {
   final Day entity = createDay(
     userId: userId,
     date: DateTime(2022, 9, 22),
-    booksWithReadPagesAmount: [
-      createDayBook(
+    readBooks: [
+      createReadBook(
         bookId: 'b1',
         readPagesAmount: 20,
       ),
-      createDayBook(
+      createReadBook(
         bookId: 'b2',
         readPagesAmount: 100,
       ),
@@ -28,25 +28,25 @@ void main() {
   final DbDay dbModel = createDbDay(
     userId: userId,
     date: date,
-    booksWithReadPages: [
-      createDbDayBook(
+    readBooks: [
+      createDbReadBook(
         bookId: 'b1',
         readPagesAmount: 20,
       ),
-      createDbDayBook(
+      createDbReadBook(
         bookId: 'b2',
         readPagesAmount: 100,
       ),
     ],
   );
-  final List<SqliteReadPages> sqliteReadPagesModels = [
-    createSqliteReadPages(
+  final List<SqliteReadBook> sqliteModels = [
+    createSqliteReadBook(
       userId: userId,
       date: '22-09-2022',
       bookId: 'b1',
       readPagesAmount: 20,
     ),
-    createSqliteReadPages(
+    createSqliteReadBook(
       userId: userId,
       date: '22-09-2022',
       bookId: 'b2',
@@ -56,12 +56,12 @@ void main() {
   final FirebaseDay firebaseModel = createFirebaseDay(
     userId: userId,
     date: date,
-    booksWithReadPages: [
-      createFirebaseDayBook(
+    readBooks: [
+      createFirebaseReadBook(
         bookId: 'b1',
         readPagesAmount: 20,
       ),
-      createFirebaseDayBook(
+      createFirebaseReadBook(
         bookId: 'b2',
         readPagesAmount: 100,
       ),
@@ -87,24 +87,23 @@ void main() {
   );
 
   test(
-    'map from db model to list of sqlite models',
+    'map from db model to sqlite models',
     () {
-      final List<SqliteReadPages> mappedSqliteReadPagesModels =
-          DayMapper.mapFromDbModelToListOfSqliteModels(
+      final List<SqliteReadBook> mappedSqliteModels =
+          DayMapper.mapFromDbModelToSqliteModels(
         dbDay: dbModel,
         userId: userId,
       );
 
-      expect(mappedSqliteReadPagesModels, sqliteReadPagesModels);
+      expect(mappedSqliteModels, sqliteModels);
     },
   );
 
   test(
-    'map from list of sqlite models to db model',
+    'map from sqlite models to db model',
     () {
-      final DbDay mappedDbModel = DayMapper.mapFromListOfSqliteModelsToDbModel(
-        sqliteReadPagesModels,
-      );
+      final DbDay mappedDbModel =
+          DayMapper.mapFromSqliteModelsToDbModel(sqliteModels);
 
       expect(mappedDbModel, dbModel);
     },

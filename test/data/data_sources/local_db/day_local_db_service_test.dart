@@ -1,16 +1,16 @@
 import 'package:app/data/data_sources/local_db/day_local_db_service.dart';
-import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_read_pages.dart';
+import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_read_book.dart';
 import 'package:app/data/mappers/date_mapper.dart';
 import 'package:app/data/models/db_day.dart';
-import 'package:app/data/models/db_day_book.dart';
+import 'package:app/data/models/db_read_book.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 import '../../../mocks/providers/mock_date_provider.dart';
-import '../../../mocks/sqlite/mock_sqlite_read_pages_service.dart';
+import '../../../mocks/sqlite/mock_sqlite_read_book_service.dart';
 
 void main() {
-  final sqliteReadPagesService = MockSqliteReadPagesService();
+  final sqliteReadBookService = MockSqliteReadBookService();
   final dateProvider = MockDateProvider();
   late DayLocalDbService service;
 
@@ -20,46 +20,46 @@ void main() {
 
   setUp(() {
     service = DayLocalDbService(
-      sqliteReadPagesService: sqliteReadPagesService,
+      sqliteReadBookService: sqliteReadBookService,
       dateProvider: dateProvider,
     );
   });
 
   tearDown(() {
-    reset(sqliteReadPagesService);
+    reset(sqliteReadBookService);
     reset(dateProvider);
   });
 
   test(
-    'load user days, should load all read pages belonging to user and should segregate them to list of db days',
+    'load user days, should load all read books belonging to user and should segregate them to list of db days',
     () async {
       const String userId = 'userId';
-      final List<SqliteReadPages> listOfSqliteReadPages = [
-        createSqliteReadPages(
+      final List<SqliteReadBook> readBooks = [
+        createSqliteReadBook(
           userId: userId,
           date: mapDateTimeToString(DateTime(2022, 9, 23)),
           bookId: 'b1',
           readPagesAmount: 20,
         ),
-        createSqliteReadPages(
+        createSqliteReadBook(
           userId: userId,
           date: mapDateTimeToString(DateTime(2022, 9, 20)),
           bookId: 'b1',
           readPagesAmount: 50,
         ),
-        createSqliteReadPages(
+        createSqliteReadBook(
           userId: userId,
           date: mapDateTimeToString(DateTime(2022, 9, 20)),
           bookId: 'b2',
           readPagesAmount: 100,
         ),
-        createSqliteReadPages(
+        createSqliteReadBook(
           userId: userId,
           date: mapDateTimeToString(DateTime(2022, 9, 18)),
           bookId: 'b2',
           readPagesAmount: 100,
         ),
-        createSqliteReadPages(
+        createSqliteReadBook(
           userId: userId,
           date: mapDateTimeToString(DateTime(2022, 9, 23)),
           bookId: 'b2',
@@ -70,30 +70,28 @@ void main() {
         createDbDay(
           userId: userId,
           date: mapDateTimeToString(DateTime(2022, 9, 23)),
-          booksWithReadPages: [
-            createDbDayBook(bookId: 'b1', readPagesAmount: 20),
-            createDbDayBook(bookId: 'b2', readPagesAmount: 10),
+          readBooks: [
+            createDbReadBook(bookId: 'b1', readPagesAmount: 20),
+            createDbReadBook(bookId: 'b2', readPagesAmount: 10),
           ],
         ),
         createDbDay(
           userId: userId,
           date: mapDateTimeToString(DateTime(2022, 9, 20)),
-          booksWithReadPages: [
-            createDbDayBook(bookId: 'b1', readPagesAmount: 50),
-            createDbDayBook(bookId: 'b2', readPagesAmount: 100),
+          readBooks: [
+            createDbReadBook(bookId: 'b1', readPagesAmount: 50),
+            createDbReadBook(bookId: 'b2', readPagesAmount: 100),
           ],
         ),
         createDbDay(
           userId: userId,
           date: mapDateTimeToString(DateTime(2022, 9, 18)),
-          booksWithReadPages: [
-            createDbDayBook(bookId: 'b2', readPagesAmount: 100),
+          readBooks: [
+            createDbReadBook(bookId: 'b2', readPagesAmount: 100),
           ],
         ),
       ];
-      sqliteReadPagesService.mockLoadListOfUserReadPages(
-        listOfUserReadPages: listOfSqliteReadPages,
-      );
+      sqliteReadBookService.mockLoadUserReadBooks(userReadBooks: readBooks);
 
       final List<DbDay> dbDays = await service.loadUserDays(userId: userId);
 
@@ -102,7 +100,7 @@ void main() {
   );
 
   group(
-    'add read pages for user',
+    'add user read book',
     () {
       const String userId = 'u1';
       const String bookId = 'b1';
@@ -115,22 +113,22 @@ void main() {
       });
 
       test(
-        'book has not been read today, should add new read pages and should return db day with all read books',
+        'book has not been read today, should add new read book and should return db day with all read books from today',
         () async {
-          final SqliteReadPages readPagesToAdd = createSqliteReadPages(
+          final SqliteReadBook readBookToAdd = createSqliteReadBook(
             userId: userId,
             bookId: bookId,
             date: todayDateStr,
             readPagesAmount: readPagesAmount,
           );
-          final List<SqliteReadPages> userReadPagesFromToday = [
-            createSqliteReadPages(
+          final List<SqliteReadBook> userReadBooksFromToday = [
+            createSqliteReadBook(
               userId: userId,
               bookId: 'b2',
               date: todayDateStr,
               readPagesAmount: 100,
             ),
-            createSqliteReadPages(
+            createSqliteReadBook(
               userId: userId,
               bookId: 'b3',
               date: todayDateStr,
@@ -140,26 +138,29 @@ void main() {
           final DbDay expectedDbDay = createDbDay(
             userId: userId,
             date: todayDateStr,
-            booksWithReadPages: [
-              createDbDayBook(bookId: 'b2', readPagesAmount: 100),
-              createDbDayBook(bookId: 'b3', readPagesAmount: 40),
-              createDbDayBook(bookId: bookId, readPagesAmount: readPagesAmount),
+            readBooks: [
+              createDbReadBook(bookId: 'b2', readPagesAmount: 100),
+              createDbReadBook(bookId: 'b3', readPagesAmount: 40),
+              createDbReadBook(
+                bookId: bookId,
+                readPagesAmount: readPagesAmount,
+              ),
             ],
           );
-          sqliteReadPagesService.mockLoadListOfUserReadPages(
-            listOfUserReadPages: userReadPagesFromToday,
+          sqliteReadBookService.mockLoadUserReadBooks(
+            userReadBooks: userReadBooksFromToday,
           );
-          sqliteReadPagesService.mockAddReadPages();
+          sqliteReadBookService.mockAddReadBook();
 
-          final DbDay dbDay = await service.addReadPagesForUser(
+          final DbDay dbDay = await service.addUserReadBook(
             userId: userId,
             bookId: bookId,
             readPagesAmount: readPagesAmount,
           );
 
           verify(
-            () => sqliteReadPagesService.addReadPages(
-              sqliteReadPages: readPagesToAdd,
+            () => sqliteReadBookService.addReadBook(
+              sqliteReadBook: readBookToAdd,
             ),
           ).called(1);
           expect(dbDay, expectedDbDay);
@@ -167,48 +168,48 @@ void main() {
       );
 
       test(
-        'book has been read today, should update read pages and should return db day with all read pages',
+        'book has been read today, should update read pages amount in read book and should return db day with all read books from today',
         () async {
-          final SqliteReadPages bookReadPages = createSqliteReadPages(
+          final SqliteReadBook readBook = createSqliteReadBook(
             userId: userId,
             date: todayDateStr,
             bookId: bookId,
             readPagesAmount: 100,
           );
-          final List<SqliteReadPages> userReadPagesFromToday = [
-            bookReadPages,
-            createSqliteReadPages(
+          final List<SqliteReadBook> userReadBooksFromToday = [
+            readBook,
+            createSqliteReadBook(
               userId: userId,
               date: todayDateStr,
               bookId: 'b2',
               readPagesAmount: 40,
             ),
           ];
-          final int newAmount = bookReadPages.readPagesAmount + readPagesAmount;
-          final SqliteReadPages updatedReadPages =
-              bookReadPages.copyWithReadPagesAmount(newAmount);
+          final int newAmount = readBook.readPagesAmount + readPagesAmount;
+          final SqliteReadBook updatedReadBook =
+              readBook.copyWithReadPagesAmount(newAmount);
           final DbDay expectedDbDay = createDbDay(
             userId: userId,
             date: todayDateStr,
-            booksWithReadPages: [
-              createDbDayBook(bookId: bookId, readPagesAmount: newAmount),
-              createDbDayBook(bookId: 'b2', readPagesAmount: 40),
+            readBooks: [
+              createDbReadBook(bookId: bookId, readPagesAmount: newAmount),
+              createDbReadBook(bookId: 'b2', readPagesAmount: 40),
             ],
           );
-          sqliteReadPagesService.mockLoadListOfUserReadPages(
-            listOfUserReadPages: userReadPagesFromToday,
+          sqliteReadBookService.mockLoadUserReadBooks(
+            userReadBooks: userReadBooksFromToday,
           );
-          sqliteReadPagesService.mockUpdateReadPages();
+          sqliteReadBookService.mockUpdateReadBook();
 
-          final DbDay dbDay = await service.addReadPagesForUser(
+          final DbDay dbDay = await service.addUserReadBook(
             userId: userId,
             bookId: bookId,
             readPagesAmount: readPagesAmount,
           );
 
           verify(
-            () => sqliteReadPagesService.updateReadPages(
-              updatedReadPages: updatedReadPages,
+            () => sqliteReadBookService.updateReadBook(
+              updatedSqliteReadBook: updatedReadBook,
             ),
           ).called(1);
           expect(dbDay, expectedDbDay);

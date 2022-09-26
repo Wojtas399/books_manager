@@ -1,10 +1,10 @@
 import 'package:equatable/equatable.dart';
 
-class DayBook extends Equatable {
+class DbReadBook extends Equatable {
   final String bookId;
   final int readPagesAmount;
 
-  const DayBook({
+  const DbReadBook({
     required this.bookId,
     required this.readPagesAmount,
   });
@@ -16,11 +16,11 @@ class DayBook extends Equatable {
       ];
 }
 
-DayBook createDayBook({
+DbReadBook createDbReadBook({
   String bookId = '',
   int readPagesAmount = 0,
 }) {
-  return DayBook(
+  return DbReadBook(
     bookId: bookId,
     readPagesAmount: readPagesAmount,
   );

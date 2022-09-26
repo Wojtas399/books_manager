@@ -1,10 +1,10 @@
 import 'package:app/data/data_sources/remote_db/day_remote_db_service.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day.dart';
-import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day_book.dart';
+import 'package:app/data/data_sources/remote_db/firebase/models/firebase_read_book.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_user.dart';
 import 'package:app/data/mappers/date_mapper.dart';
 import 'package:app/data/models/db_day.dart';
-import 'package:app/data/models/db_day_book.dart';
+import 'package:app/data/models/db_read_book.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
@@ -42,12 +42,12 @@ void main() {
           createFirebaseDay(
             userId: userId,
             date: mapDateTimeToString(DateTime(2022, 9, 20)),
-            booksWithReadPages: [
-              createFirebaseDayBook(
+            readBooks: [
+              createFirebaseReadBook(
                 bookId: 'b1',
                 readPagesAmount: 20,
               ),
-              createFirebaseDayBook(
+              createFirebaseReadBook(
                 bookId: 'b2',
                 readPagesAmount: 100,
               ),
@@ -56,8 +56,8 @@ void main() {
           createFirebaseDay(
             userId: userId,
             date: mapDateTimeToString(DateTime(2022, 9, 18)),
-            booksWithReadPages: [
-              createFirebaseDayBook(
+            readBooks: [
+              createFirebaseReadBook(
                 bookId: 'b1',
                 readPagesAmount: 120,
               ),
@@ -69,12 +69,12 @@ void main() {
         createDbDay(
           userId: userId,
           date: mapDateTimeToString(DateTime(2022, 9, 20)),
-          booksWithReadPages: [
-            createDbDayBook(
+          readBooks: [
+            createDbReadBook(
               bookId: 'b1',
               readPagesAmount: 20,
             ),
-            createDbDayBook(
+            createDbReadBook(
               bookId: 'b2',
               readPagesAmount: 100,
             ),
@@ -83,8 +83,8 @@ void main() {
         createDbDay(
           userId: userId,
           date: mapDateTimeToString(DateTime(2022, 9, 18)),
-          booksWithReadPages: [
-            createDbDayBook(
+          readBooks: [
+            createDbReadBook(
               bookId: 'b1',
               readPagesAmount: 120,
             ),
@@ -100,7 +100,7 @@ void main() {
   );
 
   group(
-    'add read pages for user',
+    'add user read book',
     () {
       const String userId = 'u1';
       const String bookId = 'b1';
@@ -110,14 +110,14 @@ void main() {
         'today date is not in user days of reading, should add new day to user days of reading',
         () async {
           final DateTime todayDate = DateTime(2022, 9, 23);
-          final FirebaseDayBook newDayBook = createFirebaseDayBook(
+          final FirebaseReadBook newReadBook = createFirebaseReadBook(
             bookId: bookId,
             readPagesAmount: readPagesAmount,
           );
           final FirebaseDay newDay = createFirebaseDay(
             date: mapDateTimeToString(todayDate),
             userId: userId,
-            booksWithReadPages: [newDayBook],
+            readBooks: [newReadBook],
           );
           final List<FirebaseDay> originalDays = [
             createFirebaseDay(
@@ -136,7 +136,7 @@ void main() {
           firebaseFirestoreUserService.mockLoadUser(firebaseUser: firebaseUser);
           firebaseFirestoreUserService.mockUpdateUser();
 
-          await service.addReadPagesForUser(
+          await service.addUserReadBook(
             userId: userId,
             bookId: bookId,
             readPagesAmount: readPagesAmount,
@@ -152,13 +152,13 @@ void main() {
       );
 
       test(
-        'today date is in user days of reading, book has not been read today, should add new day book to today date',
+        'today date is in user days of reading, book has not been read today, should add new read book to today date',
         () async {
           final DateTime todayDate = DateTime(2022, 9, 23);
           final FirebaseDay todayDay = createFirebaseDay(
             date: mapDateTimeToString(todayDate),
-            booksWithReadPages: [
-              createFirebaseDayBook(
+            readBooks: [
+              createFirebaseReadBook(
                 bookId: 'b2',
                 readPagesAmount: 100,
               ),
@@ -172,9 +172,9 @@ void main() {
           ];
           final List<FirebaseDay> updatedDays = [
             todayDay.copyWith(
-              booksWithReadPages: [
-                todayDay.booksWithReadPages.first,
-                createFirebaseDayBook(
+              readBooks: [
+                todayDay.readBooks.first,
+                createFirebaseReadBook(
                   bookId: 'b1',
                   readPagesAmount: 20,
                 ),
@@ -189,7 +189,7 @@ void main() {
           firebaseFirestoreUserService.mockLoadUser(firebaseUser: firebaseUser);
           firebaseFirestoreUserService.mockUpdateUser();
 
-          await service.addReadPagesForUser(
+          await service.addUserReadBook(
             userId: userId,
             bookId: bookId,
             readPagesAmount: readPagesAmount,
@@ -205,13 +205,13 @@ void main() {
       );
 
       test(
-        'today date is in user days of reading, book has been read today, should update read pages amount of book',
+        'today date is in user days of reading, book has been read today, should update read pages amount of read book',
         () async {
           final DateTime todayDate = DateTime(2022, 9, 23);
           final FirebaseDay todayDay = createFirebaseDay(
             date: mapDateTimeToString(todayDate),
-            booksWithReadPages: [
-              createFirebaseDayBook(
+            readBooks: [
+              createFirebaseReadBook(
                 bookId: 'b1',
                 readPagesAmount: 100,
               ),
@@ -225,8 +225,8 @@ void main() {
           ];
           final List<FirebaseDay> updatedDays = [
             todayDay.copyWith(
-              booksWithReadPages: [
-                todayDay.booksWithReadPages.first.copyWith(
+              readBooks: [
+                todayDay.readBooks.first.copyWith(
                   readPagesAmount: 120,
                 ),
               ],
@@ -240,7 +240,7 @@ void main() {
           firebaseFirestoreUserService.mockLoadUser(firebaseUser: firebaseUser);
           firebaseFirestoreUserService.mockUpdateUser();
 
-          await service.addReadPagesForUser(
+          await service.addUserReadBook(
             userId: userId,
             bookId: bookId,
             readPagesAmount: readPagesAmount,

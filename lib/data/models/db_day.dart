@@ -1,33 +1,33 @@
-import 'package:app/data/models/db_day_book.dart';
+import 'package:app/data/models/db_read_book.dart';
 import 'package:equatable/equatable.dart';
 
 class DbDay extends Equatable {
   final String userId;
   final String date;
-  final List<DbDayBook> booksWithReadPages;
+  final List<DbReadBook> readBooks;
 
   const DbDay({
     required this.userId,
     required this.date,
-    required this.booksWithReadPages,
+    required this.readBooks,
   });
 
   @override
   List<Object> get props => [
         userId,
         date,
-        booksWithReadPages,
+        readBooks,
       ];
 
   DbDay copyWith({
     String? userId,
     String? date,
-    List<DbDayBook>? booksWithReadPages,
+    List<DbReadBook>? readBooks,
   }) {
     return DbDay(
       userId: userId ?? this.userId,
       date: date ?? this.date,
-      booksWithReadPages: booksWithReadPages ?? this.booksWithReadPages,
+      readBooks: readBooks ?? this.readBooks,
     );
   }
 }
@@ -35,11 +35,11 @@ class DbDay extends Equatable {
 DbDay createDbDay({
   String userId = '',
   String date = '',
-  List<DbDayBook> booksWithReadPages = const [],
+  List<DbReadBook> readBooks = const [],
 }) {
   return DbDay(
     userId: userId,
     date: date,
-    booksWithReadPages: booksWithReadPages,
+    readBooks: readBooks,
   );
 }

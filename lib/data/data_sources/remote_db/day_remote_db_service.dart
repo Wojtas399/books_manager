@@ -1,5 +1,5 @@
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day.dart';
-import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day_book.dart';
+import 'package:app/data/data_sources/remote_db/firebase/models/firebase_read_book.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_user.dart';
 import 'package:app/data/data_sources/remote_db/firebase/services/firebase_firestore_user_service.dart';
 import 'package:app/data/mappers/date_mapper.dart';
@@ -27,7 +27,7 @@ class DayRemoteDbService {
     return userDays.map(DayMapper.mapFromFirebaseModelToDbModel).toList();
   }
 
-  Future<void> addReadPagesForUser({
+  Future<void> addUserReadBook({
     required String userId,
     required String bookId,
     required int readPagesAmount,
@@ -78,9 +78,9 @@ class DayRemoteDbService {
     required int readPagesAmount,
     required FirebaseDay day,
   }) {
-    final List<FirebaseDayBook> readBooks = day.booksWithReadPages;
+    final List<FirebaseReadBook> readBooks = day.readBooks;
     final List<String> readBooksIds =
-        readBooks.map((FirebaseDayBook dayBook) => dayBook.bookId).toList();
+        readBooks.map((FirebaseReadBook readBook) => readBook.bookId).toList();
     FirebaseDay updatedDay = day;
     if (readBooksIds.contains(bookId)) {
       updatedDay = _updateBookReadPagesAmountInDay(
@@ -89,7 +89,7 @@ class DayRemoteDbService {
         day: day,
       );
     } else {
-      updatedDay = _addNewDayBookToDay(
+      updatedDay = _addNewReadBookToDay(
         bookId: bookId,
         readPagesAmount: readPagesAmount,
         day: day,
@@ -103,14 +103,14 @@ class DayRemoteDbService {
     required String bookId,
     required int readPagesAmount,
   }) {
-    final FirebaseDayBook newReadBook = FirebaseDayBook(
+    final FirebaseReadBook newReadBook = FirebaseReadBook(
       bookId: bookId,
       readPagesAmount: readPagesAmount,
     );
     final FirebaseDay newDay = FirebaseDay(
       userId: userId,
       date: _getNowDateAsStr(),
-      booksWithReadPages: [newReadBook],
+      readBooks: [newReadBook],
     );
     return newDay;
   }
@@ -120,32 +120,32 @@ class DayRemoteDbService {
     required int readPagesAmountToAdd,
     required FirebaseDay day,
   }) {
-    final List<FirebaseDayBook> updatedReadBooks = [...day.booksWithReadPages];
+    final List<FirebaseReadBook> updatedReadBooks = [...day.readBooks];
     final int readBookIndex = updatedReadBooks.indexWhere(
-      (FirebaseDayBook dayBook) => dayBook.bookId == bookId,
+      (FirebaseReadBook readBook) => readBook.bookId == bookId,
     );
-    final FirebaseDayBook readBook = updatedReadBooks[readBookIndex];
+    final FirebaseReadBook readBook = updatedReadBooks[readBookIndex];
     updatedReadBooks[readBookIndex] = readBook.copyWith(
       readPagesAmount: readBook.readPagesAmount + readPagesAmountToAdd,
     );
     return day.copyWith(
-      booksWithReadPages: updatedReadBooks,
+      readBooks: updatedReadBooks,
     );
   }
 
-  FirebaseDay _addNewDayBookToDay({
+  FirebaseDay _addNewReadBookToDay({
     required String bookId,
     required int readPagesAmount,
     required FirebaseDay day,
   }) {
-    final List<FirebaseDayBook> updatedReadBooks = [...day.booksWithReadPages];
-    final FirebaseDayBook newReadBook = FirebaseDayBook(
+    final List<FirebaseReadBook> updatedReadBooks = [...day.readBooks];
+    final FirebaseReadBook newReadBook = FirebaseReadBook(
       bookId: bookId,
       readPagesAmount: readPagesAmount,
     );
     updatedReadBooks.add(newReadBook);
     return day.copyWith(
-      booksWithReadPages: updatedReadBooks,
+      readBooks: updatedReadBooks,
     );
   }
 

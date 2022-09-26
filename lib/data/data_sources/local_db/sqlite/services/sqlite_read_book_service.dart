@@ -1,5 +1,6 @@
 import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_read_book.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_database.dart';
+import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_tables.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -16,10 +17,14 @@ class SqliteReadBookService {
   Future<List<SqliteReadBook>> loadUserReadBooks({
     required String userId,
     String? date,
+    String? bookId,
+    SyncState? syncState,
   }) async {
-    final List<Map<String, Object?>> jsons = await _queryUserReadPages(
+    final List<Map<String, Object?>> jsons = await _queryUserReadBooks(
       userId: userId,
       date: date,
+      bookId: bookId,
+      syncState: syncState,
     );
     return jsons.map(SqliteReadBook.fromJson).toList();
   }
@@ -28,15 +33,35 @@ class SqliteReadBookService {
     await _insertReadBook(sqliteReadBook);
   }
 
-  Future<void> updateReadBook({
-    required SqliteReadBook updatedSqliteReadBook,
+  Future<SqliteReadBook> updateReadBook({
+    required String userId,
+    required String date,
+    required String bookId,
+    int? readPagesAmount,
+    SyncState? syncState,
   }) async {
+    final Map<String, Object?>? json = await _queryReadBook(
+      userId: userId,
+      date: date,
+      bookId: bookId,
+    );
+    if (json == null) {
+      throw 'Cannot load read book from sqlite';
+    }
+    final SqliteReadBook sqliteReadBook = SqliteReadBook.fromJson(json);
+    final SqliteReadBook updatedSqliteReadBook = sqliteReadBook.copyWith(
+      readPagesAmount: readPagesAmount,
+      syncState: syncState,
+    );
     await _updateReadBook(updatedSqliteReadBook);
+    return updatedSqliteReadBook;
   }
 
-  Future<List<Map<String, Object?>>> _queryUserReadPages({
+  Future<List<Map<String, Object?>>> _queryUserReadBooks({
     required String userId,
     String? date,
+    String? bookId,
+    SyncState? syncState,
   }) async {
     final Database database = await SqliteDatabase.instance.database;
     String query = 'SELECT * FROM ${SqliteTables.readBooksTable}';
@@ -44,7 +69,32 @@ class SqliteReadBookService {
     if (date != null) {
       query += " AND ${SqliteReadBookFields.date} = '$date'";
     }
+    if (bookId != null) {
+      query += " AND ${SqliteReadBookFields.bookId} = '$bookId'";
+    }
+    if (syncState != null) {
+      query += " AND ${SqliteReadBookFields.syncState} = '${syncState.name}'";
+    } else {
+      query +=
+          " AND ${SqliteReadBookFields.syncState} IN ('${SyncState.none.name}', '${SyncState.added.name}', '${SyncState.updated.name}')";
+    }
     return await database.rawQuery(query);
+  }
+
+  Future<Map<String, Object?>?> _queryReadBook({
+    required String userId,
+    required String date,
+    required String bookId,
+  }) async {
+    final List<Map<String, Object?>> jsons = await _queryUserReadBooks(
+      userId: userId,
+      date: date,
+      bookId: bookId,
+    );
+    if (jsons.isNotEmpty) {
+      return jsons.first;
+    }
+    return null;
   }
 
   Future<void> _insertReadBook(SqliteReadBook sqliteReadBook) async {

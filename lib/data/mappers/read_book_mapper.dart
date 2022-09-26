@@ -1,4 +1,5 @@
 import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_read_book.dart';
+import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_read_book.dart';
 import 'package:app/data/models/db_read_book.dart';
 import 'package:app/domain/entities/read_book.dart';
@@ -22,12 +23,14 @@ class ReadBookMapper {
     required DbReadBook dbReadBook,
     required String userId,
     required String date,
+    SyncState syncState = SyncState.none,
   }) {
     return SqliteReadBook(
       userId: userId,
       date: date,
       bookId: dbReadBook.bookId,
       readPagesAmount: dbReadBook.readPagesAmount,
+      syncState: syncState,
     );
   }
 

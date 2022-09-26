@@ -1,4 +1,5 @@
 import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_read_book.dart';
+import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_read_book.dart';
 import 'package:app/data/mappers/read_book_mapper.dart';
 import 'package:app/data/models/db_read_book.dart';
@@ -23,6 +24,7 @@ void main() {
     date: date,
     bookId: bookId,
     readPagesAmount: readPagesAmount,
+    syncState: SyncState.none,
   );
   const FirebaseReadBook firebaseModel = FirebaseReadBook(
     bookId: bookId,

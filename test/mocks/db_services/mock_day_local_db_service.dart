@@ -4,6 +4,8 @@ import 'package:app/data/models/db_day.dart';
 import 'package:app/data/models/db_read_book.dart';
 import 'package:mocktail/mocktail.dart';
 
+class FakeDbReadBook extends Fake implements DbReadBook {}
+
 class MockDayLocalDbService extends Mock implements DayLocalDbService {
   void mockLoadUserDays({required List<DbDay> userDbDays}) {
     when(
@@ -14,6 +16,7 @@ class MockDayLocalDbService extends Mock implements DayLocalDbService {
   }
 
   void mockAddUserReadBook() {
+    _mockDbReadBook();
     _mockSyncState();
     when(
       () => addUserReadBook(
@@ -36,6 +39,10 @@ class MockDayLocalDbService extends Mock implements DayLocalDbService {
         syncState: any(named: 'syncState'),
       ),
     ).thenAnswer((_) async => updatedDbReadBook);
+  }
+
+  void _mockDbReadBook() {
+    registerFallbackValue(FakeDbReadBook());
   }
 
   void _mockSyncState() {

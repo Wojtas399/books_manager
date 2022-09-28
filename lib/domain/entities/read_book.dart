@@ -14,6 +14,16 @@ class ReadBook extends Equatable {
         bookId,
         readPagesAmount,
       ];
+
+  ReadBook copyWith({
+    String? bookId,
+    int? readPagesAmount,
+  }) {
+    return ReadBook(
+      bookId: bookId ?? this.bookId,
+      readPagesAmount: readPagesAmount ?? this.readPagesAmount,
+    );
+  }
 }
 
 ReadBook createReadBook({

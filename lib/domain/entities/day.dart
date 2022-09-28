@@ -18,6 +18,18 @@ class Day extends Equatable {
         date,
         readBooks,
       ];
+
+  Day copyWith({
+    String? userId,
+    DateTime? date,
+    List<ReadBook>? readBooks,
+  }) {
+    return Day(
+      userId: userId ?? this.userId,
+      date: date ?? this.date,
+      readBooks: readBooks ?? this.readBooks,
+    );
+  }
 }
 
 Day createDay({

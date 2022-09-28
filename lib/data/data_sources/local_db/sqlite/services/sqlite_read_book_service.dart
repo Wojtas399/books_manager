@@ -33,7 +33,7 @@ class SqliteReadBookService {
     await _insertReadBook(sqliteReadBook);
   }
 
-  Future<SqliteReadBook> updateReadBook({
+  Future<void> updateReadBook({
     required String userId,
     required String date,
     required String bookId,
@@ -54,7 +54,6 @@ class SqliteReadBookService {
       syncState: syncState,
     );
     await _updateReadBook(updatedSqliteReadBook);
-    return updatedSqliteReadBook;
   }
 
   Future<List<Map<String, Object?>>> _queryUserReadBooks({

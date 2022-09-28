@@ -92,7 +92,7 @@ void main() {
   );
 
   test(
-    'add user read book, should call method responsible for adding new read book to sqlite',
+    'add user read book, should call method responsible for adding new read book to sqlite and should return day with given date and all read books',
     () async {
       final DbReadBook dbReadBook = createDbReadBook(
         bookId: 'b1',
@@ -108,9 +108,39 @@ void main() {
         readPagesAmount: dbReadBook.readPagesAmount,
         syncState: syncState,
       );
+      final List<SqliteReadBook> sqliteReadBooksFromDay = [
+        createSqliteReadBook(
+          userId: userId,
+          date: date,
+          bookId: 'b2',
+          readPagesAmount: 50,
+        ),
+        createSqliteReadBook(
+          userId: userId,
+          date: date,
+          bookId: 'b3',
+          readPagesAmount: 120,
+        ),
+        sqliteReadBook,
+      ];
+      final DbDay expectedDbDay = createDbDay(
+        userId: userId,
+        date: date,
+        readBooks: [
+          createDbReadBook(bookId: 'b2', readPagesAmount: 50),
+          createDbReadBook(bookId: 'b3', readPagesAmount: 120),
+          createDbReadBook(
+            bookId: dbReadBook.bookId,
+            readPagesAmount: dbReadBook.readPagesAmount,
+          ),
+        ],
+      );
       sqliteReadBookService.mockAddReadBook();
+      sqliteReadBookService.mockLoadUserReadBooks(
+        userReadBooks: sqliteReadBooksFromDay,
+      );
 
-      await service.addUserReadBook(
+      final DbDay dbDay = await service.addUserReadBook(
         dbReadBook: dbReadBook,
         userId: userId,
         date: date,
@@ -121,33 +151,42 @@ void main() {
           sqliteReadBook: sqliteReadBook,
         ),
       ).called(1);
+      verify(
+        () => sqliteReadBookService.loadUserReadBooks(
+          userId: userId,
+          date: date,
+        ),
+      ).called(1);
+      expect(dbDay, expectedDbDay);
     },
   );
 
   test(
-    'update read book, should call method responsible for updating read book in sqlite and should return updated read book',
+    'update read book, should call method responsible for updating read book in sqlite and should return day with given date and all read books',
     () async {
       const String userId = 'u1';
       const String date = '20-09-2022';
       const String bookId = 'b1';
       const int readPagesAmount = 130;
       const SyncState syncState = SyncState.added;
-      final SqliteReadBook updatedSqliteReadBook = createSqliteReadBook(
+      final List<SqliteReadBook> sqliteReadBooksFromDay = [
+        createSqliteReadBook(bookId: bookId, readPagesAmount: readPagesAmount),
+        createSqliteReadBook(bookId: 'b2', readPagesAmount: 300),
+      ];
+      final DbDay expectedDbDay = createDbDay(
         userId: userId,
         date: date,
-        bookId: bookId,
-        readPagesAmount: readPagesAmount,
-        syncState: syncState,
+        readBooks: [
+          createDbReadBook(bookId: bookId, readPagesAmount: readPagesAmount),
+          createDbReadBook(bookId: 'b2', readPagesAmount: 300),
+        ],
       );
-      final DbReadBook expectedUpdatedDbReadBook = createDbReadBook(
-        bookId: bookId,
-        readPagesAmount: readPagesAmount,
-      );
-      sqliteReadBookService.mockUpdateReadBook(
-        updatedSqliteReadBook: updatedSqliteReadBook,
+      sqliteReadBookService.mockUpdateReadBook();
+      sqliteReadBookService.mockLoadUserReadBooks(
+        userReadBooks: sqliteReadBooksFromDay,
       );
 
-      final DbReadBook dbReadBook = await service.updateReadBook(
+      final DbDay dbDay = await service.updateReadBook(
         userId: userId,
         date: date,
         bookId: bookId,
@@ -164,7 +203,13 @@ void main() {
           syncState: syncState,
         ),
       ).called(1);
-      expect(dbReadBook, expectedUpdatedDbReadBook);
+      verify(
+        () => sqliteReadBookService.loadUserReadBooks(
+          userId: userId,
+          date: date,
+        ),
+      ).called(1);
+      expect(dbDay, expectedDbDay);
     },
   );
 }

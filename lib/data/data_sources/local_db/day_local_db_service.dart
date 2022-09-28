@@ -22,7 +22,7 @@ class DayLocalDbService {
     return _segregateReadBooksIntoDbDays(readBooks);
   }
 
-  Future<void> addUserReadBook({
+  Future<DbDay> addUserReadBook({
     required DbReadBook dbReadBook,
     required String userId,
     required String date,
@@ -36,24 +36,24 @@ class DayLocalDbService {
       syncState: syncState,
     );
     await _sqliteReadBookService.addReadBook(sqliteReadBook: sqliteReadBook);
+    return await _loadUserDbDay(userId, date);
   }
 
-  Future<DbReadBook> updateReadBook({
+  Future<DbDay> updateReadBook({
     required String userId,
     required String date,
     required String bookId,
     int? readPagesAmount,
     SyncState? syncState,
   }) async {
-    final SqliteReadBook updatedSqliteReadBook =
-        await _sqliteReadBookService.updateReadBook(
+    await _sqliteReadBookService.updateReadBook(
       userId: userId,
       date: date,
       bookId: bookId,
       readPagesAmount: readPagesAmount,
       syncState: syncState,
     );
-    return ReadBookMapper.mapFromSqliteModelToDbModel(updatedSqliteReadBook);
+    return await _loadUserDbDay(userId, date);
   }
 
   Future<List<SqliteReadBook>> _loadUserReadBooks({
@@ -63,6 +63,20 @@ class DayLocalDbService {
     return await _sqliteReadBookService.loadUserReadBooks(
       userId: userId,
       date: date,
+    );
+  }
+
+  Future<DbDay> _loadUserDbDay(String userId, String date) async {
+    final List<SqliteReadBook> userReadBooksFromDay = await _loadUserReadBooks(
+      userId: userId,
+      date: date,
+    );
+    return DbDay(
+      userId: userId,
+      date: date,
+      readBooks: userReadBooksFromDay
+          .map(ReadBookMapper.mapFromSqliteModelToDbModel)
+          .toList(),
     );
   }
 

@@ -11,8 +11,10 @@ import 'package:mocktail/mocktail.dart';
 import '../../mocks/db_services/mock_day_local_db_service.dart';
 import '../../mocks/db_services/mock_day_remote_db_service.dart';
 import '../../mocks/mock_device.dart';
+import '../../mocks/synchronizers/mock_day_synchronizer.dart';
 
 void main() {
+  final daySynchronizer = MockDaySynchronizer();
   final dayLocalDbService = MockDayLocalDbService();
   final dayRemoteDbService = MockDayRemoteDbService();
   final device = MockDevice();
@@ -23,6 +25,7 @@ void main() {
     List<Day> days = const [],
   }) {
     return DayRepository(
+      daySynchronizer: daySynchronizer,
       dayLocalDbService: dayLocalDbService,
       dayRemoteDbService: dayRemoteDbService,
       device: device,
@@ -58,6 +61,67 @@ void main() {
       final Stream<List<Day>> days$ = repository.getUserDays(userId: userId);
 
       expect(await days$.first, expectedDays);
+    },
+  );
+
+  group(
+    'initialize for user',
+    () {
+      setUp(() {
+        daySynchronizer.mockSynchronizeUserDaysMarkedAsAdded();
+        daySynchronizer.mockSynchronizeUserDaysMarkedAsUpdated();
+        daySynchronizer.mockSynchronizeUserUnmodifiedDays();
+      });
+
+      test(
+        'device has internet connection, should call all methods from day synchronizer responsible for synchronizing user days',
+        () async {
+          device.mockHasDeviceInternetConnection(value: true);
+
+          await repository.initializeForUser(userId: userId);
+
+          verify(
+            () => daySynchronizer.synchronizeUserDaysMarkedAsAdded(
+              userId: userId,
+            ),
+          ).called(1);
+          verify(
+            () => daySynchronizer.synchronizeUserDaysMarkedAsUpdated(
+              userId: userId,
+            ),
+          ).called(1);
+          verify(
+            () => daySynchronizer.synchronizeUserUnmodifiedDays(
+              userId: userId,
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'device has not internet connection, should do nothing',
+        () async {
+          device.mockHasDeviceInternetConnection(value: false);
+
+          await repository.initializeForUser(userId: userId);
+
+          verifyNever(
+            () => daySynchronizer.synchronizeUserDaysMarkedAsAdded(
+              userId: userId,
+            ),
+          );
+          verifyNever(
+            () => daySynchronizer.synchronizeUserDaysMarkedAsUpdated(
+              userId: userId,
+            ),
+          );
+          verifyNever(
+            () => daySynchronizer.synchronizeUserUnmodifiedDays(
+              userId: userId,
+            ),
+          );
+        },
+      );
     },
   );
 

@@ -6,6 +6,7 @@ import 'package:app/data/mappers/day_mapper.dart';
 import 'package:app/data/mappers/read_book_mapper.dart';
 import 'package:app/data/models/db_day.dart';
 import 'package:app/data/models/db_read_book.dart';
+import 'package:app/data/synchronizers/day_synchronizer.dart';
 import 'package:app/domain/entities/day.dart';
 import 'package:app/domain/entities/read_book.dart';
 import 'package:app/domain/interfaces/day_interface.dart';
@@ -14,17 +15,20 @@ import 'package:app/models/device.dart';
 import 'package:rxdart/rxdart.dart';
 
 class DayRepository implements DayInterface {
+  late final DaySynchronizer _daySynchronizer;
   late final DayLocalDbService _dayLocalDbService;
   late final DayRemoteDbService _dayRemoteDbService;
   late final Device _device;
   final BehaviorSubject<List<Day>> _days$ = BehaviorSubject();
 
   DayRepository({
+    required DaySynchronizer daySynchronizer,
     required DayLocalDbService dayLocalDbService,
     required DayRemoteDbService dayRemoteDbService,
     required Device device,
     List<Day> days = const [],
   }) {
+    _daySynchronizer = daySynchronizer;
     _dayLocalDbService = dayLocalDbService;
     _dayRemoteDbService = dayRemoteDbService;
     _device = device;
@@ -46,8 +50,11 @@ class DayRepository implements DayInterface {
 
   @override
   Future<void> initializeForUser({required String userId}) async {
-    throw UnimplementedError();
-    //TODO: implement this method
+    if (await _device.hasInternetConnection()) {
+      await _daySynchronizer.synchronizeUserDaysMarkedAsAdded(userId: userId);
+      await _daySynchronizer.synchronizeUserDaysMarkedAsUpdated(userId: userId);
+      await _daySynchronizer.synchronizeUserUnmodifiedDays(userId: userId);
+    }
   }
 
   @override

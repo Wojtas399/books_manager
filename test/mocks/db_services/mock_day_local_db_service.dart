@@ -8,9 +8,11 @@ class FakeDbReadBook extends Fake implements DbReadBook {}
 
 class MockDayLocalDbService extends Mock implements DayLocalDbService {
   void mockLoadUserDays({required List<DbDay> userDbDays}) {
+    _mockSyncState();
     when(
       () => loadUserDays(
         userId: any(named: 'userId'),
+        syncState: any(named: 'syncState'),
       ),
     ).thenAnswer((_) async => userDbDays);
   }

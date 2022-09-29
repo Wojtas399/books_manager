@@ -16,9 +16,12 @@ class DayLocalDbService {
     _sqliteReadBookService = sqliteReadBookService;
   }
 
-  Future<List<DbDay>> loadUserDays({required String userId}) async {
+  Future<List<DbDay>> loadUserDays({
+    required String userId,
+    SyncState? syncState,
+  }) async {
     final List<SqliteReadBook> readBooks =
-        await _loadUserReadBooks(userId: userId);
+        await _loadUserReadBooks(userId: userId, syncState: syncState);
     return _segregateReadBooksIntoDbDays(readBooks);
   }
 
@@ -59,10 +62,12 @@ class DayLocalDbService {
   Future<List<SqliteReadBook>> _loadUserReadBooks({
     required String userId,
     String? date,
+    SyncState? syncState,
   }) async {
     return await _sqliteReadBookService.loadUserReadBooks(
       userId: userId,
       date: date,
+      syncState: syncState,
     );
   }
 

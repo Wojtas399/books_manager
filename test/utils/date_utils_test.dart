@@ -46,4 +46,55 @@ void main() {
       expect(result, false);
     },
   );
+
+  test(
+    'is date from month and year, should return true if date is from given month and year',
+    () {
+      final DateTime date = DateTime(2022, 1, 20);
+      const int month = 1;
+      const int year = 2022;
+
+      final bool result = DateUtils.isDateFromMonthAndYear(
+        date: date,
+        month: month,
+        year: year,
+      );
+
+      expect(result, true);
+    },
+  );
+
+  test(
+    'is date from month and year, should return false if date is from given month and but not from given year',
+    () {
+      final DateTime date = DateTime(2022, 1, 20);
+      const int month = 1;
+      const int year = 2021;
+
+      final bool result = DateUtils.isDateFromMonthAndYear(
+        date: date,
+        month: month,
+        year: year,
+      );
+
+      expect(result, false);
+    },
+  );
+
+  test(
+    'is date from month and year, should return false if date is from given year and but not from given month',
+    () {
+      final DateTime date = DateTime(2022, 1, 20);
+      const int month = 4;
+      const int year = 2022;
+
+      final bool result = DateUtils.isDateFromMonthAndYear(
+        date: date,
+        month: month,
+        year: year,
+      );
+
+      expect(result, false);
+    },
+  );
 }

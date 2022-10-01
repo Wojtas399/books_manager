@@ -8,4 +8,12 @@ class DateUtils {
     }
     return false;
   }
+
+  static bool isDateFromMonthAndYear({
+    required DateTime date,
+    required int month,
+    required int year,
+  }) {
+    return date.month == month && date.year == year;
+  }
 }

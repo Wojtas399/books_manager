@@ -32,9 +32,9 @@ class FirebaseDay extends Equatable {
 
   Map<String, Object?> toJson() => {
         FirebaseDayFields.date: date,
-        FirebaseDayFields.readBooks: readBooks.map(
-          (FirebaseReadBook readBook) => readBook.toJson(),
-        ),
+        FirebaseDayFields.readBooks: readBooks
+            .map((FirebaseReadBook readBook) => readBook.toJson())
+            .toList(),
       };
 
   FirebaseDay copyWith({

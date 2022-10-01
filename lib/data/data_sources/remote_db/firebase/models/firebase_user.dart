@@ -45,9 +45,8 @@ class FirebaseUser extends Equatable {
         FirebaseUserFields.isDarkModeOn: isDarkModeOn,
         FirebaseUserFields.isDarkModeCompatibilityWithSystemOn:
             isDarkModeCompatibilityWithSystemOn,
-        FirebaseUserFields.daysOfReading: daysOfReading.map(
-          (FirebaseDay day) => day.toJson(),
-        ),
+        FirebaseUserFields.daysOfReading:
+            daysOfReading.map((FirebaseDay day) => day.toJson()).toList(),
       };
 
   FirebaseUser copyWith({

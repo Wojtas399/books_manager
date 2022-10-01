@@ -139,6 +139,11 @@ class BookPreviewBloc extends Bloc<BookPreviewEvent, BookPreviewState> {
       emit(state.copyWithError(
         BookPreviewBlocError.newCurrentPageNumberIsTooHigh,
       ));
+    } else if (bookError.code ==
+        BookErrorCode.newCurrentPageIsLowerThanCurrentPage) {
+      emit(state.copyWithError(
+        BookPreviewBlocError.newCurrentPageIsLowerThanCurrentPage,
+      ));
     }
   }
 }

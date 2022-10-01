@@ -10,4 +10,7 @@ enum NetworkErrorCode { lossOfConnection }
 
 enum UserErrorCode { userNotFound, updateFailure }
 
-enum BookErrorCode { newCurrentPageIsTooHigh, newCurrentPageIsLower }
+enum BookErrorCode {
+  newCurrentPageIsTooHigh,
+  newCurrentPageIsLowerThanCurrentPage,
+}

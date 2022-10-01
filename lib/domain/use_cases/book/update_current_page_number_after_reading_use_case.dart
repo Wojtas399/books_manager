@@ -29,7 +29,9 @@ class UpdateCurrentPageNumberAfterReadingUseCase {
     if (newCurrentPageNumber > allPagesAmount) {
       throw const BookError(code: BookErrorCode.newCurrentPageIsTooHigh);
     } else if (newCurrentPageNumber < book.readPagesAmount) {
-      throw const BookError(code: BookErrorCode.newCurrentPageIsLower);
+      throw const BookError(
+        code: BookErrorCode.newCurrentPageIsLowerThanCurrentPage,
+      );
     }
     await _bookInterface.updateBookData(
       bookId: bookId,

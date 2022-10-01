@@ -64,7 +64,7 @@ void main() {
     'new current page number is lower than current page number, should throw book error',
     () async {
       const BookError expectedBookError = BookError(
-        code: BookErrorCode.newCurrentPageIsLower,
+        code: BookErrorCode.newCurrentPageIsLowerThanCurrentPage,
       );
 
       try {

@@ -96,10 +96,10 @@ class _BookPreviewBlocListener extends StatelessWidget {
   void _onCompletionInfo(BookPreviewBlocInfo info, BuildContext context) {
     switch (info) {
       case BookPreviewBlocInfo.currentPageNumberHasBeenUpdated:
-        _onCurrentPageUpdate(context);
+        _showInfoAboutPageActualisation(context);
         break;
       case BookPreviewBlocInfo.bookHasBeenDeleted:
-        _onBookDeletion(context);
+        _showInfoAboutBookDeletion(context);
         break;
     }
   }
@@ -107,28 +107,41 @@ class _BookPreviewBlocListener extends StatelessWidget {
   void _onError(BookPreviewBlocError error, BuildContext context) {
     switch (error) {
       case BookPreviewBlocError.newCurrentPageNumberIsTooHigh:
-        _onTooHighNumberOfNewCurrentPage(context);
+        _showInfoAboutTooHighNumberOfNewCurrentPage(context);
+        break;
+      case BookPreviewBlocError.newCurrentPageIsLowerThanCurrentPage:
+        _showInfoAboutNewPageNumberLowerThanCurrentPageNumber(context);
         break;
     }
   }
 
-  void _onCurrentPageUpdate(BuildContext context) {
+  void _showInfoAboutPageActualisation(BuildContext context) {
     context.read<DialogInterface>().showSnackBar(
           message: 'Pomyślnie zaktualizowano numer bieżącej strony',
         );
   }
 
-  void _onBookDeletion(BuildContext context) {
+  void _showInfoAboutBookDeletion(BuildContext context) {
     Navigator.pop(context);
     context.read<DialogInterface>().showSnackBar(
           message: 'Pomyślnie usunięto książkę',
         );
   }
 
-  void _onTooHighNumberOfNewCurrentPage(BuildContext context) {
+  void _showInfoAboutTooHighNumberOfNewCurrentPage(BuildContext context) {
     context.read<DialogInterface>().showInfoDialog(
           title: 'Niepoprawny numer strony',
           info: 'Podany numer strony jest wyższy od liczby wszystkich stron...',
+        );
+  }
+
+  void _showInfoAboutNewPageNumberLowerThanCurrentPageNumber(
+    BuildContext context,
+  ) {
+    context.read<DialogInterface>().showInfoDialog(
+          title: 'Niepoprawny numer strony',
+          info:
+              'Podany numer strony jest niższy od numeru poprzednio skończonej strony',
         );
   }
 }

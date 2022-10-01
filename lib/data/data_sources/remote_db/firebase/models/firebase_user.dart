@@ -23,10 +23,9 @@ class FirebaseUser extends Equatable {
           isDarkModeCompatibilityWithSystemOn:
               json[FirebaseUserFields.isDarkModeCompatibilityWithSystemOn]
                   as bool,
-          daysOfReading: (json[FirebaseUserFields.daysOfReading]
-                  as List<Map<String, Object?>>)
+          daysOfReading: (json[FirebaseUserFields.daysOfReading] as List)
               .map(
-                (Map<String, Object?> dayJson) => FirebaseDay.fromJson(
+                (dayJson) => FirebaseDay.fromJson(
                   json: dayJson,
                   userId: userId,
                 ),

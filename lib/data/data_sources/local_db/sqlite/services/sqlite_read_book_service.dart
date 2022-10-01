@@ -10,7 +10,8 @@ class SqliteReadBookService {
       ${SqliteReadBookFields.userId} TEXT NOT NULL,
       ${SqliteReadBookFields.bookId} TEXT NOT NULL,
       ${SqliteReadBookFields.date} TEXT NOT NULL,
-      ${SqliteReadBookFields.readPagesAmount} INTEGER NOT NULL
+      ${SqliteReadBookFields.readPagesAmount} INTEGER NOT NULL,
+      ${SqliteReadBookFields.syncState} TEXT NOT NULL
     )
   ''';
 

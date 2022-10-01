@@ -1,3 +1,4 @@
+import 'package:app/features/calendar/components/calendar_content.dart';
 import 'package:flutter/widgets.dart';
 
 class CalendarScreen extends StatelessWidget {
@@ -5,8 +6,6 @@ class CalendarScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Calendar screen'),
-    );
+    return const CalendarContent();
   }
 }

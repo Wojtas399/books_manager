@@ -49,8 +49,8 @@ void main() {
       }
 
       setUp(() {
-        dayLocalDbService.mockAddUserReadBook(dbDay: createDbDay());
-        dayLocalDbService.mockUpdateReadBook(dbDay: createDbDay());
+        dayLocalDbService.mockAddUserReadBook();
+        dayLocalDbService.mockUpdateReadBook();
         dayRemoteDbService.mockAddUserReadBooks();
       });
 
@@ -230,7 +230,7 @@ void main() {
   );
 
   test(
-    'synchronize user days marked as added, should load days marked as added from local db and should add them to remote db',
+    'synchronize user days marked as added, should load days marked as added from local db, should add them to remote db and should set their sync state as none in local db',
     () async {
       final List<DbDay> dbDaysMarkedAsAdded = [
         createDbDay(
@@ -251,6 +251,7 @@ void main() {
       ];
       dayLocalDbService.mockLoadUserDays(userDbDays: dbDaysMarkedAsAdded);
       dayRemoteDbService.mockAddUserReadBooks();
+      dayLocalDbService.mockUpdateReadBook();
 
       await synchronizer.synchronizeUserDaysMarkedAsAdded(userId: userId);
 
@@ -273,6 +274,30 @@ void main() {
           dbReadBook: dbDaysMarkedAsAdded.last.readBooks.first,
           userId: userId,
           date: dbDaysMarkedAsAdded.last.date,
+        ),
+      ).called(1);
+      verify(
+        () => dayLocalDbService.updateReadBook(
+          userId: userId,
+          date: dbDaysMarkedAsAdded.first.date,
+          bookId: dbDaysMarkedAsAdded.first.readBooks.first.bookId,
+          syncState: SyncState.none,
+        ),
+      ).called(1);
+      verify(
+        () => dayLocalDbService.updateReadBook(
+          userId: userId,
+          date: dbDaysMarkedAsAdded.first.date,
+          bookId: dbDaysMarkedAsAdded.first.readBooks.last.bookId,
+          syncState: SyncState.none,
+        ),
+      ).called(1);
+      verify(
+        () => dayLocalDbService.updateReadBook(
+          userId: userId,
+          date: dbDaysMarkedAsAdded.last.date,
+          bookId: dbDaysMarkedAsAdded.last.readBooks.first.bookId,
+          syncState: SyncState.none,
         ),
       ).called(1);
     },
@@ -300,6 +325,7 @@ void main() {
       ];
       dayLocalDbService.mockLoadUserDays(userDbDays: dbDaysMarkedAsAdded);
       dayRemoteDbService.mockUpdateBookReadPagesAmountInDay();
+      dayLocalDbService.mockUpdateReadBook();
 
       await synchronizer.synchronizeUserDaysMarkedAsUpdated(userId: userId);
 
@@ -322,6 +348,30 @@ void main() {
           updatedDbReadBook: dbDaysMarkedAsAdded.last.readBooks.first,
           userId: userId,
           date: dbDaysMarkedAsAdded.last.date,
+        ),
+      ).called(1);
+      verify(
+        () => dayLocalDbService.updateReadBook(
+          userId: userId,
+          date: dbDaysMarkedAsAdded.first.date,
+          bookId: dbDaysMarkedAsAdded.first.readBooks.first.bookId,
+          syncState: SyncState.none,
+        ),
+      ).called(1);
+      verify(
+        () => dayLocalDbService.updateReadBook(
+          userId: userId,
+          date: dbDaysMarkedAsAdded.first.date,
+          bookId: dbDaysMarkedAsAdded.first.readBooks.last.bookId,
+          syncState: SyncState.none,
+        ),
+      ).called(1);
+      verify(
+        () => dayLocalDbService.updateReadBook(
+          userId: userId,
+          date: dbDaysMarkedAsAdded.last.date,
+          bookId: dbDaysMarkedAsAdded.last.readBooks.first.bookId,
+          syncState: SyncState.none,
         ),
       ).called(1);
     },

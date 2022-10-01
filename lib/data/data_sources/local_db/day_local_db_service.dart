@@ -28,7 +28,7 @@ class DayLocalDbService {
     return _segregateReadBooksIntoDbDays(userReadBooks);
   }
 
-  Future<DbDay> addUserReadBook({
+  Future<void> addUserReadBook({
     required DbReadBook dbReadBook,
     required String userId,
     required String date,
@@ -42,10 +42,9 @@ class DayLocalDbService {
       syncState: syncState,
     );
     await _sqliteReadBookService.addReadBook(sqliteReadBook: sqliteReadBook);
-    return await _loadUserDbDay(userId, date);
   }
 
-  Future<DbDay> updateReadBook({
+  Future<void> updateReadBook({
     required String userId,
     required String date,
     required String bookId,
@@ -59,7 +58,6 @@ class DayLocalDbService {
       readPagesAmount: readPagesAmount,
       syncState: syncState,
     );
-    return await _loadUserDbDay(userId, date);
   }
 
   Future<DbDay> addNewReadPages({

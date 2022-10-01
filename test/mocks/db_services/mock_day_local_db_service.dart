@@ -17,7 +17,7 @@ class MockDayLocalDbService extends Mock implements DayLocalDbService {
     ).thenAnswer((_) async => userDbDays);
   }
 
-  void mockAddUserReadBook({required DbDay dbDay}) {
+  void mockAddUserReadBook() {
     _mockDbReadBook();
     _mockSyncState();
     when(
@@ -27,10 +27,10 @@ class MockDayLocalDbService extends Mock implements DayLocalDbService {
         date: any(named: 'date'),
         syncState: any(named: 'syncState'),
       ),
-    ).thenAnswer((_) async => dbDay);
+    ).thenAnswer((_) async => '');
   }
 
-  void mockUpdateReadBook({required DbDay dbDay}) {
+  void mockUpdateReadBook() {
     _mockSyncState();
     when(
       () => updateReadBook(
@@ -40,7 +40,7 @@ class MockDayLocalDbService extends Mock implements DayLocalDbService {
         readPagesAmount: any(named: 'readPagesAmount'),
         syncState: any(named: 'syncState'),
       ),
-    ).thenAnswer((_) async => dbDay);
+    ).thenAnswer((_) async => '');
   }
 
   void mockAddNewReadPages({required DbDay updatedDbDay}) {

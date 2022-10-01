@@ -35,6 +35,7 @@ class DaySynchronizer {
         .loadUserDays(userId: userId, syncState: SyncState.added);
     for (final DbDay dbDay in dbDaysMarkedAsAdded) {
       await _addReadBooksFromDayToRemoteDb(dbDay);
+      await _setSyncStateAsNoneInLocalDbForAllReadBooksFromDay(dbDay);
     }
   }
 
@@ -45,6 +46,7 @@ class DaySynchronizer {
         .loadUserDays(userId: userId, syncState: SyncState.updated);
     for (final DbDay dbDay in dbDaysMarkedAsUpdated) {
       await _updateReadBooksFromDayInRemoteDb(dbDay);
+      await _setSyncStateAsNoneInLocalDbForAllReadBooksFromDay(dbDay);
     }
   }
 
@@ -108,6 +110,19 @@ class DaySynchronizer {
         date: dbDay.date,
         bookId: dbReadBook.bookId,
         readPagesAmount: dbReadBook.readPagesAmount,
+        syncState: SyncState.none,
+      );
+    }
+  }
+
+  Future<void> _setSyncStateAsNoneInLocalDbForAllReadBooksFromDay(
+    DbDay dbDay,
+  ) async {
+    for (final DbReadBook readBook in dbDay.readBooks) {
+      await _dayLocalDbService.updateReadBook(
+        userId: dbDay.userId,
+        date: dbDay.date,
+        bookId: readBook.bookId,
         syncState: SyncState.none,
       );
     }

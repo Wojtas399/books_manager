@@ -126,7 +126,7 @@ class SqliteReadBookService {
       SqliteTables.readBooksTable,
       updatedSqliteReadBook.toJson(),
       where:
-          '${SqliteReadBookFields.userId} = ? AND ${SqliteReadBookFields.bookId} = ? AND ${SqliteReadBookFields.date} = ?',
+          '${SqliteReadBookFields.userId} = ? AND ${SqliteReadBookFields.date} = ? AND ${SqliteReadBookFields.bookId} = ?',
       whereArgs: [
         updatedSqliteReadBook.userId,
         updatedSqliteReadBook.date,

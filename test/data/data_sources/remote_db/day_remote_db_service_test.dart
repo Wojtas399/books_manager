@@ -329,4 +329,169 @@ void main() {
       );
     },
   );
+
+  group(
+    'add new read pages',
+    () {
+      const String userId = 'u1';
+      const String date = '20-09-2022';
+      const String bookId = 'b1';
+      const int amountOfReadPagesToAdd = 50;
+
+      Future<void> callAddNewReadPagesMethod() async {
+        await service.addNewReadPages(
+          userId: userId,
+          date: date,
+          bookId: bookId,
+          amountOfReadPagesToAdd: amountOfReadPagesToAdd,
+        );
+      }
+
+      setUp(() {
+        firebaseFirestoreUserService.mockUpdateUser();
+      });
+
+      tearDown(() {
+        verify(
+          () => firebaseFirestoreUserService.loadUser(userId: userId),
+        ).called(1);
+      });
+
+      test(
+        'date exists in days, book exists in list of read books, should add given amount of read pages to existing amount',
+        () async {
+          final FirebaseReadBook existingFirebaseReadBook =
+              createFirebaseReadBook(
+            bookId: bookId,
+            readPagesAmount: 100,
+          );
+          final FirebaseReadBook updatedFirebaseReadBook =
+              existingFirebaseReadBook.copyWith(
+            readPagesAmount: existingFirebaseReadBook.readPagesAmount +
+                amountOfReadPagesToAdd,
+          );
+          final List<FirebaseDay> originalDaysOfReading = [
+            createFirebaseDay(
+              userId: userId,
+              date: date,
+              readBooks: [
+                existingFirebaseReadBook,
+                createFirebaseReadBook(bookId: 'b2', readPagesAmount: 200),
+              ],
+            ),
+            createFirebaseDay(
+              userId: userId,
+              date: '15-09-2022',
+            ),
+          ];
+          final List<FirebaseDay> updatedDaysOfReading = [
+            originalDaysOfReading.first.copyWith(
+              readBooks: [
+                updatedFirebaseReadBook,
+                originalDaysOfReading.first.readBooks.last,
+              ],
+            ),
+            originalDaysOfReading.last
+          ];
+          final FirebaseUser firebaseUser = createFirebaseUser(
+            daysOfReading: originalDaysOfReading,
+          );
+          firebaseFirestoreUserService.mockLoadUser(firebaseUser: firebaseUser);
+
+          await callAddNewReadPagesMethod();
+
+          verify(
+            () => firebaseFirestoreUserService.updateUser(
+              userId: userId,
+              daysOfReading: updatedDaysOfReading,
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'date exists in days, book does not exist in read books, should add new read book to list of read books',
+        () async {
+          const FirebaseReadBook newFirebaseReadBook = FirebaseReadBook(
+            bookId: bookId,
+            readPagesAmount: amountOfReadPagesToAdd,
+          );
+          final List<FirebaseDay> originalDaysOfReading = [
+            createFirebaseDay(
+              userId: userId,
+              date: date,
+              readBooks: [
+                createFirebaseReadBook(bookId: 'b2', readPagesAmount: 200),
+              ],
+            ),
+            createFirebaseDay(
+              userId: userId,
+              date: '15-09-2022',
+            ),
+          ];
+          final List<FirebaseDay> updatedDaysOfReading = [
+            originalDaysOfReading.first.copyWith(
+              readBooks: [
+                originalDaysOfReading.first.readBooks.first,
+                newFirebaseReadBook,
+              ],
+            ),
+            originalDaysOfReading.last,
+          ];
+          final FirebaseUser firebaseUser = createFirebaseUser(
+            daysOfReading: originalDaysOfReading,
+          );
+          firebaseFirestoreUserService.mockLoadUser(firebaseUser: firebaseUser);
+
+          await callAddNewReadPagesMethod();
+
+          verify(
+            () => firebaseFirestoreUserService.updateUser(
+              userId: userId,
+              daysOfReading: updatedDaysOfReading,
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'date does not exist in days, should add new day with given date and one read book',
+        () async {
+          final FirebaseDay newFirebaseDay = FirebaseDay(
+            userId: userId,
+            date: date,
+            readBooks: [
+              createFirebaseReadBook(
+                bookId: bookId,
+                readPagesAmount: amountOfReadPagesToAdd,
+              ),
+            ],
+          );
+          final List<FirebaseDay> originalDaysOfReading = [
+            createFirebaseDay(
+              userId: userId,
+              date: '15-09-2022',
+            ),
+          ];
+          final List<FirebaseDay> updatedDaysOfReading = [
+            originalDaysOfReading.first,
+            newFirebaseDay,
+          ];
+          final FirebaseUser firebaseUser = createFirebaseUser(
+            daysOfReading: originalDaysOfReading,
+          );
+          firebaseFirestoreUserService.mockLoadUser(firebaseUser: firebaseUser);
+
+          await callAddNewReadPagesMethod();
+
+          verify(
+            () => firebaseFirestoreUserService.updateUser(
+              userId: userId,
+              daysOfReading: updatedDaysOfReading,
+            ),
+          ).called(1);
+        },
+      );
+    },
+  );
 }

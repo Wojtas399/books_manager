@@ -70,10 +70,61 @@ class DayRemoteDbService {
     );
   }
 
+  Future<void> addNewReadPages({
+    required String userId,
+    required String date,
+    required String bookId,
+    required int amountOfReadPagesToAdd,
+  }) async {
+    final List<FirebaseDay> userDays = await _loadUserDaysOfReading(userId);
+    final List<FirebaseDay> updatedDays = [...userDays];
+    final FirebaseReadBook newReadBook = FirebaseReadBook(
+      bookId: bookId,
+      readPagesAmount: amountOfReadPagesToAdd,
+    );
+    if (userDays.containsDate(date)) {
+      final int dayIndex = userDays.indexOfDate(date);
+      final FirebaseDay day = userDays[dayIndex];
+      updatedDays[dayIndex] = _manageNewReadBookInDay(newReadBook, day);
+    } else {
+      final FirebaseDay newDay = FirebaseDay(
+        userId: userId,
+        date: date,
+        readBooks: [newReadBook],
+      );
+      updatedDays.add(newDay);
+    }
+    await _firebaseFirestoreUserService.updateUser(
+      userId: userId,
+      daysOfReading: updatedDays,
+    );
+  }
+
   Future<List<FirebaseDay>> _loadUserDaysOfReading(String userId) async {
     final FirebaseUser firebaseUser =
         await _firebaseFirestoreUserService.loadUser(userId: userId);
     return firebaseUser.daysOfReading;
+  }
+
+  FirebaseDay _manageNewReadBookInDay(
+    FirebaseReadBook newReadBook,
+    FirebaseDay day,
+  ) {
+    final String bookId = newReadBook.bookId;
+    if (day.containsBook(bookId)) {
+      final FirebaseReadBook readBook = day.readBooks.firstWhere(
+        (FirebaseReadBook firebaseReadBook) =>
+            firebaseReadBook.bookId == bookId,
+      );
+      final int newReadPagesAmount =
+          readBook.readPagesAmount + newReadBook.readPagesAmount;
+      final FirebaseReadBook updatedReadBook = readBook.copyWith(
+        readPagesAmount: newReadPagesAmount,
+      );
+      return _updateReadBookInDay(updatedReadBook, day);
+    } else {
+      return _addReadBookToDay(newReadBook, day);
+    }
   }
 
   FirebaseDay _addReadBookToDay(FirebaseReadBook readBook, FirebaseDay day) {

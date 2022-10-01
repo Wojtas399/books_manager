@@ -1,14 +1,10 @@
 import 'package:app/data/data_sources/local_db/day_local_db_service.dart';
-import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/data/data_sources/remote_db/day_remote_db_service.dart';
 import 'package:app/data/mappers/date_mapper.dart';
 import 'package:app/data/mappers/day_mapper.dart';
-import 'package:app/data/mappers/read_book_mapper.dart';
 import 'package:app/data/models/db_day.dart';
-import 'package:app/data/models/db_read_book.dart';
 import 'package:app/data/synchronizers/day_synchronizer.dart';
 import 'package:app/domain/entities/day.dart';
-import 'package:app/domain/entities/read_book.dart';
 import 'package:app/domain/interfaces/day_interface.dart';
 import 'package:app/extensions/list_extensions.dart';
 import 'package:app/models/device.dart';
@@ -67,67 +63,36 @@ class DayRepository implements DayInterface {
   }
 
   @override
-  Future<void> addUserReadBook({
-    required ReadBook readBook,
-    required String userId,
-    required DateTime date,
-  }) async {
-    final DbReadBook dbReadBook =
-        ReadBookMapper.mapFromEntityToDbModel(readBook);
-    final String dateStr = DateMapper.mapFromDateTimeToString(date);
-    SyncState syncState = SyncState.added;
-    if (await _device.hasInternetConnection()) {
-      await _dayRemoteDbService.addUserReadBook(
-        dbReadBook: dbReadBook,
-        userId: userId,
-        date: dateStr,
-      );
-      syncState = SyncState.none;
-    }
-    final DbDay dbDay = await _dayLocalDbService.addUserReadBook(
-      dbReadBook: dbReadBook,
-      userId: userId,
-      date: dateStr,
-      syncState: syncState,
-    );
-    final Day day = _mapDbDayToDay(dbDay);
-    if (_days$.value.containsUserDay(userId: userId, date: date)) {
-      _updateDayInList(day);
-    } else {
-      _addDaysToList([day]);
-    }
-  }
-
-  @override
-  Future<void> updateReadPagesAmountOfUserReadBook({
+  Future<void> addNewReadPages({
     required String userId,
     required DateTime date,
     required String bookId,
-    required int updatedReadPagesAmount,
+    required int amountOfReadPagesToAdd,
   }) async {
-    final String dateStr = DateMapper.mapFromDateTimeToString(date);
-    SyncState syncState = SyncState.updated;
+    final String dateInString = DateMapper.mapFromDateTimeToString(date);
+    bool shouldModifySyncStateInLocalDb = true;
     if (await _device.hasInternetConnection()) {
-      final DbReadBook updatedDbReadBook = DbReadBook(
-        bookId: bookId,
-        readPagesAmount: updatedReadPagesAmount,
-      );
-      await _dayRemoteDbService.updateBookReadPagesAmountInDay(
-        updatedDbReadBook: updatedDbReadBook,
+      await _dayRemoteDbService.addNewReadPages(
         userId: userId,
-        date: dateStr,
+        date: dateInString,
+        bookId: bookId,
+        amountOfReadPagesToAdd: amountOfReadPagesToAdd,
       );
-      syncState = SyncState.none;
+      shouldModifySyncStateInLocalDb = false;
     }
-    final DbDay updatedDbDay = await _dayLocalDbService.updateReadBook(
+    final DbDay updatedDbDay = await _dayLocalDbService.addNewReadPages(
       userId: userId,
-      date: dateStr,
+      date: dateInString,
       bookId: bookId,
-      readPagesAmount: updatedReadPagesAmount,
-      syncState: syncState,
+      amountOfReadPagesToAdd: amountOfReadPagesToAdd,
+      withModifiedSyncState: shouldModifySyncStateInLocalDb,
     );
-    final Day updatedDay = _mapDbDayToDay(updatedDbDay);
-    _updateDayInList(updatedDay);
+    final Day updatedDay = DayMapper.mapFromDbModelToEntity(updatedDbDay);
+    if (_days$.value.containsUserDay(userId: userId, date: date)) {
+      _updateDayInList(updatedDay);
+    } else {
+      _addDaysToList([updatedDay]);
+    }
   }
 
   @override
@@ -153,10 +118,6 @@ class DayRepository implements DayInterface {
     _days$.add(
       updatedDays.removeRepetitions(),
     );
-  }
-
-  Day _mapDbDayToDay(DbDay dbDay) {
-    return DayMapper.mapFromDbModelToEntity(dbDay);
   }
 }
 

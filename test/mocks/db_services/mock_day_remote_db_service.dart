@@ -36,6 +36,17 @@ class MockDayRemoteDbService extends Mock implements DayRemoteDbService {
     ).thenAnswer((_) async => '');
   }
 
+  void mockAddNewReadPages() {
+    when(
+      () => addNewReadPages(
+        userId: any(named: 'userId'),
+        date: any(named: 'date'),
+        bookId: any(named: 'bookId'),
+        amountOfReadPagesToAdd: any(named: 'amountOfReadPagesToAdd'),
+      ),
+    ).thenAnswer((_) async => '');
+  }
+
   void _mockDbReadBook() {
     registerFallbackValue(FakeDbReadBook());
   }

@@ -32,6 +32,7 @@ class SqliteReadBook extends Equatable {
         date,
         bookId,
         readPagesAmount,
+        syncState,
       ];
 
   Map<String, Object?> toJson() => {

@@ -30,29 +30,14 @@ class MockDayInterface extends Mock implements DayInterface {
     ).thenAnswer((_) async => '');
   }
 
-  void mockAddUserReadBook() {
-    _mockReadBook();
+  void mockAddNewReadPages() {
     when(
-      () => addUserReadBook(
-        readBook: any(named: 'readBook'),
-        userId: any(named: 'userId'),
-        date: any(named: 'date'),
-      ),
-    ).thenAnswer((_) async => '');
-  }
-
-  void mockUpdateReadPagesAmountOfUserReadBook() {
-    when(
-      () => updateReadPagesAmountOfUserReadBook(
+      () => addNewReadPages(
         userId: any(named: 'userId'),
         date: any(named: 'date'),
         bookId: any(named: 'bookId'),
-        updatedReadPagesAmount: any(named: 'updatedReadPagesAmount'),
+        amountOfReadPagesToAdd: any(named: 'amountOfReadPagesToAdd'),
       ),
     ).thenAnswer((_) async => '');
-  }
-
-  void _mockReadBook() {
-    registerFallbackValue(FakeReadBook());
   }
 }

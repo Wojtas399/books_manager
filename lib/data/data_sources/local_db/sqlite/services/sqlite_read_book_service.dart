@@ -14,6 +14,22 @@ class SqliteReadBookService {
     )
   ''';
 
+  Future<SqliteReadBook?> loadReadBook({
+    required String userId,
+    required String date,
+    required String bookId,
+  }) async {
+    final Map<String, Object?>? json = await _queryReadBook(
+      userId: userId,
+      date: date,
+      bookId: bookId,
+    );
+    if (json == null) {
+      return null;
+    }
+    return SqliteReadBook.fromJson(json);
+  }
+
   Future<List<SqliteReadBook>> loadUserReadBooks({
     required String userId,
     String? date,
@@ -40,15 +56,14 @@ class SqliteReadBookService {
     int? readPagesAmount,
     SyncState? syncState,
   }) async {
-    final Map<String, Object?>? json = await _queryReadBook(
+    final SqliteReadBook? sqliteReadBook = await loadReadBook(
       userId: userId,
       date: date,
       bookId: bookId,
     );
-    if (json == null) {
+    if (sqliteReadBook == null) {
       throw 'Cannot load read book from sqlite';
     }
-    final SqliteReadBook sqliteReadBook = SqliteReadBook.fromJson(json);
     final SqliteReadBook updatedSqliteReadBook = sqliteReadBook.copyWith(
       readPagesAmount: readPagesAmount,
       syncState: syncState,

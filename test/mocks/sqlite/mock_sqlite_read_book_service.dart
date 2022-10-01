@@ -6,6 +6,16 @@ import 'package:mocktail/mocktail.dart';
 class FakeSqliteReadBook extends Fake implements SqliteReadBook {}
 
 class MockSqliteReadBookService extends Mock implements SqliteReadBookService {
+  void mockLoadReadBook({SqliteReadBook? readBook}) {
+    when(
+      () => loadReadBook(
+        userId: any(named: 'userId'),
+        date: any(named: 'date'),
+        bookId: any(named: 'bookId'),
+      ),
+    ).thenAnswer((_) async => readBook);
+  }
+
   void mockLoadUserReadBooks({
     required List<SqliteReadBook> userReadBooks,
   }) async {

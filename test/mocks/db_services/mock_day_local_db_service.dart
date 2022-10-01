@@ -43,6 +43,19 @@ class MockDayLocalDbService extends Mock implements DayLocalDbService {
     ).thenAnswer((_) async => dbDay);
   }
 
+  void mockAddNewReadPages({required DbDay updatedDbDay}) {
+    _mockSyncState();
+    when(
+      () => addNewReadPages(
+        userId: any(named: 'userId'),
+        date: any(named: 'date'),
+        bookId: any(named: 'bookId'),
+        amountOfReadPagesToAdd: any(named: 'amountOfReadPagesToAdd'),
+        withModifiedSyncState: any(named: 'withModifiedSyncState'),
+      ),
+    ).thenAnswer((_) async => updatedDbDay);
+  }
+
   void _mockDbReadBook() {
     registerFallbackValue(FakeDbReadBook());
   }

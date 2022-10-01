@@ -20,9 +20,12 @@ class DayLocalDbService {
     required String userId,
     SyncState? syncState,
   }) async {
-    final List<SqliteReadBook> readBooks =
-        await _loadUserReadBooks(userId: userId, syncState: syncState);
-    return _segregateReadBooksIntoDbDays(readBooks);
+    final List<SqliteReadBook> userReadBooks =
+        await _sqliteReadBookService.loadUserReadBooks(
+      userId: userId,
+      syncState: syncState,
+    );
+    return _segregateReadBooksIntoDbDays(userReadBooks);
   }
 
   Future<DbDay> addUserReadBook({
@@ -59,20 +62,43 @@ class DayLocalDbService {
     return await _loadUserDbDay(userId, date);
   }
 
-  Future<List<SqliteReadBook>> _loadUserReadBooks({
+  Future<DbDay> addNewReadPages({
     required String userId,
-    String? date,
-    SyncState? syncState,
+    required String date,
+    required String bookId,
+    required int amountOfReadPagesToAdd,
+    bool withModifiedSyncState = false,
   }) async {
-    return await _sqliteReadBookService.loadUserReadBooks(
-      userId: userId,
-      date: date,
-      syncState: syncState,
-    );
+    final SqliteReadBook? sqliteReadBook = await _sqliteReadBookService
+        .loadReadBook(userId: userId, date: date, bookId: bookId);
+    if (sqliteReadBook != null) {
+      final int newReadPagesAmount =
+          sqliteReadBook.readPagesAmount + amountOfReadPagesToAdd;
+      await _sqliteReadBookService.updateReadBook(
+        userId: userId,
+        date: date,
+        bookId: bookId,
+        readPagesAmount: newReadPagesAmount,
+        syncState: withModifiedSyncState ? SyncState.updated : SyncState.none,
+      );
+    } else {
+      final SqliteReadBook newSqliteReadBook = SqliteReadBook(
+        userId: userId,
+        date: date,
+        bookId: bookId,
+        readPagesAmount: amountOfReadPagesToAdd,
+        syncState: withModifiedSyncState ? SyncState.added : SyncState.none,
+      );
+      await _sqliteReadBookService.addReadBook(
+        sqliteReadBook: newSqliteReadBook,
+      );
+    }
+    return await _loadUserDbDay(userId, date);
   }
 
   Future<DbDay> _loadUserDbDay(String userId, String date) async {
-    final List<SqliteReadBook> userReadBooksFromDay = await _loadUserReadBooks(
+    final List<SqliteReadBook> userReadBooksFromDay =
+        await _sqliteReadBookService.loadUserReadBooks(
       userId: userId,
       date: date,
     );

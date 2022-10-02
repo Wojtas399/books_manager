@@ -29,6 +29,18 @@ class MockSqliteReadBookService extends Mock implements SqliteReadBookService {
     ).thenAnswer((_) async => userReadBooks);
   }
 
+  void mockLoadUserReadBooksFromMonth({
+    required List<SqliteReadBook> userReadBooksFromMonth,
+  }) {
+    when(
+      () => loadUserReadBooksFromMonth(
+        userId: any(named: 'userId'),
+        month: any(named: 'month'),
+        year: any(named: 'year'),
+      ),
+    ).thenAnswer((_) async => userReadBooksFromMonth);
+  }
+
   void mockAddReadBook() {
     _mockSqliteReadBook();
     when(

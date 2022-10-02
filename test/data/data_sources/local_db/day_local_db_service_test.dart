@@ -47,7 +47,7 @@ void main() {
         ),
         createSqliteReadBook(
           userId: userId,
-          date: '18-09-2022',
+          date: '18-08-2022',
           bookId: 'b2',
           readPagesAmount: 100,
         ),
@@ -77,7 +77,7 @@ void main() {
         ),
         createDbDay(
           userId: userId,
-          date: '18-09-2022',
+          date: '18-08-2022',
           readBooks: [
             createDbReadBook(bookId: 'b2', readPagesAmount: 100),
           ],
@@ -88,6 +88,76 @@ void main() {
       final List<DbDay> dbDays = await service.loadUserDays(userId: userId);
 
       expect(dbDays, expectedDbDays);
+    },
+  );
+
+  test(
+    'load user days from month, should load user read books from month and should segregate them to list of db days',
+    () async {
+      const String userId = 'userId';
+      const int month = 9;
+      const int year = 2022;
+      final List<SqliteReadBook> readBooksFromMonth = [
+        createSqliteReadBook(
+          userId: userId,
+          date: '23-09-2022',
+          bookId: 'b1',
+          readPagesAmount: 20,
+        ),
+        createSqliteReadBook(
+          userId: userId,
+          date: '20-09-2022',
+          bookId: 'b1',
+          readPagesAmount: 50,
+        ),
+        createSqliteReadBook(
+          userId: userId,
+          date: '18-09-2022',
+          bookId: 'b2',
+          readPagesAmount: 100,
+        ),
+        createSqliteReadBook(
+          userId: userId,
+          date: '23-09-2022',
+          bookId: 'b2',
+          readPagesAmount: 10,
+        ),
+      ];
+      final List<DbDay> expectedDbDaysFromMonth = [
+        createDbDay(
+          userId: userId,
+          date: '23-09-2022',
+          readBooks: [
+            createDbReadBook(bookId: 'b1', readPagesAmount: 20),
+            createDbReadBook(bookId: 'b2', readPagesAmount: 10),
+          ],
+        ),
+        createDbDay(
+          userId: userId,
+          date: '20-09-2022',
+          readBooks: [
+            createDbReadBook(bookId: 'b1', readPagesAmount: 50),
+          ],
+        ),
+        createDbDay(
+          userId: userId,
+          date: '18-09-2022',
+          readBooks: [
+            createDbReadBook(bookId: 'b2', readPagesAmount: 100),
+          ],
+        ),
+      ];
+      sqliteReadBookService.mockLoadUserReadBooksFromMonth(
+        userReadBooksFromMonth: readBooksFromMonth,
+      );
+
+      final List<DbDay> dbDaysFromMonth = await service.loadUserDaysFromMonth(
+        userId: userId,
+        month: month,
+        year: year,
+      );
+
+      expect(dbDaysFromMonth, expectedDbDaysFromMonth);
     },
   );
 

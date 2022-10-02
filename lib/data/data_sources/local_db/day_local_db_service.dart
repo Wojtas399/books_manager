@@ -28,6 +28,20 @@ class DayLocalDbService {
     return _segregateReadBooksIntoDbDays(userReadBooks);
   }
 
+  Future<List<DbDay>> loadUserDaysFromMonth({
+    required String userId,
+    required int month,
+    required int year,
+  }) async {
+    final List<SqliteReadBook> userReadBooksFromMonth =
+        await _sqliteReadBookService.loadUserReadBooksFromMonth(
+      userId: userId,
+      month: month,
+      year: year,
+    );
+    return _segregateReadBooksIntoDbDays(userReadBooksFromMonth);
+  }
+
   Future<void> addUserReadBook({
     required DbReadBook dbReadBook,
     required String userId,

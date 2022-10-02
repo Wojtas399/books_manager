@@ -46,6 +46,19 @@ class SqliteReadBookService {
     return jsons.map(SqliteReadBook.fromJson).toList();
   }
 
+  Future<List<SqliteReadBook>> loadUserReadBooksFromMonth({
+    required String userId,
+    required int month,
+    required int year,
+  }) async {
+    final List<Map<String, Object?>> jsons = await _queryUserReadBooksByMonth(
+      userId: userId,
+      month: month,
+      year: year,
+    );
+    return jsons.map(SqliteReadBook.fromJson).toList();
+  }
+
   Future<void> addReadBook({required SqliteReadBook sqliteReadBook}) async {
     await _insertReadBook(sqliteReadBook);
   }
@@ -79,20 +92,24 @@ class SqliteReadBookService {
     SyncState? syncState,
   }) async {
     final Database database = await SqliteDatabase.instance.database;
-    String query = 'SELECT * FROM ${SqliteTables.readBooksTable}';
-    query += " WHERE ${SqliteReadBookFields.userId} = '$userId'";
+    String query = _createBasicQuery(userId: userId, syncState: syncState);
     if (date != null) {
       query += " AND ${SqliteReadBookFields.date} = '$date'";
     }
     if (bookId != null) {
       query += " AND ${SqliteReadBookFields.bookId} = '$bookId'";
     }
-    if (syncState != null) {
-      query += " AND ${SqliteReadBookFields.syncState} = '${syncState.name}'";
-    } else {
-      query +=
-          " AND ${SqliteReadBookFields.syncState} IN ('${SyncState.none.name}', '${SyncState.added.name}', '${SyncState.updated.name}')";
-    }
+    return await database.rawQuery(query);
+  }
+
+  Future<List<Map<String, Object?>>> _queryUserReadBooksByMonth({
+    required String userId,
+    required int month,
+    required int year,
+  }) async {
+    final Database database = await SqliteDatabase.instance.database;
+    String query = _createBasicQuery(userId: userId);
+    query += " AND ${SqliteReadBookFields.date} LIKE '%-$month-$year'";
     return await database.rawQuery(query);
   }
 
@@ -110,6 +127,18 @@ class SqliteReadBookService {
       return jsons.first;
     }
     return null;
+  }
+
+  String _createBasicQuery({required String userId, SyncState? syncState}) {
+    String query = 'SELECT * FROM ${SqliteTables.readBooksTable}';
+    query += " WHERE ${SqliteReadBookFields.userId} = '$userId'";
+    if (syncState != null) {
+      query += " AND ${SqliteReadBookFields.syncState} = '${syncState.name}'";
+    } else {
+      query +=
+          " AND ${SqliteReadBookFields.syncState} IN ('${SyncState.none.name}', '${SyncState.added.name}', '${SyncState.updated.name}')";
+    }
+    return query;
   }
 
   Future<void> _insertReadBook(SqliteReadBook sqliteReadBook) async {

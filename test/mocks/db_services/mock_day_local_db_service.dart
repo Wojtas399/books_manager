@@ -17,6 +17,16 @@ class MockDayLocalDbService extends Mock implements DayLocalDbService {
     ).thenAnswer((_) async => userDbDays);
   }
 
+  void mockLoadUserDaysFromMonth({required List<DbDay> userDbDaysFromMonth}) {
+    when(
+      () => loadUserDaysFromMonth(
+        userId: any(named: 'userId'),
+        month: any(named: 'month'),
+        year: any(named: 'year'),
+      ),
+    ).thenAnswer((_) async => userDbDaysFromMonth);
+  }
+
   void mockAddUserReadBook() {
     _mockDbReadBook();
     _mockSyncState();

@@ -125,12 +125,14 @@ void main() {
   );
 
   test(
-    'load user days, should load user days from local db and assign them to list',
+    'load user days from month, should load user days from month from local db and should assign them to list',
     () async {
-      final List<DbDay> userDbDays = [
+      const int month = 9;
+      const int year = 2022;
+      final List<DbDay> userDbDaysFromMonth = [
         createDbDay(
           userId: userId,
-          date: mapDateTimeToString(DateTime(2022, 9, 20)),
+          date: mapDateTimeToString(DateTime(year, month, 20)),
           readBooks: [
             createDbReadBook(bookId: 'b1', readPagesAmount: 120),
             createDbReadBook(bookId: 'b2', readPagesAmount: 50),
@@ -138,16 +140,16 @@ void main() {
         ),
         createDbDay(
           userId: userId,
-          date: mapDateTimeToString(DateTime(2022, 9, 18)),
+          date: mapDateTimeToString(DateTime(year, month, 18)),
           readBooks: [
             createDbReadBook(bookId: 'b1', readPagesAmount: 25),
           ],
         ),
       ];
-      final List<Day> expectedUserDays = [
+      final List<Day> expectedUserDaysFromMonth = [
         createDay(
           userId: userId,
-          date: DateTime(2022, 9, 20),
+          date: DateTime(year, month, 20),
           readBooks: [
             createReadBook(bookId: 'b1', readPagesAmount: 120),
             createReadBook(bookId: 'b2', readPagesAmount: 50),
@@ -155,27 +157,39 @@ void main() {
         ),
         createDay(
           userId: userId,
-          date: DateTime(2022, 9, 18),
+          date: DateTime(year, month, 18),
           readBooks: [
             createReadBook(bookId: 'b1', readPagesAmount: 25),
           ],
         ),
       ];
-      dayLocalDbService.mockLoadUserDays(userDbDays: userDbDays);
+      dayLocalDbService.mockLoadUserDaysFromMonth(
+        userDbDaysFromMonth: userDbDaysFromMonth,
+      );
 
-      await repository.loadUserDays(userId: userId);
-      final Stream<List<Day>> userDays$ = repository.getUserDays(
+      await repository.loadUserDaysFromMonth(
+        userId: userId,
+        month: month,
+        year: year,
+      );
+      final Stream<List<Day>> userDaysFromMonth$ = repository.getUserDays(
         userId: userId,
       );
 
-      expect(await userDays$.first, expectedUserDays);
+      verify(
+        () => dayLocalDbService.loadUserDaysFromMonth(
+          userId: userId,
+          month: month,
+          year: year,
+        ),
+      ).called(1);
+      expect(await userDaysFromMonth$.first, expectedUserDaysFromMonth);
     },
   );
 
   group(
     'add new read pages',
     () {
-      const String userId = 'u1';
       final DateTime date = DateTime(2022, 9, 20);
       final String dateInStr = mapDateTimeToString(date);
       const String bookId = 'b1';

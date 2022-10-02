@@ -22,10 +22,12 @@ class MockDayInterface extends Mock implements DayInterface {
     ).thenAnswer((_) async => '');
   }
 
-  void mockLoadUserDays() {
+  void mockLoadUserDaysFromMonth() {
     when(
-      () => loadUserDays(
+      () => loadUserDaysFromMonth(
         userId: any(named: 'userId'),
+        month: any(named: 'month'),
+        year: any(named: 'year'),
       ),
     ).thenAnswer((_) async => '');
   }

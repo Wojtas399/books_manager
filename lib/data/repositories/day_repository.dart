@@ -54,9 +54,17 @@ class DayRepository implements DayInterface {
   }
 
   @override
-  Future<void> loadUserDays({required String userId}) async {
+  Future<void> loadUserDaysFromMonth({
+    required String userId,
+    required int month,
+    required int year,
+  }) async {
     final List<DbDay> userDbDays =
-        await _dayLocalDbService.loadUserDays(userId: userId);
+        await _dayLocalDbService.loadUserDaysFromMonth(
+      userId: userId,
+      month: month,
+      year: year,
+    );
     final List<Day> userDays =
         userDbDays.map(DayMapper.mapFromDbModelToEntity).toList();
     _addDaysToList(userDays);

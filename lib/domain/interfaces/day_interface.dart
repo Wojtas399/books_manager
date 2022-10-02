@@ -5,7 +5,11 @@ abstract class DayInterface {
 
   Future<void> initializeForUser({required String userId});
 
-  Future<void> loadUserDays({required String userId});
+  Future<void> loadUserDaysFromMonth({
+    required String userId,
+    required int month,
+    required int year,
+  });
 
   Future<void> addNewReadPages({
     required String userId,

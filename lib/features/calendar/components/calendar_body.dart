@@ -1,4 +1,6 @@
+import 'package:app/features/calendar/bloc/calendar_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CalendarBody extends StatelessWidget {
   const CalendarBody({super.key});
@@ -7,84 +9,30 @@ class CalendarBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Padding(
       padding: EdgeInsets.only(left: 10, right: 10, bottom: 96),
-      child: _Month(
-        weeks: [
-          [
-            _DayArgs(number: 26, isDisabled: true),
-            _DayArgs(number: 27, isDisabled: true),
-            _DayArgs(number: 28, isDisabled: true),
-            _DayArgs(number: 29, isDisabled: true),
-            _DayArgs(number: 30, isDisabled: true),
-            _DayArgs(number: 1),
-            _DayArgs(number: 2),
-          ],
-          [
-            _DayArgs(number: 3),
-            _DayArgs(number: 4),
-            _DayArgs(number: 5),
-            _DayArgs(number: 6),
-            _DayArgs(number: 7),
-            _DayArgs(number: 8),
-            _DayArgs(number: 9),
-          ],
-          [
-            _DayArgs(number: 10),
-            _DayArgs(number: 11),
-            _DayArgs(number: 12),
-            _DayArgs(number: 13),
-            _DayArgs(number: 14),
-            _DayArgs(number: 15),
-            _DayArgs(number: 16),
-          ],
-          [
-            _DayArgs(number: 17),
-            _DayArgs(number: 18),
-            _DayArgs(number: 19),
-            _DayArgs(number: 20),
-            _DayArgs(number: 21),
-            _DayArgs(number: 22),
-            _DayArgs(number: 23),
-          ],
-          [
-            _DayArgs(number: 24),
-            _DayArgs(number: 25),
-            _DayArgs(number: 26),
-            _DayArgs(number: 27),
-            _DayArgs(number: 28),
-            _DayArgs(number: 29),
-            _DayArgs(number: 30),
-          ],
-          [
-            _DayArgs(number: 31),
-            _DayArgs(number: 1, isDisabled: true),
-            _DayArgs(number: 2, isDisabled: true),
-            _DayArgs(number: 3, isDisabled: true),
-            _DayArgs(number: 4, isDisabled: true),
-            _DayArgs(number: 5, isDisabled: true),
-            _DayArgs(number: 6, isDisabled: true),
-          ]
-        ],
-      ),
+      child: _Month(),
     );
   }
 }
 
 class _Month extends StatelessWidget {
-  final List<List<_DayArgs>> weeks;
-
-  const _Month({required this.weeks});
+  const _Month();
 
   @override
   Widget build(BuildContext context) {
+    final List<List<CalendarDay>> weeks = context.select(
+      (CalendarBloc bloc) => bloc.state.weeks,
+    );
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: weeks.map((List<_DayArgs> days) => _Week(days: days)).toList(),
+      children: weeks
+          .map((List<CalendarDay> daysOfWeek) => _Week(days: daysOfWeek))
+          .toList(),
     );
   }
 }
 
 class _Week extends StatelessWidget {
-  final List<_DayArgs> days;
+  final List<CalendarDay> days;
 
   const _Week({required this.days});
 
@@ -93,24 +41,24 @@ class _Week extends StatelessWidget {
     return Expanded(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: days.map((_DayArgs args) => _Day(args: args)).toList(),
+        children: days.map((CalendarDay day) => _Day(day: day)).toList(),
       ),
     );
   }
 }
 
 class _Day extends StatelessWidget {
-  final _DayArgs args;
+  final CalendarDay day;
 
   const _Day({
-    required this.args,
+    required this.day,
   });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Opacity(
-        opacity: args.isDisabled ? 0.30 : 1,
+        opacity: day.isDisabled ? 0.30 : 1,
         child: Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(6),
@@ -120,7 +68,7 @@ class _Day extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${args.number}'),
+                Text('${day.number}'),
               ],
             ),
           ),
@@ -128,14 +76,4 @@ class _Day extends StatelessWidget {
       ),
     );
   }
-}
-
-class _DayArgs {
-  final int number;
-  final bool isDisabled;
-
-  const _DayArgs({
-    required this.number,
-    this.isDisabled = false,
-  });
 }

@@ -16,4 +16,11 @@ class DateUtils {
   }) {
     return date.month == month && date.year == year;
   }
+
+  static int getDaysInMonth({
+    required int month,
+    required int year,
+  }) {
+    return DateTime(year, month + 1, 0).day;
+  }
 }

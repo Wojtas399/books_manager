@@ -1,4 +1,5 @@
 import 'package:app/features/calendar/bloc/calendar_bloc.dart';
+import 'package:app/features/calendar/components/calendar_day_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -41,38 +42,11 @@ class _Week extends StatelessWidget {
     return Expanded(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: days.map((CalendarDay day) => _Day(day: day)).toList(),
-      ),
-    );
-  }
-}
-
-class _Day extends StatelessWidget {
-  final CalendarDay day;
-
-  const _Day({
-    required this.day,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Opacity(
-        opacity: day.isDisabled ? 0.30 : 1,
-        child: Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('${day.number}'),
-              ],
-            ),
-          ),
-        ),
+        children: days
+            .map(
+              (CalendarDay day) => CalendarDayCard(day: day),
+            )
+            .toList(),
       ),
     );
   }

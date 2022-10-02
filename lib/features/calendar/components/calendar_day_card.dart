@@ -1,0 +1,88 @@
+import 'package:app/config/themes/app_colors.dart';
+import 'package:app/features/calendar/bloc/calendar_bloc.dart';
+import 'package:flutter/material.dart';
+
+class CalendarDayCard extends StatelessWidget {
+  final CalendarDay day;
+
+  const CalendarDayCard({
+    super.key,
+    required this.day,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _Card(
+      isDayDisabled: day.isDisabled,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _DayNumber(
+            number: day.number,
+            isMarkedAsTodayDay: day.isTodayDay,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Card extends StatelessWidget {
+  final bool isDayDisabled;
+  final Widget child;
+
+  const _Card({
+    this.isDayDisabled = false,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Opacity(
+        opacity: isDayDisabled ? 0.30 : 1,
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DayNumber extends StatelessWidget {
+  final int number;
+  final bool isMarkedAsTodayDay;
+
+  const _DayNumber({
+    required this.number,
+    this.isMarkedAsTodayDay = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipOval(
+      child: Container(
+        width: 24,
+        height: 24,
+        decoration: BoxDecoration(
+          color: isMarkedAsTodayDay ? AppColors.primary : null,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Center(
+          child: Text(
+            '$number',
+            style: TextStyle(
+              color: isMarkedAsTodayDay ? Colors.white : null,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

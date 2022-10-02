@@ -59,11 +59,15 @@ class CalendarState extends BlocState {
     DateTime dateOfFirstDayOfTheWeek,
   ) {
     final List<CalendarDay> daysFromWeek = [];
+    final DateTime? todayDate = this.todayDate;
     DateTime date = dateOfFirstDayOfTheWeek;
     for (int weekDayNumber = 1; weekDayNumber <= 7; weekDayNumber++) {
       final CalendarDay newCalendarDay = CalendarDay(
         number: date.day,
         isDisabled: date.month != displayingMonth,
+        isTodayDay: todayDate != null
+            ? DateUtils.areDatesTheSame(date1: date, date2: todayDate)
+            : false,
       );
       daysFromWeek.add(newCalendarDay);
       date = date.add(const Duration(days: 1));
@@ -75,25 +79,30 @@ class CalendarState extends BlocState {
 class CalendarDay extends Equatable {
   final int number;
   final bool isDisabled;
+  final bool isTodayDay;
 
   const CalendarDay({
     required this.number,
     this.isDisabled = false,
+    this.isTodayDay = false,
   });
 
   @override
   List<Object> get props => [
         number,
         isDisabled,
+        isTodayDay,
       ];
 }
 
 CalendarDay createCalendarDay({
   int number = 1,
   bool isDisabled = false,
+  bool isTodayDay = false,
 }) {
   return CalendarDay(
     number: number,
     isDisabled: isDisabled,
+    isTodayDay: isTodayDay,
   );
 }

@@ -97,4 +97,64 @@ void main() {
       expect(result, false);
     },
   );
+
+  test(
+    'are dates the same, day, month and year are the same in both dates, should return true',
+    () {
+      final DateTime date1 = DateTime(2022, 9, 20);
+      final DateTime date2 = DateTime(2022, 9, 20);
+
+      final bool result = DateUtils.areDatesTheSame(
+        date1: date1,
+        date2: date2,
+      );
+
+      expect(result, true);
+    },
+  );
+
+  test(
+    'are dates the same, days are different, should return false',
+    () {
+      final DateTime date1 = DateTime(2022, 9, 22);
+      final DateTime date2 = DateTime(2022, 9, 20);
+
+      final bool result = DateUtils.areDatesTheSame(
+        date1: date1,
+        date2: date2,
+      );
+
+      expect(result, false);
+    },
+  );
+
+  test(
+    'are dates the same, months are different, should return false',
+    () {
+      final DateTime date1 = DateTime(2022, 9, 20);
+      final DateTime date2 = DateTime(2022, 5, 20);
+
+      final bool result = DateUtils.areDatesTheSame(
+        date1: date1,
+        date2: date2,
+      );
+
+      expect(result, false);
+    },
+  );
+
+  test(
+    'are dates the same, years are different, should return false',
+    () {
+      final DateTime date1 = DateTime(2022, 9, 20);
+      final DateTime date2 = DateTime(2020, 9, 20);
+
+      final bool result = DateUtils.areDatesTheSame(
+        date1: date1,
+        date2: date2,
+      );
+
+      expect(result, false);
+    },
+  );
 }

@@ -1,3 +1,4 @@
+import 'package:app/components/animated_opacity_and_scale_component.dart';
 import 'package:app/features/calendar/components/calendar_body.dart';
 import 'package:app/features/calendar/components/calendar_days_shortcuts.dart';
 import 'package:app/features/calendar/components/calendar_month_and_year.dart';
@@ -10,14 +11,16 @@ class CalendarContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 16),
-      child: Column(
-        children: const [
-          CalendarMonthAndYear(),
-          CalendarDaysShortcuts(),
-          Expanded(
-            child: CalendarBody(),
-          ),
-        ],
+      child: AnimatedOpacityAndScaleComponent(
+        child: Column(
+          children: const [
+            CalendarMonthAndYear(),
+            CalendarDaysShortcuts(),
+            Expanded(
+              child: CalendarBody(),
+            ),
+          ],
+        ),
       ),
     );
   }

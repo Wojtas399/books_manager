@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-class AnimatedScrollViewItemComponent extends StatefulWidget {
+class AnimatedOpacityAndScaleComponent extends StatefulWidget {
   final Widget child;
 
-  const AnimatedScrollViewItemComponent({super.key, required this.child});
+  const AnimatedOpacityAndScaleComponent({super.key, required this.child});
 
   @override
-  State<AnimatedScrollViewItemComponent> createState() =>
-      _AnimatedScrollViewItemComponentState();
+  State<AnimatedOpacityAndScaleComponent> createState() =>
+      _AnimatedOpacityAndScaleComponentState();
 }
 
-class _AnimatedScrollViewItemComponentState
-    extends State<AnimatedScrollViewItemComponent>
+class _AnimatedOpacityAndScaleComponentState
+    extends State<AnimatedOpacityAndScaleComponent>
     with SingleTickerProviderStateMixin {
   late final AnimationController _animationController;
   late final Animation<double> _scaleAnimation;

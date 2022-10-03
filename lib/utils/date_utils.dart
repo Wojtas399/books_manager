@@ -25,11 +25,4 @@ class DateUtils {
         date1.month == date2.month &&
         date1.year == date2.year;
   }
-
-  static int getDaysInMonth({
-    required int month,
-    required int year,
-  }) {
-    return DateTime(year, month + 1, 0).day;
-  }
 }

@@ -1,3 +1,8 @@
+import 'package:app/domain/interfaces/auth_interface.dart';
+import 'package:app/domain/interfaces/day_interface.dart';
+import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
+import 'package:app/domain/use_cases/day/get_user_days_from_month_use_case.dart';
+import 'package:app/domain/use_cases/day/load_user_days_from_month_use_case.dart';
 import 'package:app/features/calendar/bloc/calendar_bloc.dart';
 import 'package:app/features/calendar/components/calendar_content.dart';
 import 'package:app/providers/date_provider.dart';
@@ -25,6 +30,15 @@ class _CalendarBlocProvider extends StatelessWidget {
     return BlocProvider(
       create: (_) => CalendarBloc(
         dateProvider: DateProvider(),
+        getLoggedUserIdUseCase: GetLoggedUserIdUseCase(
+          authInterface: context.read<AuthInterface>(),
+        ),
+        loadUserDaysFromMonthUseCase: LoadUserDaysFromMonthUseCase(
+          dayInterface: context.read<DayInterface>(),
+        ),
+        getUserDaysFromMonthUseCase: GetUserDaysFromMonthUseCase(
+          dayInterface: context.read<DayInterface>(),
+        ),
       )..add(
           const CalendarEventInitialize(),
         ),

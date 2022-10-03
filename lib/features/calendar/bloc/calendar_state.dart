@@ -4,12 +4,14 @@ class CalendarState extends BlocState {
   final DateTime? todayDate;
   final int? displayingMonth;
   final int? displayingYear;
+  final List<Day> userDaysFromMonth;
 
   const CalendarState({
     required super.status,
     required this.todayDate,
     required this.displayingMonth,
     required this.displayingYear,
+    required this.userDaysFromMonth,
   });
 
   @override
@@ -18,6 +20,7 @@ class CalendarState extends BlocState {
         todayDate ?? '',
         displayingMonth ?? '',
         displayingYear ?? '',
+        userDaysFromMonth,
       ];
 
   List<List<CalendarDay>> get weeks => _createWeeks();
@@ -27,12 +30,26 @@ class CalendarState extends BlocState {
     DateTime? todayDate,
     int? displayingMonth,
     int? displayingYear,
+    List<Day>? userDaysFromMonth,
   }) {
     return CalendarState(
       status: status ?? const BlocStatusComplete(),
       todayDate: todayDate ?? this.todayDate,
       displayingMonth: displayingMonth ?? this.displayingMonth,
       displayingYear: displayingYear ?? this.displayingYear,
+      userDaysFromMonth: userDaysFromMonth ?? this.userDaysFromMonth,
+    );
+  }
+
+  CalendarState copyWithLoadingStatus() {
+    return copyWith(
+      status: const BlocStatusLoading(),
+    );
+  }
+
+  CalendarState copyWithLoggedUserNotFoundStatus() {
+    return copyWith(
+      status: const BlocStatusLoggedUserNotFound(),
     );
   }
 
@@ -68,6 +85,7 @@ class CalendarState extends BlocState {
         isTodayDay: todayDate != null
             ? DateUtils.areDatesTheSame(date1: date, date2: todayDate)
             : false,
+        readBooks: userDaysFromMonth.selectDayByDate(date)?.readBooks ?? [],
       );
       daysFromWeek.add(newCalendarDay);
       date = date.add(const Duration(days: 1));
@@ -80,11 +98,13 @@ class CalendarDay extends Equatable {
   final int number;
   final bool isDisabled;
   final bool isTodayDay;
+  final List<ReadBook> readBooks;
 
   const CalendarDay({
     required this.number,
     this.isDisabled = false,
     this.isTodayDay = false,
+    this.readBooks = const [],
   });
 
   @override
@@ -92,6 +112,7 @@ class CalendarDay extends Equatable {
         number,
         isDisabled,
         isTodayDay,
+        readBooks,
       ];
 }
 
@@ -99,10 +120,24 @@ CalendarDay createCalendarDay({
   int number = 1,
   bool isDisabled = false,
   bool isTodayDay = false,
+  List<ReadBook> readBooks = const [],
 }) {
   return CalendarDay(
     number: number,
     isDisabled: isDisabled,
     isTodayDay: isTodayDay,
+    readBooks: readBooks,
   );
+}
+
+extension DaysExtensions on List<Day> {
+  Day? selectDayByDate(DateTime date) {
+    final List<Day?> days = [...this];
+    return days.firstWhere(
+      (Day? day) => day != null
+          ? DateUtils.areDatesTheSame(date1: day.date, date2: date)
+          : false,
+      orElse: () => null,
+    );
+  }
 }

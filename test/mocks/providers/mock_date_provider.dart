@@ -7,4 +7,26 @@ class MockDateProvider extends Mock implements DateProvider {
       () => getNow(),
     ).thenReturn(nowDateTime);
   }
+
+  void mockGetDateOfFirstDayInPreviousMonth({
+    required DateTime dateOfFirstDayInPreviousMonth,
+  }) {
+    when(
+      () => getDateOfFirstDayInPreviousMonth(
+        month: any(named: 'month'),
+        year: any(named: 'year'),
+      ),
+    ).thenReturn(dateOfFirstDayInPreviousMonth);
+  }
+
+  void mockGetDateOfFirstDayInNextMonth({
+    required DateTime dateOfFirstDayInNextMonth,
+  }) {
+    when(
+      () => getDateOfFirstDayInNextMonth(
+        month: any(named: 'month'),
+        year: any(named: 'year'),
+      ),
+    ).thenReturn(dateOfFirstDayInNextMonth);
+  }
 }

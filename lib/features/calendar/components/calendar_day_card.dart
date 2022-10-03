@@ -15,12 +15,14 @@ class CalendarDayCard extends StatelessWidget {
     return _Card(
       isDayDisabled: day.isDisabled,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _DayNumber(
             number: day.number,
             isMarkedAsTodayDay: day.isTodayDay,
           ),
+          day.readBooks.isNotEmpty ? const _ReadBooksMark() : const SizedBox(),
         ],
       ),
     );
@@ -46,7 +48,12 @@ class _Card extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(4),
+            padding: const EdgeInsets.only(
+              top: 4,
+              bottom: 12,
+              left: 4,
+              right: 4,
+            ),
             child: child,
           ),
         ),
@@ -82,6 +89,21 @@ class _DayNumber extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ReadBooksMark extends StatelessWidget {
+  const _ReadBooksMark();
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipOval(
+      child: Container(
+        width: 12,
+        height: 12,
+        color: Colors.orange,
       ),
     );
   }

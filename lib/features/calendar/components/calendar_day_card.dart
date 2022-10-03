@@ -1,5 +1,6 @@
 import 'package:app/config/themes/app_colors.dart';
 import 'package:app/features/calendar/bloc/calendar_bloc.dart';
+import 'package:app/features/day_preview/day_preview_dialog.dart';
 import 'package:flutter/material.dart';
 
 class CalendarDayCard extends StatelessWidget {
@@ -13,6 +14,7 @@ class CalendarDayCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _Card(
+      onPressed: () => _onDayPressed(context),
       isDayDisabled: day.isDisabled,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -27,14 +29,25 @@ class CalendarDayCard extends StatelessWidget {
       ),
     );
   }
+
+  Future<void> _onDayPressed(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (_) => DayPreviewDialog(
+        readBooks: day.readBooks,
+      ),
+    );
+  }
 }
 
 class _Card extends StatelessWidget {
   final bool isDayDisabled;
+  final VoidCallback? onPressed;
   final Widget child;
 
   const _Card({
     this.isDayDisabled = false,
+    this.onPressed,
     required this.child,
   });
 
@@ -43,18 +56,21 @@ class _Card extends StatelessWidget {
     return Expanded(
       child: Opacity(
         opacity: isDayDisabled ? 0.30 : 1,
-        child: Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.only(
-              top: 4,
-              bottom: 12,
-              left: 4,
-              right: 4,
+        child: GestureDetector(
+          onTap: isDayDisabled ? null : onPressed,
+          child: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
             ),
-            child: child,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                top: 4,
+                bottom: 12,
+                left: 4,
+                right: 4,
+              ),
+              child: child,
+            ),
           ),
         ),
       ),

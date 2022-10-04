@@ -1,25 +1,30 @@
 part of 'day_preview_bloc.dart';
 
 class DayPreviewState extends BlocState {
+  final DateTime? date;
   final List<DayPreviewReadBook> dayPreviewReadBooks;
 
   const DayPreviewState({
     required super.status,
+    required this.date,
     required this.dayPreviewReadBooks,
   });
 
   @override
   List<Object> get props => [
         status,
+        date ?? '',
         dayPreviewReadBooks,
       ];
 
   DayPreviewState copyWith({
     BlocStatus? status,
+    DateTime? date,
     List<DayPreviewReadBook>? dayPreviewReadBooks,
   }) {
     return DayPreviewState(
       status: status ?? const BlocStatusComplete(),
+      date: date ?? this.date,
       dayPreviewReadBooks: dayPreviewReadBooks ?? this.dayPreviewReadBooks,
     );
   }

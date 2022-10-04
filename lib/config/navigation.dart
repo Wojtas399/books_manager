@@ -4,8 +4,8 @@ import 'package:app/config/animations/slide_left_route_animation.dart';
 import 'package:app/config/animations/slide_right_route_animation.dart';
 import 'package:app/config/animations/slide_up_route_animation.dart';
 import 'package:app/config/routes.dart';
-import 'package:app/domain/entities/read_book.dart';
 import 'package:app/features/book_preview/book_preview_arguments.dart';
+import 'package:app/features/day_preview/day_preview_screen.dart';
 import 'package:app/features/home/home.dart';
 import 'package:app/features/reset_password/reset_password_screen.dart';
 import 'package:app/features/sign_in/sign_in_screen.dart';
@@ -74,8 +74,13 @@ class Navigation {
     _getNavigatorState()?.pushNamed(Routes.bookEditor, arguments: bookId);
   }
 
-  static void navigateToDayPreview({required List<ReadBook> readBooks}) {
-    _getNavigatorState()?.pushNamed(Routes.dayPreview, arguments: readBooks);
+  static void navigateToDayPreview({
+    required DayPreviewScreenArguments dayPreviewScreenArguments,
+  }) {
+    _getNavigatorState()?.pushNamed(
+      Routes.dayPreview,
+      arguments: dayPreviewScreenArguments,
+    );
   }
 
   static NavigatorState? _getNavigatorState() {

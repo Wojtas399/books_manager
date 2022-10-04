@@ -8,6 +8,7 @@ void main() {
   setUp(() {
     state = const DayPreviewState(
       status: BlocStatusInitial(),
+      date: null,
       dayPreviewReadBooks: [],
     );
   });
@@ -22,6 +23,19 @@ void main() {
 
       expect(state.status, expectedStatus);
       expect(state2.status, const BlocStatusComplete());
+    },
+  );
+
+  test(
+    'copy with date',
+    () {
+      final DateTime expectedDate = DateTime(2022, 9, 20);
+
+      state = state.copyWith(date: expectedDate);
+      final state2 = state.copyWith();
+
+      expect(state.date, expectedDate);
+      expect(state2.date, expectedDate);
     },
   );
 

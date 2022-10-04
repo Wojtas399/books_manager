@@ -1,6 +1,7 @@
 import 'package:app/config/navigation.dart';
 import 'package:app/config/themes/app_colors.dart';
 import 'package:app/features/calendar/bloc/calendar_bloc.dart';
+import 'package:app/features/day_preview/day_preview_screen.dart';
 import 'package:flutter/material.dart';
 
 class CalendarDayCard extends StatelessWidget {
@@ -21,7 +22,7 @@ class CalendarDayCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _DayNumber(
-            number: day.number,
+            number: day.date.day,
             isMarkedAsTodayDay: day.isTodayDay,
           ),
           day.readBooks.isNotEmpty ? const _ReadBooksMark() : const SizedBox(),
@@ -31,7 +32,12 @@ class CalendarDayCard extends StatelessWidget {
   }
 
   void _onDayPressed() {
-    Navigation.navigateToDayPreview(readBooks: day.readBooks);
+    Navigation.navigateToDayPreview(
+      dayPreviewScreenArguments: DayPreviewScreenArguments(
+        date: day.date,
+        readBooks: day.readBooks,
+      ),
+    );
   }
 }
 

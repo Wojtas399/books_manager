@@ -62,12 +62,12 @@ class CalendarState extends BlocState {
     List<List<CalendarDay>> weeks = [];
     DateTime date = DateTime(year, month);
     if (date.weekday > 1) {
-      date = date.subtract(Duration(days: date.weekday - 2));
+      date = date.subtract(Duration(days: date.weekday - 1));
     }
     for (int weekNumber = 1; weekNumber <= 6; weekNumber++) {
       final List<CalendarDay> newWeek = _createDaysFromWeek(date);
       weeks.add(newWeek);
-      date = date.add(const Duration(days: 7));
+      date = DateTime(date.year, date.month, date.day + 7);
     }
     return weeks;
   }
@@ -80,7 +80,7 @@ class CalendarState extends BlocState {
     DateTime date = dateOfFirstDayOfTheWeek;
     for (int weekDayNumber = 1; weekDayNumber <= 7; weekDayNumber++) {
       final CalendarDay newCalendarDay = CalendarDay(
-        number: date.day,
+        date: date,
         isDisabled: date.month != displayingMonth,
         isTodayDay: todayDate != null
             ? DateUtils.areDatesTheSame(date1: date, date2: todayDate)
@@ -95,13 +95,13 @@ class CalendarState extends BlocState {
 }
 
 class CalendarDay extends Equatable {
-  final int number;
+  final DateTime date;
   final bool isDisabled;
   final bool isTodayDay;
   final List<ReadBook> readBooks;
 
   const CalendarDay({
-    required this.number,
+    required this.date,
     this.isDisabled = false,
     this.isTodayDay = false,
     this.readBooks = const [],
@@ -109,7 +109,7 @@ class CalendarDay extends Equatable {
 
   @override
   List<Object> get props => [
-        number,
+        date,
         isDisabled,
         isTodayDay,
         readBooks,
@@ -117,13 +117,13 @@ class CalendarDay extends Equatable {
 }
 
 CalendarDay createCalendarDay({
-  int number = 1,
+  DateTime? date,
   bool isDisabled = false,
   bool isTodayDay = false,
   List<ReadBook> readBooks = const [],
 }) {
   return CalendarDay(
-    number: number,
+    date: date ?? DateTime(2022),
     isDisabled: isDisabled,
     isTodayDay: isTodayDay,
     readBooks: readBooks,

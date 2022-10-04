@@ -5,7 +5,11 @@ abstract class DayPreviewEvent {
 }
 
 class DayPreviewEventInitialize extends DayPreviewEvent {
+  final DateTime date;
   final List<ReadBook> readBooks;
 
-  const DayPreviewEventInitialize({required this.readBooks});
+  const DayPreviewEventInitialize({
+    required this.date,
+    required this.readBooks,
+  });
 }

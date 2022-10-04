@@ -24,10 +24,12 @@ void main() {
 
   DayPreviewState createState({
     BlocStatus status = const BlocStatusInitial(),
+    DateTime? date,
     List<DayPreviewReadBook> dayPreviewReadBooks = const [],
   }) {
     return DayPreviewState(
       status: status,
+      date: date,
       dayPreviewReadBooks: dayPreviewReadBooks,
     );
   }
@@ -41,6 +43,7 @@ void main() {
     'initialize',
     () {
       const String loggedUserId = 'u1';
+      final DateTime date = DateTime(2022, 9, 20);
       final Book book1 = createBook(
         id: 'b1',
         imageData: Uint8List(10),
@@ -82,7 +85,7 @@ void main() {
         },
         act: (DayPreviewBloc bloc) {
           bloc.add(
-            DayPreviewEventInitialize(readBooks: readBooks),
+            DayPreviewEventInitialize(date: date, readBooks: readBooks),
           );
         },
         expect: () => [
@@ -96,7 +99,7 @@ void main() {
       );
 
       blocTest(
-        'logged user exist, should convert every given read book to day preview read book',
+        'logged user exist, should update date and should convert every given read book to day preview read book',
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
@@ -109,7 +112,7 @@ void main() {
         },
         act: (DayPreviewBloc bloc) {
           bloc.add(
-            DayPreviewEventInitialize(readBooks: readBooks),
+            DayPreviewEventInitialize(date: date, readBooks: readBooks),
           );
         },
         expect: () => [
@@ -118,6 +121,7 @@ void main() {
           ),
           createState(
             status: const BlocStatusComplete(),
+            date: date,
             dayPreviewReadBooks: expectedDayPreviewReadBooks,
           ),
         ],

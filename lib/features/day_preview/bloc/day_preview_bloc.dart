@@ -20,10 +20,12 @@ class DayPreviewBloc extends Bloc<DayPreviewEvent, DayPreviewState> {
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
     required GetBookByIdUseCase getBookByIdUseCase,
     BlocStatus status = const BlocStatusInitial(),
+    DateTime? date,
     List<DayPreviewReadBook> dayPreviewReadBooks = const [],
   }) : super(
           DayPreviewState(
             status: status,
+            date: date,
             dayPreviewReadBooks: dayPreviewReadBooks,
           ),
         ) {
@@ -49,6 +51,7 @@ class DayPreviewBloc extends Bloc<DayPreviewEvent, DayPreviewState> {
     final List<DayPreviewReadBook> dayPreviewReadBooks =
         await _convertReadBooksToDayPreviewModels(event.readBooks);
     emit(state.copyWith(
+      date: event.date,
       dayPreviewReadBooks: dayPreviewReadBooks,
     ));
   }

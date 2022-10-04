@@ -106,7 +106,7 @@ class _Description extends StatelessWidget {
                   .textTheme
                   .bodyText2
                   ?.color
-                  ?.withOpacity(0.5),
+                  ?.withOpacity(0.6),
             ),
           ),
         ],

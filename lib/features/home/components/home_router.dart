@@ -1,7 +1,6 @@
 import 'package:app/config/animations/fade_route_animation.dart';
 import 'package:app/config/animations/slide_up_route_animation.dart';
 import 'package:app/config/routes.dart';
-import 'package:app/domain/entities/read_book.dart';
 import 'package:app/features/book_creator/book_creator_screen.dart';
 import 'package:app/features/book_editor/book_editor_screen.dart';
 import 'package:app/features/book_preview/book_preview_arguments.dart';
@@ -68,7 +67,8 @@ class _HomeRouterState extends State<HomeRouter> {
       case Routes.dayPreview:
         return SlideUpRouteAnimation(
           page: DayPreviewScreen(
-            readBooks: routeSettings.arguments as List<ReadBook>,
+            dayPreviewScreenArguments:
+                routeSettings.arguments as DayPreviewScreenArguments,
           ),
         );
       default:

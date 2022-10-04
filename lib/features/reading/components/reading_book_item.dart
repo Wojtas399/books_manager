@@ -131,7 +131,7 @@ class _TitleAndAuthor extends StatelessWidget {
           maxLines: 1,
           style: TextStyle(
             color:
-                Theme.of(context).textTheme.bodyText1?.color?.withOpacity(0.5),
+                Theme.of(context).textTheme.bodyText1?.color?.withOpacity(0.6),
           ),
         ),
       ],

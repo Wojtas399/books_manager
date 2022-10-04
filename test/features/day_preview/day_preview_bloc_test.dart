@@ -10,17 +10,14 @@ import 'package:test/test.dart';
 
 import '../../mocks/use_cases/auth/mock_get_logged_user_id_use_case.dart';
 import '../../mocks/use_cases/book/mock_get_book_by_id_use_case.dart';
-import '../../mocks/use_cases/book/mock_load_all_user_books_use_case.dart';
 
 void main() {
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
-  final loadAllUserBooksUseCase = MockLoadAllUserBooksUseCase();
   final getBookByIdUseCase = MockGetBookByIdUseCase();
 
   DayPreviewBloc createBloc() {
     return DayPreviewBloc(
       getLoggedUserIdUseCase: getLoggedUserIdUseCase,
-      loadAllUserBooksUseCase: loadAllUserBooksUseCase,
       getBookByIdUseCase: getBookByIdUseCase,
     );
   }
@@ -37,7 +34,6 @@ void main() {
 
   tearDown(() {
     reset(getLoggedUserIdUseCase);
-    reset(loadAllUserBooksUseCase);
     reset(getBookByIdUseCase);
   });
 
@@ -100,11 +96,10 @@ void main() {
       );
 
       blocTest(
-        'logged user exist, should load all logged user books and should convert every given read book to day preview read book',
+        'logged user exist, should convert every given read book to day preview read book',
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
-          loadAllUserBooksUseCase.mock();
           when(
             () => getBookByIdUseCase.execute(bookId: book1.id),
           ).thenAnswer((_) => Stream.value(book1));
@@ -127,9 +122,6 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(
-            () => loadAllUserBooksUseCase.execute(userId: loggedUserId),
-          ).called(1);
           verify(
             () => getBookByIdUseCase.execute(bookId: book1.id),
           ).called(1);

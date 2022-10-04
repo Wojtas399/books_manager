@@ -4,7 +4,6 @@ import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/entities/read_book.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
-import 'package:app/domain/use_cases/book/load_all_user_books_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:equatable/equatable.dart';
@@ -15,12 +14,10 @@ part 'day_preview_state.dart';
 
 class DayPreviewBloc extends Bloc<DayPreviewEvent, DayPreviewState> {
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
-  late final LoadAllUserBooksUseCase _loadAllUserBooksUseCase;
   late final GetBookByIdUseCase _getBookByIdUseCase;
 
   DayPreviewBloc({
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
-    required LoadAllUserBooksUseCase loadAllUserBooksUseCase,
     required GetBookByIdUseCase getBookByIdUseCase,
     BlocStatus status = const BlocStatusInitial(),
     List<DayPreviewReadBook> dayPreviewReadBooks = const [],
@@ -31,7 +28,6 @@ class DayPreviewBloc extends Bloc<DayPreviewEvent, DayPreviewState> {
           ),
         ) {
     _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
-    _loadAllUserBooksUseCase = loadAllUserBooksUseCase;
     _getBookByIdUseCase = getBookByIdUseCase;
     on<DayPreviewEventInitialize>(_initialize);
   }
@@ -50,7 +46,6 @@ class DayPreviewBloc extends Bloc<DayPreviewEvent, DayPreviewState> {
       ));
       return;
     }
-    await _loadAllUserBooksUseCase.execute(userId: loggedUserId);
     final List<DayPreviewReadBook> dayPreviewReadBooks =
         await _convertReadBooksToDayPreviewModels(event.readBooks);
     emit(state.copyWith(

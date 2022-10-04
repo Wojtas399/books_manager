@@ -1,6 +1,6 @@
+import 'package:app/config/navigation.dart';
 import 'package:app/config/themes/app_colors.dart';
 import 'package:app/features/calendar/bloc/calendar_bloc.dart';
-import 'package:app/features/day_preview/day_preview_dialog.dart';
 import 'package:flutter/material.dart';
 
 class CalendarDayCard extends StatelessWidget {
@@ -14,7 +14,7 @@ class CalendarDayCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _Card(
-      onPressed: () => _onDayPressed(context),
+      onPressed: _onDayPressed,
       isDayDisabled: day.isDisabled,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -30,13 +30,8 @@ class CalendarDayCard extends StatelessWidget {
     );
   }
 
-  Future<void> _onDayPressed(BuildContext context) async {
-    await showDialog(
-      context: context,
-      builder: (_) => DayPreviewDialog(
-        readBooks: day.readBooks,
-      ),
-    );
+  void _onDayPressed() {
+    Navigation.navigateToDayPreview(readBooks: day.readBooks);
   }
 }
 

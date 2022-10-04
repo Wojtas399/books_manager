@@ -1,9 +1,12 @@
 import 'package:app/config/animations/fade_route_animation.dart';
+import 'package:app/config/animations/slide_up_route_animation.dart';
 import 'package:app/config/routes.dart';
+import 'package:app/domain/entities/read_book.dart';
 import 'package:app/features/book_creator/book_creator_screen.dart';
 import 'package:app/features/book_editor/book_editor_screen.dart';
 import 'package:app/features/book_preview/book_preview_arguments.dart';
 import 'package:app/features/book_preview/book_preview_screen.dart';
+import 'package:app/features/day_preview/day_preview_screen.dart';
 import 'package:app/features/home/components/home_content.dart';
 import 'package:app/features/settings/settings_screen.dart';
 import 'package:app/providers/navigator_key_provider.dart';
@@ -60,6 +63,12 @@ class _HomeRouterState extends State<HomeRouter> {
         return MaterialPageRoute(
           builder: (_) => BookEditorScreen(
             bookId: routeSettings.arguments as String,
+          ),
+        );
+      case Routes.dayPreview:
+        return SlideUpRouteAnimation(
+          page: DayPreviewScreen(
+            readBooks: routeSettings.arguments as List<ReadBook>,
           ),
         );
       default:

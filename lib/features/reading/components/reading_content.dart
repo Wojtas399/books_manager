@@ -1,4 +1,4 @@
-import 'package:app/components/animated_scroll_view_item_component.dart';
+import 'package:app/components/animated_opacity_and_scale_component.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/features/reading/bloc/reading_bloc.dart';
 import 'package:app/features/reading/components/reading_book_item.dart';
@@ -19,7 +19,7 @@ class ReadingContent extends StatelessWidget {
       itemCount: booksInProgress.length,
       padding: const EdgeInsets.all(12),
       itemBuilder: (_, int index) {
-        return AnimatedScrollViewItemComponent(
+        return AnimatedOpacityAndScaleComponent(
           child: ReadingBookItem(
             book: booksInProgress[index],
           ),

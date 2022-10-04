@@ -1,12 +1,10 @@
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_user.dart';
-import 'package:app/data/data_sources/remote_db/firebase/services/firebase_firestore_user_service.dart';
 import 'package:app/data/data_sources/remote_db/user_remote_db_service.dart';
 import 'package:app/data/models/db_user.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockFirebaseFirestoreUserService extends Mock
-    implements FirebaseFirestoreUserService {}
+import '../../../mocks/firebase/mock_firebase_firestore_user_service.dart';
 
 void main() {
   final firebaseFirestoreUserService = MockFirebaseFirestoreUserService();
@@ -33,9 +31,7 @@ void main() {
         isDarkModeCompatibilityWithSystemOn:
             firebaseUser.isDarkModeCompatibilityWithSystemOn,
       );
-      when(
-        () => firebaseFirestoreUserService.loadUser(userId: userId),
-      ).thenAnswer((_) async => firebaseUser);
+      firebaseFirestoreUserService.mockLoadUser(firebaseUser: firebaseUser);
 
       final DbUser dbUser = await service.loadUser(userId: userId);
 
@@ -53,11 +49,7 @@ void main() {
         isDarkModeCompatibilityWithSystemOn:
             dbUserToAdd.isDarkModeCompatibilityWithSystemOn,
       );
-      when(
-        () => firebaseFirestoreUserService.addUser(
-          firebaseUser: firebaseUserToAdd,
-        ),
-      ).thenAnswer((_) async => '');
+      firebaseFirestoreUserService.mockAddUser();
 
       await service.addUser(dbUser: dbUserToAdd);
 
@@ -75,14 +67,7 @@ void main() {
       const String userId = 'u1';
       const bool isDarkModeOn = true;
       const bool isDarkModeCompatibilityWithSystemOn = false;
-      when(
-        () => firebaseFirestoreUserService.updateUser(
-          userId: userId,
-          isDarkModeOn: isDarkModeOn,
-          isDarkModeCompatibilityWithSystemOn:
-              isDarkModeCompatibilityWithSystemOn,
-        ),
-      ).thenAnswer((_) async => '');
+      firebaseFirestoreUserService.mockUpdateUser();
 
       await service.updateUser(
         userId: userId,
@@ -106,9 +91,7 @@ void main() {
     'delete user, should call method responsible for deleting user from firebase firestore',
     () async {
       const String userId = 'u1';
-      when(
-        () => firebaseFirestoreUserService.deleteUser(userId: userId),
-      ).thenAnswer((_) async => '');
+      firebaseFirestoreUserService.mockDeleteUser();
 
       await service.deleteUser(userId: userId);
 

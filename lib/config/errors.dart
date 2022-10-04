@@ -6,12 +6,11 @@ enum AuthErrorCode {
   unknown,
 }
 
-enum NetworkErrorCode {
-  lossOfConnection,
-}
+enum NetworkErrorCode { lossOfConnection }
 
 enum UserErrorCode { userNotFound, updateFailure }
 
 enum BookErrorCode {
   newCurrentPageIsTooHigh,
+  newCurrentPageIsLowerThanCurrentPage,
 }

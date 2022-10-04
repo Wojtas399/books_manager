@@ -2,14 +2,16 @@ import 'dart:typed_data';
 
 import 'package:app/components/custom_bloc_listener.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
+import 'package:app/domain/interfaces/day_interface.dart';
 import 'package:app/domain/interfaces/dialog_interface.dart';
 import 'package:app/domain/use_cases/book/delete_book_use_case.dart';
 import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
 import 'package:app/domain/use_cases/book/start_reading_book_use_case.dart';
-import 'package:app/domain/use_cases/book/update_current_page_number_in_book_use_case.dart';
+import 'package:app/domain/use_cases/book/update_current_page_number_after_reading_use_case.dart';
 import 'package:app/features/book_preview/bloc/book_preview_bloc.dart';
 import 'package:app/features/book_preview/book_preview_arguments.dart';
 import 'package:app/features/book_preview/components/book_preview_content.dart';
+import 'package:app/providers/date_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -54,9 +56,11 @@ class _BookPreviewBlocProvider extends StatelessWidget {
         startReadingBookUseCase: StartReadingBookUseCase(
           bookInterface: context.read<BookInterface>(),
         ),
-        updateCurrentPageNumberInBookUseCase:
-            UpdateCurrentPageNumberInBookUseCase(
+        updateCurrentPageNumberAfterReadingUseCase:
+            UpdateCurrentPageNumberAfterReadingUseCase(
           bookInterface: context.read<BookInterface>(),
+          dayInterface: context.read<DayInterface>(),
+          dateProvider: DateProvider(),
         ),
         deleteBookUseCase: DeleteBookUseCase(
           bookInterface: context.read<BookInterface>(),
@@ -92,10 +96,10 @@ class _BookPreviewBlocListener extends StatelessWidget {
   void _onCompletionInfo(BookPreviewBlocInfo info, BuildContext context) {
     switch (info) {
       case BookPreviewBlocInfo.currentPageNumberHasBeenUpdated:
-        _onCurrentPageUpdate(context);
+        _showInfoAboutPageActualisation(context);
         break;
       case BookPreviewBlocInfo.bookHasBeenDeleted:
-        _onBookDeletion(context);
+        _showInfoAboutBookDeletion(context);
         break;
     }
   }
@@ -103,28 +107,41 @@ class _BookPreviewBlocListener extends StatelessWidget {
   void _onError(BookPreviewBlocError error, BuildContext context) {
     switch (error) {
       case BookPreviewBlocError.newCurrentPageNumberIsTooHigh:
-        _onTooHighNumberOfNewCurrentPage(context);
+        _showInfoAboutTooHighNumberOfNewCurrentPage(context);
+        break;
+      case BookPreviewBlocError.newCurrentPageIsLowerThanCurrentPage:
+        _showInfoAboutNewPageNumberLowerThanCurrentPageNumber(context);
         break;
     }
   }
 
-  void _onCurrentPageUpdate(BuildContext context) {
+  void _showInfoAboutPageActualisation(BuildContext context) {
     context.read<DialogInterface>().showSnackBar(
           message: 'Pomyślnie zaktualizowano numer bieżącej strony',
         );
   }
 
-  void _onBookDeletion(BuildContext context) {
+  void _showInfoAboutBookDeletion(BuildContext context) {
     Navigator.pop(context);
     context.read<DialogInterface>().showSnackBar(
           message: 'Pomyślnie usunięto książkę',
         );
   }
 
-  void _onTooHighNumberOfNewCurrentPage(BuildContext context) {
+  void _showInfoAboutTooHighNumberOfNewCurrentPage(BuildContext context) {
     context.read<DialogInterface>().showInfoDialog(
           title: 'Niepoprawny numer strony',
           info: 'Podany numer strony jest wyższy od liczby wszystkich stron...',
+        );
+  }
+
+  void _showInfoAboutNewPageNumberLowerThanCurrentPageNumber(
+    BuildContext context,
+  ) {
+    context.read<DialogInterface>().showInfoDialog(
+          title: 'Niepoprawny numer strony',
+          info:
+              'Podany numer strony jest niższy od numeru poprzednio skończonej strony',
         );
   }
 }

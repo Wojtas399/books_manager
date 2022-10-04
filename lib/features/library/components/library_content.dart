@@ -1,4 +1,4 @@
-import 'package:app/components/animated_scroll_view_item_component.dart';
+import 'package:app/components/animated_opacity_and_scale_component.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/features/library/bloc/library_bloc.dart';
 import 'package:app/features/library/components/library_book_item.dart';
@@ -26,7 +26,7 @@ class LibraryContent extends StatelessWidget {
       itemCount: books.length,
       itemBuilder: (_, int index) {
         final Book book = books[index];
-        return AnimatedScrollViewItemComponent(
+        return AnimatedOpacityAndScaleComponent(
           child: LibraryBookItem(
             bookId: book.id,
             imageData: book.imageData,

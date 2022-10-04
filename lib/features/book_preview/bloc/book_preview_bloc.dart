@@ -6,7 +6,7 @@ import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/use_cases/book/delete_book_use_case.dart';
 import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
 import 'package:app/domain/use_cases/book/start_reading_book_use_case.dart';
-import 'package:app/domain/use_cases/book/update_current_page_number_in_book_use_case.dart';
+import 'package:app/domain/use_cases/book/update_current_page_number_after_reading_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/error.dart';
@@ -18,16 +18,16 @@ part 'book_preview_state.dart';
 class BookPreviewBloc extends Bloc<BookPreviewEvent, BookPreviewState> {
   late final GetBookByIdUseCase _getBookByIdUseCase;
   late final StartReadingBookUseCase _startReadingBookUseCase;
-  late final UpdateCurrentPageNumberInBookUseCase
-      _updateCurrentPageNumberInBookUseCase;
+  late final UpdateCurrentPageNumberAfterReadingUseCase
+      _updateCurrentPageNumberAfterReadingUseCase;
   late final DeleteBookUseCase _deleteBookUseCase;
   StreamSubscription<Book>? _bookListener;
 
   BookPreviewBloc({
     required GetBookByIdUseCase getBookByIdUseCase,
     required StartReadingBookUseCase startReadingBookUseCase,
-    required UpdateCurrentPageNumberInBookUseCase
-        updateCurrentPageNumberInBookUseCase,
+    required UpdateCurrentPageNumberAfterReadingUseCase
+        updateCurrentPageNumberAfterReadingUseCase,
     required DeleteBookUseCase deleteBookUseCase,
     required String bookId,
     BlocStatus status = const BlocStatusInitial(),
@@ -43,8 +43,8 @@ class BookPreviewBloc extends Bloc<BookPreviewEvent, BookPreviewState> {
         ) {
     _getBookByIdUseCase = getBookByIdUseCase;
     _startReadingBookUseCase = startReadingBookUseCase;
-    _updateCurrentPageNumberInBookUseCase =
-        updateCurrentPageNumberInBookUseCase;
+    _updateCurrentPageNumberAfterReadingUseCase =
+        updateCurrentPageNumberAfterReadingUseCase;
     _deleteBookUseCase = deleteBookUseCase;
     on<BookPreviewEventInitialize>(_initialize);
     on<BookPreviewEventBookUpdated>(_bookUpdated);
@@ -103,7 +103,7 @@ class BookPreviewBloc extends Bloc<BookPreviewEvent, BookPreviewState> {
       status: const BlocStatusLoading(),
     ));
     try {
-      await _updateCurrentPageNumberInBookUseCase.execute(
+      await _updateCurrentPageNumberAfterReadingUseCase.execute(
         bookId: state.bookId,
         newCurrentPageNumber: event.currentPageNumber,
       );
@@ -138,6 +138,11 @@ class BookPreviewBloc extends Bloc<BookPreviewEvent, BookPreviewState> {
     if (bookError.code == BookErrorCode.newCurrentPageIsTooHigh) {
       emit(state.copyWithError(
         BookPreviewBlocError.newCurrentPageNumberIsTooHigh,
+      ));
+    } else if (bookError.code ==
+        BookErrorCode.newCurrentPageIsLowerThanCurrentPage) {
+      emit(state.copyWithError(
+        BookPreviewBlocError.newCurrentPageIsLowerThanCurrentPage,
       ));
     }
   }

@@ -14,6 +14,9 @@ class HomeProvider extends StatelessWidget {
         RepositoryProvider(
           create: (_) => DataProvider.provideBookInterface(),
         ),
+        RepositoryProvider(
+          create: (_) => DataProvider.provideDayInterface(),
+        ),
       ],
       child: child,
     );

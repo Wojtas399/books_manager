@@ -1,5 +1,6 @@
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
+import 'package:app/domain/interfaces/day_interface.dart';
 import 'package:app/domain/interfaces/user_interface.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/initialize_user_data_use_case.dart';
@@ -42,6 +43,7 @@ class _HomeBlocProvider extends StatelessWidget {
         initializeUserDataUseCase: InitializeUserDataUseCase(
           userInterface: context.read<UserInterface>(),
           bookInterface: context.read<BookInterface>(),
+          dayInterface: context.read<DayInterface>(),
         ),
       )..add(const HomeEventInitialize()),
       child: child,

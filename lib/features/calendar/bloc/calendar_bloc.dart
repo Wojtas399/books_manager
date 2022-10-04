@@ -1,6 +1,7 @@
 import 'package:app/domain/entities/day.dart';
 import 'package:app/domain/entities/read_book.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
+import 'package:app/domain/use_cases/book/load_all_user_books_use_case.dart';
 import 'package:app/domain/use_cases/day/get_user_days_from_month_use_case.dart';
 import 'package:app/domain/use_cases/day/load_user_days_from_month_use_case.dart';
 import 'package:app/models/bloc_state.dart';
@@ -16,12 +17,14 @@ part 'calendar_state.dart';
 class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   late final DateProvider _dateProvider;
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
+  late final LoadAllUserBooksUseCase _loadAllUserBooksUseCase;
   late final LoadUserDaysFromMonthUseCase _loadUserDaysFromMonthUseCase;
   late final GetUserDaysFromMonthUseCase _getUserDaysFromMonthUseCase;
 
   CalendarBloc({
     required DateProvider dateProvider,
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
+    required LoadAllUserBooksUseCase loadAllUserBooksUseCase,
     required LoadUserDaysFromMonthUseCase loadUserDaysFromMonthUseCase,
     required GetUserDaysFromMonthUseCase getUserDaysFromMonthUseCase,
     BlocStatus status = const BlocStatusInitial(),
@@ -40,6 +43,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         ) {
     _dateProvider = dateProvider;
     _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
+    _loadAllUserBooksUseCase = loadAllUserBooksUseCase;
     _loadUserDaysFromMonthUseCase = loadUserDaysFromMonthUseCase;
     _getUserDaysFromMonthUseCase = getUserDaysFromMonthUseCase;
     on<CalendarEventInitialize>(_initialize);
@@ -58,6 +62,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       return;
     }
     final DateTime todayDate = _dateProvider.getNow();
+    await _loadAllUserBooksUseCase.execute(userId: loggedUserId);
     await _loadLoggedUserDaysFromDateMonth(loggedUserId, todayDate);
     final List<Day> userDaysFromMonth =
         await _getLoggedUserDaysFromDateMonth(loggedUserId, todayDate);

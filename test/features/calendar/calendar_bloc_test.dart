@@ -8,12 +8,14 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../mocks/providers/mock_date_provider.dart';
 import '../../mocks/use_cases/auth/mock_get_logged_user_id_use_case.dart';
+import '../../mocks/use_cases/book/mock_load_all_user_books_use_case.dart';
 import '../../mocks/use_cases/day/mock_get_user_days_from_month_use_case.dart';
 import '../../mocks/use_cases/day/mock_load_user_days_from_month_use_case.dart';
 
 void main() {
   final dateProvider = MockDateProvider();
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
+  final loadAllUserBooksUseCase = MockLoadAllUserBooksUseCase();
   final loadUserDaysFromMonthUseCase = MockLoadUserDaysFromMonthUseCase();
   final getUserDaysFromMonthUseCase = MockGetUserDaysFromMonthUseCase();
   const String loggedUserId = 'u1';
@@ -25,6 +27,7 @@ void main() {
     return CalendarBloc(
       dateProvider: dateProvider,
       getLoggedUserIdUseCase: getLoggedUserIdUseCase,
+      loadAllUserBooksUseCase: loadAllUserBooksUseCase,
       loadUserDaysFromMonthUseCase: loadUserDaysFromMonthUseCase,
       getUserDaysFromMonthUseCase: getUserDaysFromMonthUseCase,
       displayingMonth: displayingMonth,
@@ -55,6 +58,7 @@ void main() {
   tearDown(() {
     reset(dateProvider);
     reset(getLoggedUserIdUseCase);
+    reset(loadAllUserBooksUseCase);
     reset(loadUserDaysFromMonthUseCase);
     reset(getUserDaysFromMonthUseCase);
   });
@@ -102,10 +106,11 @@ void main() {
       );
 
       blocTest(
-        'should call use case responsible for loading logged user days from current month and then should assign these days to state with today date, displaying month and displaying year',
+        'logged user exists, should load all logged user books and days from current month and then should assign these days to state with today date, displaying month and displaying year',
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
+          loadAllUserBooksUseCase.mock();
           dateProvider.mockGetNow(
             nowDateTime: todayDate,
           );
@@ -131,6 +136,11 @@ void main() {
           ),
         ],
         verify: (_) {
+          verify(
+            () => loadAllUserBooksUseCase.execute(
+              userId: loggedUserId,
+            ),
+          ).called(1);
           verify(
             () => loadUserDaysFromMonthUseCase.execute(
               userId: loggedUserId,

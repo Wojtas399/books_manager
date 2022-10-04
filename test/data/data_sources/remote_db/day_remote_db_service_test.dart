@@ -262,31 +262,6 @@ void main() {
       );
 
       test(
-        'given date exists in user days of reading, book does not exist in read books from the day, should throw error',
-        () async {
-          final List<FirebaseDay> daysOfReading = [
-            createFirebaseDay(
-              date: date,
-              readBooks: [
-                createFirebaseReadBook(bookId: 'b2'),
-                createFirebaseReadBook(bookId: 'b3'),
-              ],
-            ),
-          ];
-          final FirebaseUser firebaseUser = createFirebaseUser(
-            daysOfReading: daysOfReading,
-          );
-          firebaseFirestoreUserService.mockLoadUser(firebaseUser: firebaseUser);
-
-          try {
-            await callUpdateBookReadPagesAmountInDayMethod();
-          } catch (error) {
-            "(Firebase firestore) There is no book with id ${updatedDbReadBook.bookId} in read books from the day $date";
-          }
-        },
-      );
-
-      test(
         'given date exists in user days of reading, book exists in read books from the day, should update read book',
         () async {
           final List<FirebaseDay> originalDaysOfReading = [

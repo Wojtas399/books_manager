@@ -132,7 +132,10 @@ class BookSynchronizer {
         await _updateBookInLocalDb(remoteDbBook);
       }
     } else {
-      await _bookRemoteDbService.addBook(dbBook: localDbBook);
+      await _bookLocalDbService.deleteBook(
+        bookId: localDbBook.id,
+        userId: localDbBook.userId,
+      );
     }
   }
 

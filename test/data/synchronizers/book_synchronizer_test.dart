@@ -41,11 +41,11 @@ void main() {
   });
 
   test(
-    'synchronize unmodified user books, should add missing books to local and remote db',
+    'synchronize unmodified user books, should add or delete books in local db',
     () async {
       final List<DbBook> localBooks = [
         createDbBook(id: 'b2'),
-        createDbBook(id: 'b3'),
+        createDbBook(id: 'b3', userId: userId),
       ];
       final List<DbBook> remoteBooks = [
         createDbBook(id: 'b1'),
@@ -64,7 +64,10 @@ void main() {
         () => bookLocalDbService.addBook(dbBook: remoteBooks.first),
       ).thenAnswer((_) async => '');
       when(
-        () => bookRemoteDbService.addBook(dbBook: localBooks.last),
+        () => bookLocalDbService.deleteBook(
+          bookId: localBooks.last.id,
+          userId: userId,
+        ),
       ).thenAnswer((_) async => '');
 
       await synchronizer.synchronizeUnmodifiedUserBooks(userId: userId);
@@ -73,7 +76,10 @@ void main() {
         () => bookLocalDbService.addBook(dbBook: remoteBooks.first),
       ).called(1);
       verify(
-        () => bookRemoteDbService.addBook(dbBook: localBooks.last),
+        () => bookLocalDbService.deleteBook(
+          bookId: localBooks.last.id,
+          userId: userId,
+        ),
       ).called(1);
     },
   );

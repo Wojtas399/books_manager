@@ -16,20 +16,24 @@ class BookCreatorContent extends StatelessWidget {
     return CustomScaffold(
       appBarTitle: 'Nowa książka',
       appBarWithElevation: false,
-      body: SingleChildScrollView(
+      body: SafeArea(
         child: OnTapFocusLoseAreaComponent(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              children: const [
-                BookCreatorImage(),
-                gap,
-                BookCreatorTitleAuthor(),
-                gap,
-                BookCreatorPages(),
-                gap,
-                BookCreatorSubmitButton(),
-              ],
+          child: Center(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: const [
+                    BookCreatorImage(),
+                    gap,
+                    BookCreatorTitleAuthor(),
+                    gap,
+                    BookCreatorPages(),
+                    SizedBox(height: 48),
+                    BookCreatorSubmitButton(),
+                  ],
+                ),
+              ),
             ),
           ),
         ),

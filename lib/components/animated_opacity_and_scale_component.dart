@@ -22,7 +22,7 @@ class _AnimatedOpacityAndScaleComponentState
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 250),
     )..forward();
 
     _scaleAnimation = Tween<double>(begin: 0.5, end: 1).animate(
@@ -42,8 +42,8 @@ class _AnimatedOpacityAndScaleComponentState
 
   @override
   void dispose() {
-    super.dispose();
     _animationController.dispose();
+    super.dispose();
   }
 
   @override

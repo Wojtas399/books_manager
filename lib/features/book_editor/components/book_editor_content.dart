@@ -16,20 +16,24 @@ class BookEditorContent extends StatelessWidget {
     return CustomScaffold(
       appBarTitle: 'Edytor książki',
       appBarWithElevation: false,
-      body: SingleChildScrollView(
+      body: SafeArea(
         child: OnTapFocusLoseAreaComponent(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              children: const [
-                BookEditorImage(),
-                gap,
-                BookEditorTitleAuthor(),
-                gap,
-                BookEditorPages(),
-                gap,
-                BookEditorSubmitButton(),
-              ],
+          child: Center(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: const [
+                    BookEditorImage(),
+                    gap,
+                    BookEditorTitleAuthor(),
+                    gap,
+                    BookEditorPages(),
+                    SizedBox(height: 48),
+                    BookEditorSubmitButton(),
+                  ],
+                ),
+              ),
             ),
           ),
         ),

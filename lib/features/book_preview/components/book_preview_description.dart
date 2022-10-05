@@ -33,6 +33,7 @@ class _Title extends StatelessWidget {
 
     return Text(
       title ?? '',
+      maxLines: 4,
       style: Theme.of(context).textTheme.headline6,
     );
   }

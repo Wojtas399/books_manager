@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'app_colors.dart';
 
@@ -38,6 +39,10 @@ class _MaterialTheme {
 
   static const AppBarTheme appBarTheme = AppBarTheme(
     centerTitle: true,
+    systemOverlayStyle: SystemUiOverlayStyle(
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
+    ),
   );
 }
 

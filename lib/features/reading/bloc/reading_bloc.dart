@@ -6,12 +6,13 @@ import 'package:app/domain/use_cases/book/get_user_books_in_progress_use_case.da
 import 'package:app/domain/use_cases/book/load_user_books_in_progress_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
+import 'package:app/models/custom_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'reading_event.dart';
 part 'reading_state.dart';
 
-class ReadingBloc extends Bloc<ReadingEvent, ReadingState> {
+class ReadingBloc extends CustomBloc<ReadingEvent, ReadingState> {
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
   late final LoadUserBooksInProgressUseCase _loadUserBooksInProgressUseCase;
   late final GetUserBooksInProgressUseCase _getUserBooksInProgressUseCase;
@@ -48,9 +49,7 @@ class ReadingBloc extends Bloc<ReadingEvent, ReadingState> {
   ) async {
     final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
     if (loggedUserId != null) {
-      emit(state.copyWith(
-        status: const BlocStatusLoading(),
-      ));
+      emitLoadingStatus(emit);
       await _loadUserBooksInProgressUseCase.execute(userId: loggedUserId);
       _setBooksInProgressListener(loggedUserId);
     }

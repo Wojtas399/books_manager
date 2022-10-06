@@ -96,32 +96,4 @@ void main() {
       expect(state2.password, expectedPassword);
     },
   );
-
-  test(
-    'copy with info',
-    () {
-      const SignInBlocInfo expectedInfo = SignInBlocInfo.userHasBeenSignedIn;
-
-      state = state.copyWithInfo(expectedInfo);
-
-      expect(
-        state.status,
-        const BlocStatusComplete<SignInBlocInfo>(info: expectedInfo),
-      );
-    },
-  );
-
-  test(
-    'copy with error',
-    () {
-      const SignInBlocError expectedError = SignInBlocError.wrongPassword;
-
-      state = state.copyWithError(expectedError);
-
-      expect(
-        state.status,
-        const BlocStatusError<SignInBlocError>(error: expectedError),
-      );
-    },
-  );
 }

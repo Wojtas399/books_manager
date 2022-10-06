@@ -19,6 +19,7 @@ class SignInState extends BlocState {
 
   bool get isButtonDisabled => email.isEmpty || password.isEmpty;
 
+  @override
   SignInState copyWith({
     BlocStatus? status,
     String? email,
@@ -28,18 +29,6 @@ class SignInState extends BlocState {
       status: status ?? const BlocStatusInProgress(),
       email: email ?? this.email,
       password: password ?? this.password,
-    );
-  }
-
-  SignInState copyWithInfo(SignInBlocInfo info) {
-    return copyWith(
-      status: BlocStatusComplete<SignInBlocInfo>(info: info),
-    );
-  }
-
-  SignInState copyWithError(SignInBlocError error) {
-    return copyWith(
-      status: BlocStatusError<SignInBlocError>(error: error),
     );
   }
 }

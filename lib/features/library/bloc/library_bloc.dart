@@ -6,12 +6,13 @@ import 'package:app/domain/use_cases/book/get_all_user_books_use_case.dart';
 import 'package:app/domain/use_cases/book/load_all_user_books_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
+import 'package:app/models/custom_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'library_event.dart';
 part 'library_state.dart';
 
-class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
+class LibraryBloc extends CustomBloc<LibraryEvent, LibraryState> {
   late final LoadAllUserBooksUseCase _loadAllUserBooksUseCase;
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
   late final GetAllUserBooksUseCase _getAllUserBooksUseCase;
@@ -46,14 +47,10 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     LibraryEventInitialize event,
     Emitter<LibraryState> emit,
   ) async {
-    emit(state.copyWith(
-      status: const BlocStatusLoading(),
-    ));
+    emitLoadingStatus(emit);
     final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
     if (loggedUserId == null) {
-      emit(state.copyWith(
-        status: const BlocStatusLoggedUserNotFound(),
-      ));
+      emitLoggedUserNotFoundStatus(emit);
     } else {
       await _loadAllUserBooksUseCase.execute(userId: loggedUserId);
       _setBooksListener(loggedUserId);

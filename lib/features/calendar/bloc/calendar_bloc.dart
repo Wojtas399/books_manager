@@ -6,6 +6,7 @@ import 'package:app/domain/use_cases/day/get_user_days_from_month_use_case.dart'
 import 'package:app/domain/use_cases/day/load_user_days_from_month_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
+import 'package:app/models/custom_bloc.dart';
 import 'package:app/providers/date_provider.dart';
 import 'package:app/utils/date_utils.dart';
 import 'package:equatable/equatable.dart';
@@ -14,7 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'calendar_event.dart';
 part 'calendar_state.dart';
 
-class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
+class CalendarBloc extends CustomBloc<CalendarEvent, CalendarState> {
   late final DateProvider _dateProvider;
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
   late final LoadAllUserBooksUseCase _loadAllUserBooksUseCase;
@@ -55,10 +56,10 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     CalendarEventInitialize event,
     Emitter<CalendarState> emit,
   ) async {
-    emit(state.copyWithLoadingStatus());
+    emitLoadingStatus(emit);
     final String? loggedUserId = await _getLoggedUserId();
     if (loggedUserId == null) {
-      emit(state.copyWithLoggedUserNotFoundStatus());
+      emitLoggedUserNotFoundStatus(emit);
       return;
     }
     final DateTime todayDate = _dateProvider.getNow();
@@ -82,7 +83,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     final int? displayingMonth = state.displayingMonth;
     final int? displayingYear = state.displayingYear;
     if (loggedUserId == null) {
-      emit(state.copyWithLoggedUserNotFoundStatus());
+      emitLoggedUserNotFoundStatus(emit);
       return;
     }
     if (displayingMonth != null && displayingYear != null) {
@@ -107,7 +108,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     final int? displayingMonth = state.displayingMonth;
     final int? displayingYear = state.displayingYear;
     if (loggedUserId == null) {
-      emit(state.copyWithLoggedUserNotFoundStatus());
+      emitLoggedUserNotFoundStatus(emit);
       return;
     }
     if (displayingMonth != null && displayingYear != null) {
@@ -133,7 +134,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     String loggedUserId,
     Emitter<CalendarState> emit,
   ) async {
-    emit(state.copyWithLoadingStatus());
+    emitLoadingStatus(emit);
     await _loadLoggedUserDaysFromDateMonth(loggedUserId, date);
     final List<Day> userDaysFromMonth =
         await _getLoggedUserDaysFromDateMonth(loggedUserId, date);

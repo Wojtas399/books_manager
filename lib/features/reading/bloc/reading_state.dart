@@ -11,6 +11,7 @@ class ReadingState extends BlocState {
   @override
   List<Object> get props => [status, booksInProgress];
 
+  @override
   ReadingState copyWith({
     BlocStatus? status,
     List<Book>? booksInProgress,

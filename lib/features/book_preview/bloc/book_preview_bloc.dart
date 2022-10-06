@@ -9,13 +9,14 @@ import 'package:app/domain/use_cases/book/start_reading_book_use_case.dart';
 import 'package:app/domain/use_cases/book/update_current_page_number_after_reading_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
+import 'package:app/models/custom_bloc.dart';
 import 'package:app/models/error.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'book_preview_event.dart';
 part 'book_preview_state.dart';
 
-class BookPreviewBloc extends Bloc<BookPreviewEvent, BookPreviewState> {
+class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
   late final GetBookByIdUseCase _getBookByIdUseCase;
   late final StartReadingBookUseCase _startReadingBookUseCase;
   late final UpdateCurrentPageNumberAfterReadingUseCase
@@ -55,17 +56,15 @@ class BookPreviewBloc extends Bloc<BookPreviewEvent, BookPreviewState> {
 
   @override
   Future<void> close() async {
-    super.close();
     _bookListener?.cancel();
+    super.close();
   }
 
   void _initialize(
     BookPreviewEventInitialize event,
     Emitter<BookPreviewState> emit,
   ) {
-    emit(state.copyWith(
-      status: const BlocStatusLoading(),
-    ));
+    emitLoadingStatus(emit);
     _setBookListener(event.bookId);
   }
 
@@ -83,9 +82,7 @@ class BookPreviewBloc extends Bloc<BookPreviewEvent, BookPreviewState> {
     BookPreviewEventStartReading event,
     Emitter<BookPreviewState> emit,
   ) async {
-    emit(state.copyWith(
-      status: const BlocStatusLoading(),
-    ));
+    emitLoadingStatus(emit);
     await _startReadingBookUseCase.execute(
       bookId: state.bookId,
       fromBeginning: event.fromBeginning,
@@ -99,17 +96,16 @@ class BookPreviewBloc extends Bloc<BookPreviewEvent, BookPreviewState> {
     BookPreviewEventUpdateCurrentPageNumber event,
     Emitter<BookPreviewState> emit,
   ) async {
-    emit(state.copyWith(
-      status: const BlocStatusLoading(),
-    ));
+    emitLoadingStatus(emit);
     try {
       await _updateCurrentPageNumberAfterReadingUseCase.execute(
         bookId: state.bookId,
         newCurrentPageNumber: event.currentPageNumber,
       );
-      emit(state.copyWithInfo(
+      emitInfo<BookPreviewBlocInfo>(
+        emit,
         BookPreviewBlocInfo.currentPageNumberHasBeenUpdated,
-      ));
+      );
     } on BookError catch (bookError) {
       _manageBookError(bookError, emit);
     }
@@ -119,13 +115,9 @@ class BookPreviewBloc extends Bloc<BookPreviewEvent, BookPreviewState> {
     BookPreviewEventDeleteBook event,
     Emitter<BookPreviewState> emit,
   ) async {
-    emit(state.copyWith(
-      status: const BlocStatusLoading(),
-    ));
+    emitLoadingStatus(emit);
     await _deleteBookUseCase.execute(bookId: state.bookId);
-    emit(state.copyWithInfo(
-      BookPreviewBlocInfo.bookHasBeenDeleted,
-    ));
+    emitInfo<BookPreviewBlocInfo>(emit, BookPreviewBlocInfo.bookHasBeenDeleted);
   }
 
   void _setBookListener(String bookId) {
@@ -136,14 +128,16 @@ class BookPreviewBloc extends Bloc<BookPreviewEvent, BookPreviewState> {
 
   void _manageBookError(BookError bookError, Emitter<BookPreviewState> emit) {
     if (bookError.code == BookErrorCode.newCurrentPageIsTooHigh) {
-      emit(state.copyWithError(
+      emitError<BookPreviewBlocError>(
+        emit,
         BookPreviewBlocError.newCurrentPageNumberIsTooHigh,
-      ));
+      );
     } else if (bookError.code ==
         BookErrorCode.newCurrentPageIsLowerThanCurrentPage) {
-      emit(state.copyWithError(
+      emitError<BookPreviewBlocError>(
+        emit,
         BookPreviewBlocError.newCurrentPageIsLowerThanCurrentPage,
-      ));
+      );
     }
   }
 }

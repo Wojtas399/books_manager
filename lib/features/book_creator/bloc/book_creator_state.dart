@@ -26,12 +26,7 @@ class BookCreatorState extends BlocState {
         allPagesAmount,
       ];
 
-  bool get isButtonDisabled =>
-      title.isEmpty ||
-      author.isEmpty ||
-      allPagesAmount == 0 ||
-      allPagesAmount < readPagesAmount;
-
+  @override
   BookCreatorState copyWith({
     BlocStatus? status,
     Uint8List? imageData,
@@ -51,11 +46,11 @@ class BookCreatorState extends BlocState {
     );
   }
 
-  BookCreatorState copyWithInfo(BookCreatorBlocInfo info) {
-    return copyWith(
-      status: BlocStatusComplete<BookCreatorBlocInfo>(info: info),
-    );
-  }
+  bool get isButtonDisabled =>
+      title.isEmpty ||
+      author.isEmpty ||
+      allPagesAmount == 0 ||
+      allPagesAmount < readPagesAmount;
 }
 
 enum BookCreatorBlocInfo {

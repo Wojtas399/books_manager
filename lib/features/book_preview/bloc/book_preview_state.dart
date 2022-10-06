@@ -22,18 +22,7 @@ class BookPreviewState extends BlocState {
         _book ?? '',
       ];
 
-  Uint8List? get bookImageData => _book?.imageData;
-
-  BookStatus? get bookStatus => _book?.status;
-
-  String? get title => _book?.title;
-
-  String? get author => _book?.author;
-
-  int? get readPagesAmount => _book?.readPagesAmount;
-
-  int? get allPagesAmount => _book?.allPagesAmount;
-
+  @override
   BookPreviewState copyWith({
     BlocStatus? status,
     Book? book,
@@ -46,17 +35,17 @@ class BookPreviewState extends BlocState {
     );
   }
 
-  BookPreviewState copyWithInfo(BookPreviewBlocInfo info) {
-    return copyWith(
-      status: BlocStatusComplete<BookPreviewBlocInfo>(info: info),
-    );
-  }
+  Uint8List? get bookImageData => _book?.imageData;
 
-  BookPreviewState copyWithError(BookPreviewBlocError error) {
-    return copyWith(
-      status: BlocStatusError<BookPreviewBlocError>(error: error),
-    );
-  }
+  BookStatus? get bookStatus => _book?.status;
+
+  String? get title => _book?.title;
+
+  String? get author => _book?.author;
+
+  int? get readPagesAmount => _book?.readPagesAmount;
+
+  int? get allPagesAmount => _book?.allPagesAmount;
 }
 
 enum BookPreviewBlocInfo {

@@ -1,21 +1,13 @@
 import 'package:app/domain/entities/book.dart';
-import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import 'package:app/domain/use_cases/book/get_user_books_in_progress_use_case.dart';
-import 'package:app/domain/use_cases/book/load_user_books_in_progress_use_case.dart';
 import 'package:app/features/reading/bloc/reading_bloc.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockGetLoggedUserIdUseCase extends Mock
-    implements GetLoggedUserIdUseCase {}
-
-class MockLoadUserBooksInProgressUseCase extends Mock
-    implements LoadUserBooksInProgressUseCase {}
-
-class MockGetUserBooksInProgressUseCase extends Mock
-    implements GetUserBooksInProgressUseCase {}
+import '../../mocks/use_cases/auth/mock_get_logged_user_id_use_case.dart';
+import '../../mocks/use_cases/book/mock_get_user_books_in_progress_use_case.dart';
+import '../../mocks/use_cases/book/mock_load_user_books_in_progress_use_case.dart';
 
 void main() {
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
@@ -59,9 +51,9 @@ void main() {
         'logged user id is null, should not do anything',
         build: () => createBloc(),
         setUp: () {
-          when(
-            () => getLoggedUserIdUseCase.execute(),
-          ).thenAnswer((_) => Stream.value(null));
+          getLoggedUserIdUseCase.mock();
+          loadUserBooksInProgressUseCase.mock();
+          getUserBooksInProgressUseCase.mock(userBooksInProgress: []);
         },
         act: (ReadingBloc bloc) {
           bloc.add(
@@ -87,15 +79,11 @@ void main() {
         'logged user id is not null, should call use case responsible for loading user books in progress and should set listener for these books',
         build: () => createBloc(),
         setUp: () {
-          when(
-            () => getLoggedUserIdUseCase.execute(),
-          ).thenAnswer((_) => Stream.value(userId));
-          when(
-            () => loadUserBooksInProgressUseCase.execute(userId: userId),
-          ).thenAnswer((_) async => '');
-          when(
-            () => getUserBooksInProgressUseCase.execute(userId: userId),
-          ).thenAnswer((_) => Stream.value(booksInProgress));
+          getLoggedUserIdUseCase.mock(loggedUserId: userId);
+          loadUserBooksInProgressUseCase.mock();
+          getUserBooksInProgressUseCase.mock(
+            userBooksInProgress: booksInProgress,
+          );
         },
         act: (ReadingBloc bloc) {
           bloc.add(

@@ -1,17 +1,14 @@
 import 'dart:typed_data';
 
 import 'package:app/domain/entities/book.dart';
-import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
-import 'package:app/domain/use_cases/book/update_book_use_case.dart';
 import 'package:app/features/book_editor/bloc/book_editor_bloc.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockGetBookByIdUseCase extends Mock implements GetBookByIdUseCase {}
-
-class MockUpdateBookUseCase extends Mock implements UpdateBookUseCase {}
+import '../../mocks/use_cases/book/mock_get_book_by_id_use_case.dart';
+import '../../mocks/use_cases/book/mock_update_book_use_case.dart';
 
 void main() {
   final getBookByIdUseCase = MockGetBookByIdUseCase();
@@ -74,9 +71,7 @@ void main() {
         'should load book and assign its params to state',
         build: () => createBloc(),
         setUp: () {
-          when(
-            () => getBookByIdUseCase.execute(bookId: bookId),
-          ).thenAnswer((_) => Stream.value(book));
+          getBookByIdUseCase.mock(book: book);
         },
         act: (BookEditorBloc bloc) {
           bloc.add(
@@ -234,17 +229,7 @@ void main() {
       );
 
       setUp(() {
-        when(
-          () => updateBookUseCase.execute(
-            bookId: originalBook.id,
-            imageData: any(named: 'imageData'),
-            deleteImage: any(named: 'deleteImage'),
-            title: newTitle,
-            author: newAuthor,
-            readPagesAmount: newReadPagesAmount,
-            allPagesAmount: newAllPagesAmount,
-          ),
-        ).thenAnswer((_) async => '');
+        updateBookUseCase.mock();
       });
 
       blocTest(

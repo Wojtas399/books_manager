@@ -1,19 +1,14 @@
 import 'package:app/config/errors.dart';
-import 'package:app/domain/use_cases/auth/sign_up_use_case.dart';
 import 'package:app/features/sign_up/bloc/sign_up_bloc.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/error.dart';
-import 'package:app/validators/email_validator.dart';
-import 'package:app/validators/password_validator.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockEmailValidator extends Mock implements EmailValidator {}
-
-class MockPasswordValidator extends Mock implements PasswordValidator {}
-
-class MockSignUpUseCase extends Mock implements SignUpUseCase {}
+import '../../mocks/use_cases/auth/mock_sign_up_use_case.dart';
+import '../../mocks/validators/mock_email_validator.dart';
+import '../../mocks/validators/mock_password_validator.dart';
 
 void main() {
   final emailValidator = MockEmailValidator();
@@ -61,9 +56,7 @@ void main() {
     'email changed, should update email and its validation status',
     build: () => createBloc(),
     setUp: () {
-      when(
-        () => emailValidator.isValid('email'),
-      ).thenReturn(true);
+      emailValidator.mockIsValid(isValid: true);
     },
     act: (SignUpBloc bloc) {
       bloc.add(
@@ -82,9 +75,7 @@ void main() {
     'password changed, should update password and its validation status',
     build: () => createBloc(),
     setUp: () {
-      when(
-        () => passwordValidator.isValid('password'),
-      ).thenReturn(true);
+      passwordValidator.mockIsValid(isValid: true);
     },
     act: (SignUpBloc bloc) {
       bloc.add(
@@ -126,9 +117,7 @@ void main() {
         'should call use case responsible for signing up user',
         build: () => createBloc(email: email, password: password),
         setUp: () {
-          when(
-            () => signUpUseCase.execute(email: email, password: password),
-          ).thenAnswer((_) async => '');
+          signUpUseCase.mock();
         },
         act: (SignUpBloc bloc) {
           bloc.add(
@@ -160,10 +149,8 @@ void main() {
         'should emit appropriate error if email is already in use',
         build: () => createBloc(email: email, password: password),
         setUp: () {
-          when(
-            () => signUpUseCase.execute(email: email, password: password),
-          ).thenThrow(
-            const AuthError(code: AuthErrorCode.emailAlreadyInUse),
+          signUpUseCase.mock(
+            throwable: const AuthError(code: AuthErrorCode.emailAlreadyInUse),
           );
         },
         act: (SignUpBloc bloc) {
@@ -191,10 +178,10 @@ void main() {
         'should emit appropriate error if there is no internet connection',
         build: () => createBloc(email: email, password: password),
         setUp: () {
-          when(
-            () => signUpUseCase.execute(email: email, password: password),
-          ).thenThrow(
-            const NetworkError(code: NetworkErrorCode.lossOfConnection),
+          signUpUseCase.mock(
+            throwable: const NetworkError(
+              code: NetworkErrorCode.lossOfConnection,
+            ),
           );
         },
         act: (SignUpBloc bloc) {

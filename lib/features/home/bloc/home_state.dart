@@ -14,6 +14,7 @@ class HomeState extends BlocState {
         currentPageIndex,
       ];
 
+  @override
   HomeState copyWith({
     BlocStatus? status,
     int? currentPageIndex,

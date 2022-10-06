@@ -120,38 +120,4 @@ void main() {
       expect(state2.title, 'title');
     },
   );
-
-  test(
-    'copy with info',
-    () {
-      const BookPreviewBlocInfo expectedInfo =
-          BookPreviewBlocInfo.bookHasBeenDeleted;
-
-      state = state.copyWithInfo(expectedInfo);
-
-      expect(
-        state.status,
-        const BlocStatusComplete<BookPreviewBlocInfo>(
-          info: expectedInfo,
-        ),
-      );
-    },
-  );
-
-  test(
-    'copy with error',
-    () {
-      const BookPreviewBlocError expectedError =
-          BookPreviewBlocError.newCurrentPageNumberIsTooHigh;
-
-      state = state.copyWithError(expectedError);
-
-      expect(
-        state.status,
-        const BlocStatusError<BookPreviewBlocError>(
-          error: expectedError,
-        ),
-      );
-    },
-  );
 }

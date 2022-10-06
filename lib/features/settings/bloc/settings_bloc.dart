@@ -11,13 +11,14 @@ import 'package:app/domain/use_cases/user/load_user_use_case.dart';
 import 'package:app/domain/use_cases/user/update_theme_settings_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
+import 'package:app/models/custom_bloc.dart';
 import 'package:app/models/error.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'settings_event.dart';
 part 'settings_state.dart';
 
-class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
+class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
   late final LoadUserUseCase _loadUserUseCase;
   late final GetUserUseCase _getUserUseCase;
@@ -74,14 +75,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     SettingsEventInitialize event,
     Emitter<SettingsState> emit,
   ) async {
-    emit(state.copyWith(
-      status: const BlocStatusLoading(),
-    ));
+    emitLoadingStatus(emit);
     final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
     if (loggedUserId == null) {
-      emit(state.copyWith(
-        status: const BlocStatusLoggedUserNotFound(),
-      ));
+      emitLoggedUserNotFoundStatus(emit);
     } else {
       await _loadUserUseCase.execute(userId: loggedUserId);
       _setUserListener(loggedUserId);
@@ -147,13 +144,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     SettingsEventSignOut event,
     Emitter<SettingsState> emit,
   ) async {
-    emit(state.copyWith(
-      status: const BlocStatusLoading(),
-    ));
+    emitLoadingStatus(emit);
     await _signOutUseCase.execute();
-    emit(state.copyWithInfo(
-      SettingsBlocInfo.userHasBeenSignedOut,
-    ));
+    emitInfo<SettingsBlocInfo>(emit, SettingsBlocInfo.userHasBeenSignedOut);
   }
 
   Future<void> _deleteAccount(
@@ -182,29 +175,24 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     String newPassword,
     Emitter<SettingsState> emit,
   ) async {
-    emit(state.copyWith(
-      status: const BlocStatusLoading(),
-    ));
+    emitLoadingStatus(emit);
     await _changeLoggedUserPasswordUseCase.execute(
       currentPassword: currentPassword,
       newPassword: newPassword,
     );
-    emit(state.copyWithInfo(
-      SettingsBlocInfo.passwordHasBeenChanged,
-    ));
+    emitInfo<SettingsBlocInfo>(emit, SettingsBlocInfo.passwordHasBeenChanged);
   }
 
   Future<void> _tryDeleteLoggedUserAccount(
     String password,
     Emitter<SettingsState> emit,
   ) async {
-    emit(state.copyWith(
-      status: const BlocStatusLoading(),
-    ));
+    emitLoadingStatus(emit);
     await _deleteLoggedUserUseCase.execute(password: password);
-    emit(state.copyWithInfo(
+    emitInfo<SettingsBlocInfo>(
+      emit,
       SettingsBlocInfo.userAccountHasBeenDeleted,
-    ));
+    );
   }
 
   void _manageAuthError(
@@ -212,13 +200,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     Emitter<SettingsState> emit,
   ) {
     if (authError.code == AuthErrorCode.wrongPassword) {
-      emit(state.copyWithError(
-        SettingsBlocError.wrongPassword,
-      ));
+      emitError(emit, SettingsBlocError.wrongPassword);
     } else if (authError.code == AuthErrorCode.userNotFound) {
-      emit(state.copyWith(
-        status: const BlocStatusLoggedUserNotFound(),
-      ));
+      emitLoggedUserNotFoundStatus(emit);
     }
   }
 
@@ -227,9 +211,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     Emitter<SettingsState> emit,
   ) {
     if (networkError.code == NetworkErrorCode.lossOfConnection) {
-      emit(state.copyWith(
-        status: const BlocStatusLossOfInternetConnection(),
-      ));
+      emitLossOfInternetConnectionStatus(emit);
     }
   }
 }

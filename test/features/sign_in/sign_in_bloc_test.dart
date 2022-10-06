@@ -1,7 +1,4 @@
 import 'package:app/config/errors.dart';
-import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import 'package:app/domain/use_cases/auth/load_logged_user_id_use_case.dart';
-import 'package:app/domain/use_cases/auth/sign_in_use_case.dart';
 import 'package:app/features/sign_in/bloc/sign_in_bloc.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/error.dart';
@@ -9,13 +6,9 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockLoadLoggedUserIdUseCase extends Mock
-    implements LoadLoggedUserIdUseCase {}
-
-class MockGetLoggedUserIdUseCase extends Mock
-    implements GetLoggedUserIdUseCase {}
-
-class MockSignInUseCase extends Mock implements SignInUseCase {}
+import '../../mocks/use_cases/auth/mock_get_logged_user_id_use_case.dart';
+import '../../mocks/use_cases/auth/mock_load_logged_user_id_use_case.dart';
+import '../../mocks/use_cases/auth/mock_sign_in_use_case.dart';
 
 void main() {
   final loadLoggedUserIdUseCase = MockLoadLoggedUserIdUseCase();
@@ -48,6 +41,8 @@ void main() {
   }
 
   tearDown(() {
+    reset(loadLoggedUserIdUseCase);
+    reset(getLoggedUserIdUseCase);
     reset(signInUseCase);
   });
 
@@ -55,12 +50,8 @@ void main() {
     'initialize, should emit appropriate info if logged user id is not null',
     build: () => createBloc(),
     setUp: () {
-      when(
-        () => loadLoggedUserIdUseCase.execute(),
-      ).thenAnswer((_) async => '');
-      when(
-        () => getLoggedUserIdUseCase.execute(),
-      ).thenAnswer((_) => Stream.value('u1'));
+      loadLoggedUserIdUseCase.mock();
+      getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
     },
     act: (SignInBloc bloc) {
       bloc.add(
@@ -80,12 +71,8 @@ void main() {
     'initialize, should not emit appropriate info if logged user id is null',
     build: () => createBloc(),
     setUp: () {
-      when(
-        () => loadLoggedUserIdUseCase.execute(),
-      ).thenAnswer((_) async => '');
-      when(
-        () => getLoggedUserIdUseCase.execute(),
-      ).thenAnswer((_) => Stream.value(null));
+      loadLoggedUserIdUseCase.mock();
+      getLoggedUserIdUseCase.mock();
     },
     act: (SignInBloc bloc) {
       bloc.add(
@@ -131,9 +118,7 @@ void main() {
         'should call use case responsible for signing in user',
         build: () => createBloc(email: email, password: password),
         setUp: () {
-          when(
-            () => signInUseCase.execute(email: email, password: password),
-          ).thenAnswer((_) async => '');
+          signInUseCase.mock();
         },
         act: (SignInBloc bloc) {
           bloc.add(
@@ -168,10 +153,8 @@ void main() {
         'should emit appropriate error if email is invalid',
         build: () => createBloc(email: email, password: password),
         setUp: () {
-          when(
-            () => signInUseCase.execute(email: email, password: password),
-          ).thenThrow(
-            const AuthError(code: AuthErrorCode.invalidEmail),
+          signInUseCase.mock(
+            throwable: const AuthError(code: AuthErrorCode.invalidEmail),
           );
         },
         act: (SignInBloc bloc) {
@@ -199,10 +182,8 @@ void main() {
         'should emit appropriate error if password is invalid',
         build: () => createBloc(email: email, password: password),
         setUp: () {
-          when(
-            () => signInUseCase.execute(email: email, password: password),
-          ).thenThrow(
-            const AuthError(code: AuthErrorCode.wrongPassword),
+          signInUseCase.mock(
+            throwable: const AuthError(code: AuthErrorCode.wrongPassword),
           );
         },
         act: (SignInBloc bloc) {
@@ -230,10 +211,8 @@ void main() {
         'should emit appropriate error if user has not been found',
         build: () => createBloc(email: email, password: password),
         setUp: () {
-          when(
-            () => signInUseCase.execute(email: email, password: password),
-          ).thenThrow(
-            const AuthError(code: AuthErrorCode.userNotFound),
+          signInUseCase.mock(
+            throwable: const AuthError(code: AuthErrorCode.userNotFound),
           );
         },
         act: (SignInBloc bloc) {
@@ -261,10 +240,10 @@ void main() {
         'should emit appropriate error if there is no internet connection',
         build: () => createBloc(email: email, password: password),
         setUp: () {
-          when(
-            () => signInUseCase.execute(email: email, password: password),
-          ).thenThrow(
-            const NetworkError(code: NetworkErrorCode.lossOfConnection),
+          signInUseCase.mock(
+            throwable: const NetworkError(
+              code: NetworkErrorCode.lossOfConnection,
+            ),
           );
         },
         act: (SignInBloc bloc) {

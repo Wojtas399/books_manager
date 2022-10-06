@@ -6,13 +6,14 @@ import 'package:app/domain/use_cases/auth/load_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/auth/sign_in_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
+import 'package:app/models/custom_bloc.dart';
 import 'package:app/models/error.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'sign_in_event.dart';
 part 'sign_in_state.dart';
 
-class SignInBloc extends Bloc<SignInEvent, SignInState> {
+class SignInBloc extends CustomBloc<SignInEvent, SignInState> {
   late final LoadLoggedUserIdUseCase _loadLoggedUserIdUseCase;
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
   late final SignInUseCase _signInUseCase;
@@ -46,9 +47,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     Emitter<SignInState> emit,
   ) async {
     if (await _isUserSignedIn()) {
-      emit(state.copyWithInfo(
-        SignInBlocInfo.userHasBeenSignedIn,
-      ));
+      emitInfo(emit, SignInBlocInfo.userHasBeenSignedIn);
     }
   }
 
@@ -75,7 +74,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     Emitter<SignInState> emit,
   ) async {
     try {
-      await _signIn(emit);
+      await _tryToSignIn(emit);
     } on AuthError catch (authError) {
       _manageAuthError(authError, emit);
     } on NetworkError catch (networkError) {
@@ -101,31 +100,21 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     return loggedUserId != null;
   }
 
-  Future<void> _signIn(Emitter<SignInState> emit) async {
-    emit(state.copyWith(
-      status: const BlocStatusLoading(),
-    ));
+  Future<void> _tryToSignIn(Emitter<SignInState> emit) async {
+    emitLoadingStatus(emit);
     await _signInUseCase
         .execute(email: state.email, password: state.password)
         .timeout(const Duration(seconds: 10));
-    emit(state.copyWithInfo(
-      SignInBlocInfo.userHasBeenSignedIn,
-    ));
+    emitInfo<SignInBlocInfo>(emit, SignInBlocInfo.userHasBeenSignedIn);
   }
 
   void _manageAuthError(AuthError authError, Emitter<SignInState> emit) {
     if (authError.code == AuthErrorCode.invalidEmail) {
-      emit(state.copyWithError(
-        SignInBlocError.invalidEmail,
-      ));
+      emitError<SignInBlocError>(emit, SignInBlocError.invalidEmail);
     } else if (authError.code == AuthErrorCode.wrongPassword) {
-      emit(state.copyWithError(
-        SignInBlocError.wrongPassword,
-      ));
+      emitError<SignInBlocError>(emit, SignInBlocError.wrongPassword);
     } else if (authError.code == AuthErrorCode.userNotFound) {
-      emit(state.copyWithError(
-        SignInBlocError.userNotFound,
-      ));
+      emitError<SignInBlocError>(emit, SignInBlocError.userNotFound);
     }
   }
 
@@ -134,15 +123,11 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     Emitter<SignInState> emit,
   ) {
     if (networkError.code == NetworkErrorCode.lossOfConnection) {
-      emit(state.copyWith(
-        status: const BlocStatusLossOfInternetConnection(),
-      ));
+      emitLossOfInternetConnectionStatus(emit);
     }
   }
 
   void _manageTimeoutException(Emitter<SignInState> emit) {
-    emit(state.copyWith(
-      status: const BlocStatusTimeoutException(),
-    ));
+    emitTimeoutExceptionStatus(emit);
   }
 }

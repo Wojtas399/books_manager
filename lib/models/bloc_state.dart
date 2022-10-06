@@ -9,4 +9,6 @@ abstract class BlocState extends Equatable {
 
   @override
   List<Object> get props => [status];
+
+  dynamic copyWith({BlocStatus? status});
 }

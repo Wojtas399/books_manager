@@ -11,8 +11,7 @@ class ResetPasswordState extends BlocState {
   @override
   List<Object> get props => [status, email];
 
-  bool get isButtonDisabled => email.isEmpty;
-
+  @override
   ResetPasswordState copyWith({
     BlocStatus? status,
     String? email,
@@ -23,17 +22,7 @@ class ResetPasswordState extends BlocState {
     );
   }
 
-  ResetPasswordState copyWithInfo(ResetPasswordBlocInfo info) {
-    return copyWith(
-      status: BlocStatusComplete<ResetPasswordBlocInfo>(info: info),
-    );
-  }
-
-  ResetPasswordState copyWithError(ResetPasswordBlocError error) {
-    return copyWith(
-      status: BlocStatusError<ResetPasswordBlocError>(error: error),
-    );
-  }
+  bool get isButtonDisabled => email.isEmpty;
 }
 
 enum ResetPasswordBlocInfo {

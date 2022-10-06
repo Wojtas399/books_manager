@@ -1,5 +1,4 @@
 import 'package:app/config/errors.dart';
-import 'package:app/domain/use_cases/auth/send_reset_password_email_use_case.dart';
 import 'package:app/features/reset_password/bloc/reset_password_bloc.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/error.dart';
@@ -7,8 +6,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockSendResetPasswordEmailUseCase extends Mock
-    implements SendResetPasswordEmailUseCase {}
+import '../../mocks/use_cases/auth/mock_send_reset_password_email_use_case.dart';
 
 void main() {
   final sendResetPasswordEmailUseCase = MockSendResetPasswordEmailUseCase();
@@ -60,9 +58,7 @@ void main() {
         'should call use case responsible for sending password reset email',
         build: () => createBloc(email: email),
         setUp: () {
-          when(
-            () => sendResetPasswordEmailUseCase.execute(email: email),
-          ).thenAnswer((_) async => '');
+          sendResetPasswordEmailUseCase.mock();
         },
         act: (ResetPasswordBloc bloc) {
           bloc.add(
@@ -92,10 +88,8 @@ void main() {
         'should emit appropriate info if email is invalid',
         build: () => createBloc(email: email),
         setUp: () {
-          when(
-            () => sendResetPasswordEmailUseCase.execute(email: email),
-          ).thenThrow(
-            const AuthError(code: AuthErrorCode.invalidEmail),
+          sendResetPasswordEmailUseCase.mock(
+            throwable: const AuthError(code: AuthErrorCode.invalidEmail),
           );
         },
         act: (ResetPasswordBloc bloc) {
@@ -121,10 +115,8 @@ void main() {
         'should emit appropriate info if user has not been found',
         build: () => createBloc(email: email),
         setUp: () {
-          when(
-            () => sendResetPasswordEmailUseCase.execute(email: email),
-          ).thenThrow(
-            const AuthError(code: AuthErrorCode.userNotFound),
+          sendResetPasswordEmailUseCase.mock(
+            throwable: const AuthError(code: AuthErrorCode.userNotFound),
           );
         },
         act: (ResetPasswordBloc bloc) {
@@ -150,10 +142,10 @@ void main() {
         'should emit appropriate info if there is no internet connection',
         build: () => createBloc(email: email),
         setUp: () {
-          when(
-            () => sendResetPasswordEmailUseCase.execute(email: email),
-          ).thenThrow(
-            const NetworkError(code: NetworkErrorCode.lossOfConnection),
+          sendResetPasswordEmailUseCase.mock(
+            throwable: const NetworkError(
+              code: NetworkErrorCode.lossOfConnection,
+            ),
           );
         },
         act: (ResetPasswordBloc bloc) {

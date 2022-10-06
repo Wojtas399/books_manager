@@ -55,38 +55,4 @@ void main() {
       expect(state2.email, expectedEmail);
     },
   );
-
-  test(
-    'copy with info',
-    () {
-      const ResetPasswordBlocInfo expectedInfo =
-          ResetPasswordBlocInfo.emailHasBeenSent;
-
-      state = state.copyWithInfo(expectedInfo);
-
-      expect(
-        state.status,
-        const BlocStatusComplete<ResetPasswordBlocInfo>(
-          info: expectedInfo,
-        ),
-      );
-    },
-  );
-
-  test(
-    'copy with error',
-    () {
-      const ResetPasswordBlocError expectedError =
-          ResetPasswordBlocError.userNotFound;
-
-      state = state.copyWithError(expectedError);
-
-      expect(
-        state.status,
-        const BlocStatusError<ResetPasswordBlocError>(
-          error: expectedError,
-        ),
-      );
-    },
-  );
 }

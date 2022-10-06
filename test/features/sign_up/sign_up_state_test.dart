@@ -181,32 +181,4 @@ void main() {
       expect(state2.isPasswordValid, expectedValue);
     },
   );
-
-  test(
-    'copy with info',
-    () {
-      const SignUpBlocInfo expectedInfo = SignUpBlocInfo.userHasBeenSignedUp;
-
-      state = state.copyWithInfo(expectedInfo);
-
-      expect(
-        state.status,
-        const BlocStatusComplete<SignUpBlocInfo>(info: expectedInfo),
-      );
-    },
-  );
-
-  test(
-    'copy with error',
-    () {
-      const SignUpBlocError expectedError = SignUpBlocError.emailIsAlreadyTaken;
-
-      state = state.copyWithError(expectedError);
-
-      expect(
-        state.status,
-        const BlocStatusError<SignUpBlocError>(error: expectedError),
-      );
-    },
-  );
 }

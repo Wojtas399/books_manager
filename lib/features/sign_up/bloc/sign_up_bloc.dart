@@ -4,6 +4,7 @@ import 'package:app/config/errors.dart';
 import 'package:app/domain/use_cases/auth/sign_up_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
+import 'package:app/models/custom_bloc.dart';
 import 'package:app/models/error.dart';
 import 'package:app/validators/email_validator.dart';
 import 'package:app/validators/password_validator.dart';
@@ -12,7 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'sign_up_event.dart';
 part 'sign_up_state.dart';
 
-class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
+class SignUpBloc extends CustomBloc<SignUpEvent, SignUpState> {
   late final EmailValidator _emailValidator;
   late final PasswordValidator _passwordValidator;
   late final SignUpUseCase _signUpUseCase;
@@ -80,33 +81,27 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     Emitter<SignUpState> emit,
   ) async {
     try {
-      await _signUp(emit);
+      await _tryToSignUp(emit);
     } on AuthError catch (authError) {
       _manageAuthError(authError, emit);
     } on NetworkError catch (networkError) {
       _manageNetworkError(networkError, emit);
     } on TimeoutException catch (_) {
-      _manageTimeoutException(emit);
+      emitTimeoutExceptionStatus(emit);
     }
   }
 
-  Future<void> _signUp(Emitter<SignUpState> emit) async {
-    emit(state.copyWith(
-      status: const BlocStatusLoading(),
-    ));
+  Future<void> _tryToSignUp(Emitter<SignUpState> emit) async {
+    emitLoadingStatus(emit);
     await _signUpUseCase
         .execute(email: state.email, password: state.password)
         .timeout(const Duration(seconds: 10));
-    emit(state.copyWithInfo(
-      SignUpBlocInfo.userHasBeenSignedUp,
-    ));
+    emitInfo(emit, SignUpBlocInfo.userHasBeenSignedUp);
   }
 
   void _manageAuthError(AuthError authError, Emitter<SignUpState> emit) {
     if (authError.code == AuthErrorCode.emailAlreadyInUse) {
-      emit(state.copyWithError(
-        SignUpBlocError.emailIsAlreadyTaken,
-      ));
+      emitError(emit, SignUpBlocError.emailIsAlreadyTaken);
     }
   }
 
@@ -115,15 +110,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     Emitter<SignUpState> emit,
   ) {
     if (networkError.code == NetworkErrorCode.lossOfConnection) {
-      emit(state.copyWith(
-        status: const BlocStatusLossOfInternetConnection(),
-      ));
+      emitLossOfInternetConnectionStatus(emit);
     }
-  }
-
-  void _manageTimeoutException(Emitter<SignUpState> emit) {
-    emit(state.copyWith(
-      status: const BlocStatusTimeoutException(),
-    ));
   }
 }

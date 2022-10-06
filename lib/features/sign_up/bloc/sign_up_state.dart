@@ -31,6 +31,7 @@ class SignUpState extends BlocState {
   bool get isButtonDisabled =>
       !isEmailValid || !isPasswordValid || !isPasswordConfirmationValid;
 
+  @override
   SignUpState copyWith({
     BlocStatus? status,
     String? email,
@@ -46,18 +47,6 @@ class SignUpState extends BlocState {
       passwordConfirmation: passwordConfirmation ?? this.passwordConfirmation,
       isEmailValid: isEmailValid ?? this.isEmailValid,
       isPasswordValid: isPasswordValid ?? this.isPasswordValid,
-    );
-  }
-
-  SignUpState copyWithInfo(SignUpBlocInfo info) {
-    return copyWith(
-      status: BlocStatusComplete<SignUpBlocInfo>(info: info),
-    );
-  }
-
-  SignUpState copyWithError(SignUpBlocError error) {
-    return copyWith(
-      status: BlocStatusError<SignUpBlocError>(error: error),
     );
   }
 }

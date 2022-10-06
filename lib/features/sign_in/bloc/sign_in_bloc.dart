@@ -80,7 +80,7 @@ class SignInBloc extends CustomBloc<SignInEvent, SignInState> {
     } on NetworkError catch (networkError) {
       _manageNetworkError(networkError, emit);
     } on TimeoutException catch (_) {
-      _manageTimeoutException(emit);
+      emitTimeoutExceptionStatus(emit);
     }
   }
 
@@ -125,9 +125,5 @@ class SignInBloc extends CustomBloc<SignInEvent, SignInState> {
     if (networkError.code == NetworkErrorCode.lossOfConnection) {
       emitLossOfInternetConnectionStatus(emit);
     }
-  }
-
-  void _manageTimeoutException(Emitter<SignInState> emit) {
-    emitTimeoutExceptionStatus(emit);
   }
 }

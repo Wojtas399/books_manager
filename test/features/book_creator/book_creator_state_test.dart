@@ -176,19 +176,4 @@ void main() {
       expect(state2.imageData, null);
     },
   );
-
-  test(
-    'copy with info',
-    () {
-      const BookCreatorBlocInfo expectedInfo =
-          BookCreatorBlocInfo.bookHasBeenAdded;
-
-      state = state.copyWithInfo(expectedInfo);
-
-      expect(
-        state.status,
-        const BlocStatusComplete<BookCreatorBlocInfo>(info: expectedInfo),
-      );
-    },
-  );
 }

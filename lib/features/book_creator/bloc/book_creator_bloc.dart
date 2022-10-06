@@ -5,12 +5,13 @@ import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/book/add_book_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
+import 'package:app/models/custom_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'book_creator_event.dart';
 part 'book_creator_state.dart';
 
-class BookCreatorBloc extends Bloc<BookCreatorEvent, BookCreatorState> {
+class BookCreatorBloc extends CustomBloc<BookCreatorEvent, BookCreatorState> {
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
   late final AddBookUseCase _addBookUseCase;
 
@@ -93,19 +94,13 @@ class BookCreatorBloc extends Bloc<BookCreatorEvent, BookCreatorState> {
     BookCreatorEventSubmit event,
     Emitter<BookCreatorState> emit,
   ) async {
-    emit(state.copyWith(
-      status: const BlocStatusLoading(),
-    ));
+    emitLoadingStatus(emit);
     final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
     if (loggedUserId != null) {
       await _addBook(loggedUserId);
-      emit(state.copyWithInfo(
-        BookCreatorBlocInfo.bookHasBeenAdded,
-      ));
+      emitInfo<BookCreatorBlocInfo>(emit, BookCreatorBlocInfo.bookHasBeenAdded);
     } else {
-      emit(state.copyWith(
-        status: const BlocStatusLoggedUserNotFound(),
-      ));
+      emitLoggedUserNotFoundStatus(emit);
     }
   }
 

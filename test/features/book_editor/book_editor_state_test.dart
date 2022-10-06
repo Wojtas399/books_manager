@@ -232,19 +232,4 @@ void main() {
       expect(state2.imageData, null);
     },
   );
-
-  test(
-    'copy with info',
-    () {
-      const BookEditorBlocInfo expectedInfo =
-          BookEditorBlocInfo.bookHasBeenUpdated;
-
-      state = state.copyWithInfo(expectedInfo);
-
-      expect(
-        state.status,
-        const BlocStatusComplete<BookEditorBlocInfo>(info: expectedInfo),
-      );
-    },
-  );
 }

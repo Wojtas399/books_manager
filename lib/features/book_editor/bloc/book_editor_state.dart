@@ -29,13 +29,7 @@ class BookEditorState extends BlocState {
         allPagesAmount,
       ];
 
-  bool get isButtonDisabled =>
-      imageData == originalBook?.imageData &&
-      title == originalBook?.title &&
-      author == originalBook?.author &&
-      readPagesAmount == originalBook?.readPagesAmount &&
-      allPagesAmount == originalBook?.allPagesAmount;
-
+  @override
   BookEditorState copyWith({
     BlocStatus? status,
     Book? originalBook,
@@ -57,11 +51,12 @@ class BookEditorState extends BlocState {
     );
   }
 
-  BookEditorState copyWithInfo(BookEditorBlocInfo info) {
-    return copyWith(
-      status: BlocStatusComplete<BookEditorBlocInfo>(info: info),
-    );
-  }
+  bool get isButtonDisabled =>
+      imageData == originalBook?.imageData &&
+      title == originalBook?.title &&
+      author == originalBook?.author &&
+      readPagesAmount == originalBook?.readPagesAmount &&
+      allPagesAmount == originalBook?.allPagesAmount;
 }
 
 enum BookEditorBlocInfo {

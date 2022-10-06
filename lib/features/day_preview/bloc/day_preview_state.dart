@@ -17,6 +17,7 @@ class DayPreviewState extends BlocState {
         dayPreviewReadBooks,
       ];
 
+  @override
   DayPreviewState copyWith({
     BlocStatus? status,
     DateTime? date,

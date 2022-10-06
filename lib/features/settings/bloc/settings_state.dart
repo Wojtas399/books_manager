@@ -17,6 +17,7 @@ class SettingsState extends BlocState {
         isDarkModeCompatibilityWithSystemOn,
       ];
 
+  @override
   SettingsState copyWith({
     BlocStatus? status,
     bool? isDarkModeOn,
@@ -28,18 +29,6 @@ class SettingsState extends BlocState {
       isDarkModeCompatibilityWithSystemOn:
           isDarkModeCompatibilityWithSystemOn ??
               this.isDarkModeCompatibilityWithSystemOn,
-    );
-  }
-
-  SettingsState copyWithInfo(SettingsBlocInfo info) {
-    return copyWith(
-      status: BlocStatusComplete<SettingsBlocInfo>(info: info),
-    );
-  }
-
-  SettingsState copyWithError(SettingsBlocError error) {
-    return copyWith(
-      status: BlocStatusError<SettingsBlocError>(error: error),
     );
   }
 }

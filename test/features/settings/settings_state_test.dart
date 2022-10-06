@@ -53,33 +53,4 @@ void main() {
       expect(state2.isDarkModeCompatibilityWithSystemOn, expectedValue);
     },
   );
-
-  test(
-    'copy with info',
-    () {
-      const SettingsBlocInfo expectedInfo =
-          SettingsBlocInfo.userHasBeenSignedOut;
-
-      state = state.copyWithInfo(expectedInfo);
-
-      expect(
-        state.status,
-        const BlocStatusComplete<SettingsBlocInfo>(info: expectedInfo),
-      );
-    },
-  );
-
-  test(
-    'copy with error',
-    () {
-      const SettingsBlocError expectedError = SettingsBlocError.wrongPassword;
-
-      state = state.copyWithError(expectedError);
-
-      expect(
-        state.status,
-        const BlocStatusError<SettingsBlocError>(error: expectedError),
-      );
-    },
-  );
 }

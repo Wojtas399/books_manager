@@ -23,6 +23,12 @@ class CustomBloc<Event, State extends BlocState> extends Bloc<Event, State> {
     ));
   }
 
+  void emitLoggedUserNotFoundStatus(Emitter<State> emit) {
+    emit(state.copyWith(
+      status: const BlocStatusLoggedUserNotFound(),
+    ));
+  }
+
   void emitLossOfInternetConnectionStatus(Emitter<State> emit) {
     emit(state.copyWith(
       status: const BlocStatusLossOfInternetConnection(),

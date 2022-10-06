@@ -14,14 +14,7 @@ class LibraryState extends BlocState {
         books,
       ];
 
-  List<Book> get sortedBooks {
-    final List<Book> sortedBooks = [...books];
-    sortedBooks.sort(
-      (Book book1, Book book2) => book1.title.compareTo(book2.title),
-    );
-    return sortedBooks;
-  }
-
+  @override
   LibraryState copyWith({
     BlocStatus? status,
     List<Book>? books,
@@ -30,5 +23,13 @@ class LibraryState extends BlocState {
       status: status ?? const BlocStatusComplete(),
       books: books ?? this.books,
     );
+  }
+
+  List<Book> get sortedBooks {
+    final List<Book> sortedBooks = [...books];
+    sortedBooks.sort(
+      (Book book1, Book book2) => book1.title.compareTo(book2.title),
+    );
+    return sortedBooks;
   }
 }

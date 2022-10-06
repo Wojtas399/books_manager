@@ -23,8 +23,7 @@ class CalendarState extends BlocState {
         userDaysFromMonth,
       ];
 
-  List<List<CalendarDay>> get weeks => _createWeeks();
-
+  @override
   CalendarState copyWith({
     BlocStatus? status,
     DateTime? todayDate,
@@ -41,17 +40,7 @@ class CalendarState extends BlocState {
     );
   }
 
-  CalendarState copyWithLoadingStatus() {
-    return copyWith(
-      status: const BlocStatusLoading(),
-    );
-  }
-
-  CalendarState copyWithLoggedUserNotFoundStatus() {
-    return copyWith(
-      status: const BlocStatusLoggedUserNotFound(),
-    );
-  }
+  List<List<CalendarDay>> get weeks => _createWeeks();
 
   List<List<CalendarDay>> _createWeeks() {
     final int? month = displayingMonth;

@@ -96,26 +96,4 @@ void main() {
       expect(state2.userDaysFromMonth, expectedUserDaysFromMonth);
     },
   );
-
-  test(
-    'copy with loading status',
-    () {
-      const BlocStatus expectedStatus = BlocStatusLoading();
-
-      state = state.copyWithLoadingStatus();
-
-      expect(state.status, expectedStatus);
-    },
-  );
-
-  test(
-    'copy with logged user not found status',
-    () {
-      const BlocStatus expectedStatus = BlocStatusLoggedUserNotFound();
-
-      state = state.copyWithLoggedUserNotFoundStatus();
-
-      expect(state.status, expectedStatus);
-    },
-  );
 }

@@ -2,10 +2,9 @@ import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day.dar
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_read_book.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_user.dart';
 import 'package:app/data/data_sources/remote_db/firebase/services/firebase_firestore_user_service.dart';
-import 'package:app/data/mappers/day_mapper.dart';
-import 'package:app/data/mappers/read_book_mapper.dart';
-import 'package:app/data/models/db_day.dart';
-import 'package:app/data/models/db_read_book.dart';
+import 'package:app/data/mappers/date_mapper.dart';
+import 'package:app/domain/entities/day.dart';
+import 'package:app/domain/entities/read_book.dart';
 
 class DayRemoteDbService {
   late final FirebaseFirestoreUserService _firebaseFirestoreUserService;
@@ -16,20 +15,20 @@ class DayRemoteDbService {
     _firebaseFirestoreUserService = firebaseFirestoreUserService;
   }
 
-  Future<List<DbDay>> loadUserDays({required String userId}) async {
-    final List<FirebaseDay> userDays = await _loadUserDaysOfReading(userId);
-    return userDays.map(DayMapper.mapFromFirebaseModelToDbModel).toList();
+  Future<List<Day>> loadUserDays({required String userId}) async {
+    final List<FirebaseDay> userFirebaseDays =
+        await _loadUserDaysOfReading(userId);
+    return userFirebaseDays.map(_createDay).toList();
   }
 
   Future<void> addUserReadBook({
-    required DbReadBook dbReadBook,
+    required ReadBook readBook,
     required String userId,
     required String date,
   }) async {
     final List<FirebaseDay> userDays = await _loadUserDaysOfReading(userId);
     final List<FirebaseDay> updatedDays = [...userDays];
-    final FirebaseReadBook firebaseReadBook =
-        ReadBookMapper.mapFromDbModelToFirebaseModel(dbReadBook);
+    final FirebaseReadBook firebaseReadBook = _createFirebaseReadBook(readBook);
     if (updatedDays.containsDate(date)) {
       final int dayIndex = updatedDays.indexOfDate(date);
       final FirebaseDay updatedDay =
@@ -47,7 +46,7 @@ class DayRemoteDbService {
   }
 
   Future<void> updateBookReadPagesAmountInDay({
-    required DbReadBook updatedDbReadBook,
+    required ReadBook updatedReadBook,
     required String userId,
     required String date,
   }) async {
@@ -56,11 +55,11 @@ class DayRemoteDbService {
     if (!updatedDays.containsDate(date)) {
       throw "(Firebase firestore) There is no day with date $date in user's days of reading";
     }
-    final FirebaseReadBook updatedReadBook =
-        ReadBookMapper.mapFromDbModelToFirebaseModel(updatedDbReadBook);
+    final FirebaseReadBook updatedFirebaseReadBook =
+        _createFirebaseReadBook(updatedReadBook);
     final int dayIndex = updatedDays.indexOfDate(date);
     final FirebaseDay updatedDay = _updateReadBookInDay(
-      updatedReadBook,
+      updatedFirebaseReadBook,
       updatedDays[dayIndex],
     );
     updatedDays[dayIndex] = updatedDay;
@@ -151,6 +150,28 @@ class DayRemoteDbService {
     updatedReadBooks[readBookIndex] = updatedReadBook;
     return day.copyWith(
       readBooks: updatedReadBooks,
+    );
+  }
+
+  Day _createDay(FirebaseDay firebaseDay) {
+    return Day(
+      userId: firebaseDay.userId,
+      date: DateMapper.mapFromStringToDateTime(firebaseDay.date),
+      readBooks: firebaseDay.readBooks.map(_createReadBook).toList(),
+    );
+  }
+
+  ReadBook _createReadBook(FirebaseReadBook firebaseReadBook) {
+    return ReadBook(
+      bookId: firebaseReadBook.bookId,
+      readPagesAmount: firebaseReadBook.readPagesAmount,
+    );
+  }
+
+  FirebaseReadBook _createFirebaseReadBook(ReadBook readBook) {
+    return FirebaseReadBook(
+      bookId: readBook.bookId,
+      readPagesAmount: readBook.readPagesAmount,
     );
   }
 

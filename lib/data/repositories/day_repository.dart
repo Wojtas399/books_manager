@@ -1,8 +1,6 @@
 import 'package:app/data/data_sources/local_db/day_local_db_service.dart';
 import 'package:app/data/data_sources/remote_db/day_remote_db_service.dart';
 import 'package:app/data/mappers/date_mapper.dart';
-import 'package:app/data/mappers/day_mapper.dart';
-import 'package:app/data/models/db_day.dart';
 import 'package:app/data/synchronizers/day_synchronizer.dart';
 import 'package:app/domain/entities/day.dart';
 import 'package:app/domain/interfaces/day_interface.dart';
@@ -59,14 +57,11 @@ class DayRepository implements DayInterface {
     required int month,
     required int year,
   }) async {
-    final List<DbDay> userDbDays =
-        await _dayLocalDbService.loadUserDaysFromMonth(
+    final List<Day> userDays = await _dayLocalDbService.loadUserDaysFromMonth(
       userId: userId,
       month: month,
       year: year,
     );
-    final List<Day> userDays =
-        userDbDays.map(DayMapper.mapFromDbModelToEntity).toList();
     _addDaysToList(userDays);
   }
 
@@ -88,14 +83,13 @@ class DayRepository implements DayInterface {
       );
       shouldModifySyncStateInLocalDb = false;
     }
-    final DbDay updatedDbDay = await _dayLocalDbService.addNewReadPages(
+    final Day updatedDay = await _dayLocalDbService.addNewReadPages(
       userId: userId,
       date: dateInString,
       bookId: bookId,
       amountOfReadPagesToAdd: amountOfReadPagesToAdd,
       withModifiedSyncState: shouldModifySyncStateInLocalDb,
     );
-    final Day updatedDay = DayMapper.mapFromDbModelToEntity(updatedDbDay);
     if (_days$.value.containsUserDay(userId: userId, date: date)) {
       _updateDayInList(updatedDay);
     } else {

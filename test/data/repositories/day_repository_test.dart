@@ -1,6 +1,4 @@
 import 'package:app/data/mappers/date_mapper.dart';
-import 'package:app/data/models/db_day.dart';
-import 'package:app/data/models/db_read_book.dart';
 import 'package:app/data/repositories/day_repository.dart';
 import 'package:app/domain/entities/day.dart';
 import 'package:app/domain/entities/read_book.dart';
@@ -129,20 +127,20 @@ void main() {
     () async {
       const int month = 9;
       const int year = 2022;
-      final List<DbDay> userDbDaysFromMonth = [
-        createDbDay(
+      final List<Day> userDaysFromMonth = [
+        createDay(
           userId: userId,
-          date: mapDateTimeToString(DateTime(year, month, 20)),
+          date: DateTime(year, month, 20),
           readBooks: [
-            createDbReadBook(bookId: 'b1', readPagesAmount: 120),
-            createDbReadBook(bookId: 'b2', readPagesAmount: 50),
+            createReadBook(bookId: 'b1', readPagesAmount: 120),
+            createReadBook(bookId: 'b2', readPagesAmount: 50),
           ],
         ),
-        createDbDay(
+        createDay(
           userId: userId,
-          date: mapDateTimeToString(DateTime(year, month, 18)),
+          date: DateTime(year, month, 18),
           readBooks: [
-            createDbReadBook(bookId: 'b1', readPagesAmount: 25),
+            createReadBook(bookId: 'b1', readPagesAmount: 25),
           ],
         ),
       ];
@@ -164,7 +162,7 @@ void main() {
         ),
       ];
       dayLocalDbService.mockLoadUserDaysFromMonth(
-        userDbDaysFromMonth: userDbDaysFromMonth,
+        userDaysFromMonth: userDaysFromMonth,
       );
 
       await repository.loadUserDaysFromMonth(
@@ -211,11 +209,11 @@ void main() {
       test(
         'device has internet connection, day does not exist in list, should call methods responsible for adding new read pages to remote and local db and should add new day to list',
         () async {
-          final DbDay updatedDbDay = createDbDay(
+          final Day updatedDay = createDay(
             userId: userId,
-            date: dateInStr,
+            date: date,
             readBooks: [
-              createDbReadBook(
+              createReadBook(
                 bookId: bookId,
                 readPagesAmount: amountOfReadPagesToAdd,
               ),
@@ -234,7 +232,7 @@ void main() {
             ),
           ];
           device.mockHasDeviceInternetConnection(value: true);
-          dayLocalDbService.mockAddNewReadPages(updatedDbDay: updatedDbDay);
+          dayLocalDbService.mockAddNewReadPages(updatedDay: updatedDay);
 
           await callAddNewReadPagesMethod();
           final Stream<List<Day>> userDays$ = repository.getUserDays(
@@ -272,16 +270,6 @@ void main() {
               createReadBook(bookId: bookId, readPagesAmount: 10),
             ],
           );
-          final DbDay updatedDbDay = createDbDay(
-            userId: userId,
-            date: dateInStr,
-            readBooks: [
-              createDbReadBook(
-                bookId: bookId,
-                readPagesAmount: 10 + amountOfReadPagesToAdd,
-              ),
-            ],
-          );
           final Day updatedDay = createDay(
             userId: userId,
             date: date,
@@ -295,7 +283,7 @@ void main() {
           final List<Day> userDays = [existingDay];
           final List<Day> expectedUserDays = [updatedDay];
           device.mockHasDeviceInternetConnection(value: true);
-          dayLocalDbService.mockAddNewReadPages(updatedDbDay: updatedDbDay);
+          dayLocalDbService.mockAddNewReadPages(updatedDay: updatedDay);
           repository = createRepository(days: userDays);
 
           await callAddNewReadPagesMethod();
@@ -327,18 +315,18 @@ void main() {
       test(
         'device has not internet connection, should only call method responsible for adding new read pages to local db with modified sync state set as true',
         () async {
-          final DbDay updatedDbDay = createDbDay(
+          final Day updatedDay = createDay(
             userId: userId,
-            date: dateInStr,
+            date: date,
             readBooks: [
-              createDbReadBook(
+              createReadBook(
                 bookId: bookId,
                 readPagesAmount: amountOfReadPagesToAdd,
               ),
             ],
           );
           device.mockHasDeviceInternetConnection(value: false);
-          dayLocalDbService.mockAddNewReadPages(updatedDbDay: updatedDbDay);
+          dayLocalDbService.mockAddNewReadPages(updatedDay: updatedDay);
 
           await callAddNewReadPagesMethod();
 

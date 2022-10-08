@@ -1,8 +1,8 @@
 import 'package:app/data/data_sources/local_db/day_local_db_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_read_book.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
-import 'package:app/data/models/db_day.dart';
-import 'package:app/data/models/db_read_book.dart';
+import 'package:app/domain/entities/day.dart';
+import 'package:app/domain/entities/read_book.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
@@ -58,36 +58,36 @@ void main() {
           readPagesAmount: 10,
         ),
       ];
-      final List<DbDay> expectedDbDays = [
-        createDbDay(
+      final List<Day> expectedDays = [
+        createDay(
           userId: userId,
-          date: '23-09-2022',
+          date: DateTime(2022, 9, 23),
           readBooks: [
-            createDbReadBook(bookId: 'b1', readPagesAmount: 20),
-            createDbReadBook(bookId: 'b2', readPagesAmount: 10),
+            createReadBook(bookId: 'b1', readPagesAmount: 20),
+            createReadBook(bookId: 'b2', readPagesAmount: 10),
           ],
         ),
-        createDbDay(
+        createDay(
           userId: userId,
-          date: '20-09-2022',
+          date: DateTime(2022, 9, 20),
           readBooks: [
-            createDbReadBook(bookId: 'b1', readPagesAmount: 50),
-            createDbReadBook(bookId: 'b2', readPagesAmount: 100),
+            createReadBook(bookId: 'b1', readPagesAmount: 50),
+            createReadBook(bookId: 'b2', readPagesAmount: 100),
           ],
         ),
-        createDbDay(
+        createDay(
           userId: userId,
-          date: '18-08-2022',
+          date: DateTime(2022, 8, 18),
           readBooks: [
-            createDbReadBook(bookId: 'b2', readPagesAmount: 100),
+            createReadBook(bookId: 'b2', readPagesAmount: 100),
           ],
         ),
       ];
       sqliteReadBookService.mockLoadUserReadBooks(userReadBooks: readBooks);
 
-      final List<DbDay> dbDays = await service.loadUserDays(userId: userId);
+      final List<Day> days = await service.loadUserDays(userId: userId);
 
-      expect(dbDays, expectedDbDays);
+      expect(days, expectedDays);
     },
   );
 
@@ -123,27 +123,27 @@ void main() {
           readPagesAmount: 10,
         ),
       ];
-      final List<DbDay> expectedDbDaysFromMonth = [
-        createDbDay(
+      final List<Day> expectedDaysFromMonth = [
+        createDay(
           userId: userId,
-          date: '23-09-2022',
+          date: DateTime(2022, 9, 23),
           readBooks: [
-            createDbReadBook(bookId: 'b1', readPagesAmount: 20),
-            createDbReadBook(bookId: 'b2', readPagesAmount: 10),
+            createReadBook(bookId: 'b1', readPagesAmount: 20),
+            createReadBook(bookId: 'b2', readPagesAmount: 10),
           ],
         ),
-        createDbDay(
+        createDay(
           userId: userId,
-          date: '20-09-2022',
+          date: DateTime(2022, 9, 20),
           readBooks: [
-            createDbReadBook(bookId: 'b1', readPagesAmount: 50),
+            createReadBook(bookId: 'b1', readPagesAmount: 50),
           ],
         ),
-        createDbDay(
+        createDay(
           userId: userId,
-          date: '18-09-2022',
+          date: DateTime(2022, 9, 18),
           readBooks: [
-            createDbReadBook(bookId: 'b2', readPagesAmount: 100),
+            createReadBook(bookId: 'b2', readPagesAmount: 100),
           ],
         ),
       ];
@@ -151,20 +151,20 @@ void main() {
         userReadBooksFromMonth: readBooksFromMonth,
       );
 
-      final List<DbDay> dbDaysFromMonth = await service.loadUserDaysFromMonth(
+      final List<Day> daysFromMonth = await service.loadUserDaysFromMonth(
         userId: userId,
         month: month,
         year: year,
       );
 
-      expect(dbDaysFromMonth, expectedDbDaysFromMonth);
+      expect(daysFromMonth, expectedDaysFromMonth);
     },
   );
 
   test(
     'add user read book, should call method responsible for adding new read book to sqlite',
     () async {
-      final DbReadBook dbReadBook = createDbReadBook(
+      final ReadBook readBook = createReadBook(
         bookId: 'b1',
         readPagesAmount: 20,
       );
@@ -174,14 +174,14 @@ void main() {
       final SqliteReadBook sqliteReadBook = createSqliteReadBook(
         userId: userId,
         date: date,
-        bookId: dbReadBook.bookId,
-        readPagesAmount: dbReadBook.readPagesAmount,
+        bookId: readBook.bookId,
+        readPagesAmount: readBook.readPagesAmount,
         syncState: syncState,
       );
       sqliteReadBookService.mockAddReadBook();
 
       await service.addUserReadBook(
-        dbReadBook: dbReadBook,
+        readBook: readBook,
         userId: userId,
         date: date,
         syncState: syncState,
@@ -255,15 +255,15 @@ void main() {
               readPagesAmount: 200,
             ),
           ];
-          final DbDay expectedDbDay = createDbDay(
+          final Day expectedDay = createDay(
             userId: userId,
-            date: date,
+            date: DateTime(2022, 9, 20),
             readBooks: [
-              createDbReadBook(
+              createReadBook(
                 bookId: updatedReadBook.bookId,
                 readPagesAmount: updatedReadBook.readPagesAmount,
               ),
-              createDbReadBook(bookId: 'b2', readPagesAmount: 200),
+              createReadBook(bookId: 'b2', readPagesAmount: 200),
             ],
           );
           sqliteReadBookService.mockLoadReadBook(readBook: existingReadBook);
@@ -272,7 +272,7 @@ void main() {
             userReadBooks: userReadBooksAfterActualisation,
           );
 
-          final DbDay dbDay = await service.addNewReadPages(
+          final Day day = await service.addNewReadPages(
             userId: userId,
             date: date,
             bookId: bookId,
@@ -301,7 +301,7 @@ void main() {
               date: date,
             ),
           ).called(1);
-          expect(dbDay, expectedDbDay);
+          expect(day, expectedDay);
         },
       );
 
@@ -327,15 +327,15 @@ void main() {
               readPagesAmount: 200,
             ),
           ];
-          final DbDay expectedDbDay = createDbDay(
+          final Day expectedDay = createDay(
             userId: userId,
-            date: date,
+            date: DateTime(2022, 9, 20),
             readBooks: [
-              createDbReadBook(
+              createReadBook(
                 bookId: updatedReadBook.bookId,
                 readPagesAmount: updatedReadBook.readPagesAmount,
               ),
-              createDbReadBook(bookId: 'b2', readPagesAmount: 200),
+              createReadBook(bookId: 'b2', readPagesAmount: 200),
             ],
           );
           sqliteReadBookService.mockLoadReadBook(readBook: existingReadBook);
@@ -344,7 +344,7 @@ void main() {
             userReadBooks: userReadBooksAfterActualisation,
           );
 
-          final DbDay dbDay = await service.addNewReadPages(
+          final Day day = await service.addNewReadPages(
             userId: userId,
             date: date,
             bookId: bookId,
@@ -374,7 +374,7 @@ void main() {
               date: date,
             ),
           ).called(1);
-          expect(dbDay, expectedDbDay);
+          expect(day, expectedDay);
         },
       );
 
@@ -397,15 +397,15 @@ void main() {
               readPagesAmount: 200,
             ),
           ];
-          final DbDay expectedDbDay = createDbDay(
+          final Day expectedDay = createDay(
             userId: userId,
-            date: date,
+            date: DateTime(2022, 9, 20),
             readBooks: [
-              createDbReadBook(
+              createReadBook(
                 bookId: sqliteReadBook.bookId,
                 readPagesAmount: sqliteReadBook.readPagesAmount,
               ),
-              createDbReadBook(bookId: 'b2', readPagesAmount: 200),
+              createReadBook(bookId: 'b2', readPagesAmount: 200),
             ],
           );
           sqliteReadBookService.mockLoadReadBook();
@@ -414,7 +414,7 @@ void main() {
             userReadBooks: userReadBooksAfterActualisation,
           );
 
-          final DbDay dbDay = await service.addNewReadPages(
+          final Day day = await service.addNewReadPages(
             userId: userId,
             date: date,
             bookId: bookId,
@@ -439,7 +439,7 @@ void main() {
               date: date,
             ),
           ).called(1);
-          expect(dbDay, expectedDbDay);
+          expect(day, expectedDay);
         },
       );
 
@@ -462,15 +462,15 @@ void main() {
               readPagesAmount: 200,
             ),
           ];
-          final DbDay expectedDbDay = createDbDay(
+          final Day expectedDay = createDay(
             userId: userId,
-            date: date,
+            date: DateTime(2022, 9, 20),
             readBooks: [
-              createDbReadBook(
+              createReadBook(
                 bookId: sqliteReadBook.bookId,
                 readPagesAmount: sqliteReadBook.readPagesAmount,
               ),
-              createDbReadBook(bookId: 'b2', readPagesAmount: 200),
+              createReadBook(bookId: 'b2', readPagesAmount: 200),
             ],
           );
           sqliteReadBookService.mockLoadReadBook();
@@ -479,7 +479,7 @@ void main() {
             userReadBooks: userReadBooksAfterActualisation,
           );
 
-          final DbDay dbDay = await service.addNewReadPages(
+          final Day day = await service.addNewReadPages(
             userId: userId,
             date: date,
             bookId: bookId,
@@ -505,7 +505,7 @@ void main() {
               date: date,
             ),
           ).called(1);
-          expect(dbDay, expectedDbDay);
+          expect(day, expectedDay);
         },
       );
     },

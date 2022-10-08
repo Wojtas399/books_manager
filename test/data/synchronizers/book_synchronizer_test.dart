@@ -1,16 +1,12 @@
-import 'package:app/data/data_sources/local_db/book_local_db_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
-import 'package:app/data/data_sources/remote_db/book_remote_db_service.dart';
-import 'package:app/data/models/db_book.dart';
+import 'package:app/data/mappers/book_status_mapper.dart';
 import 'package:app/data/synchronizers/book_synchronizer.dart';
+import 'package:app/domain/entities/book.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockBookLocalDbService extends Mock implements BookLocalDbService {}
-
-class MockBookRemoteDbService extends Mock implements BookRemoteDbService {}
-
-class FakeDbBook extends Fake implements DbBook {}
+import '../../mocks/db_services/mock_book_local_db_service.dart';
+import '../../mocks/db_services/mock_book_remote_db_service.dart';
 
 void main() {
   final bookLocalDbService = MockBookLocalDbService();
@@ -18,21 +14,12 @@ void main() {
   late BookSynchronizer synchronizer;
   const String userId = 'u1';
 
-  setUpAll(() {
-    registerFallbackValue(FakeDbBook());
-  });
-
   setUp(() {
     synchronizer = BookSynchronizer(
       bookLocalDbService: bookLocalDbService,
       bookRemoteDbService: bookRemoteDbService,
     );
-    when(
-      () => bookLocalDbService.updateBookData(
-        bookId: any(named: 'bookId'),
-        syncState: any(named: 'syncState'),
-      ),
-    ).thenAnswer((_) async => createDbBook());
+    bookLocalDbService.mockUpdateBookData(updatedBook: createBook());
   });
 
   tearDown(() {
@@ -43,37 +30,23 @@ void main() {
   test(
     'synchronize unmodified user books, should add or delete books in local db',
     () async {
-      final List<DbBook> localBooks = [
-        createDbBook(id: 'b2'),
-        createDbBook(id: 'b3', userId: userId),
+      final List<Book> localBooks = [
+        createBook(id: 'b2'),
+        createBook(id: 'b3', userId: userId),
       ];
-      final List<DbBook> remoteBooks = [
-        createDbBook(id: 'b1'),
-        createDbBook(id: 'b2'),
+      final List<Book> remoteBooks = [
+        createBook(id: 'b1'),
+        createBook(id: 'b2'),
       ];
-      when(
-        () => bookLocalDbService.loadUserBooks(
-          userId: userId,
-          syncState: SyncState.none,
-        ),
-      ).thenAnswer((_) async => localBooks);
-      when(
-        () => bookRemoteDbService.loadUserBooks(userId: userId),
-      ).thenAnswer((_) async => remoteBooks);
-      when(
-        () => bookLocalDbService.addBook(dbBook: remoteBooks.first),
-      ).thenAnswer((_) async => '');
-      when(
-        () => bookLocalDbService.deleteBook(
-          bookId: localBooks.last.id,
-          userId: userId,
-        ),
-      ).thenAnswer((_) async => '');
+      bookLocalDbService.mockLoadUserBooks(books: localBooks);
+      bookRemoteDbService.mockLoadUserBooks(books: remoteBooks);
+      bookLocalDbService.mockAddBook();
+      bookLocalDbService.mockDeleteBook();
 
       await synchronizer.synchronizeUnmodifiedUserBooks(userId: userId);
 
       verify(
-        () => bookLocalDbService.addBook(dbBook: remoteBooks.first),
+        () => bookLocalDbService.addBook(book: remoteBooks.first),
       ).called(1);
       verify(
         () => bookLocalDbService.deleteBook(
@@ -87,45 +60,25 @@ void main() {
   test(
     'synchronize unmodified user books, should update book in local db if there are two books with the same id in both databases',
     () async {
-      final List<DbBook> localBooks = [
-        createDbBook(id: 'b1', title: 'title'),
+      final List<Book> localBooks = [
+        createBook(id: 'b1', title: 'title'),
       ];
-      final List<DbBook> remoteBooks = [
-        createDbBook(id: 'b1', title: 'wow'),
+      final List<Book> remoteBooks = [
+        createBook(id: 'b1', title: 'wow'),
       ];
-      when(
-        () => bookLocalDbService.loadUserBooks(
-          userId: userId,
-          syncState: SyncState.none,
-        ),
-      ).thenAnswer((_) async => localBooks);
-      when(
-        () => bookRemoteDbService.loadUserBooks(userId: userId),
-      ).thenAnswer((_) async => remoteBooks);
-      when(
-        () => bookLocalDbService.updateBookData(
-          bookId: remoteBooks.first.id,
-          status: remoteBooks.first.status,
-          title: remoteBooks.first.title,
-          author: remoteBooks.first.author,
-          readPagesAmount: remoteBooks.first.readPagesAmount,
-          allPagesAmount: remoteBooks.first.allPagesAmount,
-        ),
-      ).thenAnswer((_) async => createDbBook());
-      when(
-        () => bookLocalDbService.updateBookImage(
-          bookId: remoteBooks.first.id,
-          userId: remoteBooks.first.userId,
-          imageData: remoteBooks.first.imageData,
-        ),
-      ).thenAnswer((_) async => createDbBook());
+      bookLocalDbService.mockLoadUserBooks(books: localBooks);
+      bookRemoteDbService.mockLoadUserBooks(books: remoteBooks);
+      bookLocalDbService.mockUpdateBookData(updatedBook: createBook());
+      bookLocalDbService.mockUpdateBookImage(updatedBook: createBook());
 
       await synchronizer.synchronizeUnmodifiedUserBooks(userId: userId);
 
       verify(
         () => bookLocalDbService.updateBookData(
           bookId: remoteBooks.first.id,
-          status: remoteBooks.first.status,
+          status: BookStatusMapper.mapFromEnumToString(
+            remoteBooks.first.status,
+          ),
           title: remoteBooks.first.title,
           author: remoteBooks.first.author,
           readPagesAmount: remoteBooks.first.readPagesAmount,
@@ -143,43 +96,32 @@ void main() {
   );
 
   test(
-    'synchronize user books marked as added, should load db books marked as added from local db, should add them to remote db and should update their sync state to none',
+    'synchronize user books marked as added, should load books marked as added from local db, should add them to remote db and should update their sync state to none',
     () async {
-      final List<DbBook> dbBooksMarkedAsAdded = [
-        createDbBook(id: 'b1'),
-        createDbBook(id: 'b2'),
+      final List<Book> booksMarkedAsAdded = [
+        createBook(id: 'b1'),
+        createBook(id: 'b2'),
       ];
-      when(
-        () => bookLocalDbService.loadUserBooks(
-          userId: userId,
-          syncState: SyncState.added,
-        ),
-      ).thenAnswer((_) async => dbBooksMarkedAsAdded);
-      when(
-        () => bookRemoteDbService.addBook(dbBook: any(named: 'dbBook')),
-      ).thenAnswer((_) async => '');
+      bookLocalDbService.mockLoadUserBooks(books: booksMarkedAsAdded);
+      bookRemoteDbService.mockAddBook();
 
       await synchronizer.synchronizeUserBooksMarkedAsAdded(userId: userId);
 
       verify(
-        () => bookRemoteDbService.addBook(
-          dbBook: dbBooksMarkedAsAdded.first,
-        ),
+        () => bookRemoteDbService.addBook(book: booksMarkedAsAdded.first),
       ).called(1);
       verify(
-        () => bookRemoteDbService.addBook(
-          dbBook: dbBooksMarkedAsAdded.last,
-        ),
+        () => bookRemoteDbService.addBook(book: booksMarkedAsAdded.last),
       ).called(1);
       verify(
         () => bookLocalDbService.updateBookData(
-          bookId: dbBooksMarkedAsAdded.first.id,
+          bookId: booksMarkedAsAdded.first.id,
           syncState: SyncState.none,
         ),
       ).called(1);
       verify(
         () => bookLocalDbService.updateBookData(
-          bookId: dbBooksMarkedAsAdded.last.id,
+          bookId: booksMarkedAsAdded.last.id,
           syncState: SyncState.none,
         ),
       ).called(1);
@@ -187,84 +129,67 @@ void main() {
   );
 
   test(
-    'synchronize user books marked as updated, should load db books marked as updated from local db and should update them in remote db',
+    'synchronize user books marked as updated, should load books marked as updated from local db and should update them in remote db',
     () async {
-      final List<DbBook> dbBooksMarkedAsUpdated = [
-        createDbBook(id: 'b1', userId: userId),
-        createDbBook(id: 'b2', userId: userId),
+      final List<Book> booksMarkedAsUpdated = [
+        createBook(id: 'b1', userId: userId),
+        createBook(id: 'b2', userId: userId),
       ];
-      when(
-        () => bookLocalDbService.loadUserBooks(
-          userId: userId,
-          syncState: SyncState.updated,
-        ),
-      ).thenAnswer((_) async => dbBooksMarkedAsUpdated);
-      when(
-        () => bookRemoteDbService.updateBookData(
-          bookId: any(named: 'bookId'),
-          userId: any(named: 'userId'),
-          status: any(named: 'status'),
-          title: any(named: 'title'),
-          author: any(named: 'author'),
-          readPagesAmount: any(named: 'readPagesAmount'),
-          allPagesAmount: any(named: 'allPagesAmount'),
-        ),
-      ).thenAnswer((_) async => '');
-      when(
-        () => bookRemoteDbService.updateBookImage(
-          bookId: any(named: 'bookId'),
-          userId: userId,
-          imageData: any(named: 'imageData'),
-        ),
-      ).thenAnswer((_) async => '');
+      bookLocalDbService.mockLoadUserBooks(books: booksMarkedAsUpdated);
+      bookRemoteDbService.mockUpdateBookData();
+      bookRemoteDbService.mockUpdateBookImage();
 
       await synchronizer.synchronizeUserBooksMarkedAsUpdated(userId: userId);
 
       verify(
         () => bookRemoteDbService.updateBookData(
-          bookId: dbBooksMarkedAsUpdated.first.id,
-          userId: dbBooksMarkedAsUpdated.first.userId,
-          status: dbBooksMarkedAsUpdated.first.status,
-          title: dbBooksMarkedAsUpdated.first.title,
-          author: dbBooksMarkedAsUpdated.first.author,
-          readPagesAmount: dbBooksMarkedAsUpdated.first.readPagesAmount,
-          allPagesAmount: dbBooksMarkedAsUpdated.first.allPagesAmount,
+          bookId: booksMarkedAsUpdated.first.id,
+          userId: booksMarkedAsUpdated.first.userId,
+          status: BookStatusMapper.mapFromEnumToString(
+            booksMarkedAsUpdated.first.status,
+          ),
+          title: booksMarkedAsUpdated.first.title,
+          author: booksMarkedAsUpdated.first.author,
+          readPagesAmount: booksMarkedAsUpdated.first.readPagesAmount,
+          allPagesAmount: booksMarkedAsUpdated.first.allPagesAmount,
         ),
       ).called(1);
       verify(
         () => bookRemoteDbService.updateBookData(
-          bookId: dbBooksMarkedAsUpdated.last.id,
-          userId: dbBooksMarkedAsUpdated.last.userId,
-          status: dbBooksMarkedAsUpdated.last.status,
-          title: dbBooksMarkedAsUpdated.last.title,
-          author: dbBooksMarkedAsUpdated.last.author,
-          readPagesAmount: dbBooksMarkedAsUpdated.last.readPagesAmount,
-          allPagesAmount: dbBooksMarkedAsUpdated.last.allPagesAmount,
+          bookId: booksMarkedAsUpdated.last.id,
+          userId: booksMarkedAsUpdated.last.userId,
+          status: BookStatusMapper.mapFromEnumToString(
+            booksMarkedAsUpdated.first.status,
+          ),
+          title: booksMarkedAsUpdated.last.title,
+          author: booksMarkedAsUpdated.last.author,
+          readPagesAmount: booksMarkedAsUpdated.last.readPagesAmount,
+          allPagesAmount: booksMarkedAsUpdated.last.allPagesAmount,
         ),
       ).called(1);
       verify(
         () => bookRemoteDbService.updateBookImage(
-          bookId: dbBooksMarkedAsUpdated.first.id,
+          bookId: booksMarkedAsUpdated.first.id,
           userId: userId,
-          imageData: dbBooksMarkedAsUpdated.first.imageData,
+          imageData: booksMarkedAsUpdated.first.imageData,
         ),
       ).called(1);
       verify(
         () => bookRemoteDbService.updateBookImage(
-          bookId: dbBooksMarkedAsUpdated.last.id,
+          bookId: booksMarkedAsUpdated.last.id,
           userId: userId,
-          imageData: dbBooksMarkedAsUpdated.last.imageData,
+          imageData: booksMarkedAsUpdated.last.imageData,
         ),
       ).called(1);
       verify(
         () => bookLocalDbService.updateBookData(
-          bookId: dbBooksMarkedAsUpdated.first.id,
+          bookId: booksMarkedAsUpdated.first.id,
           syncState: SyncState.none,
         ),
       ).called(1);
       verify(
         () => bookLocalDbService.updateBookData(
-          bookId: dbBooksMarkedAsUpdated.last.id,
+          bookId: booksMarkedAsUpdated.last.id,
           syncState: SyncState.none,
         ),
       ).called(1);
@@ -272,53 +197,40 @@ void main() {
   );
 
   test(
-    'synchronize user books marked as deleted, should load db books marked as deleted from local db and should delete them from both databases',
+    'synchronize user books marked as deleted, should load books marked as deleted from local db and should delete them from both databases',
     () async {
-      final List<DbBook> dbBooksMarkedAsDeleted = [
-        createDbBook(id: 'b1'),
-        createDbBook(id: 'b3'),
+      final List<Book> booksMarkedAsDeleted = [
+        createBook(id: 'b1'),
+        createBook(id: 'b3'),
       ];
-      when(
-        () => bookLocalDbService.loadUserBooks(
-            userId: userId, syncState: SyncState.deleted),
-      ).thenAnswer((_) async => dbBooksMarkedAsDeleted);
-      when(
-        () => bookRemoteDbService.deleteBook(
-          userId: any(named: 'userId'),
-          bookId: any(named: 'bookId'),
-        ),
-      ).thenAnswer((_) async => '');
-      when(
-        () => bookLocalDbService.deleteBook(
-          userId: any(named: 'userId'),
-          bookId: any(named: 'bookId'),
-        ),
-      ).thenAnswer((_) async => '');
+      bookLocalDbService.mockLoadUserBooks(books: booksMarkedAsDeleted);
+      bookRemoteDbService.mockDeleteBook();
+      bookLocalDbService.mockDeleteBook();
 
       await synchronizer.synchronizeUserBooksMarkedAsDeleted(userId: userId);
 
       verify(
         () => bookRemoteDbService.deleteBook(
           userId: userId,
-          bookId: dbBooksMarkedAsDeleted.first.id,
+          bookId: booksMarkedAsDeleted.first.id,
         ),
       ).called(1);
       verify(
         () => bookLocalDbService.deleteBook(
           userId: userId,
-          bookId: dbBooksMarkedAsDeleted.first.id,
+          bookId: booksMarkedAsDeleted.first.id,
         ),
       ).called(1);
       verify(
         () => bookRemoteDbService.deleteBook(
           userId: userId,
-          bookId: dbBooksMarkedAsDeleted.last.id,
+          bookId: booksMarkedAsDeleted.last.id,
         ),
       ).called(1);
       verify(
         () => bookLocalDbService.deleteBook(
           userId: userId,
-          bookId: dbBooksMarkedAsDeleted.last.id,
+          bookId: booksMarkedAsDeleted.last.id,
         ),
       ).called(1);
     },

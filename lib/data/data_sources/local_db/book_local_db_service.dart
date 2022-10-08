@@ -4,8 +4,8 @@ import 'package:app/data/data_sources/local_db/local_storage_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_book.dart';
 import 'package:app/data/data_sources/local_db/sqlite/services/sqlite_book_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
-import 'package:app/data/mappers/book_mapper.dart';
-import 'package:app/data/models/db_book.dart';
+import 'package:app/data/mappers/book_status_mapper.dart';
+import 'package:app/domain/entities/book.dart';
 
 class BookLocalDbService {
   late final SqliteBookService _sqliteBookService;
@@ -19,7 +19,7 @@ class BookLocalDbService {
     _localStorageService = localStorageService;
   }
 
-  Future<List<DbBook>> loadUserBooks({
+  Future<List<Book>> loadUserBooks({
     required String userId,
     String? bookStatus,
     SyncState? syncState,
@@ -29,27 +29,27 @@ class BookLocalDbService {
       bookStatus: bookStatus,
       syncState: syncState,
     );
-    return await _convertSqliteBooksToDbBooks(sqliteBooks);
+    return await _convertSqliteBooksToBooks(sqliteBooks);
   }
 
   Future<void> addBook({
-    required DbBook dbBook,
+    required Book book,
     SyncState syncState = SyncState.none,
   }) async {
-    final Uint8List? imageData = dbBook.imageData;
+    final Uint8List? imageData = book.imageData;
     await _sqliteBookService.addBook(
-      sqliteBook: BookMapper.mapFromDbModelToSqliteModel(dbBook, syncState),
+      sqliteBook: _createSqliteBook(book, syncState),
     );
     if (imageData != null) {
       await _localStorageService.saveBookImageData(
         imageData: imageData,
-        userId: dbBook.userId,
-        bookId: dbBook.id,
+        userId: book.userId,
+        bookId: book.id,
       );
     }
   }
 
-  Future<DbBook> updateBookData({
+  Future<Book> updateBookData({
     required String bookId,
     String? status,
     String? title,
@@ -71,10 +71,10 @@ class BookLocalDbService {
       userId: updatedSqliteBook.userId,
       bookId: bookId,
     );
-    return BookMapper.mapFromSqliteModelToDbModel(updatedSqliteBook, imageData);
+    return _createBook(updatedSqliteBook, imageData);
   }
 
-  Future<DbBook> updateBookImage({
+  Future<Book> updateBookImage({
     required String bookId,
     required String userId,
     required Uint8List? imageData,
@@ -94,7 +94,7 @@ class BookLocalDbService {
     final SqliteBook sqliteBook = await _sqliteBookService.loadBook(
       bookId: bookId,
     );
-    return BookMapper.mapFromSqliteModelToDbModel(sqliteBook, imageData);
+    return _createBook(sqliteBook, imageData);
   }
 
   Future<void> deleteBook({
@@ -108,19 +108,45 @@ class BookLocalDbService {
     );
   }
 
-  Future<List<DbBook>> _convertSqliteBooksToDbBooks(
+  Future<List<Book>> _convertSqliteBooksToBooks(
     List<SqliteBook> sqliteBooks,
   ) async {
-    final List<DbBook> dbBooks = [];
+    final List<Book> books = [];
     for (final SqliteBook sqliteBook in sqliteBooks) {
       final Uint8List? imageData = await _localStorageService.loadBookImageData(
         userId: sqliteBook.userId,
         bookId: sqliteBook.id,
       );
-      dbBooks.add(
-        BookMapper.mapFromSqliteModelToDbModel(sqliteBook, imageData),
+      books.add(
+        _createBook(sqliteBook, imageData),
       );
     }
-    return dbBooks;
+    return books;
+  }
+
+  Book _createBook(SqliteBook sqliteBook, Uint8List? imageDate) {
+    return Book(
+      id: sqliteBook.id,
+      userId: sqliteBook.userId,
+      status: BookStatusMapper.mapFromStringToEnum(sqliteBook.status),
+      imageData: imageDate,
+      title: sqliteBook.title,
+      author: sqliteBook.author,
+      readPagesAmount: sqliteBook.readPagesAmount,
+      allPagesAmount: sqliteBook.allPagesAmount,
+    );
+  }
+
+  SqliteBook _createSqliteBook(Book book, SyncState syncState) {
+    return SqliteBook(
+      id: book.id,
+      userId: book.userId,
+      status: BookStatusMapper.mapFromEnumToString(book.status),
+      title: book.title,
+      author: book.author,
+      readPagesAmount: book.readPagesAmount,
+      allPagesAmount: book.allPagesAmount,
+      syncState: syncState,
+    );
   }
 }

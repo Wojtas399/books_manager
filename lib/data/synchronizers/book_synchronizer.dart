@@ -1,7 +1,8 @@
 import 'package:app/data/data_sources/local_db/book_local_db_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/data/data_sources/remote_db/book_remote_db_service.dart';
-import 'package:app/data/models/db_book.dart';
+import 'package:app/data/mappers/book_status_mapper.dart';
+import 'package:app/domain/entities/book.dart';
 import 'package:app/utils/list_utils.dart';
 
 class BookSynchronizer {
@@ -19,81 +20,78 @@ class BookSynchronizer {
   Future<void> synchronizeUnmodifiedUserBooks({
     required String userId,
   }) async {
-    final List<DbBook> localDbBooks = await _bookLocalDbService.loadUserBooks(
+    final List<Book> localBooks = await _bookLocalDbService.loadUserBooks(
       userId: userId,
       syncState: SyncState.none,
     );
-    final List<DbBook> remoteDbBooks = await _bookRemoteDbService.loadUserBooks(
+    final List<Book> remoteBooks = await _bookRemoteDbService.loadUserBooks(
       userId: userId,
     );
-    await _repairConsistencyOfBooks(localDbBooks, remoteDbBooks);
+    await _repairConsistencyOfBooks(localBooks, remoteBooks);
   }
 
   Future<void> synchronizeUserBooksMarkedAsAdded({
     required String userId,
   }) async {
-    final List<DbBook> dbBooksMarkedAsAdded = await _bookLocalDbService
+    final List<Book> booksMarkedAsAdded = await _bookLocalDbService
         .loadUserBooks(userId: userId, syncState: SyncState.added);
-    for (final DbBook dbBook in dbBooksMarkedAsAdded) {
-      await _bookRemoteDbService.addBook(dbBook: dbBook);
+    for (final Book book in booksMarkedAsAdded) {
+      await _bookRemoteDbService.addBook(book: book);
     }
-    await _setDbBooksSyncStateToNone(dbBooksMarkedAsAdded);
+    await _setBooksSyncStateToNone(booksMarkedAsAdded);
   }
 
   Future<void> synchronizeUserBooksMarkedAsUpdated({
     required String userId,
   }) async {
-    final List<DbBook> dbBooksMarkedAsUpdated = await _bookLocalDbService
+    final List<Book> booksMarkedAsUpdated = await _bookLocalDbService
         .loadUserBooks(userId: userId, syncState: SyncState.updated);
-    for (final DbBook dbBook in dbBooksMarkedAsUpdated) {
-      await _updateBookInRemoteDb(dbBook);
+    for (final Book book in booksMarkedAsUpdated) {
+      await _updateBookInRemoteDb(book);
     }
-    await _setDbBooksSyncStateToNone(dbBooksMarkedAsUpdated);
+    await _setBooksSyncStateToNone(booksMarkedAsUpdated);
   }
 
   Future<void> synchronizeUserBooksMarkedAsDeleted({
     required String userId,
   }) async {
-    final List<DbBook> dbBooksMarkedAsDeleted = await _bookLocalDbService
+    final List<Book> booksMarkedAsDeleted = await _bookLocalDbService
         .loadUserBooks(userId: userId, syncState: SyncState.deleted);
-    final List<String> deletedDbBooksIds = _getIdsOfDbBooks(
-      dbBooksMarkedAsDeleted,
+    final List<String> deletedBooksIds = _getIdsOfBooks(
+      booksMarkedAsDeleted,
     );
-    await _deleteUserBooksFromBothDatabases(userId, deletedDbBooksIds);
+    await _deleteUserBooksFromBothDatabases(userId, deletedBooksIds);
   }
 
   Future<void> _repairConsistencyOfBooks(
-    List<DbBook> localDbBooks,
-    List<DbBook> remoteDbBooks,
+    List<Book> localBooks,
+    List<Book> remoteBooks,
   ) async {
-    final List<String> localDbBooksIds = _getIdsOfDbBooks(localDbBooks);
-    final List<String> remoteDbBooksIds = _getIdsOfDbBooks(remoteDbBooks);
-    final List<String> uniqueDbBooksIds = ListUtils.getUniqueElementsFromLists(
-      localDbBooksIds,
-      remoteDbBooksIds,
+    final List<String> localBooksIds = _getIdsOfBooks(localBooks);
+    final List<String> remoteBooksIds = _getIdsOfBooks(remoteBooks);
+    final List<String> uniqueBooksIds = ListUtils.getUniqueElementsFromLists(
+      localBooksIds,
+      remoteBooksIds,
     );
-    for (final String dbBookId in uniqueDbBooksIds) {
-      if (localDbBooksIds.contains(dbBookId)) {
-        final DbBook localDbBook = localDbBooks.firstWhere(
-          (DbBook dbBook) => dbBook.id == dbBookId,
+    for (final String bookId in uniqueBooksIds) {
+      if (localBooksIds.contains(bookId)) {
+        final Book localBook = localBooks.firstWhere(
+          (Book book) => book.id == bookId,
         );
-        await _makeLocalDbBookConsistentWithRemoteDbBooks(
-          localDbBook,
-          remoteDbBooks,
+        await _makeLocalBookConsistentWithRemoteBooks(localBook, remoteBooks);
+      } else if (remoteBooksIds.contains(bookId)) {
+        final Book remoteBook = remoteBooks.firstWhere(
+          (Book book) => book.id == bookId,
         );
-      } else if (remoteDbBooksIds.contains(dbBookId)) {
-        final DbBook remoteDbBook = remoteDbBooks.firstWhere(
-          (DbBook dbBook) => dbBook.id == dbBookId,
-        );
-        await _bookLocalDbService.addBook(dbBook: remoteDbBook);
+        await _bookLocalDbService.addBook(book: remoteBook);
       }
     }
   }
 
-  Future<void> _setDbBooksSyncStateToNone(List<DbBook> dbBooks) async {
-    for (final DbBook dbBook in dbBooks) {
+  Future<void> _setBooksSyncStateToNone(List<Book> books) async {
+    for (final Book book in books) {
       await _bookLocalDbService.updateBookData(
-        bookId: dbBook.id,
+        bookId: book.id,
         syncState: SyncState.none,
       );
     }
@@ -115,60 +113,60 @@ class BookSynchronizer {
     }
   }
 
-  List<String> _getIdsOfDbBooks(List<DbBook> dbBooks) {
-    return dbBooks.map((DbBook dbBook) => dbBook.id).toList();
+  List<String> _getIdsOfBooks(List<Book> books) {
+    return books.map((Book book) => book.id).toList();
   }
 
-  Future<void> _makeLocalDbBookConsistentWithRemoteDbBooks(
-    DbBook localDbBook,
-    List<DbBook> remoteDbBooks,
+  Future<void> _makeLocalBookConsistentWithRemoteBooks(
+    Book localBook,
+    List<Book> remoteBooks,
   ) async {
-    final List<String> remoteDbBooksIds = _getIdsOfDbBooks(remoteDbBooks);
-    if (remoteDbBooksIds.contains(localDbBook.id)) {
-      final DbBook remoteDbBook = remoteDbBooks.firstWhere(
-        (DbBook dbBook) => dbBook.id == localDbBook.id,
+    final List<String> remoteBooksIds = _getIdsOfBooks(remoteBooks);
+    if (remoteBooksIds.contains(localBook.id)) {
+      final Book remoteBook = remoteBooks.firstWhere(
+        (Book book) => book.id == localBook.id,
       );
-      if (localDbBook != remoteDbBook) {
-        await _updateBookInLocalDb(remoteDbBook);
+      if (localBook != remoteBook) {
+        await _updateBookInLocalDb(remoteBook);
       }
     } else {
       await _bookLocalDbService.deleteBook(
-        bookId: localDbBook.id,
-        userId: localDbBook.userId,
+        bookId: localBook.id,
+        userId: localBook.userId,
       );
     }
   }
 
-  Future<void> _updateBookInRemoteDb(DbBook dbBook) async {
+  Future<void> _updateBookInRemoteDb(Book book) async {
     await _bookRemoteDbService.updateBookData(
-      bookId: dbBook.id,
-      userId: dbBook.userId,
-      status: dbBook.status,
-      title: dbBook.title,
-      author: dbBook.author,
-      readPagesAmount: dbBook.readPagesAmount,
-      allPagesAmount: dbBook.allPagesAmount,
+      bookId: book.id,
+      userId: book.userId,
+      status: BookStatusMapper.mapFromEnumToString(book.status),
+      title: book.title,
+      author: book.author,
+      readPagesAmount: book.readPagesAmount,
+      allPagesAmount: book.allPagesAmount,
     );
     await _bookRemoteDbService.updateBookImage(
-      bookId: dbBook.id,
-      userId: dbBook.userId,
-      imageData: dbBook.imageData,
+      bookId: book.id,
+      userId: book.userId,
+      imageData: book.imageData,
     );
   }
 
-  Future<void> _updateBookInLocalDb(DbBook dbBook) async {
+  Future<void> _updateBookInLocalDb(Book book) async {
     await _bookLocalDbService.updateBookData(
-      bookId: dbBook.id,
-      status: dbBook.status,
-      title: dbBook.title,
-      author: dbBook.author,
-      readPagesAmount: dbBook.readPagesAmount,
-      allPagesAmount: dbBook.allPagesAmount,
+      bookId: book.id,
+      status: BookStatusMapper.mapFromEnumToString(book.status),
+      title: book.title,
+      author: book.author,
+      readPagesAmount: book.readPagesAmount,
+      allPagesAmount: book.allPagesAmount,
     );
     await _bookLocalDbService.updateBookImage(
-      bookId: dbBook.id,
-      userId: dbBook.userId,
-      imageData: dbBook.imageData,
+      bookId: book.id,
+      userId: book.userId,
+      imageData: book.imageData,
     );
   }
 }

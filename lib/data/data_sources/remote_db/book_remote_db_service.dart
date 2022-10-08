@@ -3,8 +3,8 @@ import 'dart:typed_data';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_book.dart';
 import 'package:app/data/data_sources/remote_db/firebase/services/firebase_firestore_book_service.dart';
 import 'package:app/data/data_sources/remote_db/firebase/services/firebase_storage_service.dart';
-import 'package:app/data/mappers/book_mapper.dart';
-import 'package:app/data/models/db_book.dart';
+import 'package:app/data/mappers/book_status_mapper.dart';
+import 'package:app/domain/entities/book.dart';
 
 class BookRemoteDbService {
   late final FirebaseFirestoreBookService _firebaseFirestoreBookService;
@@ -18,22 +18,22 @@ class BookRemoteDbService {
     _firebaseStorageService = firebaseStorageService;
   }
 
-  Future<List<DbBook>> loadUserBooks({required String userId}) async {
+  Future<List<Book>> loadUserBooks({required String userId}) async {
     final List<FirebaseBook> firebaseBooks =
-        await _firebaseFirestoreBookService.loadBooksByUserId(userId: userId);
-    return await _convertFirebaseBooksToDbBooks(firebaseBooks);
+        await _firebaseFirestoreBookService.loadUserBooks(userId: userId);
+    return await _convertFirebaseBooksToBooks(firebaseBooks);
   }
 
-  Future<void> addBook({required DbBook dbBook}) async {
-    final Uint8List? imageData = dbBook.imageData;
+  Future<void> addBook({required Book book}) async {
+    final Uint8List? imageData = book.imageData;
     await _firebaseFirestoreBookService.addBook(
-      firebaseBook: BookMapper.mapFromDbModelToFirebaseModel(dbBook),
+      firebaseBook: _createFirebaseBook(book),
     );
     if (imageData != null) {
       await _firebaseStorageService.saveBookImageData(
         imageData: imageData,
-        userId: dbBook.userId,
-        bookId: dbBook.id,
+        userId: book.userId,
+        bookId: book.id,
       );
     }
   }
@@ -91,20 +91,45 @@ class BookRemoteDbService {
     );
   }
 
-  Future<List<DbBook>> _convertFirebaseBooksToDbBooks(
+  Future<List<Book>> _convertFirebaseBooksToBooks(
     List<FirebaseBook> firebaseBooks,
   ) async {
-    final List<DbBook> dbBooks = [];
+    final List<Book> books = [];
     for (final FirebaseBook firebaseBook in firebaseBooks) {
       final Uint8List? imageData =
           await _firebaseStorageService.loadBookImageData(
         userId: firebaseBook.userId,
         bookId: firebaseBook.id,
       );
-      dbBooks.add(
-        BookMapper.mapFromFirebaseModelToDbModel(firebaseBook, imageData),
+      books.add(
+        _createBook(firebaseBook, imageData),
       );
     }
-    return dbBooks;
+    return books;
+  }
+
+  Book _createBook(FirebaseBook firebaseBook, Uint8List? imageData) {
+    return Book(
+      id: firebaseBook.id,
+      userId: firebaseBook.userId,
+      status: BookStatusMapper.mapFromStringToEnum(firebaseBook.status),
+      imageData: imageData,
+      title: firebaseBook.title,
+      author: firebaseBook.author,
+      readPagesAmount: firebaseBook.readPagesAmount,
+      allPagesAmount: firebaseBook.allPagesAmount,
+    );
+  }
+
+  FirebaseBook _createFirebaseBook(Book book) {
+    return FirebaseBook(
+      id: book.id,
+      userId: book.userId,
+      status: BookStatusMapper.mapFromEnumToString(book.status),
+      title: book.title,
+      author: book.author,
+      readPagesAmount: book.readPagesAmount,
+      allPagesAmount: book.allPagesAmount,
+    );
   }
 }

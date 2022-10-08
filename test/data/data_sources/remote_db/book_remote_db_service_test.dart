@@ -2,17 +2,12 @@ import 'dart:typed_data';
 
 import 'package:app/data/data_sources/remote_db/book_remote_db_service.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_book.dart';
-import 'package:app/data/data_sources/remote_db/firebase/services/firebase_firestore_book_service.dart';
-import 'package:app/data/data_sources/remote_db/firebase/services/firebase_storage_service.dart';
-import 'package:app/data/models/db_book.dart';
+import 'package:app/domain/entities/book.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockFirebaseFirestoreBookService extends Mock
-    implements FirebaseFirestoreBookService {}
-
-class MockFirebaseStorageService extends Mock
-    implements FirebaseStorageService {}
+import '../../../mocks/firebase/mock_firebase_firestore_book_service.dart';
+import '../../../mocks/firebase/mock_firebase_storage_service.dart';
 
 void main() {
   final firebaseFirestoreBookService = MockFirebaseFirestoreBookService();
@@ -40,13 +35,13 @@ void main() {
         createFirebaseBook(id: 'b1', userId: userId),
         createFirebaseBook(id: 'b2', userId: userId),
       ];
-      final List<DbBook> expectedDbBooks = [
-        createDbBook(id: 'b1', imageData: b1ImageData, userId: userId),
-        createDbBook(id: 'b2', userId: userId),
+      final List<Book> expectedBooks = [
+        createBook(id: 'b1', imageData: b1ImageData, userId: userId),
+        createBook(id: 'b2', userId: userId),
       ];
-      when(
-        () => firebaseFirestoreBookService.loadBooksByUserId(userId: userId),
-      ).thenAnswer((_) async => firebaseBooks);
+      firebaseFirestoreBookService.mockLoadUserBooks(
+        userFirebaseBooks: firebaseBooks,
+      );
       when(
         () => firebaseStorageService.loadBookImageData(
           bookId: 'b1',
@@ -60,32 +55,28 @@ void main() {
         ),
       ).thenAnswer((_) async => null);
 
-      final List<DbBook> loadedDbBooks = await service.loadUserBooks(
+      final List<Book> loadedBooks = await service.loadUserBooks(
         userId: userId,
       );
 
-      expect(loadedDbBooks, expectedDbBooks);
+      expect(loadedBooks, expectedBooks);
     },
   );
 
   group(
     'add book',
     () {
-      DbBook dbBook = createDbBook(id: 'b1');
+      Book book = createBook(id: 'b1');
       final FirebaseBook firebaseBook = createFirebaseBook(id: 'b1');
 
       setUp(() {
-        when(
-          () => firebaseFirestoreBookService.addBook(
-            firebaseBook: firebaseBook,
-          ),
-        ).thenAnswer((_) async => '');
+        firebaseFirestoreBookService.mockAddBook();
       });
 
       test(
         'should only call method responsible for adding book to firebase firestore if book does not have image',
         () async {
-          await service.addBook(dbBook: dbBook);
+          await service.addBook(book: book);
 
           verify(
             () => firebaseFirestoreBookService.addBook(
@@ -99,16 +90,10 @@ void main() {
         'should call methods responsible for adding book to firebase firestore and for adding book to firebase storage if book has image',
         () async {
           final Uint8List imageData = Uint8List(10);
-          dbBook = dbBook.copyWith(imageData: imageData);
-          when(
-            () => firebaseStorageService.saveBookImageData(
-              imageData: imageData,
-              userId: dbBook.userId,
-              bookId: dbBook.id,
-            ),
-          ).thenAnswer((_) async => '');
+          book = book.copyWith(imageData: imageData);
+          firebaseStorageService.mockSaveBookImageData();
 
-          await service.addBook(dbBook: dbBook);
+          await service.addBook(book: book);
 
           verify(
             () => firebaseFirestoreBookService.addBook(
@@ -118,8 +103,8 @@ void main() {
           verify(
             () => firebaseStorageService.saveBookImageData(
               imageData: imageData,
-              userId: dbBook.userId,
-              bookId: dbBook.id,
+              userId: book.userId,
+              bookId: book.id,
             ),
           ).called(1);
         },
@@ -134,14 +119,7 @@ void main() {
       const String userId = 'u1';
       const String newTitle = 'newTitle';
       const int newReadPagesAmount = 0;
-      when(
-        () => firebaseFirestoreBookService.updateBook(
-          bookId: bookId,
-          userId: userId,
-          title: newTitle,
-          readPagesAmount: newReadPagesAmount,
-        ),
-      ).thenAnswer((_) async => '');
+      firebaseFirestoreBookService.mockUpdateBook();
 
       await service.updateBookData(
         bookId: bookId,
@@ -170,12 +148,7 @@ void main() {
       test(
         'should call method responsible for deleting existing book image from firebase storage if image is null',
         () async {
-          when(
-            () => firebaseStorageService.deleteBookImageData(
-              userId: userId,
-              bookId: bookId,
-            ),
-          ).thenAnswer((_) async => '');
+          firebaseStorageService.mockDeleteBookImageData();
 
           await service.updateBookImage(
             bookId: bookId,
@@ -196,13 +169,7 @@ void main() {
         'should call method responsible for saving image to firebase storage if new image is not null',
         () async {
           final Uint8List imageData = Uint8List(1);
-          when(
-            () => firebaseStorageService.saveBookImageData(
-              imageData: imageData,
-              userId: userId,
-              bookId: bookId,
-            ),
-          ).thenAnswer((_) async => '');
+          firebaseStorageService.mockSaveBookImageData();
 
           await service.updateBookImage(
             bookId: bookId,
@@ -227,18 +194,8 @@ void main() {
     () async {
       const String userId = 'u1';
       const String bookId = 'b1';
-      when(
-        () => firebaseFirestoreBookService.deleteBook(
-          userId: userId,
-          bookId: bookId,
-        ),
-      ).thenAnswer((_) async => '');
-      when(
-        () => firebaseStorageService.deleteBookImageData(
-          userId: userId,
-          bookId: bookId,
-        ),
-      ).thenAnswer((_) async => '');
+      firebaseFirestoreBookService.mockDeleteBook();
+      firebaseStorageService.mockDeleteBookImageData();
 
       await service.deleteBook(userId: userId, bookId: bookId);
 

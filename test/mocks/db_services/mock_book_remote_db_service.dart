@@ -1,20 +1,24 @@
 import 'package:app/data/data_sources/remote_db/book_remote_db_service.dart';
-import 'package:app/data/models/db_book.dart';
+import 'package:app/domain/entities/book.dart';
 import 'package:mocktail/mocktail.dart';
 
-class FakeDbBook extends Fake implements DbBook {}
+class FakeBook extends Fake implements Book {}
 
 class MockBookRemoteDbService extends Mock implements BookRemoteDbService {
-  void mockLoadUserBooks({required List<DbBook> dbBooks}) {
+  void mockLoadUserBooks({required List<Book> books}) {
     when(
-      () => loadUserBooks(userId: any(named: 'userId')),
-    ).thenAnswer((_) async => dbBooks);
+      () => loadUserBooks(
+        userId: any(named: 'userId'),
+      ),
+    ).thenAnswer((_) async => books);
   }
 
   void mockAddBook() {
-    registerFallbackValue(FakeDbBook());
+    registerFallbackValue(FakeBook());
     when(
-      () => addBook(dbBook: any(named: 'dbBook')),
+      () => addBook(
+        book: any(named: 'book'),
+      ),
     ).thenAnswer((_) async => '');
   }
 

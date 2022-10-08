@@ -4,8 +4,6 @@ import 'package:app/data/data_sources/local_db/book_local_db_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/data/data_sources/remote_db/book_remote_db_service.dart';
 import 'package:app/data/id_generator.dart';
-import 'package:app/data/mappers/book_mapper.dart';
-import 'package:app/data/models/db_book.dart';
 import 'package:app/data/synchronizers/book_synchronizer.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
@@ -81,12 +79,10 @@ class BookRepository implements BookInterface {
     required String userId,
     BookStatus? bookStatus,
   }) async {
-    final List<DbBook> dbBooks = await _bookLocalDbService.loadUserBooks(
+    final List<Book> books = await _bookLocalDbService.loadUserBooks(
       userId: userId,
       bookStatus: bookStatus?.name,
     );
-    final List<Book> books =
-        dbBooks.map(BookMapper.mapFromDbModelToEntity).toList();
     _addNewBooksToList(books);
   }
 
@@ -100,11 +96,11 @@ class BookRepository implements BookInterface {
     required int readPagesAmount,
     required int allPagesAmount,
   }) async {
-    final DbBook dbBook = DbBook(
+    final Book book = Book(
       id: _idGenerator.generateRandomId(),
       imageData: imageData,
       userId: userId,
-      status: status.name,
+      status: status,
       title: title,
       author: author,
       readPagesAmount: readPagesAmount,
@@ -112,12 +108,11 @@ class BookRepository implements BookInterface {
     );
     SyncState syncState = SyncState.added;
     if (await _device.hasInternetConnection()) {
-      await _bookRemoteDbService.addBook(dbBook: dbBook);
+      await _bookRemoteDbService.addBook(book: book);
       syncState = SyncState.none;
     }
-    await _bookLocalDbService.addBook(dbBook: dbBook, syncState: syncState);
-    final Book addedBook = BookMapper.mapFromDbModelToEntity(dbBook);
-    _addNewBooksToList([addedBook]);
+    await _bookLocalDbService.addBook(book: book, syncState: syncState);
+    _addNewBooksToList([book]);
   }
 
   @override
@@ -143,7 +138,7 @@ class BookRepository implements BookInterface {
       );
       syncState = SyncState.none;
     }
-    final DbBook updatedDbBook = await _bookLocalDbService.updateBookData(
+    final Book updatedBook = await _bookLocalDbService.updateBookData(
       bookId: bookId,
       status: bookStatus?.name,
       title: title,
@@ -152,7 +147,6 @@ class BookRepository implements BookInterface {
       allPagesAmount: allPagesAmount,
       syncState: syncState,
     );
-    final Book updatedBook = BookMapper.mapFromDbModelToEntity(updatedDbBook);
     _updateBookInList(updatedBook);
   }
 
@@ -172,18 +166,17 @@ class BookRepository implements BookInterface {
     } else {
       newSyncState = SyncState.updated;
     }
-    DbBook updatedDbBook = await _bookLocalDbService.updateBookImage(
+    Book updatedBook = await _bookLocalDbService.updateBookImage(
       bookId: bookId,
       userId: userId,
       imageData: imageData,
     );
     if (newSyncState != null) {
-      updatedDbBook = await _bookLocalDbService.updateBookData(
+      updatedBook = await _bookLocalDbService.updateBookData(
         bookId: bookId,
         syncState: newSyncState,
       );
     }
-    final Book updatedBook = BookMapper.mapFromDbModelToEntity(updatedDbBook);
     _updateBookInList(updatedBook);
   }
 
@@ -204,13 +197,13 @@ class BookRepository implements BookInterface {
 
   @override
   Future<void> deleteAllUserBooks({required String userId}) async {
-    final List<DbBook> userDbBooks = await _bookLocalDbService.loadUserBooks(
+    final List<Book> userBooks = await _bookLocalDbService.loadUserBooks(
       userId: userId,
     );
     if (await _device.hasInternetConnection()) {
-      await _deleteEachBookFromBothDatabases(userDbBooks);
+      await _deleteEachBookFromBothDatabases(userBooks);
     } else {
-      await _markEachBookAsDeletedInLocalDb(userDbBooks);
+      await _markEachBookAsDeletedInLocalDb(userBooks);
     }
   }
 
@@ -224,26 +217,26 @@ class BookRepository implements BookInterface {
   }
 
   Future<void> _deleteEachBookFromBothDatabases(
-    List<DbBook> dbBooksToDelete,
+    List<Book> booksToDelete,
   ) async {
-    for (final DbBook dbBook in dbBooksToDelete) {
+    for (final Book book in booksToDelete) {
       await _bookRemoteDbService.deleteBook(
-        userId: dbBook.userId,
-        bookId: dbBook.id,
+        userId: book.userId,
+        bookId: book.id,
       );
       await _bookLocalDbService.deleteBook(
-        userId: dbBook.userId,
-        bookId: dbBook.id,
+        userId: book.userId,
+        bookId: book.id,
       );
     }
   }
 
   Future<void> _markEachBookAsDeletedInLocalDb(
-    List<DbBook> dbBooksToMark,
+    List<Book> booksToMark,
   ) async {
-    for (final DbBook dbBook in dbBooksToMark) {
+    for (final Book book in booksToMark) {
       await _bookLocalDbService.updateBookData(
-        bookId: dbBook.id,
+        bookId: book.id,
         syncState: SyncState.deleted,
       );
     }

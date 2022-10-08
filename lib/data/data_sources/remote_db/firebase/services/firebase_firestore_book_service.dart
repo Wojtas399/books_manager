@@ -3,7 +3,7 @@ import 'package:app/data/data_sources/remote_db/firebase/models/firebase_book.da
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirebaseFirestoreBookService {
-  Future<List<FirebaseBook>> loadBooksByUserId({
+  Future<List<FirebaseBook>> loadUserBooks({
     required String userId,
   }) async {
     final CollectionReference<FirebaseBook> booksRef = _getUserBooksRef(userId);

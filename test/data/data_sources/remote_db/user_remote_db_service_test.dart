@@ -1,6 +1,6 @@
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_user.dart';
 import 'package:app/data/data_sources/remote_db/user_remote_db_service.dart';
-import 'package:app/data/models/db_user.dart';
+import 'package:app/domain/entities/user.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -25,7 +25,7 @@ void main() {
     () async {
       const String userId = 'u1';
       final FirebaseUser firebaseUser = createFirebaseUser(id: userId);
-      final DbUser expectedDbUser = createDbUser(
+      final User expectedUser = createUser(
         id: firebaseUser.id,
         isDarkModeOn: firebaseUser.isDarkModeOn,
         isDarkModeCompatibilityWithSystemOn:
@@ -33,25 +33,25 @@ void main() {
       );
       firebaseFirestoreUserService.mockLoadUser(firebaseUser: firebaseUser);
 
-      final DbUser dbUser = await service.loadUser(userId: userId);
+      final User user = await service.loadUser(userId: userId);
 
-      expect(dbUser, expectedDbUser);
+      expect(user, expectedUser);
     },
   );
 
   test(
     'add book, should call method responsible for adding user to firebase firestore',
     () async {
-      final DbUser dbUserToAdd = createDbUser(id: 'u1');
+      final User userToAdd = createUser(id: 'u1');
       final FirebaseUser firebaseUserToAdd = createFirebaseUser(
-        id: dbUserToAdd.id,
-        isDarkModeOn: dbUserToAdd.isDarkModeOn,
+        id: userToAdd.id,
+        isDarkModeOn: userToAdd.isDarkModeOn,
         isDarkModeCompatibilityWithSystemOn:
-            dbUserToAdd.isDarkModeCompatibilityWithSystemOn,
+            userToAdd.isDarkModeCompatibilityWithSystemOn,
       );
       firebaseFirestoreUserService.mockAddUser();
 
-      await service.addUser(dbUser: dbUserToAdd);
+      await service.addUser(user: userToAdd);
 
       verify(
         () => firebaseFirestoreUserService.addUser(

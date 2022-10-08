@@ -1,24 +1,17 @@
 import 'package:app/config/errors.dart';
 import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_user.dart';
-import 'package:app/data/data_sources/local_db/sqlite/services/sqlite_user_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/data/data_sources/local_db/user_local_db_service.dart';
-import 'package:app/data/models/db_user.dart';
+import 'package:app/domain/entities/user.dart';
 import 'package:app/models/error.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockSqliteUserService extends Mock implements SqliteUserService {}
-
-class FakeSqliteUser extends Fake implements SqliteUser {}
+import '../../../mocks/sqlite/mock_sqlite_user_service.dart';
 
 void main() {
   final sqliteUserService = MockSqliteUserService();
   late UserLocalDbService service;
-
-  setUpAll(() {
-    registerFallbackValue(FakeSqliteUser());
-  });
 
   setUp(() {
     service = UserLocalDbService(
@@ -35,10 +28,6 @@ void main() {
     () {
       const String userId = 'u1';
 
-      Future<SqliteUser?> sqliteLoadUserMethodCall() {
-        return sqliteUserService.loadUser(userId: userId);
-      }
-
       Future<bool> callDoesUserExistMethod() async {
         return await service.doesUserExist(userId: userId);
       }
@@ -46,9 +35,7 @@ void main() {
       test(
         'user loaded from sqlite is not null, should return true,',
         () async {
-          when(
-            sqliteLoadUserMethodCall,
-          ).thenAnswer((_) async => createSqliteUser());
+          sqliteUserService.mockLoadUser(sqliteUser: createSqliteUser());
 
           final bool doesUserExist = await callDoesUserExistMethod();
 
@@ -59,7 +46,7 @@ void main() {
       test(
         'user loaded from sqlite is null, should return false',
         () async {
-          when(sqliteLoadUserMethodCall).thenAnswer((_) async => null);
+          sqliteUserService.mockLoadUser();
 
           final bool doesUserExist = await callDoesUserExistMethod();
 
@@ -74,36 +61,32 @@ void main() {
     () {
       const String userId = 'u1';
 
-      Future<SqliteUser?> sqliteLoadUserMethodCall() {
-        return sqliteUserService.loadUser(userId: userId);
-      }
-
-      Future<DbUser> callLoadUserMethod() async {
+      Future<User> callLoadUserMethod() async {
         return await service.loadUser(userId: userId);
       }
 
       test(
-        'user loaded from sqlite is not null, should return db user mapped from loaded sqlite user',
+        'user loaded from sqlite is not null, should return user mapped from loaded sqlite user',
         () async {
           final SqliteUser sqliteUser = createSqliteUser(id: userId);
-          final DbUser expectedDbUser = createDbUser(
+          final User expectedUser = createUser(
             id: sqliteUser.id,
             isDarkModeOn: sqliteUser.isDarkModeOn,
             isDarkModeCompatibilityWithSystemOn:
                 sqliteUser.isDarkModeCompatibilityWithSystemOn,
           );
-          when(sqliteLoadUserMethodCall).thenAnswer((_) async => sqliteUser);
+          sqliteUserService.mockLoadUser(sqliteUser: sqliteUser);
 
-          final DbUser dbUser = await callLoadUserMethod();
+          final User user = await callLoadUserMethod();
 
-          expect(dbUser, expectedDbUser);
+          expect(user, expectedUser);
         },
       );
 
       test(
         'user loaded from sqlite is null, should throw user error',
         () async {
-          when(sqliteLoadUserMethodCall).thenAnswer((_) async => null);
+          sqliteUserService.mockLoadUser();
 
           try {
             await callLoadUserMethod();
@@ -123,10 +106,6 @@ void main() {
     () {
       const String userId = 'u1';
 
-      Future<SqliteUser?> sqliteLoadUserMethodCall() {
-        return sqliteUserService.loadUser(userId: userId);
-      }
-
       Future<SyncState> callLoadUserSyncStateMethod() async {
         return await service.loadUserSyncState(userId: userId);
       }
@@ -139,7 +118,7 @@ void main() {
             id: userId,
             syncState: expectedSyncState,
           );
-          when(sqliteLoadUserMethodCall).thenAnswer((_) async => sqliteUser);
+          sqliteUserService.mockLoadUser(sqliteUser: sqliteUser);
 
           final SyncState syncState = await callLoadUserSyncStateMethod();
 
@@ -150,7 +129,7 @@ void main() {
       test(
         'user loaded from sqlite is null, should throw user error',
         () async {
-          when(sqliteLoadUserMethodCall).thenAnswer((_) async => null);
+          sqliteUserService.mockLoadUser();
 
           try {
             await callLoadUserSyncStateMethod();
@@ -168,36 +147,32 @@ void main() {
   group(
     'add user',
     () {
-      final DbUser dbUser = createDbUser(id: 'u1');
+      final User user = createUser(id: 'u1');
       SqliteUser sqliteUser = createSqliteUser(
-        id: dbUser.id,
-        isDarkModeOn: dbUser.isDarkModeOn,
+        id: user.id,
+        isDarkModeOn: user.isDarkModeOn,
         isDarkModeCompatibilityWithSystemOn:
-            dbUser.isDarkModeCompatibilityWithSystemOn,
+            user.isDarkModeCompatibilityWithSystemOn,
         syncState: SyncState.none,
       );
-
-      Future<void> sqliteAddUserMethodCall({SqliteUser? sqliteUserToAdd}) {
-        return sqliteUserService.addUser(
-          sqliteUser: sqliteUserToAdd ?? any(named: 'sqliteUser'),
-        );
-      }
 
       Future<void> callAddMethod({
         SyncState syncState = SyncState.none,
       }) async {
-        await service.addUser(dbUser: dbUser, syncState: syncState);
+        await service.addUser(user: user, syncState: syncState);
       }
+
+      setUp(() {
+        sqliteUserService.mockAddUser();
+      });
 
       test(
         'should call method responsible for adding user to sqlite with sync state set as none by default',
         () async {
-          when(sqliteAddUserMethodCall).thenAnswer((_) async => '');
-
           await callAddMethod();
 
           verify(
-            () => sqliteAddUserMethodCall(sqliteUserToAdd: sqliteUser),
+            () => sqliteUserService.addUser(sqliteUser: sqliteUser),
           ).called(1);
         },
       );
@@ -207,14 +182,11 @@ void main() {
         () async {
           const SyncState syncState = SyncState.added;
           sqliteUser = sqliteUser.copyWith(syncState: syncState);
-          when(
-            () => sqliteAddUserMethodCall(sqliteUserToAdd: sqliteUser),
-          ).thenAnswer((_) async => '');
 
           await callAddMethod(syncState: syncState);
 
           verify(
-            () => sqliteAddUserMethodCall(sqliteUserToAdd: sqliteUser),
+            () => sqliteUserService.addUser(sqliteUser: sqliteUser),
           ).called(1);
         },
       );
@@ -229,17 +201,7 @@ void main() {
       const bool isDarkModeCompatibilityWithSystemOn = true;
       const SyncState syncState = SyncState.updated;
 
-      Future<SqliteUser?> sqliteUpdateUserMethodCal() {
-        return sqliteUserService.updateUser(
-          userId: userId,
-          isDarkModeOn: isDarkModeOn,
-          isDarkModeCompatibilityWithSystemOn:
-              isDarkModeCompatibilityWithSystemOn,
-          syncState: syncState,
-        );
-      }
-
-      Future<DbUser> callUpdateUserMethod() async {
+      Future<User> callUpdateUserMethod() async {
         return await service.updateUser(
           userId: userId,
           isDarkModeOn: isDarkModeOn,
@@ -259,29 +221,35 @@ void main() {
                 isDarkModeCompatibilityWithSystemOn,
             syncState: syncState,
           );
-          final DbUser expectedUpdatedDbUser = createDbUser(
+          final User expectedUpdatedUser = createUser(
             id: userId,
             isDarkModeOn: isDarkModeOn,
             isDarkModeCompatibilityWithSystemOn:
                 isDarkModeCompatibilityWithSystemOn,
           );
-          when(
-            sqliteUpdateUserMethodCal,
-          ).thenAnswer((_) async => updatedSqliteUser);
+          sqliteUserService.mockUpdateUser(
+            updatedSqliteUser: updatedSqliteUser,
+          );
 
-          final DbUser updatedDbUser = await callUpdateUserMethod();
+          final User updatedUser = await callUpdateUserMethod();
 
-          expect(updatedDbUser, expectedUpdatedDbUser);
-          verify(sqliteUpdateUserMethodCal).called(1);
+          expect(updatedUser, expectedUpdatedUser);
+          verify(
+            () => sqliteUserService.updateUser(
+              userId: userId,
+              isDarkModeOn: isDarkModeOn,
+              isDarkModeCompatibilityWithSystemOn:
+                  isDarkModeCompatibilityWithSystemOn,
+              syncState: syncState,
+            ),
+          ).called(1);
         },
       );
 
       test(
         'should call method responsible for updating user in sqlite and should throw user error if returned user is null',
         () async {
-          when(
-            sqliteUpdateUserMethodCal,
-          ).thenAnswer((_) async => null);
+          sqliteUserService.mockUpdateUser();
 
           try {
             await callUpdateUserMethod();

@@ -2,8 +2,8 @@ import 'package:app/data/data_sources/remote_db/day_remote_db_service.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_read_book.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_user.dart';
-import 'package:app/data/models/db_day.dart';
-import 'package:app/data/models/db_read_book.dart';
+import 'package:app/domain/entities/day.dart';
+import 'package:app/domain/entities/read_book.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
@@ -56,26 +56,26 @@ void main() {
           ),
         ],
       );
-      final List<DbDay> expectedDbDays = [
-        createDbDay(
+      final List<Day> expectedDays = [
+        createDay(
           userId: userId,
-          date: '20-09-2022',
+          date: DateTime(2022, 9, 20),
           readBooks: [
-            createDbReadBook(
+            createReadBook(
               bookId: 'b1',
               readPagesAmount: 20,
             ),
-            createDbReadBook(
+            createReadBook(
               bookId: 'b2',
               readPagesAmount: 100,
             ),
           ],
         ),
-        createDbDay(
+        createDay(
           userId: userId,
-          date: '18-09-2022',
+          date: DateTime(2022, 9, 18),
           readBooks: [
-            createDbReadBook(
+            createReadBook(
               bookId: 'b1',
               readPagesAmount: 120,
             ),
@@ -84,16 +84,16 @@ void main() {
       ];
       firebaseFirestoreUserService.mockLoadUser(firebaseUser: firebaseUser);
 
-      final List<DbDay> dbDays = await service.loadUserDays(userId: userId);
+      final List<Day> days = await service.loadUserDays(userId: userId);
 
-      expect(dbDays, expectedDbDays);
+      expect(days, expectedDays);
     },
   );
 
   group(
     'add user read book, ',
     () {
-      final DbReadBook dbReadBook = createDbReadBook(
+      final ReadBook readBook = createReadBook(
         bookId: 'b1',
         readPagesAmount: 50,
       );
@@ -101,7 +101,7 @@ void main() {
 
       Future<void> callAddUserReadBookMethod() async {
         await service.addUserReadBook(
-          dbReadBook: dbReadBook,
+          readBook: readBook,
           userId: userId,
           date: date,
         );
@@ -120,7 +120,7 @@ void main() {
               date: date,
               readBooks: [
                 createFirebaseReadBook(
-                  bookId: dbReadBook.bookId,
+                  bookId: readBook.bookId,
                   readPagesAmount: 100,
                 ),
               ],
@@ -137,7 +137,7 @@ void main() {
           } catch (error) {
             expect(
               error,
-              '(Firebase firestore) Book with id ${dbReadBook.bookId} already exists in day $date',
+              '(Firebase firestore) Book with id ${readBook.bookId} already exists in day $date',
             );
           }
         },
@@ -160,8 +160,8 @@ void main() {
               readBooks: [
                 originalDaysOfReading.first.readBooks.first,
                 createFirebaseReadBook(
-                  bookId: dbReadBook.bookId,
-                  readPagesAmount: dbReadBook.readPagesAmount,
+                  bookId: readBook.bookId,
+                  readPagesAmount: readBook.readPagesAmount,
                 ),
               ],
             ),
@@ -196,8 +196,8 @@ void main() {
               date: date,
               readBooks: [
                 createFirebaseReadBook(
-                  bookId: dbReadBook.bookId,
-                  readPagesAmount: dbReadBook.readPagesAmount,
+                  bookId: readBook.bookId,
+                  readPagesAmount: readBook.readPagesAmount,
                 ),
               ],
             ),
@@ -224,7 +224,7 @@ void main() {
   group(
     'update book read pages amount in day',
     () {
-      final DbReadBook updatedDbReadBook = createDbReadBook(
+      final ReadBook updatedReadBook = createReadBook(
         bookId: 'b1',
         readPagesAmount: 120,
       );
@@ -232,7 +232,7 @@ void main() {
 
       Future<void> callUpdateBookReadPagesAmountInDayMethod() async {
         await service.updateBookReadPagesAmountInDay(
-          updatedDbReadBook: updatedDbReadBook,
+          updatedReadBook: updatedReadBook,
           userId: userId,
           date: date,
         );
@@ -269,7 +269,7 @@ void main() {
               date: date,
               readBooks: [
                 createFirebaseReadBook(
-                  bookId: updatedDbReadBook.bookId,
+                  bookId: updatedReadBook.bookId,
                   readPagesAmount: 50,
                 ),
               ],
@@ -280,8 +280,8 @@ void main() {
               date: date,
               readBooks: [
                 createFirebaseReadBook(
-                  bookId: updatedDbReadBook.bookId,
-                  readPagesAmount: updatedDbReadBook.readPagesAmount,
+                  bookId: updatedReadBook.bookId,
+                  readPagesAmount: updatedReadBook.readPagesAmount,
                 )
               ],
             ),

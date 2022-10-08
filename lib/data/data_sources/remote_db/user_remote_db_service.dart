@@ -1,7 +1,6 @@
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_user.dart';
 import 'package:app/data/data_sources/remote_db/firebase/services/firebase_firestore_user_service.dart';
-import 'package:app/data/mappers/user_mapper.dart';
-import 'package:app/data/models/db_user.dart';
+import 'package:app/domain/entities/user.dart';
 
 class UserRemoteDbService {
   late final FirebaseFirestoreUserService _firebaseFirestoreUserService;
@@ -12,15 +11,14 @@ class UserRemoteDbService {
     _firebaseFirestoreUserService = firebaseFirestoreUserService;
   }
 
-  Future<DbUser> loadUser({required String userId}) async {
+  Future<User> loadUser({required String userId}) async {
     final FirebaseUser firebaseUser =
         await _firebaseFirestoreUserService.loadUser(userId: userId);
-    return UserMapper.mapFromFirebaseModelToDbModel(firebaseUser);
+    return _createUser(firebaseUser);
   }
 
-  Future<void> addUser({required DbUser dbUser}) async {
-    final FirebaseUser firebaseUser =
-        UserMapper.mapFromDbModelToFirebaseModel(dbUser: dbUser);
+  Future<void> addUser({required User user}) async {
+    final FirebaseUser firebaseUser = _createFirebaseUser(user);
     await _firebaseFirestoreUserService.addUser(firebaseUser: firebaseUser);
   }
 
@@ -38,5 +36,24 @@ class UserRemoteDbService {
 
   Future<void> deleteUser({required String userId}) async {
     await _firebaseFirestoreUserService.deleteUser(userId: userId);
+  }
+
+  User _createUser(FirebaseUser firebaseUser) {
+    return User(
+      id: firebaseUser.id,
+      isDarkModeOn: firebaseUser.isDarkModeOn,
+      isDarkModeCompatibilityWithSystemOn:
+          firebaseUser.isDarkModeCompatibilityWithSystemOn,
+    );
+  }
+
+  FirebaseUser _createFirebaseUser(User user) {
+    return FirebaseUser(
+      id: user.id,
+      isDarkModeOn: user.isDarkModeOn,
+      isDarkModeCompatibilityWithSystemOn:
+          user.isDarkModeCompatibilityWithSystemOn,
+      daysOfReading: [],
+    );
   }
 }

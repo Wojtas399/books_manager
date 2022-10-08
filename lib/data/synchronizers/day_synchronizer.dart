@@ -1,8 +1,9 @@
 import 'package:app/data/data_sources/local_db/day_local_db_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/data/data_sources/remote_db/day_remote_db_service.dart';
-import 'package:app/data/models/db_day.dart';
-import 'package:app/data/models/db_read_book.dart';
+import 'package:app/data/mappers/date_mapper.dart';
+import 'package:app/domain/entities/day.dart';
+import 'package:app/domain/entities/read_book.dart';
 import 'package:app/extensions/list_extensions.dart';
 
 class DaySynchronizer {
@@ -18,10 +19,10 @@ class DaySynchronizer {
   }
 
   Future<void> synchronizeUserUnmodifiedDays({required String userId}) async {
-    final List<DbDay> remoteDays = await _dayRemoteDbService.loadUserDays(
+    final List<Day> remoteDays = await _dayRemoteDbService.loadUserDays(
       userId: userId,
     );
-    final List<DbDay> localDays = await _dayLocalDbService.loadUserDays(
+    final List<Day> localDays = await _dayLocalDbService.loadUserDays(
       userId: userId,
       syncState: SyncState.none,
     );
@@ -31,38 +32,42 @@ class DaySynchronizer {
   Future<void> synchronizeUserDaysMarkedAsAdded({
     required String userId,
   }) async {
-    final List<DbDay> dbDaysMarkedAsAdded = await _dayLocalDbService
-        .loadUserDays(userId: userId, syncState: SyncState.added);
-    for (final DbDay dbDay in dbDaysMarkedAsAdded) {
-      await _addReadBooksFromDayToRemoteDb(dbDay);
-      await _setSyncStateAsNoneInLocalDbForAllReadBooksFromDay(dbDay);
+    final List<Day> daysMarkedAsAdded = await _dayLocalDbService.loadUserDays(
+      userId: userId,
+      syncState: SyncState.added,
+    );
+    for (final Day day in daysMarkedAsAdded) {
+      await _addReadBooksFromDayToRemoteDb(day);
+      await _setSyncStateAsNoneInLocalDbForAllReadBooksFromDay(day);
     }
   }
 
   Future<void> synchronizeUserDaysMarkedAsUpdated({
     required String userId,
   }) async {
-    final List<DbDay> dbDaysMarkedAsUpdated = await _dayLocalDbService
-        .loadUserDays(userId: userId, syncState: SyncState.updated);
-    for (final DbDay dbDay in dbDaysMarkedAsUpdated) {
-      await _updateReadBooksFromDayInRemoteDb(dbDay);
-      await _setSyncStateAsNoneInLocalDbForAllReadBooksFromDay(dbDay);
+    final List<Day> daysMarkedAsUpdated = await _dayLocalDbService.loadUserDays(
+      userId: userId,
+      syncState: SyncState.updated,
+    );
+    for (final Day day in daysMarkedAsUpdated) {
+      await _updateReadBooksFromDayInRemoteDb(day);
+      await _setSyncStateAsNoneInLocalDbForAllReadBooksFromDay(day);
     }
   }
 
   Future<void> _repairConsistencyOfDays(
-    List<DbDay> remoteDays,
-    List<DbDay> localDays,
+    List<Day> remoteDays,
+    List<Day> localDays,
   ) async {
-    final List<String> remoteDates = remoteDays.getOnlyDates();
-    final List<String> localDates = localDays.getOnlyDates();
-    final List<String> uniqueDates = [
+    final List<DateTime> remoteDates = remoteDays.getDates();
+    final List<DateTime> localDates = localDays.getDates();
+    final List<DateTime> uniqueDates = [
       ...remoteDates,
       ...localDates,
     ].removeRepetitions();
-    for (final String date in uniqueDates) {
-      final DbDay? remoteDay = remoteDays.getDayByDate(date);
-      final DbDay? localDay = localDays.getDayByDate(date);
+    for (final DateTime date in uniqueDates) {
+      final Day? remoteDay = remoteDays.getDayByDate(date);
+      final Day? localDay = localDays.getDayByDate(date);
       if (localDay != null && remoteDay != null && remoteDay != localDay) {
         await _updateReadBooksFromDayInLocalDb(remoteDay);
       } else if (remoteDay != null && localDay == null) {
@@ -73,55 +78,55 @@ class DaySynchronizer {
     }
   }
 
-  Future<void> _addReadBooksFromDayToRemoteDb(DbDay dbDay) async {
-    for (final DbReadBook dbReadBook in dbDay.readBooks) {
+  Future<void> _addReadBooksFromDayToRemoteDb(Day day) async {
+    for (final ReadBook readBook in day.readBooks) {
       await _dayRemoteDbService.addUserReadBook(
-        dbReadBook: dbReadBook,
-        userId: dbDay.userId,
-        date: dbDay.date,
+        readBook: readBook,
+        userId: day.userId,
+        date: DateMapper.mapFromDateTimeToString(day.date),
       );
     }
   }
 
-  Future<void> _addReadBooksFromDayToLocalDb(DbDay dbDay) async {
-    for (final DbReadBook dbReadBook in dbDay.readBooks) {
+  Future<void> _addReadBooksFromDayToLocalDb(Day day) async {
+    for (final ReadBook readBook in day.readBooks) {
       await _dayLocalDbService.addUserReadBook(
-        dbReadBook: dbReadBook,
-        userId: dbDay.userId,
-        date: dbDay.date,
+        readBook: readBook,
+        userId: day.userId,
+        date: DateMapper.mapFromDateTimeToString(day.date),
       );
     }
   }
 
-  Future<void> _updateReadBooksFromDayInRemoteDb(DbDay dbDay) async {
-    for (final DbReadBook dbReadBook in dbDay.readBooks) {
+  Future<void> _updateReadBooksFromDayInRemoteDb(Day day) async {
+    for (final ReadBook readBook in day.readBooks) {
       await _dayRemoteDbService.updateBookReadPagesAmountInDay(
-        updatedDbReadBook: dbReadBook,
-        userId: dbDay.userId,
-        date: dbDay.date,
+        updatedReadBook: readBook,
+        userId: day.userId,
+        date: DateMapper.mapFromDateTimeToString(day.date),
       );
     }
   }
 
-  Future<void> _updateReadBooksFromDayInLocalDb(DbDay dbDay) async {
-    for (final DbReadBook dbReadBook in dbDay.readBooks) {
+  Future<void> _updateReadBooksFromDayInLocalDb(Day day) async {
+    for (final ReadBook readBook in day.readBooks) {
       await _dayLocalDbService.updateReadBook(
-        userId: dbDay.userId,
-        date: dbDay.date,
-        bookId: dbReadBook.bookId,
-        readPagesAmount: dbReadBook.readPagesAmount,
+        userId: day.userId,
+        date: DateMapper.mapFromDateTimeToString(day.date),
+        bookId: readBook.bookId,
+        readPagesAmount: readBook.readPagesAmount,
         syncState: SyncState.none,
       );
     }
   }
 
   Future<void> _setSyncStateAsNoneInLocalDbForAllReadBooksFromDay(
-    DbDay dbDay,
+    Day day,
   ) async {
-    for (final DbReadBook readBook in dbDay.readBooks) {
+    for (final ReadBook readBook in day.readBooks) {
       await _dayLocalDbService.updateReadBook(
-        userId: dbDay.userId,
-        date: dbDay.date,
+        userId: day.userId,
+        date: DateMapper.mapFromDateTimeToString(day.date),
         bookId: readBook.bookId,
         syncState: SyncState.none,
       );
@@ -129,15 +134,15 @@ class DaySynchronizer {
   }
 }
 
-extension _DbDaysExtensions on List<DbDay> {
-  List<String> getOnlyDates() {
-    return map((DbDay dbDay) => dbDay.date).toList();
+extension _DaysExtensions on List<Day> {
+  List<DateTime> getDates() {
+    return map((Day day) => day.date).toList();
   }
 
-  DbDay? getDayByDate(String date) {
-    final List<DbDay?> dbDays = [...this];
-    return dbDays.firstWhere(
-      (DbDay? dbDay) => dbDay?.date == date,
+  Day? getDayByDate(DateTime date) {
+    final List<Day?> days = [...this];
+    return days.firstWhere(
+      (Day? day) => day?.date == date,
       orElse: () => null,
     );
   }

@@ -2,8 +2,7 @@ import 'package:app/config/errors.dart';
 import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_user.dart';
 import 'package:app/data/data_sources/local_db/sqlite/services/sqlite_user_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
-import 'package:app/data/mappers/user_mapper.dart';
-import 'package:app/data/models/db_user.dart';
+import 'package:app/domain/entities/user.dart';
 import 'package:app/models/error.dart';
 
 class UserLocalDbService {
@@ -19,9 +18,9 @@ class UserLocalDbService {
     return await _sqliteUserService.loadUser(userId: userId) != null;
   }
 
-  Future<DbUser> loadUser({required String userId}) async {
+  Future<User> loadUser({required String userId}) async {
     final SqliteUser sqliteUser = await _loadUserFromSqlite(userId);
-    return UserMapper.mapFromSqliteModelToDbModel(sqliteUser);
+    return _createUser(sqliteUser);
   }
 
   Future<SyncState> loadUserSyncState({required String userId}) async {
@@ -30,15 +29,14 @@ class UserLocalDbService {
   }
 
   Future<void> addUser({
-    required DbUser dbUser,
+    required User user,
     SyncState syncState = SyncState.none,
   }) async {
-    final SqliteUser sqliteUser =
-        UserMapper.mapFromDbModelToSqliteModel(dbUser, syncState);
+    final SqliteUser sqliteUser = _createSqliteUser(user, syncState);
     await _sqliteUserService.addUser(sqliteUser: sqliteUser);
   }
 
-  Future<DbUser> updateUser({
+  Future<User> updateUser({
     required String userId,
     bool? isDarkModeOn,
     bool? isDarkModeCompatibilityWithSystemOn,
@@ -51,7 +49,7 @@ class UserLocalDbService {
       syncState: syncState,
     );
     if (updatedSqliteUser != null) {
-      return UserMapper.mapFromSqliteModelToDbModel(updatedSqliteUser);
+      return _createUser(updatedSqliteUser);
     } else {
       throw const UserError(code: UserErrorCode.updateFailure);
     }
@@ -70,5 +68,24 @@ class UserLocalDbService {
     } else {
       throw const UserError(code: UserErrorCode.userNotFound);
     }
+  }
+
+  User _createUser(SqliteUser sqliteUser) {
+    return User(
+      id: sqliteUser.id,
+      isDarkModeOn: sqliteUser.isDarkModeOn,
+      isDarkModeCompatibilityWithSystemOn:
+          sqliteUser.isDarkModeCompatibilityWithSystemOn,
+    );
+  }
+
+  SqliteUser _createSqliteUser(User user, SyncState syncState) {
+    return SqliteUser(
+      id: user.id,
+      isDarkModeOn: user.isDarkModeOn,
+      isDarkModeCompatibilityWithSystemOn:
+          user.isDarkModeCompatibilityWithSystemOn,
+      syncState: syncState,
+    );
   }
 }

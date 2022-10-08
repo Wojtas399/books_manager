@@ -1,7 +1,7 @@
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/data/data_sources/local_db/user_local_db_service.dart';
 import 'package:app/data/data_sources/remote_db/user_remote_db_service.dart';
-import 'package:app/data/models/db_user.dart';
+import 'package:app/domain/entities/user.dart';
 
 class UserSynchronizer {
   late final UserLocalDbService _userLocalDbService;
@@ -43,22 +43,22 @@ class UserSynchronizer {
   }
 
   Future<void> _addUserFromLocalDbToRemoteDb(String userId) async {
-    final DbUser localDbUser = await _userLocalDbService.loadUser(
+    final User localUser = await _userLocalDbService.loadUser(
       userId: userId,
     );
-    await _userRemoteDbService.addUser(dbUser: localDbUser);
+    await _userRemoteDbService.addUser(user: localUser);
     await _updateUserSyncStateToNoneInLocalDb(userId);
   }
 
   Future<void> _updateUserFromLocalDbInRemoteDb(String userId) async {
-    final DbUser localDbUser = await _userLocalDbService.loadUser(
+    final User localUser = await _userLocalDbService.loadUser(
       userId: userId,
     );
     await _userRemoteDbService.updateUser(
       userId: userId,
-      isDarkModeOn: localDbUser.isDarkModeOn,
+      isDarkModeOn: localUser.isDarkModeOn,
       isDarkModeCompatibilityWithSystemOn:
-          localDbUser.isDarkModeCompatibilityWithSystemOn,
+          localUser.isDarkModeCompatibilityWithSystemOn,
     );
     await _updateUserSyncStateToNoneInLocalDb(userId);
   }
@@ -69,22 +69,22 @@ class UserSynchronizer {
   }
 
   Future<void> _updateUserFromRemoteDbInLocalDb(String userId) async {
-    final DbUser remoteDbUser = await _userRemoteDbService.loadUser(
+    final User remoteUser = await _userRemoteDbService.loadUser(
       userId: userId,
     );
     await _userLocalDbService.updateUser(
       userId: userId,
-      isDarkModeOn: remoteDbUser.isDarkModeOn,
+      isDarkModeOn: remoteUser.isDarkModeOn,
       isDarkModeCompatibilityWithSystemOn:
-          remoteDbUser.isDarkModeCompatibilityWithSystemOn,
+          remoteUser.isDarkModeCompatibilityWithSystemOn,
     );
   }
 
   Future<void> _addUserFromRemoteDbToLocalDb(String userId) async {
-    final DbUser remoteDbUser = await _userRemoteDbService.loadUser(
+    final User remoteUser = await _userRemoteDbService.loadUser(
       userId: userId,
     );
-    await _userLocalDbService.addUser(dbUser: remoteDbUser);
+    await _userLocalDbService.addUser(user: remoteUser);
   }
 
   Future<void> _updateUserSyncStateToNoneInLocalDb(String userId) async {

@@ -1,38 +1,38 @@
 import 'package:app/data/data_sources/local_db/day_local_db_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
-import 'package:app/data/models/db_day.dart';
-import 'package:app/data/models/db_read_book.dart';
+import 'package:app/domain/entities/day.dart';
+import 'package:app/domain/entities/read_book.dart';
 import 'package:mocktail/mocktail.dart';
 
-class FakeDbReadBook extends Fake implements DbReadBook {}
+class FakeReadBook extends Fake implements ReadBook {}
 
 class MockDayLocalDbService extends Mock implements DayLocalDbService {
-  void mockLoadUserDays({required List<DbDay> userDbDays}) {
+  void mockLoadUserDays({required List<Day> userDays}) {
     _mockSyncState();
     when(
       () => loadUserDays(
         userId: any(named: 'userId'),
         syncState: any(named: 'syncState'),
       ),
-    ).thenAnswer((_) async => userDbDays);
+    ).thenAnswer((_) async => userDays);
   }
 
-  void mockLoadUserDaysFromMonth({required List<DbDay> userDbDaysFromMonth}) {
+  void mockLoadUserDaysFromMonth({required List<Day> userDaysFromMonth}) {
     when(
       () => loadUserDaysFromMonth(
         userId: any(named: 'userId'),
         month: any(named: 'month'),
         year: any(named: 'year'),
       ),
-    ).thenAnswer((_) async => userDbDaysFromMonth);
+    ).thenAnswer((_) async => userDaysFromMonth);
   }
 
   void mockAddUserReadBook() {
-    _mockDbReadBook();
+    _mockReadBook();
     _mockSyncState();
     when(
       () => addUserReadBook(
-        dbReadBook: any(named: 'dbReadBook'),
+        readBook: any(named: 'readBook'),
         userId: any(named: 'userId'),
         date: any(named: 'date'),
         syncState: any(named: 'syncState'),
@@ -53,7 +53,7 @@ class MockDayLocalDbService extends Mock implements DayLocalDbService {
     ).thenAnswer((_) async => '');
   }
 
-  void mockAddNewReadPages({required DbDay updatedDbDay}) {
+  void mockAddNewReadPages({required Day updatedDay}) {
     _mockSyncState();
     when(
       () => addNewReadPages(
@@ -63,11 +63,11 @@ class MockDayLocalDbService extends Mock implements DayLocalDbService {
         amountOfReadPagesToAdd: any(named: 'amountOfReadPagesToAdd'),
         withModifiedSyncState: any(named: 'withModifiedSyncState'),
       ),
-    ).thenAnswer((_) async => updatedDbDay);
+    ).thenAnswer((_) async => updatedDay);
   }
 
-  void _mockDbReadBook() {
-    registerFallbackValue(FakeDbReadBook());
+  void _mockReadBook() {
+    registerFallbackValue(FakeReadBook());
   }
 
   void _mockSyncState() {

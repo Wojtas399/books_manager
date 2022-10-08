@@ -1,10 +1,9 @@
 import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_read_book.dart';
 import 'package:app/data/data_sources/local_db/sqlite/services/sqlite_read_book_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
-import 'package:app/data/mappers/day_mapper.dart';
-import 'package:app/data/mappers/read_book_mapper.dart';
-import 'package:app/data/models/db_day.dart';
-import 'package:app/data/models/db_read_book.dart';
+import 'package:app/data/mappers/date_mapper.dart';
+import 'package:app/domain/entities/day.dart';
+import 'package:app/domain/entities/read_book.dart';
 import 'package:app/extensions/list_extensions.dart';
 
 class DayLocalDbService {
@@ -16,7 +15,7 @@ class DayLocalDbService {
     _sqliteReadBookService = sqliteReadBookService;
   }
 
-  Future<List<DbDay>> loadUserDays({
+  Future<List<Day>> loadUserDays({
     required String userId,
     SyncState? syncState,
   }) async {
@@ -28,7 +27,7 @@ class DayLocalDbService {
     return _segregateReadBooksIntoDbDays(userReadBooks);
   }
 
-  Future<List<DbDay>> loadUserDaysFromMonth({
+  Future<List<Day>> loadUserDaysFromMonth({
     required String userId,
     required int month,
     required int year,
@@ -43,7 +42,7 @@ class DayLocalDbService {
   }
 
   Future<void> addUserReadBook({
-    required DbReadBook dbReadBook,
+    required ReadBook readBook,
     required String userId,
     required String date,
     SyncState syncState = SyncState.none,
@@ -51,8 +50,8 @@ class DayLocalDbService {
     final SqliteReadBook sqliteReadBook = SqliteReadBook(
       userId: userId,
       date: date,
-      bookId: dbReadBook.bookId,
-      readPagesAmount: dbReadBook.readPagesAmount,
+      bookId: readBook.bookId,
+      readPagesAmount: readBook.readPagesAmount,
       syncState: syncState,
     );
     await _sqliteReadBookService.addReadBook(sqliteReadBook: sqliteReadBook);
@@ -74,7 +73,7 @@ class DayLocalDbService {
     );
   }
 
-  Future<DbDay> addNewReadPages({
+  Future<Day> addNewReadPages({
     required String userId,
     required String date,
     required String bookId,
@@ -105,54 +104,63 @@ class DayLocalDbService {
         sqliteReadBook: newSqliteReadBook,
       );
     }
-    return await _loadUserDbDay(userId, date);
+    return await _loadUserDay(userId, date);
   }
 
-  Future<DbDay> _loadUserDbDay(String userId, String date) async {
+  Future<Day> _loadUserDay(String userId, String date) async {
     final List<SqliteReadBook> userReadBooksFromDay =
         await _sqliteReadBookService.loadUserReadBooks(
       userId: userId,
       date: date,
     );
-    return DbDay(
+    return Day(
       userId: userId,
-      date: date,
-      readBooks: userReadBooksFromDay
-          .map(ReadBookMapper.mapFromSqliteModelToDbModel)
-          .toList(),
+      date: DateMapper.mapFromStringToDateTime(date),
+      readBooks: userReadBooksFromDay.map(_createReadBook).toList(),
     );
   }
 
-  List<DbDay> _segregateReadBooksIntoDbDays(List<SqliteReadBook> readBooks) {
-    final List<DbDay> dbDays = [];
+  List<Day> _segregateReadBooksIntoDbDays(
+    List<SqliteReadBook> sqliteReadBooks,
+  ) {
+    final List<Day> days = [];
     final List<String> existingDates = [];
-    for (final SqliteReadBook readBook in readBooks) {
-      if (existingDates.doesNotContain(readBook.date)) {
-        existingDates.add(readBook.date);
-        final DbDay newDbDay = _createDbDayFromSqliteReadBook(readBook);
-        dbDays.add(newDbDay);
+    for (final SqliteReadBook sqliteReadBook in sqliteReadBooks) {
+      if (existingDates.doesNotContain(sqliteReadBook.date)) {
+        existingDates.add(sqliteReadBook.date);
+        final Day newDay = _createDay(sqliteReadBook);
+        days.add(newDay);
       } else {
-        final DbReadBook newDbReadBook =
-            _createDbReadBookFromSqliteReadBook(readBook);
-        final int dayIndex = dbDays.indexWhere(
-          (DbDay dbDay) => dbDay.date == readBook.date,
-        );
-        final DbDay dbDay = dbDays[dayIndex];
-        dbDays[dayIndex] = dbDay.copyWith(
-          readBooks: [...dbDay.readBooks, newDbReadBook],
-        );
+        final ReadBook newReadBook = _createReadBook(sqliteReadBook);
+        final DateTime date =
+            DateMapper.mapFromStringToDateTime(sqliteReadBook.date);
+        final int dayIndex = days.indexWhere((Day day) => day.date == date);
+        days[dayIndex] = _addReadBookToDay(newReadBook, days[dayIndex]);
       }
     }
-    return dbDays;
+    return days;
   }
 
-  DbDay _createDbDayFromSqliteReadBook(SqliteReadBook sqliteReadBook) {
-    return DayMapper.mapFromSqliteModelsToDbModel([sqliteReadBook]);
+  Day _createDay(SqliteReadBook sqliteReadBook) {
+    return Day(
+      userId: sqliteReadBook.userId,
+      date: DateMapper.mapFromStringToDateTime(sqliteReadBook.date),
+      readBooks: [
+        _createReadBook(sqliteReadBook),
+      ],
+    );
   }
 
-  DbReadBook _createDbReadBookFromSqliteReadBook(
-    SqliteReadBook sqliteReadBook,
-  ) {
-    return ReadBookMapper.mapFromSqliteModelToDbModel(sqliteReadBook);
+  ReadBook _createReadBook(SqliteReadBook sqliteReadBook) {
+    return ReadBook(
+      bookId: sqliteReadBook.bookId,
+      readPagesAmount: sqliteReadBook.readPagesAmount,
+    );
+  }
+
+  Day _addReadBookToDay(ReadBook readBook, Day day) {
+    return day.copyWith(
+      readBooks: [...day.readBooks, readBook],
+    );
   }
 }

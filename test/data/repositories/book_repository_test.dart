@@ -1,15 +1,14 @@
 import 'dart:typed_data';
 
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
-import 'package:app/data/models/db_book.dart';
 import 'package:app/data/repositories/book_repository.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../mocks/db_services/mock_book_local_db_service.dart';
+import '../../mocks/db_services/mock_book_remote_db_service.dart';
 import '../../mocks/mock_device.dart';
-import '../mocks/mock_book_local_db_service.dart';
-import '../mocks/mock_book_remote_db_service.dart';
 import '../mocks/mock_book_synchronizer.dart';
 import '../mocks/mock_id_generator.dart';
 
@@ -167,15 +166,15 @@ void main() {
     'load user books, should load user books from local db and assign them to stream',
     () async {
       const BookStatus bookStatus = BookStatus.unread;
-      final List<DbBook> dbBooks = [
-        createDbBook(id: 'b1', userId: userId, status: bookStatus.name),
-        createDbBook(id: 'b2', userId: userId, status: bookStatus.name),
+      final List<Book> books = [
+        createBook(id: 'b1', userId: userId, status: bookStatus),
+        createBook(id: 'b2', userId: userId, status: bookStatus),
       ];
       final List<Book> expectedBooks = [
         createBook(id: 'b1', userId: userId, status: bookStatus),
         createBook(id: 'b2', userId: userId, status: bookStatus),
       ];
-      bookLocalDbService.mockLoadUserBooks(dbBooks: dbBooks);
+      bookLocalDbService.mockLoadUserBooks(books: books);
 
       await repository.loadUserBooks(userId: userId, bookStatus: bookStatus);
 
@@ -203,11 +202,11 @@ void main() {
       const String author = 'author';
       const int readPagesAmount = 0;
       const int allPagesAmount = 200;
-      final DbBook dbBook = createDbBook(
+      final Book book = createBook(
         id: bookId,
         imageData: imageData,
         userId: userId,
-        status: status.name,
+        status: status,
         title: title,
         author: author,
         readPagesAmount: readPagesAmount,
@@ -251,10 +250,7 @@ void main() {
           await callAddNewBookMethod();
 
           verify(
-            () => bookLocalDbService.addBook(
-              dbBook: dbBook,
-              syncState: syncState,
-            ),
+            () => bookLocalDbService.addBook(book: book, syncState: syncState),
           ).called(1);
           expect(
             await repository.getBooksByUserId(userId: userId).first,
@@ -271,10 +267,10 @@ void main() {
           await callAddNewBookMethod();
 
           verify(
-            () => bookLocalDbService.addBook(dbBook: dbBook),
+            () => bookLocalDbService.addBook(book: book),
           ).called(1);
           verify(
-            () => bookRemoteDbService.addBook(dbBook: dbBook),
+            () => bookRemoteDbService.addBook(book: book),
           ).called(1);
           expect(
             await repository.getBooksByUserId(userId: userId).first,
@@ -292,11 +288,6 @@ void main() {
       const String userId = 'u1';
       final Book currentBook = createBook(id: bookId, userId: userId);
       const String newTitle = 'newTitle';
-      final DbBook updatedDbBook = createDbBook(
-        id: bookId,
-        userId: userId,
-        title: newTitle,
-      );
       final Book updatedBook = currentBook.copyWith(title: newTitle);
 
       Future<void> callUpdateBookDataMethod() async {
@@ -307,7 +298,7 @@ void main() {
       }
 
       setUp(() {
-        bookLocalDbService.mockUpdateBookData(dbBook: updatedDbBook);
+        bookLocalDbService.mockUpdateBookData(updatedBook: updatedBook);
         bookRemoteDbService.mockUpdateBookData();
         repository = createRepository(books: [currentBook]);
       });
@@ -370,11 +361,6 @@ void main() {
       const String bookId = 'b1';
       const String userId = 'u1';
       final Uint8List imageData = Uint8List(1);
-      final DbBook updatedDbBook = createDbBook(
-        id: bookId,
-        userId: userId,
-        imageData: imageData,
-      );
       final Book originalBook = createBook(
         id: bookId,
         userId: userId,
@@ -390,7 +376,7 @@ void main() {
       }
 
       setUp(() {
-        bookLocalDbService.mockUpdateBookImage(dbBook: updatedDbBook);
+        bookLocalDbService.mockUpdateBookImage(updatedBook: updatedBook);
         bookRemoteDbService.mockUpdateBookImage();
         repository = createRepository(books: [originalBook]);
       });
@@ -427,7 +413,7 @@ void main() {
         'device has not internet connection, should update image in local db, should set book sync state to updated in local db and should update book in list',
         () async {
           device.mockHasDeviceInternetConnection(value: false);
-          bookLocalDbService.mockUpdateBookData(dbBook: updatedDbBook);
+          bookLocalDbService.mockUpdateBookData(updatedBook: updatedBook);
 
           await callUpdateBookImageMethod();
 
@@ -486,7 +472,7 @@ void main() {
         'should call method responsible for updating book with sync state as deleted if device has not internet connection',
         () async {
           device.mockHasDeviceInternetConnection(value: false);
-          bookLocalDbService.mockUpdateBookData(dbBook: createDbBook());
+          bookLocalDbService.mockUpdateBookData(updatedBook: createBook());
 
           await repository.deleteBook(bookId: bookId);
 
@@ -505,15 +491,15 @@ void main() {
     'delete all user books',
     () {
       const String userId = 'u1';
-      final List<DbBook> userDbBooks = [
-        createDbBook(id: 'b1', userId: userId),
-        createDbBook(id: 'b2', userId: userId),
+      final List<Book> userBooks = [
+        createBook(id: 'b1', userId: userId),
+        createBook(id: 'b2', userId: userId),
       ];
 
       setUp(() {
-        bookLocalDbService.mockLoadUserBooks(dbBooks: userDbBooks);
+        bookLocalDbService.mockLoadUserBooks(books: userBooks);
         bookLocalDbService.mockDeleteBook();
-        bookLocalDbService.mockUpdateBookData(dbBook: createDbBook());
+        bookLocalDbService.mockUpdateBookData(updatedBook: createBook());
         bookRemoteDbService.mockDeleteBook();
       });
 
@@ -527,25 +513,25 @@ void main() {
           verify(
             () => bookLocalDbService.deleteBook(
               userId: userId,
-              bookId: userDbBooks.first.id,
+              bookId: userBooks.first.id,
             ),
           ).called(1);
           verify(
             () => bookRemoteDbService.deleteBook(
               userId: userId,
-              bookId: userDbBooks.first.id,
+              bookId: userBooks.first.id,
             ),
           ).called(1);
           verify(
             () => bookLocalDbService.deleteBook(
               userId: userId,
-              bookId: userDbBooks.last.id,
+              bookId: userBooks.last.id,
             ),
           ).called(1);
           verify(
             () => bookRemoteDbService.deleteBook(
               userId: userId,
-              bookId: userDbBooks.last.id,
+              bookId: userBooks.last.id,
             ),
           ).called(1);
         },
@@ -560,13 +546,13 @@ void main() {
 
           verify(
             () => bookLocalDbService.updateBookData(
-              bookId: userDbBooks.first.id,
+              bookId: userBooks.first.id,
               syncState: SyncState.deleted,
             ),
           ).called(1);
           verify(
             () => bookLocalDbService.updateBookData(
-              bookId: userDbBooks.last.id,
+              bookId: userBooks.last.id,
               syncState: SyncState.deleted,
             ),
           ).called(1);

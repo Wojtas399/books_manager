@@ -1,12 +1,20 @@
-import 'package:app/data/data_sources/local_db/book_local_db_service.dart';
+import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_book.dart';
+import 'package:app/data/data_sources/local_db/sqlite/services/sqlite_book_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
-import 'package:app/data/models/db_book.dart';
 import 'package:mocktail/mocktail.dart';
 
-class FakeDbBook extends Fake implements DbBook {}
+class FakeSqliteBook extends Fake implements SqliteBook {}
 
-class MockBookLocalDbService extends Mock implements BookLocalDbService {
-  void mockLoadUserBooks({required List<DbBook> dbBooks}) {
+class MockSqliteBookService extends Mock implements SqliteBookService {
+  void mockLoadBook({required SqliteBook sqliteBook}) {
+    when(
+      () => loadBook(
+        bookId: any(named: 'bookId'),
+      ),
+    ).thenAnswer((_) async => sqliteBook);
+  }
+
+  void mockLoadUserBooks({required List<SqliteBook> userSqliteBooks}) {
     _mockSyncState();
     when(
       () => loadUserBooks(
@@ -14,24 +22,22 @@ class MockBookLocalDbService extends Mock implements BookLocalDbService {
         bookStatus: any(named: 'bookStatus'),
         syncState: any(named: 'syncState'),
       ),
-    ).thenAnswer((_) async => dbBooks);
+    ).thenAnswer((_) async => userSqliteBooks);
   }
 
   void mockAddBook() {
-    registerFallbackValue(FakeDbBook());
-    _mockSyncState();
+    _mockSqliteBook();
     when(
       () => addBook(
-        dbBook: any(named: 'dbBook'),
-        syncState: any(named: 'syncState'),
+        sqliteBook: any(named: 'sqliteBook'),
       ),
     ).thenAnswer((_) async => '');
   }
 
-  void mockUpdateBookData({required DbBook dbBook}) {
+  void mockUpdateBook({required SqliteBook updatedSqliteBook}) {
     _mockSyncState();
     when(
-      () => updateBookData(
+      () => updateBook(
         bookId: any(named: 'bookId'),
         status: any(named: 'status'),
         title: any(named: 'title'),
@@ -40,26 +46,19 @@ class MockBookLocalDbService extends Mock implements BookLocalDbService {
         allPagesAmount: any(named: 'allPagesAmount'),
         syncState: any(named: 'syncState'),
       ),
-    ).thenAnswer((_) async => dbBook);
-  }
-
-  void mockUpdateBookImage({required DbBook dbBook}) {
-    when(
-      () => updateBookImage(
-        bookId: any(named: 'bookId'),
-        userId: any(named: 'userId'),
-        imageData: any(named: 'imageData'),
-      ),
-    ).thenAnswer((_) async => dbBook);
+    ).thenAnswer((_) async => updatedSqliteBook);
   }
 
   void mockDeleteBook() {
     when(
       () => deleteBook(
-        userId: any(named: 'userId'),
         bookId: any(named: 'bookId'),
       ),
     ).thenAnswer((_) async => '');
+  }
+
+  void _mockSqliteBook() {
+    registerFallbackValue(FakeSqliteBook());
   }
 
   void _mockSyncState() {

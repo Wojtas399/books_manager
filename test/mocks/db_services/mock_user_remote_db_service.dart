@@ -1,23 +1,23 @@
 import 'package:app/data/data_sources/remote_db/user_remote_db_service.dart';
-import 'package:app/data/models/db_user.dart';
+import 'package:app/domain/entities/user.dart';
 import 'package:mocktail/mocktail.dart';
 
-class FakeDbUser extends Fake implements DbUser {}
+class FakeUser extends Fake implements User {}
 
 class MockUserRemoteDbService extends Mock implements UserRemoteDbService {
-  void mockLoadUser({required DbUser dbUser}) {
+  void mockLoadUser({required User user}) {
     when(
       () => loadUser(
         userId: any(named: 'userId'),
       ),
-    ).thenAnswer((_) async => dbUser);
+    ).thenAnswer((_) async => user);
   }
 
   void mockAddUser() {
-    _mockDbUser();
+    _mockUser();
     when(
       () => addUser(
-        dbUser: any(named: 'dbUser'),
+        user: any(named: 'user'),
       ),
     ).thenAnswer((_) async => '');
   }
@@ -38,8 +38,8 @@ class MockUserRemoteDbService extends Mock implements UserRemoteDbService {
     ).thenAnswer((_) async => '');
   }
 
-  void _mockDbUser() {
-    registerFallbackValue(FakeDbUser());
+  void _mockUser() {
+    registerFallbackValue(FakeUser());
   }
 
   Future<void> _updateUserCall() {

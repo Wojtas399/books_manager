@@ -1,24 +1,24 @@
 import 'package:app/data/data_sources/remote_db/day_remote_db_service.dart';
-import 'package:app/data/models/db_day.dart';
-import 'package:app/data/models/db_read_book.dart';
+import 'package:app/domain/entities/day.dart';
+import 'package:app/domain/entities/read_book.dart';
 import 'package:mocktail/mocktail.dart';
 
-class FakeDbReadBook extends Fake implements DbReadBook {}
+class FakeReadBook extends Fake implements ReadBook {}
 
 class MockDayRemoteDbService extends Mock implements DayRemoteDbService {
-  void mockLoadUserDays({required List<DbDay> userDbDays}) {
+  void mockLoadUserDays({required List<Day> userDays}) {
     when(
       () => loadUserDays(
         userId: any(named: 'userId'),
       ),
-    ).thenAnswer((_) async => userDbDays);
+    ).thenAnswer((_) async => userDays);
   }
 
   void mockAddUserReadBooks() {
-    _mockDbReadBook();
+    _mockReadBook();
     when(
       () => addUserReadBook(
-        dbReadBook: any(named: 'dbReadBook'),
+        readBook: any(named: 'readBook'),
         userId: any(named: 'userId'),
         date: any(named: 'date'),
       ),
@@ -26,10 +26,10 @@ class MockDayRemoteDbService extends Mock implements DayRemoteDbService {
   }
 
   void mockUpdateBookReadPagesAmountInDay() {
-    _mockDbReadBook();
+    _mockReadBook();
     when(
       () => updateBookReadPagesAmountInDay(
-        updatedDbReadBook: any(named: 'updatedDbReadBook'),
+        updatedReadBook: any(named: 'updatedReadBook'),
         userId: any(named: 'userId'),
         date: any(named: 'date'),
       ),
@@ -47,7 +47,7 @@ class MockDayRemoteDbService extends Mock implements DayRemoteDbService {
     ).thenAnswer((_) async => '');
   }
 
-  void _mockDbReadBook() {
-    registerFallbackValue(FakeDbReadBook());
+  void _mockReadBook() {
+    registerFallbackValue(FakeReadBook());
   }
 }

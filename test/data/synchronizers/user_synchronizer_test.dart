@@ -1,14 +1,11 @@
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
-import 'package:app/data/data_sources/local_db/user_local_db_service.dart';
-import 'package:app/data/data_sources/remote_db/user_remote_db_service.dart';
-import 'package:app/data/models/db_user.dart';
 import 'package:app/data/synchronizers/user_synchronizer.dart';
+import 'package:app/domain/entities/user.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockUserLocalDbService extends Mock implements UserLocalDbService {}
-
-class MockUserRemoteDbService extends Mock implements UserRemoteDbService {}
+import '../../mocks/db_services/mock_user_local_db_service.dart';
+import '../../mocks/db_services/mock_user_remote_db_service.dart';
 
 void main() {
   final userLocalDbService = MockUserLocalDbService();
@@ -31,25 +28,9 @@ void main() {
     'synchronize user',
     () {
       const String userId = 'u1';
-      final DbUser dbUser = createDbUser(id: userId);
+      final User user = createUser(id: userId);
 
-      Future<bool> localDbDoesUserExistMethodCall() {
-        return userLocalDbService.doesUserExist(userId: userId);
-      }
-
-      Future<DbUser> localDbLoadUserMethodCall() {
-        return userLocalDbService.loadUser(userId: userId);
-      }
-
-      Future<SyncState> localDbLoadUserSyncStateMethodCall() {
-        return userLocalDbService.loadUserSyncState(userId: userId);
-      }
-
-      Future<void> localDbAddUserMethodCall() {
-        return userLocalDbService.addUser(dbUser: dbUser);
-      }
-
-      Future<DbUser> localDbUpdateUserMethodCall({
+      Future<User> localDbUpdateUserMethodCall({
         bool? isDarkModeOn,
         bool? isDarkModeCompatibilityWithSystemOn,
         SyncState? syncState,
@@ -63,64 +44,42 @@ void main() {
         );
       }
 
-      Future<void> localDbDeleteUserMethodCall() {
-        return userLocalDbService.deleteUser(userId: userId);
-      }
-
-      Future<DbUser> remoteDbLoadUserMethodCall() {
-        return userRemoteDbService.loadUser(userId: userId);
-      }
-
-      Future<void> remoteDbAddUserMethodCall() {
-        return userRemoteDbService.addUser(dbUser: dbUser);
-      }
-
-      Future<void> remoteDbUpdateUserMethodCall() {
-        return userRemoteDbService.updateUser(
-          userId: userId,
-          isDarkModeOn: dbUser.isDarkModeOn,
-          isDarkModeCompatibilityWithSystemOn:
-              dbUser.isDarkModeCompatibilityWithSystemOn,
-        );
-      }
-
-      Future<void> remoteDbDeleteUserMethodCall() {
-        return userRemoteDbService.deleteUser(userId: userId);
-      }
-
       Future<void> callSynchronizeUserMethod() async {
         await synchronizer.synchronizeUser(userId: userId);
       }
 
+      setUp(() {
+        userLocalDbService.mockUpdateUser(updatedUser: user);
+      });
+
       test(
         'user does not exist in local db, should load user from remote db and add him to local db',
         () async {
-          when(localDbDoesUserExistMethodCall).thenAnswer((_) async => false);
-          when(remoteDbLoadUserMethodCall).thenAnswer((_) async => dbUser);
-          when(localDbAddUserMethodCall).thenAnswer((_) async => '');
+          userLocalDbService.mockDoesUserExist(doesExist: false);
+          userRemoteDbService.mockLoadUser(user: user);
+          userLocalDbService.mockAddUser();
 
           await callSynchronizeUserMethod();
 
-          verify(localDbAddUserMethodCall).called(1);
+          verify(
+            () => userLocalDbService.addUser(user: user),
+          ).called(1);
         },
       );
 
       test(
         'user exists in local db, sync state is added, should load user from local db, add him to remote db and update sync state in local db to none',
         () async {
-          when(localDbDoesUserExistMethodCall).thenAnswer((_) async => true);
-          when(
-            localDbLoadUserSyncStateMethodCall,
-          ).thenAnswer((_) async => SyncState.added);
-          when(localDbLoadUserMethodCall).thenAnswer((_) async => dbUser);
-          when(remoteDbAddUserMethodCall).thenAnswer((_) async => '');
-          when(
-            () => localDbUpdateUserMethodCall(syncState: SyncState.none),
-          ).thenAnswer((_) async => dbUser);
+          userLocalDbService.mockDoesUserExist(doesExist: true);
+          userLocalDbService.mockLoadUserSyncState(syncState: SyncState.added);
+          userLocalDbService.mockLoadUser(user: user);
+          userRemoteDbService.mockAddUser();
 
           await callSynchronizeUserMethod();
 
-          verify(remoteDbAddUserMethodCall).called(1);
+          verify(
+            () => userRemoteDbService.addUser(user: user),
+          ).called(1);
           verify(
             () => localDbUpdateUserMethodCall(syncState: SyncState.none),
           ).called(1);
@@ -130,19 +89,26 @@ void main() {
       test(
         'user exists in local db, sync state is updated, should load user from local db, update him in remote db and update sync state in local db to none',
         () async {
-          when(localDbDoesUserExistMethodCall).thenAnswer((_) async => true);
-          when(
-            localDbLoadUserSyncStateMethodCall,
-          ).thenAnswer((_) async => SyncState.updated);
-          when(localDbLoadUserMethodCall).thenAnswer((_) async => dbUser);
-          when(remoteDbUpdateUserMethodCall).thenAnswer((_) async => '');
+          userLocalDbService.mockDoesUserExist(doesExist: true);
+          userLocalDbService.mockLoadUserSyncState(
+            syncState: SyncState.updated,
+          );
+          userLocalDbService.mockLoadUser(user: user);
+          userRemoteDbService.mockUpdateUser();
           when(
             () => localDbUpdateUserMethodCall(syncState: SyncState.none),
-          ).thenAnswer((_) async => dbUser);
+          ).thenAnswer((_) async => user);
 
           await callSynchronizeUserMethod();
 
-          verify(remoteDbUpdateUserMethodCall).called(1);
+          verify(
+            () => userRemoteDbService.updateUser(
+              userId: userId,
+              isDarkModeOn: user.isDarkModeOn,
+              isDarkModeCompatibilityWithSystemOn:
+                  user.isDarkModeCompatibilityWithSystemOn,
+            ),
+          ).called(1);
           verify(
             () => localDbUpdateUserMethodCall(syncState: SyncState.none),
           ).called(1);
@@ -152,44 +118,46 @@ void main() {
       test(
         'user exists in local db, sync state is deleted, should delete user in local and remote db',
         () async {
-          when(localDbDoesUserExistMethodCall).thenAnswer((_) async => true);
-          when(
-            localDbLoadUserSyncStateMethodCall,
-          ).thenAnswer((_) async => SyncState.deleted);
-          when(localDbLoadUserMethodCall).thenAnswer((_) async => dbUser);
-          when(remoteDbDeleteUserMethodCall).thenAnswer((_) async => '');
-          when(localDbDeleteUserMethodCall).thenAnswer((_) async => '');
+          userLocalDbService.mockDoesUserExist(doesExist: true);
+          userLocalDbService.mockLoadUserSyncState(
+            syncState: SyncState.deleted,
+          );
+          userLocalDbService.mockLoadUser(user: user);
+          userRemoteDbService.mockDeleteUser();
+          userLocalDbService.mockDeleteUser();
 
           await callSynchronizeUserMethod();
 
-          verify(remoteDbDeleteUserMethodCall).called(1);
-          verify(localDbDeleteUserMethodCall).called(1);
+          verify(
+            () => userRemoteDbService.deleteUser(userId: userId),
+          ).called(1);
+          verify(
+            () => userLocalDbService.deleteUser(userId: userId),
+          ).called(1);
         },
       );
 
       test(
         'user exists in local db, sync state is none, should load user from remote db and update him in local db',
         () async {
-          when(localDbDoesUserExistMethodCall).thenAnswer((_) async => true);
-          when(
-            localDbLoadUserSyncStateMethodCall,
-          ).thenAnswer((_) async => SyncState.none);
-          when(remoteDbLoadUserMethodCall).thenAnswer((_) async => dbUser);
+          userLocalDbService.mockDoesUserExist(doesExist: true);
+          userLocalDbService.mockLoadUserSyncState(syncState: SyncState.none);
+          userRemoteDbService.mockLoadUser(user: user);
           when(
             () => localDbUpdateUserMethodCall(
-              isDarkModeOn: dbUser.isDarkModeOn,
+              isDarkModeOn: user.isDarkModeOn,
               isDarkModeCompatibilityWithSystemOn:
-                  dbUser.isDarkModeCompatibilityWithSystemOn,
+                  user.isDarkModeCompatibilityWithSystemOn,
             ),
-          ).thenAnswer((_) async => dbUser);
+          ).thenAnswer((_) async => user);
 
           await callSynchronizeUserMethod();
 
           verify(
             () => localDbUpdateUserMethodCall(
-              isDarkModeOn: dbUser.isDarkModeOn,
+              isDarkModeOn: user.isDarkModeOn,
               isDarkModeCompatibilityWithSystemOn:
-                  dbUser.isDarkModeCompatibilityWithSystemOn,
+                  user.isDarkModeCompatibilityWithSystemOn,
             ),
           ).called(1);
         },

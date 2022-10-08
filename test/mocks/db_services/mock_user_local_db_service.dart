@@ -1,9 +1,9 @@
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/data/data_sources/local_db/user_local_db_service.dart';
-import 'package:app/data/models/db_user.dart';
+import 'package:app/domain/entities/user.dart';
 import 'package:mocktail/mocktail.dart';
 
-class FakeDbUser extends Fake implements DbUser {}
+class FakeUser extends Fake implements User {}
 
 class MockUserLocalDbService extends Mock implements UserLocalDbService {
   void mockDoesUserExist({required bool doesExist}) {
@@ -14,12 +14,12 @@ class MockUserLocalDbService extends Mock implements UserLocalDbService {
     ).thenAnswer((_) async => doesExist);
   }
 
-  void mockLoadUser({required DbUser dbUser}) {
+  void mockLoadUser({required User user}) {
     when(
       () => loadUser(
         userId: any(named: 'userId'),
       ),
-    ).thenAnswer((_) async => dbUser);
+    ).thenAnswer((_) async => user);
   }
 
   void mockLoadUserSyncState({required SyncState syncState}) {
@@ -31,17 +31,17 @@ class MockUserLocalDbService extends Mock implements UserLocalDbService {
   }
 
   void mockAddUser() {
-    _mockDbUser();
+    _mockUser();
     _mockSyncState();
     when(
       () => addUser(
-        dbUser: any(named: 'dbUser'),
+        user: any(named: 'user'),
         syncState: any(named: 'syncState'),
       ),
     ).thenAnswer((_) async => '');
   }
 
-  void mockUpdateUser({required DbUser updatedDbUser}) {
+  void mockUpdateUser({required User updatedUser}) {
     _mockSyncState();
     when(
       () => updateUser(
@@ -51,7 +51,7 @@ class MockUserLocalDbService extends Mock implements UserLocalDbService {
             any(named: 'isDarkModeCompatibilityWithSystemOn'),
         syncState: any(named: 'syncState'),
       ),
-    ).thenAnswer((_) async => updatedDbUser);
+    ).thenAnswer((_) async => updatedUser);
   }
 
   void mockDeleteUser() {
@@ -62,8 +62,8 @@ class MockUserLocalDbService extends Mock implements UserLocalDbService {
     ).thenAnswer((_) async => '');
   }
 
-  void _mockDbUser() {
-    registerFallbackValue(FakeDbUser());
+  void _mockUser() {
+    registerFallbackValue(FakeUser());
   }
 
   void _mockSyncState() {

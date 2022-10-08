@@ -1,8 +1,6 @@
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/data/data_sources/local_db/user_local_db_service.dart';
 import 'package:app/data/data_sources/remote_db/user_remote_db_service.dart';
-import 'package:app/data/mappers/user_mapper.dart';
-import 'package:app/data/models/db_user.dart';
 import 'package:app/data/synchronizers/user_synchronizer.dart';
 import 'package:app/domain/entities/user.dart';
 import 'package:app/domain/interfaces/user_interface.dart';
@@ -55,20 +53,18 @@ class UserRepository implements UserInterface {
 
   @override
   Future<void> loadUser({required String userId}) async {
-    final DbUser dbUser = await _userLocalDbService.loadUser(userId: userId);
-    final User user = UserMapper.mapFromDbModelToEntity(dbUser);
+    final User user = await _userLocalDbService.loadUser(userId: userId);
     _addUserToList(user);
   }
 
   @override
   Future<void> addUser({required User user}) async {
-    final DbUser dbUser = UserMapper.mapFromEntityToDbModel(user);
     SyncState syncState = SyncState.added;
     if (await _device.hasInternetConnection()) {
-      await _userRemoteDbService.addUser(dbUser: dbUser);
+      await _userRemoteDbService.addUser(user: user);
       syncState = SyncState.none;
     }
-    await _userLocalDbService.addUser(dbUser: dbUser, syncState: syncState);
+    await _userLocalDbService.addUser(user: user, syncState: syncState);
     _addUserToList(user);
   }
 

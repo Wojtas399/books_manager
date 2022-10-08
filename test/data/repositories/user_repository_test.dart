@@ -1,5 +1,4 @@
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
-import 'package:app/data/models/db_user.dart';
 import 'package:app/data/repositories/user_repository.dart';
 import 'package:app/domain/entities/user.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -99,14 +98,8 @@ void main() {
     'load user, should load user from local db and assign him to list',
     () async {
       const String userId = 'u1';
-      final DbUser dbUser = createDbUser(id: userId);
-      final User expectedUser = createUser(
-        id: dbUser.id,
-        isDarkModeOn: dbUser.isDarkModeOn,
-        isDarkModeCompatibilityWithSystemOn:
-            dbUser.isDarkModeCompatibilityWithSystemOn,
-      );
-      userLocalDbService.mockLoadUser(dbUser: dbUser);
+      final User expectedUser = createUser(id: userId);
+      userLocalDbService.mockLoadUser(user: expectedUser);
 
       await repository.loadUser(userId: userId);
       final Stream<User?> user$ = repository.getUser(userId: userId);
@@ -119,12 +112,6 @@ void main() {
     'add user',
     () {
       final User user = createUser(id: 'u1');
-      final DbUser dbUser = createDbUser(
-        id: user.id,
-        isDarkModeOn: user.isDarkModeOn,
-        isDarkModeCompatibilityWithSystemOn:
-            user.isDarkModeCompatibilityWithSystemOn,
-      );
 
       setUp(() {
         userLocalDbService.mockAddUser();
@@ -141,12 +128,12 @@ void main() {
 
           verify(
             () => userLocalDbService.addUser(
-              dbUser: dbUser,
+              user: user,
               syncState: SyncState.none,
             ),
           ).called(1);
           verify(
-            () => userRemoteDbService.addUser(dbUser: dbUser),
+            () => userRemoteDbService.addUser(user: user),
           ).called(1);
           expect(await user$.first, user);
         },
@@ -162,12 +149,12 @@ void main() {
 
           verify(
             () => userLocalDbService.addUser(
-              dbUser: dbUser,
+              user: user,
               syncState: SyncState.added,
             ),
           ).called(1);
           verifyNever(
-            () => userRemoteDbService.addUser(dbUser: dbUser),
+            () => userRemoteDbService.addUser(user: user),
           );
           expect(await user$.first, user);
         },
@@ -181,12 +168,6 @@ void main() {
       const String userId = 'u1';
       const bool isDarkModeOn = false;
       const bool isDarkModeCompatibilityWithSystemOn = true;
-      final DbUser updatedDbUser = createDbUser(
-        id: userId,
-        isDarkModeOn: isDarkModeOn,
-        isDarkModeCompatibilityWithSystemOn:
-            isDarkModeCompatibilityWithSystemOn,
-      );
       final User originalUser = createUser(
         id: userId,
         isDarkModeOn: true,
@@ -201,7 +182,7 @@ void main() {
 
       setUp(() {
         repository = createRepository(users: [originalUser]);
-        userLocalDbService.mockUpdateUser(updatedDbUser: updatedDbUser);
+        userLocalDbService.mockUpdateUser(updatedUser: updatedUser);
         userRemoteDbService.mockUpdateUser();
       });
 
@@ -328,7 +309,7 @@ void main() {
         'device has not internet connection, should only call method responsible for updating user in local db with sync state set as deleted and should delete user from list',
         () async {
           device.mockHasDeviceInternetConnection(value: false);
-          userLocalDbService.mockUpdateUser(updatedDbUser: createDbUser());
+          userLocalDbService.mockUpdateUser(updatedUser: createUser());
 
           await repository.deleteUser(userId: userId);
           final Stream<User?> user$ = repository.getUser(userId: userId);

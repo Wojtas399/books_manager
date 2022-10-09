@@ -40,7 +40,7 @@ void main() {
   });
 
   group(
-    'refresh user',
+    'initialize user',
     () {
       const String userId = 'u1';
 
@@ -53,7 +53,7 @@ void main() {
         () async {
           device.mockHasDeviceInternetConnection(value: true);
 
-          await repository.refreshUser(userId: userId);
+          await repository.initializeUser(userId: userId);
 
           verify(
             () => userSynchronizer.synchronizeUser(userId: userId),
@@ -66,7 +66,7 @@ void main() {
         () async {
           device.mockHasDeviceInternetConnection(value: false);
 
-          await repository.refreshUser(userId: userId);
+          await repository.initializeUser(userId: userId);
 
           verifyNever(
             () => userSynchronizer.synchronizeUser(userId: userId),

@@ -47,10 +47,10 @@ void main() {
   });
 
   group(
-    'refresh user books',
+    'initialize for user',
     () {
-      Future<void> callRefreshUserBooksMethod() async {
-        await repository.refreshUserBooks(userId: userId);
+      Future<void> callInitializeForUserMethod() async {
+        await repository.initializeForUser(userId: userId);
       }
 
       setUp(() {
@@ -66,7 +66,7 @@ void main() {
         () async {
           device.mockHasDeviceInternetConnection(value: false);
 
-          await callRefreshUserBooksMethod();
+          await callInitializeForUserMethod();
 
           verifyNever(
             () => bookSynchronizer.synchronizeUnmodifiedUserBooks(
@@ -96,7 +96,7 @@ void main() {
         () async {
           device.mockHasDeviceInternetConnection(value: true);
 
-          await callRefreshUserBooksMethod();
+          await callInitializeForUserMethod();
 
           verify(
             () => bookSynchronizer.synchronizeUnmodifiedUserBooks(

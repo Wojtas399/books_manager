@@ -39,7 +39,7 @@ class BookRepository implements BookInterface {
   Stream<List<Book>> get _booksStream$ => _books$.stream;
 
   @override
-  Future<void> refreshUserBooks({required String userId}) async {
+  Future<void> initializeForUser({required String userId}) async {
     if (await _device.hasInternetConnection()) {
       await _bookSynchronizer.synchronizeUserBooksMarkedAsDeleted(
         userId: userId,

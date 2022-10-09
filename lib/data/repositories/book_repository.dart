@@ -207,11 +207,6 @@ class BookRepository implements BookInterface {
     }
   }
 
-  @override
-  void reset() {
-    _books$.add([]);
-  }
-
   String _getIdOfUserAssignedToBook(String bookId) {
     return _books$.value.firstWhere((Book book) => book.id == bookId).userId;
   }

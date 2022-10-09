@@ -560,24 +560,4 @@ void main() {
       );
     },
   );
-
-  test(
-    'reset, should reset stream of books',
-    () async {
-      final List<Book> books = [
-        createBook(id: 'b1', userId: userId, status: BookStatus.unread),
-        createBook(id: 'b2', userId: userId, status: BookStatus.inProgress),
-      ];
-      repository = createRepository(books: books);
-
-      final List<Book> loadedBooks =
-          await repository.getBooksByUserId(userId: userId).first;
-      repository.reset();
-      final List<Book> resetedBooks =
-          await repository.getBooksByUserId(userId: userId).first;
-
-      expect(loadedBooks, books);
-      expect(resetedBooks, []);
-    },
-  );
 }

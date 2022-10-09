@@ -97,11 +97,6 @@ class DayRepository implements DayInterface {
     }
   }
 
-  @override
-  void reset() {
-    _days$.add([]);
-  }
-
   void _addDaysToList(List<Day> daysToAdd) {
     final List<Day> updatedDays = [..._days$.value];
     updatedDays.addAll(daysToAdd);

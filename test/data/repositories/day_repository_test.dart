@@ -351,23 +351,4 @@ void main() {
       );
     },
   );
-
-  test(
-    'reset, should clean list with days',
-    () async {
-      final List<Day> userDays = [
-        createDay(userId: userId, date: DateTime(2022, 9, 20)),
-        createDay(userId: userId, date: DateTime(2022, 9, 18)),
-      ];
-
-      repository = createRepository(days: userDays);
-      final List<Day> days = await repository.getUserDays(userId: userId).first;
-      repository.reset();
-      final List<Day> daysAfterCleaning =
-          await repository.getUserDays(userId: userId).first;
-
-      expect(days, userDays);
-      expect(daysAfterCleaning, []);
-    },
-  );
 }

@@ -17,6 +17,4 @@ abstract class DayInterface {
     required String bookId,
     required int amountOfReadPagesToAdd,
   });
-
-  void reset();
 }

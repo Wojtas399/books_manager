@@ -12,10 +12,13 @@ class LibraryContent extends StatelessWidget {
   Widget build(BuildContext context) {
     const int itemsWidth = 200;
     const int itemsHeight = 330;
-    final List<Book> books = context.select(
+    final List<Book>? books = context.select(
       (LibraryBloc bloc) => bloc.state.sortedBooks,
     );
 
+    if (books == null) {
+      return const SizedBox();
+    }
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,

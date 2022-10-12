@@ -24,7 +24,10 @@ class UpdateCurrentPageNumberAfterReadingUseCase {
     required String bookId,
     required int newCurrentPageNumber,
   }) async {
-    final Book book = await _bookInterface.getBookById(bookId: bookId).first;
+    final Book? book = await _bookInterface.getBookById(bookId: bookId).first;
+    if (book == null) {
+      return;
+    }
     final int allPagesAmount = book.allPagesAmount;
     if (newCurrentPageNumber > allPagesAmount) {
       throw const BookError(code: BookErrorCode.newCurrentPageIsTooHigh);

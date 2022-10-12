@@ -28,7 +28,7 @@ void main() {
       ];
       state = state.copyWith(books: unsortedBooks);
 
-      final List<Book> books = state.sortedBooks;
+      final List<Book>? books = state.sortedBooks;
 
       expect(books, sortedBooks);
     },

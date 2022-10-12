@@ -22,7 +22,7 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
   late final UpdateCurrentPageNumberAfterReadingUseCase
       _updateCurrentPageNumberAfterReadingUseCase;
   late final DeleteBookUseCase _deleteBookUseCase;
-  StreamSubscription<Book>? _bookListener;
+  StreamSubscription<Book?>? _bookListener;
 
   BookPreviewBloc({
     required GetBookByIdUseCase getBookByIdUseCase,
@@ -121,9 +121,13 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
   }
 
   void _setBookListener(String bookId) {
-    _bookListener ??= _getBookByIdUseCase
-        .execute(bookId: bookId)
-        .listen((Book book) => add(BookPreviewEventBookUpdated(book: book)));
+    _bookListener ??= _getBookByIdUseCase.execute(bookId: bookId).listen(
+      (Book? book) {
+        if (book != null) {
+          add(BookPreviewEventBookUpdated(book: book));
+        }
+      },
+    );
   }
 
   void _manageBookError(BookError bookError, Emitter<BookPreviewState> emit) {

@@ -16,7 +16,7 @@ class ReadingBloc extends CustomBloc<ReadingEvent, ReadingState> {
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
   late final LoadUserBooksInProgressUseCase _loadUserBooksInProgressUseCase;
   late final GetUserBooksInProgressUseCase _getUserBooksInProgressUseCase;
-  StreamSubscription<List<Book>>? _booksInProgressListener;
+  StreamSubscription<List<Book>?>? _booksInProgressListener;
 
   ReadingBloc({
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
@@ -48,11 +48,18 @@ class ReadingBloc extends CustomBloc<ReadingEvent, ReadingState> {
     Emitter<ReadingState> emit,
   ) async {
     final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
-    if (loggedUserId != null) {
-      emitLoadingStatus(emit);
-      await _loadUserBooksInProgressUseCase.execute(userId: loggedUserId);
-      _setBooksInProgressListener(loggedUserId);
+    if (loggedUserId == null) {
+      emitLoggedUserNotFoundStatus(emit);
+      return;
     }
+    if (await _areLoggedUserBooksInProgressNotLoaded(loggedUserId)) {
+      emitLoadingStatus(emit);
+    }
+    _setBooksInProgressListener(loggedUserId);
+    await Future.delayed(
+      const Duration(milliseconds: 300),
+    );
+    await _loadUserBooksInProgressUseCase.execute(userId: loggedUserId);
   }
 
   void _booksInProgressUpdated(
@@ -64,14 +71,26 @@ class ReadingBloc extends CustomBloc<ReadingEvent, ReadingState> {
     ));
   }
 
-  void _setBooksInProgressListener(String userId) {
+  Future<bool> _areLoggedUserBooksInProgressNotLoaded(
+    String loggedUserId,
+  ) async {
+    return await _getLoggedUserBooksInProgress(loggedUserId).first == null;
+  }
+
+  void _setBooksInProgressListener(String loggedUserId) {
     _booksInProgressListener ??=
-        _getUserBooksInProgressUseCase.execute(userId: userId).listen(
-      (List<Book> booksInProgress) {
-        add(
-          ReadingEventBooksInProgressUpdated(booksInProgress: booksInProgress),
-        );
+        _getLoggedUserBooksInProgress(loggedUserId).listen(
+      (List<Book>? booksInProgress) {
+        if (booksInProgress != null) {
+          add(ReadingEventBooksInProgressUpdated(
+            booksInProgress: booksInProgress,
+          ));
+        }
       },
     );
+  }
+
+  Stream<List<Book>?> _getLoggedUserBooksInProgress(String loggedUserId) {
+    return _getUserBooksInProgressUseCase.execute(userId: loggedUserId);
   }
 }

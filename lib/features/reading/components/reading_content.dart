@@ -10,10 +10,13 @@ class ReadingContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Book> booksInProgress = context.select(
+    final List<Book>? booksInProgress = context.select(
       (ReadingBloc bloc) => bloc.state.booksInProgress,
     );
 
+    if (booksInProgress == null) {
+      return const SizedBox();
+    }
     return ListView.builder(
       cacheExtent: 0,
       itemCount: booksInProgress.length,

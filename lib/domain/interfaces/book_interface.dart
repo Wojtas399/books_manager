@@ -5,9 +5,9 @@ import 'package:app/domain/entities/book.dart';
 abstract class BookInterface {
   Future<void> initializeForUser({required String userId});
 
-  Stream<Book> getBookById({required String bookId});
+  Stream<Book?> getBookById({required String bookId});
 
-  Stream<List<Book>> getBooksByUserId({required String userId});
+  Stream<List<Book>?> getBooksByUserId({required String userId});
 
   Future<void> loadUserBooks({
     required String userId,

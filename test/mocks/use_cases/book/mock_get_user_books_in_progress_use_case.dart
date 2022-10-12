@@ -4,7 +4,7 @@ import 'package:mocktail/mocktail.dart';
 
 class MockGetUserBooksInProgressUseCase extends Mock
     implements GetUserBooksInProgressUseCase {
-  void mock({required List<Book> userBooksInProgress}) {
+  void mock({List<Book>? userBooksInProgress}) {
     when(
       () => execute(
         userId: any(named: 'userId'),

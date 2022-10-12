@@ -53,8 +53,11 @@ class BookEditorBloc extends CustomBloc<BookEditorEvent, BookEditorState> {
     Emitter<BookEditorState> emit,
   ) async {
     emitLoadingStatus(emit);
-    final Book book =
+    final Book? book =
         await _getBookByIdUseCase.execute(bookId: event.bookId).first;
+    if (book == null) {
+      return;
+    }
     emit(state.copyWith(
       status: const BlocStatusComplete(),
       originalBook: book,

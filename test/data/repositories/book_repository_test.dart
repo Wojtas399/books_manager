@@ -137,7 +137,7 @@ void main() {
       );
       repository = createRepository(books: books);
 
-      final Stream<Book> book$ = repository.getBookById(bookId: 'b3');
+      final Stream<Book?> book$ = repository.getBookById(bookId: 'b3');
 
       expect(await book$.first, expectedBook);
     },
@@ -154,7 +154,7 @@ void main() {
       final List<Book> expectedBooks = [books.first, books.last];
       repository = createRepository(books: books);
 
-      final Stream<List<Book>> userBooks$ = repository.getBooksByUserId(
+      final Stream<List<Book>?> userBooks$ = repository.getBooksByUserId(
         userId: userId,
       );
 

@@ -58,18 +58,23 @@ class DayPreviewBloc extends CustomBloc<DayPreviewEvent, DayPreviewState> {
   ) async {
     final List<DayPreviewReadBook> dayPreviewModels = [];
     for (final ReadBook readBook in readBooks) {
-      final DayPreviewReadBook newDayPreviewModel =
+      final DayPreviewReadBook? newDayPreviewModel =
           await _createDayPreviewModelFromReadBook(readBook);
-      dayPreviewModels.add(newDayPreviewModel);
+      if (newDayPreviewModel != null) {
+        dayPreviewModels.add(newDayPreviewModel);
+      }
     }
     return dayPreviewModels;
   }
 
-  Future<DayPreviewReadBook> _createDayPreviewModelFromReadBook(
+  Future<DayPreviewReadBook?> _createDayPreviewModelFromReadBook(
     ReadBook readBook,
   ) async {
-    final Book book =
+    final Book? book =
         await _getBookByIdUseCase.execute(bookId: readBook.bookId).first;
+    if (book == null) {
+      return null;
+    }
     return DayPreviewReadBook(
       bookId: readBook.bookId,
       imageData: book.imageData,

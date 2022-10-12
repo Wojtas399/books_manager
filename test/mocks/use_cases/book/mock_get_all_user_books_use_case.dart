@@ -4,7 +4,7 @@ import 'package:mocktail/mocktail.dart';
 
 class MockGetAllUserBooksUseCase extends Mock
     implements GetAllUserBooksUseCase {
-  void mock({required List<Book> userBooks}) {
+  void mock({List<Book>? userBooks}) {
     when(
       () => execute(
         userId: any(named: 'userId'),

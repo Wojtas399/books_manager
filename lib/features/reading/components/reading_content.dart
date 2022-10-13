@@ -19,10 +19,13 @@ class ReadingContent extends StatelessWidget {
     if (booksInProgress == null) {
       return const SizedBox();
     } else if (booksInProgress.isEmpty) {
-      return const EmptyContentInfoComponent(
-        icon: MdiIcons.bookOpen,
-        title: 'Brak czytanych książek',
-        subtitle: 'Aktualnie nie czytasz żadnych książek',
+      return const Padding(
+        padding: EdgeInsets.all(24),
+        child: EmptyContentInfoComponent(
+          icon: MdiIcons.bookOpen,
+          title: 'Brak czytanych książek',
+          subtitle: 'Aktualnie nie czytasz żadnych książek',
+        ),
       );
     }
     return ListView.builder(

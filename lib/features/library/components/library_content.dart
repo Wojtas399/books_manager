@@ -1,9 +1,11 @@
 import 'package:app/components/animated_opacity_and_scale_component.dart';
+import 'package:app/components/empty_content_info_component.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/features/library/bloc/library_bloc.dart';
 import 'package:app/features/library/components/library_book_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class LibraryContent extends StatelessWidget {
   const LibraryContent({super.key});
@@ -18,6 +20,15 @@ class LibraryContent extends StatelessWidget {
 
     if (books == null) {
       return const SizedBox();
+    } else if (books.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(24),
+        child: EmptyContentInfoComponent(
+          icon: MdiIcons.bookshelf,
+          title: 'Brak książek',
+          subtitle: 'Aktualnie nie posiadasz żadnych książek w bibliotece',
+        ),
+      );
     }
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

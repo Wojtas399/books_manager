@@ -18,7 +18,7 @@ class BookRepository implements BookInterface {
   late final BookRemoteDbService _bookRemoteDbService;
   late final Device _device;
   late final IdGenerator _idGenerator;
-  final BehaviorSubject<List<Book>> _books$ = BehaviorSubject<List<Book>>();
+  final BehaviorSubject<List<Book>?> _books$ = BehaviorSubject<List<Book>?>();
 
   BookRepository({
     required BookSynchronizer bookSynchronizer,
@@ -26,7 +26,7 @@ class BookRepository implements BookInterface {
     required BookRemoteDbService bookRemoteDbService,
     required Device device,
     required IdGenerator idGenerator,
-    final List<Book> books = const [],
+    final List<Book>? books,
   }) {
     _bookSynchronizer = bookSynchronizer;
     _bookLocalDbService = bookLocalDbService;
@@ -36,10 +36,10 @@ class BookRepository implements BookInterface {
     _books$.add(books);
   }
 
-  Stream<List<Book>> get _booksStream$ => _books$.stream;
+  Stream<List<Book>?> get _booksStream$ => _books$.stream;
 
   @override
-  Future<void> refreshUserBooks({required String userId}) async {
+  Future<void> initializeForUser({required String userId}) async {
     if (await _device.hasInternetConnection()) {
       await _bookSynchronizer.synchronizeUserBooksMarkedAsDeleted(
         userId: userId,
@@ -53,9 +53,12 @@ class BookRepository implements BookInterface {
   }
 
   @override
-  Stream<Book> getBookById({required String bookId}) {
+  Stream<Book?> getBookById({required String bookId}) {
     return _booksStream$.map(
-      (List<Book> books) {
+      (List<Book>? books) {
+        if (books == null) {
+          return null;
+        }
         final List<Book?> allBooks = [...books];
         return allBooks.firstWhere(
           (Book? book) => book?.id == bookId,
@@ -66,10 +69,10 @@ class BookRepository implements BookInterface {
   }
 
   @override
-  Stream<List<Book>> getBooksByUserId({required String userId}) {
+  Stream<List<Book>?> getBooksByUserId({required String userId}) {
     return _booksStream$.map(
-      (List<Book> books) {
-        return books.where((Book book) => book.belongsTo(userId)).toList();
+      (List<Book>? books) {
+        return books?.where((Book book) => book.belongsTo(userId)).toList();
       },
     );
   }
@@ -124,8 +127,11 @@ class BookRepository implements BookInterface {
     int? readPagesAmount,
     int? allPagesAmount,
   }) async {
-    final String userId = _getIdOfUserAssignedToBook(bookId);
+    final String? userId = _getIdOfUserAssignedToBook(bookId);
     SyncState syncState = SyncState.updated;
+    if (userId == null) {
+      return;
+    }
     if (await _device.hasInternetConnection()) {
       await _bookRemoteDbService.updateBookData(
         bookId: bookId,
@@ -155,8 +161,11 @@ class BookRepository implements BookInterface {
     required String bookId,
     required Uint8List? imageData,
   }) async {
-    final String userId = _getIdOfUserAssignedToBook(bookId);
+    final String? userId = _getIdOfUserAssignedToBook(bookId);
     SyncState? newSyncState;
+    if (userId == null) {
+      return;
+    }
     if (await _device.hasInternetConnection()) {
       await _bookRemoteDbService.updateBookImage(
         bookId: bookId,
@@ -182,8 +191,8 @@ class BookRepository implements BookInterface {
 
   @override
   Future<void> deleteBook({required String bookId}) async {
-    final String userId = _getIdOfUserAssignedToBook(bookId);
-    if (await _device.hasInternetConnection()) {
+    final String? userId = _getIdOfUserAssignedToBook(bookId);
+    if (userId != null && await _device.hasInternetConnection()) {
       await _bookRemoteDbService.deleteBook(userId: userId, bookId: bookId);
       await _bookLocalDbService.deleteBook(userId: userId, bookId: bookId);
     } else {
@@ -207,13 +216,8 @@ class BookRepository implements BookInterface {
     }
   }
 
-  @override
-  void reset() {
-    _books$.add([]);
-  }
-
-  String _getIdOfUserAssignedToBook(String bookId) {
-    return _books$.value.firstWhere((Book book) => book.id == bookId).userId;
+  String? _getIdOfUserAssignedToBook(String bookId) {
+    return _books$.value?.firstWhere((Book book) => book.id == bookId).userId;
   }
 
   Future<void> _deleteEachBookFromBothDatabases(
@@ -243,13 +247,13 @@ class BookRepository implements BookInterface {
   }
 
   void _addNewBooksToList(List<Book> books) {
-    List<Book> updatedCollection = [..._books$.value];
+    List<Book> updatedCollection = [...?_books$.value];
     updatedCollection.addAll(books);
     _books$.add(updatedCollection.removeRepetitions());
   }
 
   void _updateBookInList(Book updatedBook) {
-    final List<Book> updatedBooksList = [..._books$.value];
+    final List<Book> updatedBooksList = [...?_books$.value];
     final int updatedBookIndex = updatedBooksList.indexWhere(
       (Book book) => book.id == updatedBook.id,
     );
@@ -258,7 +262,7 @@ class BookRepository implements BookInterface {
   }
 
   void _removeBookFromList(String bookId) {
-    final List<Book> updatedCollection = [..._books$.value];
+    final List<Book> updatedCollection = [...?_books$.value];
     updatedCollection.removeWhere((Book book) => book.id == bookId);
     _books$.add(updatedCollection.removeRepetitions());
   }

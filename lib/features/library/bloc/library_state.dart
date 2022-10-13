@@ -1,17 +1,17 @@
 part of 'library_bloc.dart';
 
 class LibraryState extends BlocState {
-  final List<Book> books;
+  final List<Book>? books;
 
   const LibraryState({
     required super.status,
-    required this.books,
+    this.books,
   });
 
   @override
   List<Object> get props => [
         status,
-        books,
+        books ?? '',
       ];
 
   @override
@@ -25,8 +25,11 @@ class LibraryState extends BlocState {
     );
   }
 
-  List<Book> get sortedBooks {
-    final List<Book> sortedBooks = [...books];
+  List<Book>? get sortedBooks {
+    if (books == null) {
+      return null;
+    }
+    final List<Book> sortedBooks = [...?books];
     sortedBooks.sort(
       (Book book1, Book book2) => book1.title.compareTo(book2.title),
     );

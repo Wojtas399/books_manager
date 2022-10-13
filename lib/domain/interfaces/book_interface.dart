@@ -3,11 +3,11 @@ import 'dart:typed_data';
 import 'package:app/domain/entities/book.dart';
 
 abstract class BookInterface {
-  Future<void> refreshUserBooks({required String userId});
+  Future<void> initializeForUser({required String userId});
 
-  Stream<Book> getBookById({required String bookId});
+  Stream<Book?> getBookById({required String bookId});
 
-  Stream<List<Book>> getBooksByUserId({required String userId});
+  Stream<List<Book>?> getBooksByUserId({required String userId});
 
   Future<void> loadUserBooks({
     required String userId,
@@ -41,6 +41,4 @@ abstract class BookInterface {
   Future<void> deleteBook({required String bookId});
 
   Future<void> deleteAllUserBooks({required String userId});
-
-  void reset();
 }

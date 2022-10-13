@@ -32,7 +32,7 @@ class UserRepository implements UserInterface {
   Stream<List<User>> get _usersStream$ => _users$.stream;
 
   @override
-  Future<void> refreshUser({required String userId}) async {
+  Future<void> initializeUser({required String userId}) async {
     if (await _device.hasInternetConnection()) {
       await _userSynchronizer.synchronizeUser(userId: userId);
     }

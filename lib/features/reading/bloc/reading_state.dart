@@ -1,7 +1,7 @@
 part of 'reading_bloc.dart';
 
 class ReadingState extends BlocState {
-  final List<Book> booksInProgress;
+  final List<Book>? booksInProgress;
 
   const ReadingState({
     required super.status,
@@ -9,7 +9,10 @@ class ReadingState extends BlocState {
   });
 
   @override
-  List<Object> get props => [status, booksInProgress];
+  List<Object> get props => [
+        status,
+        booksInProgress ?? '',
+      ];
 
   @override
   ReadingState copyWith({

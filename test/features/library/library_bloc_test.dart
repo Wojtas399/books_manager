@@ -28,7 +28,7 @@ void main() {
 
   LibraryState createState({
     BlocStatus status = const BlocStatusComplete(),
-    List<Book> books = const [],
+    List<Book>? books,
   }) {
     return LibraryState(
       status: status,
@@ -55,21 +55,18 @@ void main() {
     },
     expect: () => [
       createState(
-        status: const BlocStatusLoading(),
-      ),
-      createState(
         status: const BlocStatusLoggedUserNotFound(),
       ),
     ],
   );
 
   blocTest(
-    'initialize, should call use case responsible for loading all user books and should set user books listener',
+    'initialize, should emit loading status if logged user books are not loaded and should call use case responsible for loading all logged user books after 300ms delay',
     build: () => createBloc(),
     setUp: () {
       getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
       loadAllUserBooksUseCase.mock();
-      getAllUserBooksUseCase.mock(userBooks: userBooks);
+      getAllUserBooksUseCase.mock();
     },
     act: (LibraryBloc bloc) {
       bloc.add(
@@ -80,11 +77,39 @@ void main() {
       createState(
         status: const BlocStatusLoading(),
       ),
+    ],
+    verify: (_) async {
+      await Future.delayed(
+        const Duration(milliseconds: 300),
+      );
+      verify(
+        () => loadAllUserBooksUseCase.execute(userId: 'u1'),
+      ).called(1);
+    },
+  );
+
+  blocTest(
+    'initialize, should emit logged user books and should call use case responsible for loading all logged user books after 300ms delay',
+    build: () => createBloc(),
+    setUp: () {
+      getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
+      loadAllUserBooksUseCase.mock();
+      getAllUserBooksUseCase.mock(userBooks: []);
+    },
+    act: (LibraryBloc bloc) {
+      bloc.add(
+        const LibraryEventInitialize(),
+      );
+    },
+    expect: () => [
       createState(
-        books: userBooks,
+        books: [],
       ),
     ],
-    verify: (_) {
+    verify: (_) async {
+      await Future.delayed(
+        const Duration(milliseconds: 300),
+      );
       verify(
         () => loadAllUserBooksUseCase.execute(userId: 'u1'),
       ).called(1);

@@ -47,10 +47,10 @@ void main() {
   });
 
   group(
-    'refresh user books',
+    'initialize for user',
     () {
-      Future<void> callRefreshUserBooksMethod() async {
-        await repository.refreshUserBooks(userId: userId);
+      Future<void> callInitializeForUserMethod() async {
+        await repository.initializeForUser(userId: userId);
       }
 
       setUp(() {
@@ -66,7 +66,7 @@ void main() {
         () async {
           device.mockHasDeviceInternetConnection(value: false);
 
-          await callRefreshUserBooksMethod();
+          await callInitializeForUserMethod();
 
           verifyNever(
             () => bookSynchronizer.synchronizeUnmodifiedUserBooks(
@@ -96,7 +96,7 @@ void main() {
         () async {
           device.mockHasDeviceInternetConnection(value: true);
 
-          await callRefreshUserBooksMethod();
+          await callInitializeForUserMethod();
 
           verify(
             () => bookSynchronizer.synchronizeUnmodifiedUserBooks(
@@ -137,7 +137,7 @@ void main() {
       );
       repository = createRepository(books: books);
 
-      final Stream<Book> book$ = repository.getBookById(bookId: 'b3');
+      final Stream<Book?> book$ = repository.getBookById(bookId: 'b3');
 
       expect(await book$.first, expectedBook);
     },
@@ -154,7 +154,7 @@ void main() {
       final List<Book> expectedBooks = [books.first, books.last];
       repository = createRepository(books: books);
 
-      final Stream<List<Book>> userBooks$ = repository.getBooksByUserId(
+      final Stream<List<Book>?> userBooks$ = repository.getBooksByUserId(
         userId: userId,
       );
 
@@ -558,26 +558,6 @@ void main() {
           ).called(1);
         },
       );
-    },
-  );
-
-  test(
-    'reset, should reset stream of books',
-    () async {
-      final List<Book> books = [
-        createBook(id: 'b1', userId: userId, status: BookStatus.unread),
-        createBook(id: 'b2', userId: userId, status: BookStatus.inProgress),
-      ];
-      repository = createRepository(books: books);
-
-      final List<Book> loadedBooks =
-          await repository.getBooksByUserId(userId: userId).first;
-      repository.reset();
-      final List<Book> resetedBooks =
-          await repository.getBooksByUserId(userId: userId).first;
-
-      expect(loadedBooks, books);
-      expect(resetedBooks, []);
     },
   );
 }

@@ -1,5 +1,4 @@
 import 'package:app/domain/entities/day.dart';
-import 'package:app/domain/entities/read_book.dart';
 import 'package:app/features/calendar/bloc/calendar_bloc.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:bloc_test/bloc_test.dart';
@@ -20,34 +19,25 @@ void main() {
   final getUserDaysFromMonthUseCase = MockGetUserDaysFromMonthUseCase();
   const String loggedUserId = 'u1';
 
-  CalendarBloc createBloc({
-    int? displayingMonth,
-    int? displayingYear,
-  }) {
+  CalendarBloc createBloc() {
     return CalendarBloc(
       dateProvider: dateProvider,
       getLoggedUserIdUseCase: getLoggedUserIdUseCase,
       loadAllUserBooksUseCase: loadAllUserBooksUseCase,
       loadUserDaysFromMonthUseCase: loadUserDaysFromMonthUseCase,
       getUserDaysFromMonthUseCase: getUserDaysFromMonthUseCase,
-      displayingMonth: displayingMonth,
-      displayingYear: displayingYear,
     );
   }
 
   CalendarState createState({
     BlocStatus status = const BlocStatusComplete(),
     DateTime? todayDate,
-    int? displayingMonth,
-    int? displayingYear,
-    List<Day> userDaysFromMonth = const [],
+    List<Day> daysOfReading = const [],
   }) {
     return CalendarState(
       status: status,
       todayDate: todayDate,
-      displayingMonth: displayingMonth,
-      displayingYear: displayingYear,
-      userDaysFromMonth: userDaysFromMonth,
+      daysOfReading: daysOfReading,
     );
   }
 
@@ -66,21 +56,26 @@ void main() {
   group(
     'initialize',
     () {
-      final DateTime todayDate = DateTime(2022, 9, 20);
-      final List<Day> userDaysFromMonth = [
+      final DateTime todayDate = DateTime(2022, 1, 20);
+      final List<Day> userDaysFromCurrentMonth = [
         createDay(
-          userId: loggedUserId,
           date: todayDate,
-          readBooks: [
-            createReadBook(bookId: 'b1', readPagesAmount: 200),
-          ],
         ),
         createDay(
-          userId: loggedUserId,
           date: DateTime(todayDate.year, todayDate.month, 15),
-          readBooks: [
-            createReadBook(bookId: 'b1', readPagesAmount: 20),
-          ],
+        ),
+      ];
+      final List<Day> userDaysFromPreviousMonth = [
+        createDay(
+          date: DateTime(2021, 12, 30),
+        ),
+      ];
+      final List<Day> userDaysFromNextMonth = [
+        createDay(
+          date: DateTime(2022, 2, 20),
+        ),
+        createDay(
+          date: DateTime(2022, 2, 15),
         ),
       ];
 
@@ -97,26 +92,19 @@ void main() {
         },
         expect: () => [
           createState(
-            status: const BlocStatusLoading(),
-          ),
-          createState(
             status: const BlocStatusLoggedUserNotFound(),
           ),
         ],
       );
 
       blocTest(
-        'logged user exists, should load all logged user books and days from current month and then should assign these days to state with today date, displaying month and displaying year',
+        'should emit loading status if logged user days of reading have not been loaded yet',
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
           loadAllUserBooksUseCase.mock();
-          dateProvider.mockGetNow(
-            nowDateTime: todayDate,
-          );
-          getUserDaysFromMonthUseCase.mock(
-            userDaysFromMonth: userDaysFromMonth,
-          );
+          dateProvider.mockGetNow(nowDateTime: todayDate);
+          getUserDaysFromMonthUseCase.mock();
         },
         act: (CalendarBloc bloc) {
           bloc.add(
@@ -126,16 +114,13 @@ void main() {
         expect: () => [
           createState(
             status: const BlocStatusLoading(),
-          ),
-          createState(
-            status: const BlocStatusComplete(),
             todayDate: todayDate,
-            displayingMonth: todayDate.month,
-            displayingYear: todayDate.year,
-            userDaysFromMonth: userDaysFromMonth,
           ),
         ],
-        verify: (_) {
+        verify: (_) async {
+          await Future.delayed(
+            const Duration(milliseconds: 300),
+          );
           verify(
             () => loadAllUserBooksUseCase.execute(
               userId: loggedUserId,
@@ -144,8 +129,103 @@ void main() {
           verify(
             () => loadUserDaysFromMonthUseCase.execute(
               userId: loggedUserId,
-              month: todayDate.month,
-              year: todayDate.year,
+              month: 1,
+              year: 2022,
+            ),
+          ).called(1);
+          verify(
+            () => loadUserDaysFromMonthUseCase.execute(
+              userId: loggedUserId,
+              month: 12,
+              year: 2021,
+            ),
+          ).called(1);
+          verify(
+            () => loadUserDaysFromMonthUseCase.execute(
+              userId: loggedUserId,
+              month: 2,
+              year: 2022,
+            ),
+          ).called(1);
+        },
+      );
+
+      blocTest(
+        'should load all logged user books and days from current, previous and next months and then should assign these days to state with today date',
+        build: () => createBloc(),
+        setUp: () {
+          getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
+          loadAllUserBooksUseCase.mock();
+          dateProvider.mockGetNow(nowDateTime: todayDate);
+          when(
+            () => getUserDaysFromMonthUseCase.execute(
+              userId: loggedUserId,
+              month: 1,
+              year: 2022,
+            ),
+          ).thenAnswer((_) => Stream.value(userDaysFromCurrentMonth));
+          when(
+            () => getUserDaysFromMonthUseCase.execute(
+              userId: loggedUserId,
+              month: 12,
+              year: 2021,
+            ),
+          ).thenAnswer((_) => Stream.value(userDaysFromPreviousMonth));
+          when(
+            () => getUserDaysFromMonthUseCase.execute(
+              userId: loggedUserId,
+              month: 2,
+              year: 2022,
+            ),
+          ).thenAnswer((_) => Stream.value(userDaysFromNextMonth));
+        },
+        act: (CalendarBloc bloc) {
+          bloc.add(
+            const CalendarEventInitialize(),
+          );
+        },
+        expect: () => [
+          createState(
+            todayDate: todayDate,
+          ),
+          createState(
+            status: const BlocStatusComplete(),
+            todayDate: todayDate,
+            daysOfReading: [
+              ...userDaysFromPreviousMonth,
+              ...userDaysFromCurrentMonth,
+              ...userDaysFromNextMonth,
+            ],
+          ),
+        ],
+        verify: (_) async {
+          await Future.delayed(
+            const Duration(milliseconds: 300),
+          );
+          verify(
+            () => loadAllUserBooksUseCase.execute(
+              userId: loggedUserId,
+            ),
+          ).called(1);
+          verify(
+            () => loadUserDaysFromMonthUseCase.execute(
+              userId: loggedUserId,
+              month: 1,
+              year: 2022,
+            ),
+          ).called(1);
+          verify(
+            () => loadUserDaysFromMonthUseCase.execute(
+              userId: loggedUserId,
+              month: 12,
+              year: 2021,
+            ),
+          ).called(1);
+          verify(
+            () => loadUserDaysFromMonthUseCase.execute(
+              userId: loggedUserId,
+              month: 2,
+              year: 2022,
             ),
           ).called(1);
         },
@@ -153,71 +233,29 @@ void main() {
     },
   );
 
-  blocTest(
-    'previous month, logged user does not exist, should emit appropriate bloc status',
-    build: () => createBloc(),
-    setUp: () {
-      getLoggedUserIdUseCase.mock();
-    },
-    act: (CalendarBloc bloc) {
-      bloc.add(
-        const CalendarEventPreviousMonth(),
-      );
-    },
-    expect: () => [
-      createState(
-        status: const BlocStatusLoggedUserNotFound(),
-      ),
-    ],
-  );
-
   group(
-    'previous month, the same year',
+    'days of reading updated',
     () {
-      const int originalMonth = 5;
-      const int newMonth = 4;
-      const int year = 2022;
-      final List<Day> userDaysFromNewMonth = [
+      final List<Day> daysOfReading = [
         createDay(
-          userId: loggedUserId,
-          date: DateTime(year, newMonth, 20),
+          date: DateTime(2022, 10, 20),
         ),
         createDay(
-          userId: loggedUserId,
-          date: DateTime(year, newMonth, 18),
+          date: DateTime(2022, 10, 15),
         ),
       ];
 
       blocTest(
-        'should change number of displaying month one down and should load new logged user days from new month',
-        build: () => createBloc(
-          displayingMonth: originalMonth,
-          displayingYear: year,
-        ),
-        setUp: () {
-          getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
-          dateProvider.mockGetDateOfFirstDayInPreviousMonth(
-            dateOfFirstDayInPreviousMonth: DateTime(year, newMonth),
-          );
-          getUserDaysFromMonthUseCase.mock(
-            userDaysFromMonth: userDaysFromNewMonth,
-          );
-        },
+        'should update days of reading in state',
+        build: () => createBloc(),
         act: (CalendarBloc bloc) {
           bloc.add(
-            const CalendarEventPreviousMonth(),
+            CalendarEventDaysOfReadingUpdated(daysOfReading: daysOfReading),
           );
         },
         expect: () => [
           createState(
-            status: const BlocStatusLoading(),
-            displayingMonth: originalMonth,
-            displayingYear: year,
-          ),
-          createState(
-            displayingMonth: newMonth,
-            displayingYear: year,
-            userDaysFromMonth: userDaysFromNewMonth,
+            daysOfReading: daysOfReading,
           ),
         ],
       );
@@ -225,180 +263,116 @@ void main() {
   );
 
   group(
-    'previous month, previous year',
+    'month changed',
     () {
-      const int originalMonth = 1;
-      const int newMonth = 12;
-      const int originalYear = 2022;
-      const int newYear = 2021;
-      final List<Day> userDaysFromNewMonth = [
+      const String loggedUserId = 'u1';
+      const int month = 12;
+      const int year = 2021;
+      final List<Day> userDaysFromGivenMonth = [
         createDay(
-          userId: loggedUserId,
-          date: DateTime(newYear, newMonth, 20),
+          date: DateTime(year, month, 10),
         ),
         createDay(
-          userId: loggedUserId,
-          date: DateTime(newYear, newMonth, 18),
+          date: DateTime(year, month, 5),
+        ),
+      ];
+      final List<Day> userDaysFromPreviousMonth = [
+        createDay(
+          date: DateTime(year, month - 1, 23),
+        ),
+      ];
+      final List<Day> userDaysFromNextMonth = [
+        createDay(
+          date: DateTime(year, month + 1, 12),
         ),
       ];
 
       blocTest(
-        'should change number of displaying month one down and should load new logged user days from new month',
-        build: () => createBloc(
-          displayingMonth: originalMonth,
-          displayingYear: originalYear,
-        ),
+        'should emit appropriate info if logged user does not exist',
+        build: () => createBloc(),
         setUp: () {
-          getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
-          dateProvider.mockGetDateOfFirstDayInPreviousMonth(
-            dateOfFirstDayInPreviousMonth: DateTime(newYear, newMonth),
-          );
-          getUserDaysFromMonthUseCase.mock(
-            userDaysFromMonth: userDaysFromNewMonth,
-          );
+          getLoggedUserIdUseCase.mock();
         },
         act: (CalendarBloc bloc) {
           bloc.add(
-            const CalendarEventPreviousMonth(),
+            const CalendarEventMonthChanged(month: 1, year: 2022),
+          );
+        },
+        expect: () => [
+          createState(
+            status: const BlocStatusLoggedUserNotFound(),
+          ),
+        ],
+      );
+
+      blocTest(
+        'should load logged user days from given, previous and next months and should assign these days to state',
+        build: () => createBloc(),
+        setUp: () {
+          getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
+          loadUserDaysFromMonthUseCase.mock();
+          when(
+            () => getUserDaysFromMonthUseCase.execute(
+              userId: loggedUserId,
+              month: month,
+              year: year,
+            ),
+          ).thenAnswer((_) => Stream.value(userDaysFromGivenMonth));
+          when(
+            () => getUserDaysFromMonthUseCase.execute(
+              userId: loggedUserId,
+              month: 11,
+              year: 2021,
+            ),
+          ).thenAnswer((_) => Stream.value(userDaysFromPreviousMonth));
+          when(
+            () => getUserDaysFromMonthUseCase.execute(
+              userId: loggedUserId,
+              month: 1,
+              year: 2022,
+            ),
+          ).thenAnswer((_) => Stream.value(userDaysFromNextMonth));
+        },
+        act: (CalendarBloc bloc) {
+          bloc.add(
+            const CalendarEventMonthChanged(month: month, year: year),
           );
         },
         expect: () => [
           createState(
             status: const BlocStatusLoading(),
-            displayingMonth: originalMonth,
-            displayingYear: originalYear,
           ),
           createState(
-            displayingMonth: newMonth,
-            displayingYear: newYear,
-            userDaysFromMonth: userDaysFromNewMonth,
+            daysOfReading: [
+              ...userDaysFromPreviousMonth,
+              ...userDaysFromGivenMonth,
+              ...userDaysFromNextMonth,
+            ],
           ),
         ],
-      );
-    },
-  );
-
-  blocTest(
-    'next month, logged user does not exist, should emit appropriate bloc status',
-    build: () => createBloc(),
-    setUp: () {
-      getLoggedUserIdUseCase.mock();
-    },
-    act: (CalendarBloc bloc) {
-      bloc.add(
-        const CalendarEventNextMonth(),
-      );
-    },
-    expect: () => [
-      createState(
-        status: const BlocStatusLoggedUserNotFound(),
-      ),
-    ],
-  );
-
-  group(
-    'next month, the same year',
-    () {
-      const int originalMonth = 5;
-      const int newMonth = 6;
-      const int year = 2022;
-      final List<Day> userDaysFromNewMonth = [
-        createDay(
-          userId: loggedUserId,
-          date: DateTime(year, newMonth, 20),
-        ),
-        createDay(
-          userId: loggedUserId,
-          date: DateTime(year, newMonth, 18),
-        ),
-      ];
-
-      blocTest(
-        'should change number of displaying month one up and should load new logged user days from new month',
-        build: () => createBloc(
-          displayingMonth: originalMonth,
-          displayingYear: year,
-        ),
-        setUp: () {
-          getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
-          dateProvider.mockGetDateOfFirstDayInNextMonth(
-            dateOfFirstDayInNextMonth: DateTime(year, newMonth),
-          );
-          getUserDaysFromMonthUseCase.mock(
-            userDaysFromMonth: userDaysFromNewMonth,
-          );
+        verify: (_) {
+          verify(
+            () => loadUserDaysFromMonthUseCase.execute(
+              userId: loggedUserId,
+              month: month,
+              year: year,
+            ),
+          ).called(1);
+          verify(
+            () => getUserDaysFromMonthUseCase.execute(
+              userId: loggedUserId,
+              month: 11,
+              year: 2021,
+            ),
+          ).called(1);
+          verify(
+            () => getUserDaysFromMonthUseCase.execute(
+              userId: loggedUserId,
+              month: 1,
+              year: 2022,
+            ),
+          ).called(1);
         },
-        act: (CalendarBloc bloc) {
-          bloc.add(
-            const CalendarEventNextMonth(),
-          );
-        },
-        expect: () => [
-          createState(
-            status: const BlocStatusLoading(),
-            displayingMonth: originalMonth,
-            displayingYear: year,
-          ),
-          createState(
-            displayingMonth: newMonth,
-            displayingYear: year,
-            userDaysFromMonth: userDaysFromNewMonth,
-          ),
-        ],
-      );
-    },
-  );
-
-  group(
-    'next month, next year',
-    () {
-      const int originalMonth = 12;
-      const int newMonth = 1;
-      const int originalYear = 2022;
-      const int newYear = 2023;
-      final List<Day> userDaysFromNewMonth = [
-        createDay(
-          userId: loggedUserId,
-          date: DateTime(newYear, newMonth, 20),
-        ),
-        createDay(
-          userId: loggedUserId,
-          date: DateTime(newYear, newMonth, 18),
-        ),
-      ];
-
-      blocTest(
-        'should change number of displaying month one up and should load new logged user days from new month',
-        build: () => createBloc(
-          displayingMonth: originalMonth,
-          displayingYear: originalYear,
-        ),
-        setUp: () {
-          getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
-          dateProvider.mockGetDateOfFirstDayInNextMonth(
-            dateOfFirstDayInNextMonth: DateTime(newYear, newMonth),
-          );
-          getUserDaysFromMonthUseCase.mock(
-            userDaysFromMonth: userDaysFromNewMonth,
-          );
-        },
-        act: (CalendarBloc bloc) {
-          bloc.add(
-            const CalendarEventNextMonth(),
-          );
-        },
-        expect: () => [
-          createState(
-            status: const BlocStatusLoading(),
-            displayingMonth: originalMonth,
-            displayingYear: originalYear,
-          ),
-          createState(
-            displayingMonth: newMonth,
-            displayingYear: newYear,
-            userDaysFromMonth: userDaysFromNewMonth,
-          ),
-        ],
       );
     },
   );

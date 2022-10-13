@@ -1,7 +1,7 @@
 import 'package:app/domain/entities/user.dart';
 
 abstract class UserInterface {
-  Future<void> refreshUser({required String userId});
+  Future<void> initializeUser({required String userId});
 
   Stream<User?> getUser({required String userId});
 

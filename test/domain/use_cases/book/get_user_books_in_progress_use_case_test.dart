@@ -25,7 +25,7 @@ void main() {
         () => bookInterface.getBooksByUserId(userId: userId),
       ).thenAnswer((_) => Stream.value(userBooks));
 
-      final Stream<List<Book>> books$ = useCase.execute(userId: userId);
+      final Stream<List<Book>?> books$ = useCase.execute(userId: userId);
 
       expect(await books$.first, expectedBooks);
     },

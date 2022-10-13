@@ -8,10 +8,15 @@ class CalendarEventInitialize extends CalendarEvent {
   const CalendarEventInitialize();
 }
 
-class CalendarEventPreviousMonth extends CalendarEvent {
-  const CalendarEventPreviousMonth();
+class CalendarEventDaysOfReadingUpdated extends CalendarEvent {
+  final List<Day> daysOfReading;
+
+  const CalendarEventDaysOfReadingUpdated({required this.daysOfReading});
 }
 
-class CalendarEventNextMonth extends CalendarEvent {
-  const CalendarEventNextMonth();
+class CalendarEventMonthChanged extends CalendarEvent {
+  final int month;
+  final int year;
+
+  const CalendarEventMonthChanged({required this.month, required this.year});
 }

@@ -16,14 +16,14 @@ class LibraryBloc extends CustomBloc<LibraryEvent, LibraryState> {
   late final LoadAllUserBooksUseCase _loadAllUserBooksUseCase;
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
   late final GetAllUserBooksUseCase _getAllUserBooksUseCase;
-  StreamSubscription<List<Book>>? _booksListener;
+  StreamSubscription<List<Book>?>? _booksListener;
 
   LibraryBloc({
     required LoadAllUserBooksUseCase loadAllUserBooksUseCase,
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
     required GetAllUserBooksUseCase getAllUserBooksUseCase,
     BlocStatus status = const BlocStatusInitial(),
-    List<Book> books = const [],
+    List<Book>? books,
   }) : super(
           LibraryState(
             status: status,
@@ -47,14 +47,19 @@ class LibraryBloc extends CustomBloc<LibraryEvent, LibraryState> {
     LibraryEventInitialize event,
     Emitter<LibraryState> emit,
   ) async {
-    emitLoadingStatus(emit);
     final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
     if (loggedUserId == null) {
       emitLoggedUserNotFoundStatus(emit);
-    } else {
-      await _loadAllUserBooksUseCase.execute(userId: loggedUserId);
-      _setBooksListener(loggedUserId);
+      return;
     }
+    if (await _areLoggedUserBooksNotLoaded(loggedUserId)) {
+      emitLoadingStatus(emit);
+    }
+    _setBooksListener(loggedUserId);
+    await Future.delayed(
+      const Duration(milliseconds: 300),
+    );
+    await _loadAllUserBooksUseCase.execute(userId: loggedUserId);
   }
 
   void _booksUpdated(
@@ -66,12 +71,21 @@ class LibraryBloc extends CustomBloc<LibraryEvent, LibraryState> {
     ));
   }
 
+  Future<bool> _areLoggedUserBooksNotLoaded(String loggedUserId) async {
+    return await _getAllLoggedUserBooks(loggedUserId).first == null;
+  }
+
   void _setBooksListener(String loggedUserId) {
-    _booksListener ??=
-        _getAllUserBooksUseCase.execute(userId: loggedUserId).listen(
-              (List<Book> books) => add(
-                LibraryEventBooksUpdated(books: books),
-              ),
-            );
+    _booksListener ??= _getAllLoggedUserBooks(loggedUserId).listen(
+      (List<Book>? books) {
+        if (books != null) {
+          add(LibraryEventBooksUpdated(books: books));
+        }
+      },
+    );
+  }
+
+  Stream<List<Book>?> _getAllLoggedUserBooks(String loggedUserId) {
+    return _getAllUserBooksUseCase.execute(userId: loggedUserId);
   }
 }

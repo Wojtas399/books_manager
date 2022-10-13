@@ -19,7 +19,7 @@ void main() {
         () => bookInterface.getBookById(bookId: bookId),
       ).thenAnswer((_) => Stream.value(expectedBook));
 
-      final Stream<Book> book$ = useCase.execute(bookId: bookId);
+      final Stream<Book?> book$ = useCase.execute(bookId: bookId);
 
       expect(await book$.first, expectedBook);
     },

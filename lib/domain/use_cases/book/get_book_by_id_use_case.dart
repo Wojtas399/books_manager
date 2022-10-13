@@ -8,7 +8,7 @@ class GetBookByIdUseCase {
     _bookInterface = bookInterface;
   }
 
-  Stream<Book> execute({required String bookId}) {
+  Stream<Book?> execute({required String bookId}) {
     return _bookInterface.getBookById(bookId: bookId);
   }
 }

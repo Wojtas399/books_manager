@@ -47,7 +47,7 @@ void main() {
       final List<Day> expectedDays = [allUserDays[1], allUserDays[2]];
       dayInterface.mockGetUserDays(userDays: allUserDays);
 
-      final Stream<List<Day>> daysFromMonth$ = useCase.execute(
+      final Stream<List<Day>?> daysFromMonth$ = useCase.execute(
         userId: userId,
         month: 8,
         year: 2022,

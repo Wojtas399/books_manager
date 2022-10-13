@@ -9,14 +9,14 @@ class GetUserDaysFromMonthUseCase {
     _dayInterface = dayInterface;
   }
 
-  Stream<List<Day>> execute({
+  Stream<List<Day>?> execute({
     required String userId,
     required int month,
     required int year,
   }) {
     return _dayInterface.getUserDays(userId: userId).map(
-          (List<Day> userDays) => userDays
-              .where(
+          (List<Day>? userDays) => userDays
+              ?.where(
                 (Day day) => DateUtils.isDateFromMonthAndYear(
                   date: day.date,
                   month: month,

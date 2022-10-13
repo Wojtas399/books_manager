@@ -3,9 +3,9 @@ import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockBookInterface extends Mock implements BookInterface {
-  void mockRefreshUserBooks() {
+  void mockInitializeForUser() {
     when(
-      () => refreshUserBooks(
+      () => initializeForUser(
         userId: any(named: 'userId'),
       ),
     ).thenAnswer((_) async => '');
@@ -19,7 +19,7 @@ class MockBookInterface extends Mock implements BookInterface {
     ).thenAnswer((_) => Stream.value(book));
   }
 
-  void mockGetBooksByUserId({required List<Book> books}) {
+  void mockGetBooksByUserId({List<Book>? books}) {
     when(
       () => getBooksByUserId(
         userId: any(named: 'userId'),

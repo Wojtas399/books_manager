@@ -1,21 +1,21 @@
-import 'package:app/config/navigation.dart';
+import 'package:app/components/calendar_component/calendar_component.dart';
 import 'package:app/config/themes/app_colors.dart';
-import 'package:app/features/calendar/bloc/calendar_bloc.dart';
-import 'package:app/features/day_preview/day_preview_screen.dart';
 import 'package:flutter/material.dart';
 
-class CalendarDayCard extends StatelessWidget {
-  final CalendarDay day;
+class CalendarComponentDayCard extends StatelessWidget {
+  final CalendarComponentDay day;
+  final Function(DateTime date)? onDayPressed;
 
-  const CalendarDayCard({
+  const CalendarComponentDayCard({
     super.key,
     required this.day,
+    this.onDayPressed,
   });
 
   @override
   Widget build(BuildContext context) {
     return _Card(
-      onPressed: _onDayPressed,
+      onPressed: _onPressed,
       isDayDisabled: day.isDisabled,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -25,19 +25,17 @@ class CalendarDayCard extends StatelessWidget {
             number: day.date.day,
             isMarkedAsTodayDay: day.isTodayDay,
           ),
-          day.readBooks.isNotEmpty ? const _ReadBooksMark() : const SizedBox(),
+          day.isMarked ? const _ReadBooksMark() : const SizedBox(),
         ],
       ),
     );
   }
 
-  void _onDayPressed() {
-    Navigation.navigateToDayPreview(
-      dayPreviewScreenArguments: DayPreviewScreenArguments(
-        date: day.date,
-        readBooks: day.readBooks,
-      ),
-    );
+  void _onPressed() {
+    final Function(DateTime date)? onDayPressed = this.onDayPressed;
+    if (onDayPressed != null) {
+      onDayPressed(day.date);
+    }
   }
 }
 

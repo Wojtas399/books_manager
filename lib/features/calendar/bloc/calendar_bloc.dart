@@ -8,8 +8,6 @@ import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/custom_bloc.dart';
 import 'package:app/providers/date_provider.dart';
-import 'package:app/utils/date_utils.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'calendar_event.dart';
@@ -30,16 +28,12 @@ class CalendarBloc extends CustomBloc<CalendarEvent, CalendarState> {
     required GetUserDaysFromMonthUseCase getUserDaysFromMonthUseCase,
     BlocStatus status = const BlocStatusInitial(),
     DateTime? todayDate,
-    int? displayingMonth,
-    int? displayingYear,
-    List<Day> userDaysFromMonth = const [],
+    List<Day> daysOfReading = const [],
   }) : super(
           CalendarState(
             status: status,
             todayDate: todayDate,
-            displayingMonth: displayingMonth,
-            displayingYear: displayingYear,
-            userDaysFromMonth: userDaysFromMonth,
+            daysOfReading: daysOfReading,
           ),
         ) {
     _dateProvider = dateProvider;
@@ -48,8 +42,7 @@ class CalendarBloc extends CustomBloc<CalendarEvent, CalendarState> {
     _loadUserDaysFromMonthUseCase = loadUserDaysFromMonthUseCase;
     _getUserDaysFromMonthUseCase = getUserDaysFromMonthUseCase;
     on<CalendarEventInitialize>(_initialize);
-    on<CalendarEventPreviousMonth>(_previousMonth);
-    on<CalendarEventNextMonth>(_nextMonth);
+    on<CalendarEventMonthChanged>(_monthChanged);
   }
 
   Future<void> _initialize(
@@ -64,108 +57,109 @@ class CalendarBloc extends CustomBloc<CalendarEvent, CalendarState> {
     }
     final DateTime todayDate = _dateProvider.getNow();
     await _loadAllUserBooksUseCase.execute(userId: loggedUserId);
-    await _loadLoggedUserDaysFromDateMonth(loggedUserId, todayDate);
-    final List<Day> userDaysFromMonth =
-        await _getLoggedUserDaysFromDateMonth(loggedUserId, todayDate);
+    await _loadLoggedUserDaysFromGivenMonthPreviousAndNext(
+      loggedUserId,
+      todayDate.month,
+      todayDate.year,
+    );
+    final List<Day> daysOfReading =
+        await _getLoggedUserDaysFromGivenMonthPreviousAndNext(
+      loggedUserId,
+      todayDate.month,
+      todayDate.year,
+    );
     emit(state.copyWith(
       todayDate: todayDate,
-      displayingMonth: todayDate.month,
-      displayingYear: todayDate.year,
-      userDaysFromMonth: userDaysFromMonth,
+      daysOfReading: daysOfReading,
     ));
   }
 
-  Future<void> _previousMonth(
-    CalendarEventPreviousMonth event,
+  Future<void> _monthChanged(
+    CalendarEventMonthChanged event,
     Emitter<CalendarState> emit,
   ) async {
     final String? loggedUserId = await _getLoggedUserId();
-    final int? displayingMonth = state.displayingMonth;
-    final int? displayingYear = state.displayingYear;
     if (loggedUserId == null) {
       emitLoggedUserNotFoundStatus(emit);
       return;
     }
-    if (displayingMonth != null && displayingYear != null) {
-      final DateTime dateOfFirstDayInPreviousMonth =
-          _dateProvider.getDateOfFirstDayInPreviousMonth(
-        month: displayingMonth,
-        year: displayingYear,
-      );
-      await _loadDaysForMonthFromDate(
-        dateOfFirstDayInPreviousMonth,
-        loggedUserId,
-        emit,
-      );
-    }
-  }
-
-  Future<void> _nextMonth(
-    CalendarEventNextMonth event,
-    Emitter<CalendarState> emit,
-  ) async {
-    final String? loggedUserId = await _getLoggedUserId();
-    final int? displayingMonth = state.displayingMonth;
-    final int? displayingYear = state.displayingYear;
-    if (loggedUserId == null) {
-      emitLoggedUserNotFoundStatus(emit);
-      return;
-    }
-    if (displayingMonth != null && displayingYear != null) {
-      final DateTime dateOfFirstDayInNextMonth =
-          _dateProvider.getDateOfFirstDayInNextMonth(
-        month: displayingMonth,
-        year: displayingYear,
-      );
-      await _loadDaysForMonthFromDate(
-        dateOfFirstDayInNextMonth,
-        loggedUserId,
-        emit,
-      );
-    }
+    emitLoadingStatus(emit);
+    await _loadLoggedUserDaysFromGivenMonthPreviousAndNext(
+      loggedUserId,
+      event.month,
+      event.year,
+    );
+    final List<Day> daysOfReading =
+        await _getLoggedUserDaysFromGivenMonthPreviousAndNext(
+      loggedUserId,
+      event.month,
+      event.year,
+    );
+    emit(state.copyWith(
+      daysOfReading: daysOfReading,
+    ));
   }
 
   Future<String?> _getLoggedUserId() async {
     return await _getLoggedUserIdUseCase.execute().first;
   }
 
-  Future<void> _loadDaysForMonthFromDate(
-    DateTime date,
+  Future<void> _loadLoggedUserDaysFromGivenMonthPreviousAndNext(
     String loggedUserId,
-    Emitter<CalendarState> emit,
+    int month,
+    int year,
   ) async {
-    emitLoadingStatus(emit);
-    await _loadLoggedUserDaysFromDateMonth(loggedUserId, date);
-    final List<Day> userDaysFromMonth =
-        await _getLoggedUserDaysFromDateMonth(loggedUserId, date);
-    emit(state.copyWith(
-      displayingMonth: date.month,
-      displayingYear: date.year,
-      userDaysFromMonth: userDaysFromMonth,
-    ));
-  }
-
-  Future<void> _loadLoggedUserDaysFromDateMonth(
-    String loggedUserId,
-    DateTime date,
-  ) async {
+    final DateTime previousMonthDate = DateTime(year, month - 1);
+    final DateTime nextMonthDate = DateTime(year, month + 1);
     await _loadUserDaysFromMonthUseCase.execute(
       userId: loggedUserId,
-      month: date.month,
-      year: date.year,
+      month: month,
+      year: year,
+    );
+    await _loadUserDaysFromMonthUseCase.execute(
+      userId: loggedUserId,
+      month: previousMonthDate.month,
+      year: previousMonthDate.year,
+    );
+    await _loadUserDaysFromMonthUseCase.execute(
+      userId: loggedUserId,
+      month: nextMonthDate.month,
+      year: nextMonthDate.year,
     );
   }
 
-  Future<List<Day>> _getLoggedUserDaysFromDateMonth(
+  Future<List<Day>> _getLoggedUserDaysFromGivenMonthPreviousAndNext(
     String loggedUserId,
-    DateTime date,
+    int month,
+    int year,
   ) async {
-    return await _getUserDaysFromMonthUseCase
+    final DateTime previousMonthDate = DateTime(year, month - 1);
+    final DateTime nextMonthDate = DateTime(year, month + 1);
+    final List<Day> daysFromGivenMonth = await _getUserDaysFromMonthUseCase
         .execute(
           userId: loggedUserId,
-          month: date.month,
-          year: date.year,
+          month: month,
+          year: year,
         )
         .first;
+    final List<Day> daysFromPreviousMonth = await _getUserDaysFromMonthUseCase
+        .execute(
+          userId: loggedUserId,
+          month: previousMonthDate.month,
+          year: previousMonthDate.year,
+        )
+        .first;
+    final List<Day> daysFromNextMonth = await _getUserDaysFromMonthUseCase
+        .execute(
+          userId: loggedUserId,
+          month: nextMonthDate.month,
+          year: nextMonthDate.year,
+        )
+        .first;
+    return [
+      ...daysFromPreviousMonth,
+      ...daysFromGivenMonth,
+      ...daysFromNextMonth,
+    ];
   }
 }

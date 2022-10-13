@@ -11,9 +11,7 @@ void main() {
     state = CalendarState(
       status: const BlocStatusInitial(),
       todayDate: DateTime(2022, 9, 20),
-      displayingMonth: 9,
-      displayingYear: 2022,
-      userDaysFromMonth: const [],
+      daysOfReading: const [],
     );
   });
 
@@ -44,35 +42,9 @@ void main() {
   );
 
   test(
-    'copy with displaying month',
+    'copy with days of reading',
     () {
-      const int expectedDisplayingMonth = 8;
-
-      state = state.copyWith(displayingMonth: expectedDisplayingMonth);
-      final state2 = state.copyWith();
-
-      expect(state.displayingMonth, expectedDisplayingMonth);
-      expect(state2.displayingMonth, expectedDisplayingMonth);
-    },
-  );
-
-  test(
-    'copy with displaying year',
-    () {
-      const int expectedDisplayingYear = 2021;
-
-      state = state.copyWith(displayingYear: expectedDisplayingYear);
-      final state2 = state.copyWith();
-
-      expect(state.displayingYear, expectedDisplayingYear);
-      expect(state2.displayingYear, expectedDisplayingYear);
-    },
-  );
-
-  test(
-    'copy with user days from month',
-    () {
-      final List<Day> expectedUserDaysFromMonth = [
+      final List<Day> expectedDaysOfReading = [
         createDay(
           userId: 'u1',
           date: DateTime(2022, 9, 20),
@@ -89,11 +61,77 @@ void main() {
         ),
       ];
 
-      state = state.copyWith(userDaysFromMonth: expectedUserDaysFromMonth);
+      state = state.copyWith(daysOfReading: expectedDaysOfReading);
       final state2 = state.copyWith();
 
-      expect(state.userDaysFromMonth, expectedUserDaysFromMonth);
-      expect(state2.userDaysFromMonth, expectedUserDaysFromMonth);
+      expect(state.daysOfReading, expectedDaysOfReading);
+      expect(state2.daysOfReading, expectedDaysOfReading);
+    },
+  );
+
+  test(
+    'dates of user days of reading, should return dates of days of reading',
+    () {
+      final List<Day> userDays = [
+        createDay(
+          date: DateTime(2022, 10, 5),
+        ),
+        createDay(
+          date: DateTime(2022, 10, 3),
+        ),
+        createDay(
+          date: DateTime(2022, 10, 1),
+        ),
+      ];
+      final List<DateTime> expectedDates = [
+        DateTime(2022, 10, 5),
+        DateTime(2022, 10, 3),
+        DateTime(2022, 10, 1),
+      ];
+      state = state.copyWith(daysOfReading: userDays);
+
+      final List<DateTime> dates = state.datesOfDaysOfReading;
+
+      expect(dates, expectedDates);
+    },
+  );
+
+  test(
+    'get read books from day, should return read books from given date',
+    () {
+      final DateTime date = DateTime(2022, 10, 2);
+      final List<Day> userDays = [
+        createDay(
+          date: DateTime(2022, 10, 5),
+          readBooks: [
+            createReadBook(bookId: 'b1', readPagesAmount: 20),
+            createReadBook(bookId: 'b2', readPagesAmount: 100),
+          ],
+        ),
+        createDay(
+          date: DateTime(2022, 10, 2),
+          readBooks: [
+            createReadBook(bookId: 'b1', readPagesAmount: 200),
+          ],
+        ),
+      ];
+      final List<ReadBook> expectedReadBooks = userDays.last.readBooks;
+      state = state.copyWith(daysOfReading: userDays);
+
+      final List<ReadBook> readBooks = state.getReadBooksFromDay(date);
+
+      expect(readBooks, expectedReadBooks);
+    },
+  );
+
+  test(
+    'get read books from day, should return empty list if user did not read any books in given date',
+    () {
+      final DateTime date = DateTime(2022, 10, 2);
+
+      final List<ReadBook> readBooks = state.getReadBooksFromDay(date);
+
+      expect(readBooks, []);
     },
   );
 }

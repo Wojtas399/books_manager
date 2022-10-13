@@ -53,7 +53,7 @@ class UserRemoteDbService {
       isDarkModeOn: user.isDarkModeOn,
       isDarkModeCompatibilityWithSystemOn:
           user.isDarkModeCompatibilityWithSystemOn,
-      daysOfReading: [],
+      daysOfReading: const [],
     );
   }
 }

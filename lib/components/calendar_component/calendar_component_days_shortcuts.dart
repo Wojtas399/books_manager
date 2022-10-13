@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class CalendarDaysShortcuts extends StatelessWidget {
-  const CalendarDaysShortcuts({super.key});
+class CalendarComponentDaysShortcuts extends StatelessWidget {
+  const CalendarComponentDaysShortcuts({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -29,7 +29,7 @@ class _CalendarComponent extends StatelessWidget {
     final DateTime? initialDate = context.select(
       (CalendarBloc bloc) => bloc.state.todayDate,
     );
-    final List<DateTime> markedDates = context.select(
+    final List<DateTime>? markedDates = context.select(
       (CalendarBloc bloc) => bloc.state.datesOfDaysOfReading,
     );
 
@@ -38,7 +38,7 @@ class _CalendarComponent extends StatelessWidget {
     }
     return CalendarComponent(
       initialDate: initialDate,
-      markedDays: markedDates,
+      markedDays: markedDates ?? [],
       onMonthChanged: (int month, int year) =>
           _onMonthChanged(month, year, context),
       onDayPressed: (DateTime date) => _onDatePressed(date, context),

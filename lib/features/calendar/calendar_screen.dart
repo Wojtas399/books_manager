@@ -1,3 +1,4 @@
+import 'package:app/components/custom_bloc_listener.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/interfaces/day_interface.dart';
@@ -17,7 +18,9 @@ class CalendarScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const _CalendarBlocProvider(
-      child: CalendarContent(),
+      child: _CalendarBlocListener(
+        child: CalendarContent(),
+      ),
     );
   }
 }
@@ -47,6 +50,19 @@ class _CalendarBlocProvider extends StatelessWidget {
       )..add(
           const CalendarEventInitialize(),
         ),
+      child: child,
+    );
+  }
+}
+
+class _CalendarBlocListener extends StatelessWidget {
+  final Widget child;
+
+  const _CalendarBlocListener({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomBlocListener<CalendarBloc, CalendarState, dynamic, dynamic>(
       child: child,
     );
   }

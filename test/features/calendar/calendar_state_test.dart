@@ -90,7 +90,7 @@ void main() {
       ];
       state = state.copyWith(daysOfReading: userDays);
 
-      final List<DateTime> dates = state.datesOfDaysOfReading;
+      final List<DateTime>? dates = state.datesOfDaysOfReading;
 
       expect(dates, expectedDates);
     },

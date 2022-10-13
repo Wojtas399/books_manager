@@ -2,7 +2,7 @@ part of 'calendar_bloc.dart';
 
 class CalendarState extends BlocState {
   final DateTime? todayDate;
-  final List<Day> daysOfReading;
+  final List<Day>? daysOfReading;
 
   const CalendarState({
     required super.status,
@@ -14,7 +14,7 @@ class CalendarState extends BlocState {
   List<Object> get props => [
         status,
         todayDate ?? '',
-        daysOfReading,
+        daysOfReading ?? '',
       ];
 
   @override
@@ -30,11 +30,11 @@ class CalendarState extends BlocState {
     );
   }
 
-  List<DateTime> get datesOfDaysOfReading =>
-      daysOfReading.map((Day day) => day.date).toList();
+  List<DateTime>? get datesOfDaysOfReading =>
+      daysOfReading?.map((Day day) => day.date).toList();
 
   List<ReadBook> getReadBooksFromDay(DateTime date) {
-    final List<Day?> days = [...daysOfReading];
+    final List<Day?> days = [...?daysOfReading];
     final Day? day = days.firstWhere(
       (Day? day) => day?.date == date,
       orElse: () => null,

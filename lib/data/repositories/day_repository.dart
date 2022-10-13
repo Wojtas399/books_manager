@@ -13,14 +13,14 @@ class DayRepository implements DayInterface {
   late final DayLocalDbService _dayLocalDbService;
   late final DayRemoteDbService _dayRemoteDbService;
   late final Device _device;
-  final BehaviorSubject<List<Day>> _days$ = BehaviorSubject();
+  final BehaviorSubject<List<Day>?> _days$ = BehaviorSubject();
 
   DayRepository({
     required DaySynchronizer daySynchronizer,
     required DayLocalDbService dayLocalDbService,
     required DayRemoteDbService dayRemoteDbService,
     required Device device,
-    List<Day> days = const [],
+    List<Day>? days,
   }) {
     _daySynchronizer = daySynchronizer;
     _dayLocalDbService = dayLocalDbService;
@@ -29,13 +29,13 @@ class DayRepository implements DayInterface {
     _days$.add(days);
   }
 
-  Stream<List<Day>> get _daysStream$ => _days$.stream;
+  Stream<List<Day>?> get _daysStream$ => _days$.stream;
 
   @override
-  Stream<List<Day>> getUserDays({required String userId}) {
+  Stream<List<Day>?> getUserDays({required String userId}) {
     return _daysStream$.map(
-      (List<Day> days) => days
-          .where(
+      (List<Day>? days) => days
+          ?.where(
             (Day day) => day.userId == userId,
           )
           .toList(),
@@ -90,7 +90,7 @@ class DayRepository implements DayInterface {
       amountOfReadPagesToAdd: amountOfReadPagesToAdd,
       withModifiedSyncState: shouldModifySyncStateInLocalDb,
     );
-    if (_days$.value.containsUserDay(userId: userId, date: date)) {
+    if (_days$.value?.containsUserDay(userId: userId, date: date) == true) {
       _updateDayInList(updatedDay);
     } else {
       _addDaysToList([updatedDay]);
@@ -98,7 +98,7 @@ class DayRepository implements DayInterface {
   }
 
   void _addDaysToList(List<Day> daysToAdd) {
-    final List<Day> updatedDays = [..._days$.value];
+    final List<Day> updatedDays = [...?_days$.value];
     updatedDays.addAll(daysToAdd);
     _days$.add(
       updatedDays.removeRepetitions(),
@@ -106,7 +106,7 @@ class DayRepository implements DayInterface {
   }
 
   void _updateDayInList(Day updatedDay) {
-    final List<Day> updatedDays = [..._days$.value];
+    final List<Day> updatedDays = [...?_days$.value];
     final int dayIndex = updatedDays.indexOfUserDay(
       userId: updatedDay.userId,
       date: updatedDay.date,

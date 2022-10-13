@@ -55,7 +55,7 @@ void main() {
       final List<Day> expectedDays = [days.first, days.last];
       repository = createRepository(days: days);
 
-      final Stream<List<Day>> days$ = repository.getUserDays(userId: userId);
+      final Stream<List<Day>?> days$ = repository.getUserDays(userId: userId);
 
       expect(await days$.first, expectedDays);
     },
@@ -170,7 +170,7 @@ void main() {
         month: month,
         year: year,
       );
-      final Stream<List<Day>> userDaysFromMonth$ = repository.getUserDays(
+      final Stream<List<Day>?> userDaysFromMonth$ = repository.getUserDays(
         userId: userId,
       );
 
@@ -235,7 +235,7 @@ void main() {
           dayLocalDbService.mockAddNewReadPages(updatedDay: updatedDay);
 
           await callAddNewReadPagesMethod();
-          final Stream<List<Day>> userDays$ = repository.getUserDays(
+          final Stream<List<Day>?> userDays$ = repository.getUserDays(
             userId: userId,
           );
 
@@ -287,7 +287,7 @@ void main() {
           repository = createRepository(days: userDays);
 
           await callAddNewReadPagesMethod();
-          final Stream<List<Day>> userDays$ = repository.getUserDays(
+          final Stream<List<Day>?> userDays$ = repository.getUserDays(
             userId: userId,
           );
 

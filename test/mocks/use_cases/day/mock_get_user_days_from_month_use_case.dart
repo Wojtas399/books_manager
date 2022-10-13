@@ -4,7 +4,7 @@ import 'package:mocktail/mocktail.dart';
 
 class MockGetUserDaysFromMonthUseCase extends Mock
     implements GetUserDaysFromMonthUseCase {
-  void mock({required List<Day> userDaysFromMonth}) {
+  void mock({List<Day>? userDaysFromMonth}) {
     when(
       () => execute(
         userId: any(named: 'userId'),

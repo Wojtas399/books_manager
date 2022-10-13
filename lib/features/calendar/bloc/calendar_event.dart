@@ -8,6 +8,12 @@ class CalendarEventInitialize extends CalendarEvent {
   const CalendarEventInitialize();
 }
 
+class CalendarEventDaysOfReadingUpdated extends CalendarEvent {
+  final List<Day> daysOfReading;
+
+  const CalendarEventDaysOfReadingUpdated({required this.daysOfReading});
+}
+
 class CalendarEventMonthChanged extends CalendarEvent {
   final int month;
   final int year;

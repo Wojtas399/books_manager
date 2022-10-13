@@ -247,9 +247,6 @@ class BookRepository implements BookInterface {
   }
 
   void _addNewBooksToList(List<Book> books) {
-    if (books.isEmpty) {
-      return;
-    }
     List<Book> updatedCollection = [...?_books$.value];
     updatedCollection.addAll(books);
     _books$.add(updatedCollection.removeRepetitions());

@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.books_manager_mobile">
    <application
-        android:label="books_manager_mobile"
+        android:label="BooksManagerMobile"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

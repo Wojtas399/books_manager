@@ -1,4 +1,5 @@
-![Logo](https://user-images.githubusercontent.com/72093398/195818149-d6616a36-ebc4-4e55-92a7-18586b8264be.png)
+![Logo_no_background](https://user-images.githubusercontent.com/72093398/195819297-63db97a8-eedc-4695-a435-a533e01f41c1.png)
+
 
 
 # Books manager mobile

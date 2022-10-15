@@ -1,12 +1,11 @@
-import 'package:equatable/equatable.dart';
+import 'package:app/models/entity.dart';
 
-class User extends Equatable {
-  final String id;
+class User extends Entity {
   final bool isDarkModeOn;
   final bool isDarkModeCompatibilityWithSystemOn;
 
   const User({
-    required this.id,
+    required super.id,
     required this.isDarkModeOn,
     required this.isDarkModeCompatibilityWithSystemOn,
   });

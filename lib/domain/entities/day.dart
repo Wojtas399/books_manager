@@ -1,7 +1,7 @@
 import 'package:app/domain/entities/read_book.dart';
-import 'package:equatable/equatable.dart';
+import 'package:app/models/entity.dart';
 
-class Day extends Equatable {
+class Day extends Entity {
   final String userId;
   final DateTime date;
   final List<ReadBook> readBooks;
@@ -10,10 +10,11 @@ class Day extends Equatable {
     required this.userId,
     required this.date,
     required this.readBooks,
-  });
+  }) : super(id: '$userId-$date');
 
   @override
   List<Object> get props => [
+        id,
         userId,
         date,
         readBooks,

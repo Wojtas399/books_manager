@@ -2,7 +2,8 @@ import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CustomBloc<Event, State extends BlocState> extends Bloc<Event, State> {
+abstract class CustomBloc<Event, State extends BlocState>
+    extends Bloc<Event, State> {
   CustomBloc(super.initialState);
 
   void emitLoadingStatus(Emitter<State> emit) {

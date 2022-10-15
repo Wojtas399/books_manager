@@ -1,9 +1,8 @@
 import 'dart:typed_data';
 
-import 'package:equatable/equatable.dart';
+import 'package:app/models/entity.dart';
 
-class Book extends Equatable {
-  final String id;
+class Book extends Entity {
   final String userId;
   final BookStatus status;
   final Uint8List? imageData;
@@ -13,7 +12,7 @@ class Book extends Equatable {
   final int allPagesAmount;
 
   const Book({
-    required this.id,
+    required super.id,
     required this.userId,
     required this.status,
     required this.imageData,

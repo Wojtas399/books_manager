@@ -4,32 +4,31 @@ import 'package:app/data/data_sources/remote_db/user_remote_db_service.dart';
 import 'package:app/data/synchronizers/user_synchronizer.dart';
 import 'package:app/domain/entities/user.dart';
 import 'package:app/domain/interfaces/user_interface.dart';
-import 'package:app/extensions/list_extensions.dart';
 import 'package:app/models/device.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:app/models/repository.dart';
 
-class UserRepository implements UserInterface {
+class UserRepository extends Repository<User> implements UserInterface {
   late final UserSynchronizer _userSynchronizer;
   late final UserLocalDbService _userLocalDbService;
   late final UserRemoteDbService _userRemoteDbService;
   late final Device _device;
-  final BehaviorSubject<List<User>> _users$ = BehaviorSubject<List<User>>();
 
   UserRepository({
     required UserSynchronizer userSynchronizer,
     required UserLocalDbService userLocalDbService,
     required UserRemoteDbService userRemoteDbService,
     required Device device,
-    List<User> users = const [],
+    List<User>? users,
   }) {
     _userSynchronizer = userSynchronizer;
     _userLocalDbService = userLocalDbService;
     _userRemoteDbService = userRemoteDbService;
     _device = device;
-    _users$.add(users);
-  }
 
-  Stream<List<User>> get _usersStream$ => _users$.stream;
+    if (users != null) {
+      addEntities(users);
+    }
+  }
 
   @override
   Future<void> initializeUser({required String userId}) async {
@@ -40,9 +39,9 @@ class UserRepository implements UserInterface {
 
   @override
   Stream<User?> getUser({required String userId}) {
-    return _usersStream$.map(
-      (List<User> users) {
-        final List<User?> allUsers = [...users];
+    return stream.map(
+      (List<User>? users) {
+        final List<User?> allUsers = [...?users];
         return allUsers.firstWhere(
           (User? user) => user?.id == userId,
           orElse: () => null,
@@ -54,7 +53,7 @@ class UserRepository implements UserInterface {
   @override
   Future<void> loadUser({required String userId}) async {
     final User user = await _userLocalDbService.loadUser(userId: userId);
-    _addUserToList(user);
+    addEntity(user);
   }
 
   @override
@@ -65,7 +64,7 @@ class UserRepository implements UserInterface {
       syncState = SyncState.none;
     }
     await _userLocalDbService.addUser(user: user, syncState: syncState);
-    _addUserToList(user);
+    addEntity(user);
   }
 
   @override
@@ -82,7 +81,7 @@ class UserRepository implements UserInterface {
       isDarkModeOn: isDarkModeOn,
       isDarkModeCompatibilityWithSystemOn: isDarkModeCompatibilityWithSystemOn,
     );
-    _updateUserInList(updatedUser);
+    updateEntity(updatedUser);
     try {
       await _tryUpdateUserThemeSettings(
         userId,
@@ -90,7 +89,7 @@ class UserRepository implements UserInterface {
         isDarkModeCompatibilityWithSystemOn,
       );
     } catch (_) {
-      _updateUserInList(originalUser);
+      updateEntity(originalUser);
     }
   }
 
@@ -105,7 +104,7 @@ class UserRepository implements UserInterface {
         syncState: SyncState.deleted,
       );
     }
-    _deleteUserFromList(userId);
+    removeEntity(userId);
   }
 
   Future<void> _tryUpdateUserThemeSettings(
@@ -128,33 +127,6 @@ class UserRepository implements UserInterface {
       isDarkModeOn: isDarkModeOn,
       isDarkModeCompatibilityWithSystemOn: isDarkModeCompatibilityWithSystemOn,
       syncState: syncState,
-    );
-  }
-
-  void _addUserToList(User user) {
-    final List<User> users = [..._users$.value];
-    users.add(user);
-    _users$.add(
-      users.removeRepetitions(),
-    );
-  }
-
-  void _updateUserInList(User updatedUser) {
-    final List<User> users = [..._users$.value];
-    final int index = users.indexWhere(
-      (User user) => user.id == updatedUser.id,
-    );
-    users[index] = updatedUser;
-    _users$.add(
-      users.removeRepetitions(),
-    );
-  }
-
-  void _deleteUserFromList(String userId) {
-    final List<User> users = [..._users$.value];
-    users.removeWhere((User user) => user.id == userId);
-    _users$.add(
-      users.removeRepetitions(),
     );
   }
 }

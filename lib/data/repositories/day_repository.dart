@@ -4,16 +4,14 @@ import 'package:app/data/mappers/date_mapper.dart';
 import 'package:app/data/synchronizers/day_synchronizer.dart';
 import 'package:app/domain/entities/day.dart';
 import 'package:app/domain/interfaces/day_interface.dart';
-import 'package:app/extensions/list_extensions.dart';
 import 'package:app/models/device.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:app/models/repository.dart';
 
-class DayRepository implements DayInterface {
+class DayRepository extends Repository<Day> implements DayInterface {
   late final DaySynchronizer _daySynchronizer;
   late final DayLocalDbService _dayLocalDbService;
   late final DayRemoteDbService _dayRemoteDbService;
   late final Device _device;
-  final BehaviorSubject<List<Day>?> _days$ = BehaviorSubject();
 
   DayRepository({
     required DaySynchronizer daySynchronizer,
@@ -26,14 +24,15 @@ class DayRepository implements DayInterface {
     _dayLocalDbService = dayLocalDbService;
     _dayRemoteDbService = dayRemoteDbService;
     _device = device;
-    _days$.add(days);
-  }
 
-  Stream<List<Day>?> get _daysStream$ => _days$.stream;
+    if (days != null) {
+      addEntities(days);
+    }
+  }
 
   @override
   Stream<List<Day>?> getUserDays({required String userId}) {
-    return _daysStream$.map(
+    return stream.map(
       (List<Day>? days) => days
           ?.where(
             (Day day) => day.userId == userId,
@@ -62,7 +61,7 @@ class DayRepository implements DayInterface {
       month: month,
       year: year,
     );
-    _addDaysToList(userDays);
+    addEntities(userDays);
   }
 
   @override
@@ -90,31 +89,11 @@ class DayRepository implements DayInterface {
       amountOfReadPagesToAdd: amountOfReadPagesToAdd,
       withModifiedSyncState: shouldModifySyncStateInLocalDb,
     );
-    if (_days$.value?.containsUserDay(userId: userId, date: date) == true) {
-      _updateDayInList(updatedDay);
+    if (value?.containsUserDay(userId: userId, date: date) == true) {
+      updateEntity(updatedDay);
     } else {
-      _addDaysToList([updatedDay]);
+      addEntity(updatedDay);
     }
-  }
-
-  void _addDaysToList(List<Day> daysToAdd) {
-    final List<Day> updatedDays = [...?_days$.value];
-    updatedDays.addAll(daysToAdd);
-    _days$.add(
-      updatedDays.removeRepetitions(),
-    );
-  }
-
-  void _updateDayInList(Day updatedDay) {
-    final List<Day> updatedDays = [...?_days$.value];
-    final int dayIndex = updatedDays.indexOfUserDay(
-      userId: updatedDay.userId,
-      date: updatedDay.date,
-    );
-    updatedDays[dayIndex] = updatedDay;
-    _days$.add(
-      updatedDays.removeRepetitions(),
-    );
   }
 }
 

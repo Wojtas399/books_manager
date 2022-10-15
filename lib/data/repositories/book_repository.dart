@@ -38,8 +38,6 @@ class BookRepository extends Repository<Book> implements BookInterface {
     }
   }
 
-  Stream<List<Book>?> get _booksStream$ => stream;
-
   @override
   Future<void> initializeForUser({required String userId}) async {
     if (await _device.hasInternetConnection()) {
@@ -56,7 +54,7 @@ class BookRepository extends Repository<Book> implements BookInterface {
 
   @override
   Stream<Book?> getBookById({required String bookId}) {
-    return _booksStream$.map(
+    return stream.map(
       (List<Book>? books) {
         if (books == null) {
           return null;
@@ -72,7 +70,7 @@ class BookRepository extends Repository<Book> implements BookInterface {
 
   @override
   Stream<List<Book>?> getBooksByUserId({required String userId}) {
-    return _booksStream$.map(
+    return stream.map(
       (List<Book>? books) {
         return books?.where((Book book) => book.belongsTo(userId)).toList();
       },

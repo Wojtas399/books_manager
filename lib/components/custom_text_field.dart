@@ -30,7 +30,7 @@ class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      decoration: MaterialTextFieldTheme.basic(
+      decoration: MaterialTextFieldTheme.underline(
         iconData: iconData,
         label: label,
         placeholder: placeholder,

@@ -40,8 +40,11 @@ class LibraryState extends BlocState {
   }
 
   bool _doesBookMatchToSearchValue(Book book) {
-    final bool doesTitleMatchToSearchValue = book.title.contains(searchValue);
-    final bool doesAuthorMatchToSearchValue = book.author.contains(searchValue);
+    final String title = book.title.toLowerCase().trim();
+    final String author = book.author.toLowerCase().trim();
+    final String searchValue = this.searchValue.toLowerCase().trim();
+    final bool doesTitleMatchToSearchValue = title.contains(searchValue);
+    final bool doesAuthorMatchToSearchValue = author.contains(searchValue);
     return doesTitleMatchToSearchValue || doesAuthorMatchToSearchValue;
   }
 }

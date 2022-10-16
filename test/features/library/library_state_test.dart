@@ -60,7 +60,7 @@ void main() {
     'books',
     () {
       final List<Book> allBooks = [
-        createBook(title: 'boom', author: 'Robert Martin'),
+        createBook(title: 'boOm', author: 'Robert Martin'),
         createBook(title: 'wow', author: 'Jack New'),
         createBook(title: 'abc', author: 'Isabelle Pixel'),
         createBook(title: 'feel', author: 'Jeremy Grom')

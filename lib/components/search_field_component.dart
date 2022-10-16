@@ -16,18 +16,31 @@ class _SearchFieldComponentState extends State<SearchFieldComponent> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: _controller,
-      decoration: MaterialTextFieldTheme.filled(
-        iconData: MdiIcons.magnify,
-        suffixIcon: _CleanIcon(
-          isShowed: _controller.text.isNotEmpty,
-          onPressed: _onCleanIconPressed,
-        ),
-        placeholder: 'Szukaj...',
-        onSuffixIconPressed: _onCleanIconPressed,
+    return Container(
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            offset: const Offset(0, 2),
+            blurRadius: 4,
+            spreadRadius: 0,
+            color: Colors.grey.withOpacity(0.3),
+          ),
+        ],
+        borderRadius: BorderRadius.circular(10),
       ),
-      onChanged: (_) => _onChanged(),
+      child: TextField(
+        controller: _controller,
+        decoration: MaterialTextFieldTheme.filled(
+          iconData: MdiIcons.magnify,
+          suffixIcon: _CleanIcon(
+            isShowed: _controller.text.isNotEmpty,
+            onPressed: _onCleanIconPressed,
+          ),
+          placeholder: 'Szukaj...',
+          onSuffixIconPressed: _onCleanIconPressed,
+        ),
+        onChanged: (_) => _onChanged(),
+      ),
     );
   }
 

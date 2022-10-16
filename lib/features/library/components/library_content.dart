@@ -13,12 +13,15 @@ class LibraryContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<Book>? books = context.select(
-      (LibraryBloc bloc) => bloc.state.sortedBooks,
+      (LibraryBloc bloc) => bloc.state.books,
+    );
+    final String searchValue = context.select(
+      (LibraryBloc bloc) => bloc.state.searchValue,
     );
 
     if (books == null) {
       return const SizedBox();
-    } else if (books.isEmpty) {
+    } else if (books.isEmpty && searchValue == '') {
       return const _EmptyContentInfo();
     }
     return Stack(

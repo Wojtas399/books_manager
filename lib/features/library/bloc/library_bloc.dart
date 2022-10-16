@@ -23,10 +23,12 @@ class LibraryBloc extends CustomBloc<LibraryEvent, LibraryState> {
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
     required GetAllUserBooksUseCase getAllUserBooksUseCase,
     BlocStatus status = const BlocStatusInitial(),
+    String searchValue = '',
     List<Book>? books,
   }) : super(
           LibraryState(
             status: status,
+            searchValue: searchValue,
             books: books,
           ),
         ) {
@@ -35,6 +37,7 @@ class LibraryBloc extends CustomBloc<LibraryEvent, LibraryState> {
     _getAllUserBooksUseCase = getAllUserBooksUseCase;
     on<LibraryEventInitialize>(_initialize);
     on<LibraryEventBooksUpdated>(_booksUpdated);
+    on<LibraryEventSearchValueChanged>(_searchValueChanged);
   }
 
   @override
@@ -68,6 +71,15 @@ class LibraryBloc extends CustomBloc<LibraryEvent, LibraryState> {
   ) {
     emit(state.copyWith(
       books: event.books,
+    ));
+  }
+
+  void _searchValueChanged(
+    LibraryEventSearchValueChanged event,
+    Emitter<LibraryState> emit,
+  ) {
+    emit(state.copyWith(
+      searchValue: event.searchValue,
     ));
   }
 

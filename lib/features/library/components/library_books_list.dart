@@ -12,7 +12,14 @@ class LibraryBooksList extends StatelessWidget {
   Widget build(BuildContext context) {
     const int itemsWidth = 200;
     const int itemsHeight = 330;
+    final List<Book> sortedBooks = [...books];
+    sortedBooks.sort(_compareTitlesAlphabetically);
 
+    if (books.isEmpty) {
+      return const Center(
+        child: Text('Brak pasujących książek'),
+      );
+    }
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -20,9 +27,9 @@ class LibraryBooksList extends StatelessWidget {
       ),
       cacheExtent: 0,
       padding: const EdgeInsets.only(top: 60, left: 12, right: 12, bottom: 12),
-      itemCount: books.length,
+      itemCount: sortedBooks.length,
       itemBuilder: (_, int index) {
-        final Book book = books[index];
+        final Book book = sortedBooks[index];
         return AnimatedOpacityAndScaleComponent(
           child: LibraryBookItem(
             bookId: book.id,
@@ -33,5 +40,9 @@ class LibraryBooksList extends StatelessWidget {
         );
       },
     );
+  }
+
+  int _compareTitlesAlphabetically(Book book1, Book book2) {
+    return book1.title.compareTo(book2.title);
   }
 }

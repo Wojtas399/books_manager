@@ -13,3 +13,9 @@ class LibraryEventBooksUpdated extends LibraryEvent {
 
   const LibraryEventBooksUpdated({required this.books});
 }
+
+class LibraryEventSearchValueChanged extends LibraryEvent {
+  final String searchValue;
+
+  const LibraryEventSearchValueChanged({required this.searchValue});
+}

@@ -1,38 +1,47 @@
 part of 'library_bloc.dart';
 
 class LibraryState extends BlocState {
-  final List<Book>? books;
+  late final String searchValue;
+  late final List<Book>? _books;
 
-  const LibraryState({
+  LibraryState({
     required super.status,
-    this.books,
-  });
+    required this.searchValue,
+    required List<Book>? books,
+  }) {
+    _books = books;
+  }
 
   @override
   List<Object> get props => [
         status,
-        books ?? '',
+        searchValue,
+        _books ?? '',
       ];
 
   @override
   LibraryState copyWith({
     BlocStatus? status,
+    String? searchValue,
     List<Book>? books,
   }) {
     return LibraryState(
       status: status ?? const BlocStatusComplete(),
-      books: books ?? this.books,
+      searchValue: searchValue ?? this.searchValue,
+      books: books ?? _books,
     );
   }
 
-  List<Book>? get sortedBooks {
-    if (books == null) {
-      return null;
+  List<Book>? get books {
+    if (searchValue.isEmpty) {
+      return _books;
     }
-    final List<Book> sortedBooks = [...?books];
-    sortedBooks.sort(
-      (Book book1, Book book2) => book1.title.compareTo(book2.title),
-    );
-    return sortedBooks;
+    return _books?.where(_doesBookMatchToSearchValue).toList();
+  }
+
+  bool _doesBookMatchToSearchValue(Book book) {
+    final bool doesTitleMatchToSearchValue = book.title.contains(searchValue);
+    final bool doesAuthorMatchToSearchValue = book.author.contains(searchValue);
+    return doesTitleMatchToSearchValue || doesAuthorMatchToSearchValue;
   }
 }

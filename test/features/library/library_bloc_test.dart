@@ -28,10 +28,12 @@ void main() {
 
   LibraryState createState({
     BlocStatus status = const BlocStatusComplete(),
+    String searchValue = '',
     List<Book>? books,
   }) {
     return LibraryState(
       status: status,
+      searchValue: searchValue,
       books: books,
     );
   }
@@ -127,6 +129,21 @@ void main() {
     expect: () => [
       createState(
         books: userBooks,
+      ),
+    ],
+  );
+
+  blocTest(
+    'search value changed, should update search value in state',
+    build: () => createBloc(),
+    act: (LibraryBloc bloc) {
+      bloc.add(
+        const LibraryEventSearchValueChanged(searchValue: 'search'),
+      );
+    },
+    expect: () => [
+      createState(
+        searchValue: 'search',
       ),
     ],
   );

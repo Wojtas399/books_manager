@@ -58,7 +58,9 @@ class MaterialTextFieldTheme {
 
   static InputDecoration filled({
     IconData? iconData,
+    Widget? suffixIcon,
     String? placeholder,
+    VoidCallback? onSuffixIconPressed,
   }) {
     return InputDecoration(
       filled: true,
@@ -80,6 +82,7 @@ class MaterialTextFieldTheme {
         ),
       ),
       prefixIcon: Icon(iconData),
+      suffixIcon: suffixIcon,
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import '../../../components/custom_scaffold.dart';
+import '../../../components/custom_scaffold_component.dart';
 import '../../../config/navigation.dart';
 import '../../calendar/calendar_screen.dart';
 import '../../library/library_screen.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../components/custom_text_field.dart';
+import '../../../components/custom_text_field_component.dart';
 import '../bloc/book_creator_bloc.dart';
 
 class BookCreatorTitleAuthor extends StatelessWidget {

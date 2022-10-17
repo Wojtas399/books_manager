@@ -1,4 +1,4 @@
-import 'package:app/components/custom_bloc_listener.dart';
+import 'package:app/components/bloc_listener_component.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/interfaces/day_interface.dart';
@@ -62,7 +62,7 @@ class _CalendarBlocListener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomBlocListener<CalendarBloc, CalendarState, dynamic, dynamic>(
+    return BlocListenerComponent<CalendarBloc, CalendarState, dynamic, dynamic>(
       child: child,
     );
   }

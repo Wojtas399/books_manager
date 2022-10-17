@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
-import '../../../components/custom_text_field.dart';
-import '../../../components/password_text_field.dart';
+import '../../../components/custom_text_field_component.dart';
+import '../../../components/password_text_field_component.dart';
 import '../bloc/sign_in_bloc.dart';
 
 class SignInInputs extends StatelessWidget {

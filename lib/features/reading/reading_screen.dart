@@ -1,4 +1,4 @@
-import 'package:app/components/custom_bloc_listener.dart';
+import 'package:app/components/bloc_listener_component.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
@@ -53,7 +53,7 @@ class _ReadingBlocListener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomBlocListener<ReadingBloc, ReadingState, dynamic, dynamic>(
+    return BlocListenerComponent<ReadingBloc, ReadingState, dynamic, dynamic>(
       child: child,
     );
   }

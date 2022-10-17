@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../components/custom_text_field.dart';
-import '../../components/password_text_field.dart';
+import '../../components/custom_text_field_component.dart';
+import '../../components/password_text_field_component.dart';
 
 class MaterialSingleInputDialog extends StatelessWidget {
   final String title;

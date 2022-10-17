@@ -1,7 +1,7 @@
-import 'package:app/components/custom_button.dart';
-import 'package:app/components/custom_scaffold.dart';
+import 'package:app/components/custom_button_component.dart';
+import 'package:app/components/custom_scaffold_component.dart';
 import 'package:app/components/on_tap_focus_lose_area_component.dart';
-import 'package:app/components/password_text_field.dart';
+import 'package:app/components/password_text_field_component.dart';
 import 'package:app/validators/password_validator.dart';
 import 'package:app/validators/validator_messages.dart';
 import 'package:flutter/widgets.dart';

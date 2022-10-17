@@ -1,4 +1,4 @@
-import 'package:app/components/custom_text_field.dart';
+import 'package:app/components/custom_text_field_component.dart';
 import 'package:app/features/book_editor/bloc/book_editor_bloc.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:flutter/material.dart';

@@ -1,4 +1,4 @@
-import 'package:app/components/custom_bloc_listener.dart';
+import 'package:app/components/bloc_listener_component.dart';
 import 'package:app/domain/entities/read_book.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
@@ -82,7 +82,7 @@ class _DayPreviewBlocListener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomBlocListener<DayPreviewBloc, DayPreviewState, dynamic,
+    return BlocListenerComponent<DayPreviewBloc, DayPreviewState, dynamic,
         dynamic>(
       child: child,
     );

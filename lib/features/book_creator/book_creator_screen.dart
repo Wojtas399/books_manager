@@ -1,4 +1,4 @@
-import 'package:app/components/custom_bloc_listener.dart';
+import 'package:app/components/bloc_listener_component.dart';
 import 'package:app/config/navigation.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
@@ -52,7 +52,7 @@ class _BookCreatorBlocListener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomBlocListener<BookCreatorBloc, BookCreatorState,
+    return BlocListenerComponent<BookCreatorBloc, BookCreatorState,
         BookCreatorBlocInfo, dynamic>(
       onCompletionInfo: (BookCreatorBlocInfo info) => _manageBlocInfo(
         info,

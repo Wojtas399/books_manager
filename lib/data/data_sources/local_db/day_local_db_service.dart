@@ -73,6 +73,10 @@ class DayLocalDbService {
     );
   }
 
+  Future<void> deleteReadBook({required String bookId}) async {
+    await _sqliteReadBookService.deleteReadBook(bookId: bookId);
+  }
+
   Future<Day> addNewReadPages({
     required String userId,
     required String date,

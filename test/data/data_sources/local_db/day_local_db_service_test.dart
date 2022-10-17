@@ -225,6 +225,20 @@ void main() {
     },
   );
 
+  test(
+    'delete read book, should call method responsible for deleting read book in sqlite',
+    () async {
+      const String bookId = 'b1';
+      sqliteReadBookService.mockDeleteReadBook();
+
+      await service.deleteReadBook(bookId: bookId);
+
+      verify(
+        () => sqliteReadBookService.deleteReadBook(bookId: bookId),
+      ).called(1);
+    },
+  );
+
   group(
     'add new read pages',
     () {

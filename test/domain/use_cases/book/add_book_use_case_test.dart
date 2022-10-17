@@ -1,12 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:app/domain/entities/book.dart';
-import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/use_cases/book/add_book_use_case.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-class MockBookInterface extends Mock implements BookInterface {}
+import '../../../mocks/interfaces/mock_book_interface.dart';
 
 void main() {
   final bookInterface = MockBookInterface();
@@ -22,17 +21,7 @@ void main() {
       const String author = 'author';
       const int readPagesAmount = 0;
       const int allPagesAmount = 200;
-      when(
-        () => bookInterface.addNewBook(
-          userId: userId,
-          status: status,
-          imageData: imageData,
-          title: title,
-          author: author,
-          readPagesAmount: readPagesAmount,
-          allPagesAmount: allPagesAmount,
-        ),
-      ).thenAnswer((_) async => '');
+      bookInterface.mockAddNewBook();
 
       await useCase.execute(
         userId: userId,

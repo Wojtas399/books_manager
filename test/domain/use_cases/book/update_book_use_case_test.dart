@@ -1,11 +1,10 @@
 import 'dart:typed_data';
 
-import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/use_cases/book/update_book_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockBookInterface extends Mock implements BookInterface {}
+import '../../../mocks/interfaces/mock_book_interface.dart';
 
 void main() {
   final bookInterface = MockBookInterface();
@@ -14,21 +13,8 @@ void main() {
 
   setUp(() {
     useCase = UpdateBookUseCase(bookInterface: bookInterface);
-    when(
-      () => bookInterface.updateBookData(
-        bookId: bookId,
-        title: any(named: 'title'),
-        author: any(named: 'author'),
-        readPagesAmount: any(named: 'readPagesAmount'),
-        allPagesAmount: any(named: 'allPagesAmount'),
-      ),
-    ).thenAnswer((_) async => '');
-    when(
-      () => bookInterface.updateBookImage(
-        bookId: bookId,
-        imageData: any(named: 'imageData'),
-      ),
-    ).thenAnswer((_) async => '');
+    bookInterface.mockUpdateBookData();
+    bookInterface.mockUpdateBookImage();
   });
 
   tearDown(() {

@@ -6,7 +6,7 @@ import 'package:app/domain/entities/read_book.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-import '../../../mocks/sqlite/mock_sqlite_read_book_service.dart';
+import '../../../mocks/local_db/sqlite/mock_sqlite_read_book_service.dart';
 
 void main() {
   final sqliteReadBookService = MockSqliteReadBookService();

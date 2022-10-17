@@ -7,7 +7,7 @@ import 'package:app/models/error.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../mocks/sqlite/mock_sqlite_user_service.dart';
+import '../../../mocks/local_db/sqlite/mock_sqlite_user_service.dart';
 
 void main() {
   final sqliteUserService = MockSqliteUserService();

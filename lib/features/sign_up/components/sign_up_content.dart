@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import '../../../components/custom_scaffold.dart';
+import '../../../components/custom_scaffold_component.dart';
 import '../../../components/on_tap_focus_lose_area_component.dart';
 import '../../../config/themes/app_colors.dart';
 import 'sign_up_inputs.dart';

@@ -1,4 +1,4 @@
-import 'package:app/components/custom_scaffold.dart';
+import 'package:app/components/custom_scaffold_component.dart';
 import 'package:app/components/empty_content_info_component.dart';
 import 'package:app/extensions/date_extensions.dart';
 import 'package:app/features/day_preview/bloc/day_preview_bloc.dart';

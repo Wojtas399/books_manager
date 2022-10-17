@@ -1,4 +1,4 @@
-import 'package:app/components/custom_button.dart';
+import 'package:app/components/custom_button_component.dart';
 import 'package:app/features/book_editor/bloc/book_editor_bloc.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

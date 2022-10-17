@@ -1,4 +1,4 @@
-import 'package:app/components/custom_button.dart';
+import 'package:app/components/custom_button_component.dart';
 import 'package:app/config/navigation.dart';
 import 'package:app/config/themes/app_colors.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';

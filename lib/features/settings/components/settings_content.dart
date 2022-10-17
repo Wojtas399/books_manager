@@ -1,4 +1,4 @@
-import 'package:app/components/custom_scaffold.dart';
+import 'package:app/components/custom_scaffold_component.dart';
 import 'package:app/features/settings/components/settings_account_deletion.dart';
 import 'package:app/features/settings/components/settings_dark_mode.dart';
 import 'package:app/features/settings/components/settings_dark_mode_compatibility_with_system.dart';

@@ -1,4 +1,4 @@
-import 'package:app/components/custom_scaffold.dart';
+import 'package:app/components/custom_scaffold_component.dart';
 import 'package:app/components/on_tap_focus_lose_area_component.dart';
 import 'package:app/features/book_creator/components/book_creator_image.dart';
 import 'package:app/features/book_creator/components/book_creator_pages.dart';

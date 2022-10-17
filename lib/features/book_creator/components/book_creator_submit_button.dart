@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../components/custom_button.dart';
+import '../../../components/custom_button_component.dart';
 import '../bloc/book_creator_bloc.dart';
 
 class BookCreatorSubmitButton extends StatelessWidget {

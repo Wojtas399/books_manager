@@ -1,4 +1,4 @@
-import 'package:app/components/custom_button.dart';
+import 'package:app/components/custom_button_component.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/dialog_interface.dart';
 import 'package:app/extensions/string_extensions.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
-import '../../../components/custom_button.dart';
+import '../../../components/custom_button_component.dart';
 import '../bloc/sign_in_bloc.dart';
 
 class SignInSubmitButton extends StatelessWidget {

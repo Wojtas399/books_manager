@@ -1,9 +1,8 @@
-import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/use_cases/auth/sign_out_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockAuthInterface extends Mock implements AuthInterface {}
+import '../../../mocks/interfaces/mock_auth_interface.dart';
 
 void main() {
   final authInterface = MockAuthInterface();
@@ -12,9 +11,7 @@ void main() {
   test(
     'should call method responsible for signing out user',
     () async {
-      when(
-        () => authInterface.signOut(),
-      ).thenAnswer((_) async => '');
+      authInterface.mockSignOut();
 
       await useCase.execute();
 

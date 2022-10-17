@@ -1,13 +1,10 @@
 import 'package:app/domain/entities/user.dart';
-import 'package:app/domain/interfaces/auth_interface.dart';
-import 'package:app/domain/interfaces/user_interface.dart';
 import 'package:app/domain/use_cases/auth/sign_up_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockAuthInterface extends Mock implements AuthInterface {}
-
-class MockUserInterface extends Mock implements UserInterface {}
+import '../../../mocks/interfaces/mock_auth_interface.dart';
+import '../../../mocks/interfaces/mock_user_interface.dart';
 
 void main() {
   final authInterface = MockAuthInterface();
@@ -28,15 +25,8 @@ void main() {
         isDarkModeOn: false,
         isDarkModeCompatibilityWithSystemOn: false,
       );
-      when(
-        () => authInterface.signUp(
-          email: email,
-          password: password,
-        ),
-      ).thenAnswer((_) async => signedUpUserId);
-      when(
-        () => userInterface.addUser(user: user),
-      ).thenAnswer((_) async => '');
+      authInterface.mockSignUp(signedUpUserId: signedUpUserId);
+      userInterface.mockAddUser();
 
       await useCase.execute(
         email: email,

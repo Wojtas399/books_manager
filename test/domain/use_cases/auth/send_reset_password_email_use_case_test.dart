@@ -1,9 +1,8 @@
-import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/use_cases/auth/send_reset_password_email_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockAuthInterface extends Mock implements AuthInterface {}
+import '../../../mocks/interfaces/mock_auth_interface.dart';
 
 void main() {
   final authInterface = MockAuthInterface();
@@ -13,9 +12,7 @@ void main() {
     'should call method responsible for sending password reset email',
     () async {
       const String email = 'email@example.com';
-      when(
-        () => authInterface.sendPasswordResetEmail(email: email),
-      ).thenAnswer((_) async => '');
+      authInterface.mockSendPasswordResetEmail();
 
       await useCase.execute(email: email);
 

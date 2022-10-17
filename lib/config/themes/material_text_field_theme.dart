@@ -7,7 +7,7 @@ class MaterialTextFieldTheme {
     borderSide: BorderSide(width: 2, color: Colors.red),
   );
 
-  static InputDecoration basic({
+  static InputDecoration underline({
     IconData? iconData,
     String? label,
     String? placeholder,
@@ -53,6 +53,36 @@ class MaterialTextFieldTheme {
               ),
             )
           : null,
+    );
+  }
+
+  static InputDecoration filled({
+    IconData? iconData,
+    Widget? suffixIcon,
+    String? placeholder,
+    VoidCallback? onSuffixIconPressed,
+  }) {
+    return InputDecoration(
+      filled: true,
+      fillColor: Colors.white,
+      hintText: placeholder,
+      contentPadding: const EdgeInsets.all(8),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(
+          width: 0.6,
+          color: Colors.black.withOpacity(0.6),
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(
+          width: 0.6,
+          color: AppColors.primary,
+        ),
+      ),
+      prefixIcon: Icon(iconData),
+      suffixIcon: suffixIcon,
     );
   }
 }

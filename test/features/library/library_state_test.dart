@@ -7,32 +7,12 @@ void main() {
   late LibraryState state;
 
   setUp(() {
-    state = const LibraryState(
-      status: BlocStatusInitial(),
-      books: [],
+    state = LibraryState(
+      status: const BlocStatusInitial(),
+      searchValue: '',
+      books: null,
     );
   });
-
-  test(
-    'sorted books, should return books sorted by title',
-    () {
-      final List<Book> unsortedBooks = [
-        createBook(title: 'boom'),
-        createBook(title: 'wow'),
-        createBook(title: 'abc'),
-      ];
-      final List<Book> sortedBooks = [
-        unsortedBooks[2],
-        unsortedBooks[0],
-        unsortedBooks[1],
-      ];
-      state = state.copyWith(books: unsortedBooks);
-
-      final List<Book>? books = state.sortedBooks;
-
-      expect(books, sortedBooks);
-    },
-  );
 
   test(
     'copy with status',
@@ -44,6 +24,19 @@ void main() {
 
       expect(state.status, expectedStatus);
       expect(state2.status, const BlocStatusComplete());
+    },
+  );
+
+  test(
+    'copy with search value',
+    () {
+      const String expectedSearchValue = 'wow';
+
+      state = state.copyWith(searchValue: expectedSearchValue);
+      final state2 = state.copyWith();
+
+      expect(state.searchValue, expectedSearchValue);
+      expect(state2.searchValue, expectedSearchValue);
     },
   );
 
@@ -60,6 +53,45 @@ void main() {
 
       expect(state.books, expectedBooks);
       expect(state2.books, expectedBooks);
+    },
+  );
+
+  group(
+    'books',
+    () {
+      final List<Book> allBooks = [
+        createBook(title: 'boOm', author: 'Robert Martin'),
+        createBook(title: 'wow', author: 'Jack New'),
+        createBook(title: 'abc', author: 'Isabelle Pixel'),
+        createBook(title: 'feel', author: 'Jeremy Grom')
+      ];
+
+      test(
+        'should return all books if search value is empty',
+        () {
+          state = state.copyWith(books: allBooks);
+
+          final List<Book>? books = state.books;
+
+          expect(books, allBooks);
+        },
+      );
+
+      test(
+        'should return books which title or author match to search value',
+        () {
+          const String searchValue = 'om';
+          final List<Book> expectedBooks = [allBooks.first, allBooks.last];
+          state = state.copyWith(
+            books: allBooks,
+            searchValue: searchValue,
+          );
+
+          final List<Book>? books = state.books;
+
+          expect(books, expectedBooks);
+        },
+      );
     },
   );
 }

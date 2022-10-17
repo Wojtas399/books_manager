@@ -1,8 +1,8 @@
-import 'package:app/components/animated_opacity_and_scale_component.dart';
 import 'package:app/components/empty_content_info_component.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/features/library/bloc/library_bloc.dart';
-import 'package:app/features/library/components/library_book_item.dart';
+import 'package:app/features/library/components/library_books_list.dart';
+import 'package:app/features/library/components/library_search_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -12,43 +12,39 @@ class LibraryContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const int itemsWidth = 200;
-    const int itemsHeight = 330;
     final List<Book>? books = context.select(
-      (LibraryBloc bloc) => bloc.state.sortedBooks,
+      (LibraryBloc bloc) => bloc.state.books,
+    );
+    final String searchValue = context.select(
+      (LibraryBloc bloc) => bloc.state.searchValue,
     );
 
     if (books == null) {
       return const SizedBox();
-    } else if (books.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(24),
-        child: EmptyContentInfoComponent(
-          icon: MdiIcons.bookshelf,
-          title: 'Brak książek',
-          subtitle: 'Aktualnie nie posiadasz żadnych książek w bibliotece',
-        ),
-      );
+    } else if (books.isEmpty && searchValue == '') {
+      return const _EmptyContentInfo();
     }
-    return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: (itemsWidth / itemsHeight),
+    return Stack(
+      children: [
+        LibraryBooksList(books: books),
+        const LibrarySearchField(),
+      ],
+    );
+  }
+}
+
+class _EmptyContentInfo extends StatelessWidget {
+  const _EmptyContentInfo();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.all(24),
+      child: EmptyContentInfoComponent(
+        icon: MdiIcons.bookshelf,
+        title: 'Brak książek',
+        subtitle: 'Aktualnie nie posiadasz żadnych książek w bibliotece',
       ),
-      cacheExtent: 0,
-      padding: const EdgeInsets.all(12),
-      itemCount: books.length,
-      itemBuilder: (_, int index) {
-        final Book book = books[index];
-        return AnimatedOpacityAndScaleComponent(
-          child: LibraryBookItem(
-            bookId: book.id,
-            imageData: book.imageData,
-            title: book.title,
-            author: book.author,
-          ),
-        );
-      },
     );
   }
 }

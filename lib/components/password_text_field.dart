@@ -38,7 +38,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
     return TextFormField(
       obscureText: !isVisible,
       obscuringCharacter: '*',
-      decoration: MaterialTextFieldTheme.basic(
+      decoration: MaterialTextFieldTheme.underline(
         iconData: MdiIcons.lock,
         label: widget.label,
         placeholder: widget.placeholder,

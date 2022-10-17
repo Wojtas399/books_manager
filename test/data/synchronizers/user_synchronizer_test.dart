@@ -4,8 +4,8 @@ import 'package:app/domain/entities/user.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../mocks/db_services/mock_user_local_db_service.dart';
-import '../../mocks/db_services/mock_user_remote_db_service.dart';
+import '../../mocks/data/local_db/mock_user_local_db_service.dart';
+import '../../mocks/data/remote_db/mock_user_remote_db_service.dart';
 
 void main() {
   final userLocalDbService = MockUserLocalDbService();

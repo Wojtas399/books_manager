@@ -1,9 +1,8 @@
-import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/use_cases/auth/sign_in_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockAuthInterface extends Mock implements AuthInterface {}
+import '../../../mocks/domain/interfaces/mock_auth_interface.dart';
 
 void main() {
   final authInterface = MockAuthInterface();
@@ -14,12 +13,7 @@ void main() {
     () async {
       const String email = 'email@example.com';
       const String password = 'password123';
-      when(
-        () => authInterface.signIn(
-          email: email,
-          password: password,
-        ),
-      ).thenAnswer((_) async => '');
+      authInterface.mockSignIn(signedInUserId: '');
 
       await useCase.execute(email: email, password: password);
 

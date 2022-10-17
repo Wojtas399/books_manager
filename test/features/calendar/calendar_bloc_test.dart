@@ -5,11 +5,11 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../mocks/domain/use_cases/auth/mock_get_logged_user_id_use_case.dart';
+import '../../mocks/domain/use_cases/book/mock_load_all_user_books_use_case.dart';
+import '../../mocks/domain/use_cases/day/mock_get_user_days_from_month_use_case.dart';
+import '../../mocks/domain/use_cases/day/mock_load_user_days_from_month_use_case.dart';
 import '../../mocks/providers/mock_date_provider.dart';
-import '../../mocks/use_cases/auth/mock_get_logged_user_id_use_case.dart';
-import '../../mocks/use_cases/book/mock_load_all_user_books_use_case.dart';
-import '../../mocks/use_cases/day/mock_get_user_days_from_month_use_case.dart';
-import '../../mocks/use_cases/day/mock_load_user_days_from_month_use_case.dart';
 
 void main() {
   final dateProvider = MockDateProvider();

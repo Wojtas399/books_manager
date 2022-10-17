@@ -1,9 +1,8 @@
-import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/use_cases/book/delete_book_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockBookInterface extends Mock implements BookInterface {}
+import '../../../mocks/domain/interfaces/mock_book_interface.dart';
 
 void main() {
   final bookInterface = MockBookInterface();
@@ -13,9 +12,7 @@ void main() {
     'should call method responsible for deleting book',
     () async {
       const String bookId = 'b1';
-      when(
-        () => bookInterface.deleteBook(bookId: bookId),
-      ).thenAnswer((_) async => '');
+      bookInterface.mockDeleteBook();
 
       await useCase.execute(bookId: bookId);
 

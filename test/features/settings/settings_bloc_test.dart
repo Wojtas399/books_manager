@@ -7,13 +7,13 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../mocks/use_cases/auth/mock_change_logged_user_password_use_case.dart';
-import '../../mocks/use_cases/auth/mock_delete_logged_user_use_case.dart';
-import '../../mocks/use_cases/auth/mock_get_logged_user_id_use_case.dart';
-import '../../mocks/use_cases/auth/mock_sign_out_use_case.dart';
-import '../../mocks/use_cases/user/mock_get_user_use_case.dart';
-import '../../mocks/use_cases/user/mock_load_user_use_case.dart';
-import '../../mocks/use_cases/user/mock_update_theme_settings_use_case.dart';
+import '../../mocks/domain/use_cases/auth/mock_change_logged_user_password_use_case.dart';
+import '../../mocks/domain/use_cases/auth/mock_delete_logged_user_use_case.dart';
+import '../../mocks/domain/use_cases/auth/mock_get_logged_user_id_use_case.dart';
+import '../../mocks/domain/use_cases/auth/mock_sign_out_use_case.dart';
+import '../../mocks/domain/use_cases/user/mock_get_user_use_case.dart';
+import '../../mocks/domain/use_cases/user/mock_load_user_use_case.dart';
+import '../../mocks/domain/use_cases/user/mock_update_theme_settings_use_case.dart';
 
 void main() {
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
@@ -55,6 +55,8 @@ void main() {
 
   tearDown(() {
     reset(getLoggedUserIdUseCase);
+    reset(loadUserUseCase);
+    reset(getUserUseCase);
     reset(updateThemeSettingsUseCase);
     reset(changeLoggedUserPasswordUseCase);
     reset(signOutUseCase);

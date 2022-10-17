@@ -5,9 +5,9 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../mocks/use_cases/auth/mock_get_logged_user_id_use_case.dart';
-import '../../mocks/use_cases/book/mock_get_user_books_in_progress_use_case.dart';
-import '../../mocks/use_cases/book/mock_load_user_books_in_progress_use_case.dart';
+import '../../mocks/domain/use_cases/auth/mock_get_logged_user_id_use_case.dart';
+import '../../mocks/domain/use_cases/book/mock_get_user_books_in_progress_use_case.dart';
+import '../../mocks/domain/use_cases/book/mock_load_user_books_in_progress_use_case.dart';
 
 void main() {
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();

@@ -7,8 +7,8 @@ import 'package:app/domain/entities/book.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../mocks/sqlite/mock_local_storage_service.dart';
-import '../../../mocks/sqlite/mock_sqlite_book_service.dart';
+import '../../../mocks/data/local_db/mock_local_storage_service.dart';
+import '../../../mocks/data/local_db/sqlite/mock_sqlite_book_service.dart';
 
 void main() {
   final sqliteBookService = MockSqliteBookService();

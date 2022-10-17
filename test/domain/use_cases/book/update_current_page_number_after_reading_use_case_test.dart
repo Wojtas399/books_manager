@@ -5,8 +5,8 @@ import 'package:app/models/error.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../mocks/interfaces/mock_book_interface.dart';
-import '../../../mocks/interfaces/mock_day_interface.dart';
+import '../../../mocks/domain/interfaces/mock_book_interface.dart';
+import '../../../mocks/domain/interfaces/mock_day_interface.dart';
 import '../../../mocks/providers/mock_date_provider.dart';
 
 void main() {

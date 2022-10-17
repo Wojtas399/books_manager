@@ -3,7 +3,7 @@ import 'package:app/domain/entities/read_book.dart';
 import 'package:app/domain/use_cases/day/get_user_days_from_month_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../mocks/interfaces/mock_day_interface.dart';
+import '../../../mocks/domain/interfaces/mock_day_interface.dart';
 
 void main() {
   final dayInterface = MockDayInterface();

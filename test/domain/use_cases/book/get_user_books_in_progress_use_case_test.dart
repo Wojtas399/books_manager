@@ -1,10 +1,8 @@
 import 'package:app/domain/entities/book.dart';
-import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/use_cases/book/get_user_books_in_progress_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 
-class MockBookInterface extends Mock implements BookInterface {}
+import '../../../mocks/domain/interfaces/mock_book_interface.dart';
 
 void main() {
   final bookInterface = MockBookInterface();
@@ -21,9 +19,7 @@ void main() {
         createBook(id: 'b4', status: BookStatus.inProgress),
       ];
       final List<Book> expectedBooks = [userBooks[1], userBooks[3]];
-      when(
-        () => bookInterface.getBooksByUserId(userId: userId),
-      ).thenAnswer((_) => Stream.value(userBooks));
+      bookInterface.mockGetBooksByUserId(books: userBooks);
 
       final Stream<List<Book>?> books$ = useCase.execute(userId: userId);
 

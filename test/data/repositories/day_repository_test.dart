@@ -5,10 +5,10 @@ import 'package:app/domain/entities/read_book.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../mocks/db_services/mock_day_local_db_service.dart';
-import '../../mocks/db_services/mock_day_remote_db_service.dart';
+import '../../mocks/data/local_db/mock_day_local_db_service.dart';
+import '../../mocks/data/remote_db/mock_day_remote_db_service.dart';
+import '../../mocks/data/synchronizers/mock_day_synchronizer.dart';
 import '../../mocks/mock_device.dart';
-import '../../mocks/synchronizers/mock_day_synchronizer.dart';
 
 void main() {
   final daySynchronizer = MockDaySynchronizer();

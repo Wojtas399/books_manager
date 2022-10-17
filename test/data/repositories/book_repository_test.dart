@@ -8,9 +8,9 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../mocks/local_db/mock_book_local_db_service.dart';
 import '../../mocks/mock_device.dart';
+import '../../mocks/mock_id_generator.dart';
 import '../../mocks/remote_db/mock_book_remote_db_service.dart';
-import '../mocks/mock_book_synchronizer.dart';
-import '../mocks/mock_id_generator.dart';
+import '../../mocks/synchronizers/mock_book_synchronizer.dart';
 
 void main() {
   final bookSynchronizer = MockBookSynchronizer();

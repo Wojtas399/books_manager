@@ -5,8 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../mocks/mock_auth_local_db_service.dart';
-import '../mocks/mock_auth_remote_db_service.dart';
+import '../../mocks/local_db/mock_auth_local_db_service.dart';
+import '../../mocks/remote_db/mock_auth_remote_db_service.dart';
 
 void main() {
   final authLocalDbService = MockAuthLocalDbService();

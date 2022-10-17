@@ -4,10 +4,10 @@ import 'package:app/domain/entities/user.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../mocks/local_db/mock_user_local_db_service.dart';
+import '../../mocks/data/local_db/mock_user_local_db_service.dart';
+import '../../mocks/data/remote_db/mock_user_remote_db_service.dart';
+import '../../mocks/data/synchronizers/mock_user_synchronizer.dart';
 import '../../mocks/mock_device.dart';
-import '../../mocks/remote_db/mock_user_remote_db_service.dart';
-import '../../mocks/synchronizers/mock_user_synchronizer.dart';
 
 void main() {
   final userSynchronizer = MockUserSynchronizer();

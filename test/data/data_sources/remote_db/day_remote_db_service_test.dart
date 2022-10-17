@@ -7,7 +7,7 @@ import 'package:app/domain/entities/read_book.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-import '../../../mocks/firebase/mock_firebase_firestore_user_service.dart';
+import '../../../mocks/remote_db/firebase/mock_firebase_firestore_user_service.dart';
 
 void main() {
   final firebaseFirestoreUserService = MockFirebaseFirestoreUserService();

@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../mocks/mock_firebase_auth_service.dart';
+import '../../../mocks/remote_db/firebase/mock_firebase_auth_service.dart';
 
 void main() {
   final firebaseAuthService = MockFirebaseAuthService();

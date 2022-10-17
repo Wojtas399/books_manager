@@ -1,4 +1,4 @@
-import 'package:app/components/custom_bloc_listener.dart';
+import 'package:app/components/bloc_listener_component.dart';
 import 'package:app/config/navigation.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
@@ -78,7 +78,7 @@ class _SettingsBlocListener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomBlocListener<SettingsBloc, SettingsState, SettingsBlocInfo,
+    return BlocListenerComponent<SettingsBloc, SettingsState, SettingsBlocInfo,
         SettingsBlocError>(
       onCompletionInfo: (SettingsBlocInfo blocInfo) => _manageSettingsBlocInfo(
         blocInfo,

@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:app/components/custom_bloc_listener.dart';
+import 'package:app/components/bloc_listener_component.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/interfaces/day_interface.dart';
 import 'package:app/domain/interfaces/dialog_interface.dart';
@@ -82,7 +82,7 @@ class _BookPreviewBlocListener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomBlocListener<BookPreviewBloc, BookPreviewState,
+    return BlocListenerComponent<BookPreviewBloc, BookPreviewState,
         BookPreviewBlocInfo, BookPreviewBlocError>(
       onCompletionInfo: (BookPreviewBlocInfo info) => _onCompletionInfo(
         info,

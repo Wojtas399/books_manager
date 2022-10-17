@@ -1,4 +1,4 @@
-import 'package:app/components/custom_bloc_listener.dart';
+import 'package:app/components/bloc_listener_component.dart';
 import 'package:app/config/navigation.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/dialog_interface.dart';
@@ -52,7 +52,7 @@ class _SignUpBlocListener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomBlocListener<SignUpBloc, SignUpState, SignUpBlocInfo,
+    return BlocListenerComponent<SignUpBloc, SignUpState, SignUpBlocInfo,
         SignUpBlocError>(
       onCompletionInfo: (SignUpBlocInfo info) => _manageBlocInfo(info, context),
       onError: (SignUpBlocError error) => _manageBlocError(error, context),

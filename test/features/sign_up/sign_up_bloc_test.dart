@@ -6,7 +6,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../mocks/use_cases/auth/mock_sign_up_use_case.dart';
+import '../../mocks/domain/use_cases/auth/mock_sign_up_use_case.dart';
 import '../../mocks/validators/mock_email_validator.dart';
 import '../../mocks/validators/mock_password_validator.dart';
 

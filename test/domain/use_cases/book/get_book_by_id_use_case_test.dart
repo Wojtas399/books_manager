@@ -2,7 +2,7 @@ import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../mocks/interfaces/mock_book_interface.dart';
+import '../../../mocks/domain/interfaces/mock_book_interface.dart';
 
 void main() {
   final bookInterface = MockBookInterface();

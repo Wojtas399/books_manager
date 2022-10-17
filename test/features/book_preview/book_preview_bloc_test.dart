@@ -7,10 +7,10 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../mocks/use_cases/book/mock_delete_book_use_case.dart';
-import '../../mocks/use_cases/book/mock_get_book_by_id_use_case.dart';
-import '../../mocks/use_cases/book/mock_start_reading_book_use_case.dart';
-import '../../mocks/use_cases/book/mock_update_current_page_number_after_reading_use_case.dart';
+import '../../mocks/domain/use_cases/book/mock_delete_book_use_case.dart';
+import '../../mocks/domain/use_cases/book/mock_get_book_by_id_use_case.dart';
+import '../../mocks/domain/use_cases/book/mock_start_reading_book_use_case.dart';
+import '../../mocks/domain/use_cases/book/mock_update_current_page_number_after_reading_use_case.dart';
 
 void main() {
   final getBookByIdUseCase = MockGetBookByIdUseCase();

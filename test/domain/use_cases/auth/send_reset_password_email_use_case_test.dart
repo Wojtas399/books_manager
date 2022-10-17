@@ -2,7 +2,7 @@ import 'package:app/domain/use_cases/auth/send_reset_password_email_use_case.dar
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../mocks/interfaces/mock_auth_interface.dart';
+import '../../../mocks/domain/interfaces/mock_auth_interface.dart';
 
 void main() {
   final authInterface = MockAuthInterface();

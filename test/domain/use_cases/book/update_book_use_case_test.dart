@@ -4,7 +4,7 @@ import 'package:app/domain/use_cases/book/update_book_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../mocks/interfaces/mock_book_interface.dart';
+import '../../../mocks/domain/interfaces/mock_book_interface.dart';
 
 void main() {
   final bookInterface = MockBookInterface();

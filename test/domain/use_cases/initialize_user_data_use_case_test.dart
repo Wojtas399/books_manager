@@ -2,9 +2,9 @@ import 'package:app/domain/use_cases/initialize_user_data_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../mocks/interfaces/mock_book_interface.dart';
-import '../../mocks/interfaces/mock_day_interface.dart';
-import '../../mocks/interfaces/mock_user_interface.dart';
+import '../../mocks/domain/interfaces/mock_book_interface.dart';
+import '../../mocks/domain/interfaces/mock_day_interface.dart';
+import '../../mocks/domain/interfaces/mock_user_interface.dart';
 
 void main() {
   final userInterface = MockUserInterface();

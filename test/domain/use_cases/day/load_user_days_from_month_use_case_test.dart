@@ -2,7 +2,7 @@ import 'package:app/domain/use_cases/day/load_user_days_from_month_use_case.dart
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-import '../../../mocks/interfaces/mock_day_interface.dart';
+import '../../../mocks/domain/interfaces/mock_day_interface.dart';
 
 void main() {
   final dayInterface = MockDayInterface();

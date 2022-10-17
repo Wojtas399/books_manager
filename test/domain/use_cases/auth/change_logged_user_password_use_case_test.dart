@@ -2,7 +2,7 @@ import 'package:app/domain/use_cases/auth/change_logged_user_password_use_case.d
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../mocks/interfaces/mock_auth_interface.dart';
+import '../../../mocks/domain/interfaces/mock_auth_interface.dart';
 
 void main() {
   final authInterface = MockAuthInterface();

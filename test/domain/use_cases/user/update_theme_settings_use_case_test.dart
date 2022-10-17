@@ -2,7 +2,7 @@ import 'package:app/domain/use_cases/user/update_theme_settings_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../mocks/interfaces/mock_user_interface.dart';
+import '../../../mocks/domain/interfaces/mock_user_interface.dart';
 
 void main() {
   final userInterface = MockUserInterface();

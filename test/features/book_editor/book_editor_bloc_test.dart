@@ -7,8 +7,8 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../mocks/use_cases/book/mock_get_book_by_id_use_case.dart';
-import '../../mocks/use_cases/book/mock_update_book_use_case.dart';
+import '../../mocks/domain/use_cases/book/mock_get_book_by_id_use_case.dart';
+import '../../mocks/domain/use_cases/book/mock_update_book_use_case.dart';
 
 void main() {
   final getBookByIdUseCase = MockGetBookByIdUseCase();
@@ -53,6 +53,11 @@ void main() {
       allPagesAmount: allPagesAmount,
     );
   }
+
+  tearDown(() {
+    reset(getBookByIdUseCase);
+    reset(updateBookUseCase);
+  });
 
   group(
     'initialize',

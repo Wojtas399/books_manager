@@ -4,9 +4,9 @@ import 'package:app/models/error.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../mocks/interfaces/mock_auth_interface.dart';
-import '../../../mocks/interfaces/mock_book_interface.dart';
-import '../../../mocks/interfaces/mock_user_interface.dart';
+import '../../../mocks/domain/interfaces/mock_auth_interface.dart';
+import '../../../mocks/domain/interfaces/mock_book_interface.dart';
+import '../../../mocks/domain/interfaces/mock_user_interface.dart';
 import '../../../mocks/mock_device.dart';
 
 void main() {

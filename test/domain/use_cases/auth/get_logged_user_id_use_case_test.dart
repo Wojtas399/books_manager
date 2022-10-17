@@ -1,7 +1,7 @@
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../mocks/interfaces/mock_auth_interface.dart';
+import '../../../mocks/domain/interfaces/mock_auth_interface.dart';
 
 void main() {
   final authInterface = MockAuthInterface();

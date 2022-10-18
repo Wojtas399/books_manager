@@ -85,8 +85,11 @@ class SqliteReadBookService {
     await _updateReadBook(updatedSqliteReadBook);
   }
 
-  Future<void> deleteReadBook({required String bookId}) async {
-    await _deleteReadBook(bookId);
+  Future<void> deleteReadBooksFromDate({
+    required String userId,
+    required String date,
+  }) async {
+    await _deleteReadBooksByUserIdAndDate(userId, date);
   }
 
   Future<List<Map<String, Object?>>> _queryUserReadBooks({
@@ -168,12 +171,16 @@ class SqliteReadBookService {
     );
   }
 
-  Future<void> _deleteReadBook(String bookId) async {
+  Future<void> _deleteReadBooksByUserIdAndDate(
+    String userId,
+    String date,
+  ) async {
     final Database database = await SqliteDatabase.instance.database;
     await database.delete(
       SqliteTables.readBooksTable,
-      where: '${SqliteReadBookFields.bookId} = ?',
-      whereArgs: [bookId],
+      where:
+          '${SqliteReadBookFields.userId} = ? AND ${SqliteReadBookFields.date} = ?',
+      whereArgs: [userId, date],
     );
   }
 }

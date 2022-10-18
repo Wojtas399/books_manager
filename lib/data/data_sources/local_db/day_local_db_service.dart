@@ -41,40 +41,44 @@ class DayLocalDbService {
     return _segregateReadBooksIntoDbDays(userReadBooksFromMonth);
   }
 
-  Future<void> addUserReadBook({
-    required ReadBook readBook,
-    required String userId,
-    required String date,
+  Future<void> addDay({
+    required Day day,
     SyncState syncState = SyncState.none,
   }) async {
-    final SqliteReadBook sqliteReadBook = SqliteReadBook(
-      userId: userId,
-      date: date,
-      bookId: readBook.bookId,
-      readPagesAmount: readBook.readPagesAmount,
-      syncState: syncState,
-    );
-    await _sqliteReadBookService.addReadBook(sqliteReadBook: sqliteReadBook);
+    for (final ReadBook readBook in day.readBooks) {
+      final SqliteReadBook sqliteReadBook = _createSqliteReadBook(
+        readBook,
+        day.userId,
+        day.date,
+        syncState,
+      );
+      await _sqliteReadBookService.addReadBook(sqliteReadBook: sqliteReadBook);
+    }
   }
 
-  Future<void> updateReadBook({
-    required String userId,
-    required String date,
-    required String bookId,
-    int? readPagesAmount,
-    SyncState? syncState,
+  Future<void> updateDay({
+    required Day updatedDay,
+    SyncState syncState = SyncState.none,
   }) async {
-    await _sqliteReadBookService.updateReadBook(
-      userId: userId,
-      date: date,
-      bookId: bookId,
-      readPagesAmount: readPagesAmount,
-      syncState: syncState,
-    );
+    for (final ReadBook readBook in updatedDay.readBooks) {
+      await _sqliteReadBookService.updateReadBook(
+        userId: updatedDay.userId,
+        date: DateMapper.mapFromDateTimeToString(updatedDay.date),
+        bookId: readBook.bookId,
+        readPagesAmount: readBook.readPagesAmount,
+        syncState: syncState,
+      );
+    }
   }
 
-  Future<void> deleteReadBook({required String bookId}) async {
-    await _sqliteReadBookService.deleteReadBook(bookId: bookId);
+  Future<void> deleteDay({
+    required String userId,
+    required DateTime date,
+  }) async {
+    await _sqliteReadBookService.deleteReadBooksFromDate(
+      userId: userId,
+      date: DateMapper.mapFromDateTimeToString(date),
+    );
   }
 
   List<Day> _segregateReadBooksIntoDbDays(
@@ -112,6 +116,21 @@ class DayLocalDbService {
     return ReadBook(
       bookId: sqliteReadBook.bookId,
       readPagesAmount: sqliteReadBook.readPagesAmount,
+    );
+  }
+
+  SqliteReadBook _createSqliteReadBook(
+    ReadBook readBook,
+    String userId,
+    DateTime date,
+    SyncState syncState,
+  ) {
+    return SqliteReadBook(
+      userId: userId,
+      date: DateMapper.mapFromDateTimeToString(date),
+      bookId: readBook.bookId,
+      readPagesAmount: readBook.readPagesAmount,
+      syncState: syncState,
     );
   }
 

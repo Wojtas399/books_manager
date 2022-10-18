@@ -89,13 +89,13 @@ class DaySynchronizer {
   }
 
   Future<void> _addReadBooksFromDayToLocalDb(Day day) async {
-    for (final ReadBook readBook in day.readBooks) {
-      await _dayLocalDbService.addUserReadBook(
-        readBook: readBook,
-        userId: day.userId,
-        date: DateMapper.mapFromDateTimeToString(day.date),
-      );
-    }
+    // for (final ReadBook readBook in day.readBooks) {
+    //   await _dayLocalDbService.addUserReadBook(
+    //     readBook: readBook,
+    //     userId: day.userId,
+    //     date: DateMapper.mapFromDateTimeToString(day.date),
+    //   );
+    // }
   }
 
   Future<void> _updateReadBooksFromDayInRemoteDb(Day day) async {
@@ -109,28 +109,28 @@ class DaySynchronizer {
   }
 
   Future<void> _updateReadBooksFromDayInLocalDb(Day day) async {
-    for (final ReadBook readBook in day.readBooks) {
-      await _dayLocalDbService.updateReadBook(
-        userId: day.userId,
-        date: DateMapper.mapFromDateTimeToString(day.date),
-        bookId: readBook.bookId,
-        readPagesAmount: readBook.readPagesAmount,
-        syncState: SyncState.none,
-      );
-    }
+    // for (final ReadBook readBook in day.readBooks) {
+    //   await _dayLocalDbService.updateReadBook(
+    //     userId: day.userId,
+    //     date: DateMapper.mapFromDateTimeToString(day.date),
+    //     bookId: readBook.bookId,
+    //     readPagesAmount: readBook.readPagesAmount,
+    //     syncState: SyncState.none,
+    //   );
+    // }
   }
 
   Future<void> _setSyncStateAsNoneInLocalDbForAllReadBooksFromDay(
     Day day,
   ) async {
-    for (final ReadBook readBook in day.readBooks) {
-      await _dayLocalDbService.updateReadBook(
-        userId: day.userId,
-        date: DateMapper.mapFromDateTimeToString(day.date),
-        bookId: readBook.bookId,
-        syncState: SyncState.none,
-      );
-    }
+    // for (final ReadBook readBook in day.readBooks) {
+    //   await _dayLocalDbService.updateReadBook(
+    //     userId: day.userId,
+    //     date: DateMapper.mapFromDateTimeToString(day.date),
+    //     bookId: readBook.bookId,
+    //     syncState: SyncState.none,
+    //   );
+    // }
   }
 }
 

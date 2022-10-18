@@ -1,6 +1,7 @@
 import 'package:app/data/data_sources/local_db/day_local_db_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/models/sqlite_read_book.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
+import 'package:app/data/mappers/date_mapper.dart';
 import 'package:app/domain/entities/day.dart';
 import 'package:app/domain/entities/read_book.dart';
 import 'package:mocktail/mocktail.dart';
@@ -162,63 +163,85 @@ void main() {
   );
 
   test(
-    'add user read book, should call method responsible for adding new read book to sqlite',
+    'add day, should add every read book from day to sqlite',
     () async {
-      final ReadBook readBook = createReadBook(
-        bookId: 'b1',
-        readPagesAmount: 20,
+      final Day dayToAdd = createDay(
+        date: DateTime(2022, 10, 15),
+        userId: 'u1',
+        readBooks: [
+          createReadBook(bookId: 'b1', readPagesAmount: 100),
+          createReadBook(bookId: 'b2', readPagesAmount: 200),
+        ],
       );
-      const String userId = 'u1';
-      const String date = '20-09-2022';
       const SyncState syncState = SyncState.added;
-      final SqliteReadBook sqliteReadBook = createSqliteReadBook(
-        userId: userId,
-        date: date,
-        bookId: readBook.bookId,
-        readPagesAmount: readBook.readPagesAmount,
+      final SqliteReadBook sqliteReadBook1 = createSqliteReadBook(
+        userId: dayToAdd.userId,
+        date: DateMapper.mapFromDateTimeToString(dayToAdd.date),
+        bookId: dayToAdd.readBooks.first.bookId,
+        readPagesAmount: dayToAdd.readBooks.first.readPagesAmount,
+        syncState: syncState,
+      );
+      final SqliteReadBook sqliteReadBook2 = createSqliteReadBook(
+        userId: dayToAdd.userId,
+        date: DateMapper.mapFromDateTimeToString(dayToAdd.date),
+        bookId: dayToAdd.readBooks.last.bookId,
+        readPagesAmount: dayToAdd.readBooks.last.readPagesAmount,
         syncState: syncState,
       );
       sqliteReadBookService.mockAddReadBook();
 
-      await service.addUserReadBook(
-        readBook: readBook,
-        userId: userId,
-        date: date,
+      await service.addDay(
+        day: dayToAdd,
         syncState: syncState,
       );
 
       verify(
         () => sqliteReadBookService.addReadBook(
-          sqliteReadBook: sqliteReadBook,
+          sqliteReadBook: sqliteReadBook1,
+        ),
+      ).called(1);
+      verify(
+        () => sqliteReadBookService.addReadBook(
+          sqliteReadBook: sqliteReadBook2,
         ),
       ).called(1);
     },
   );
 
   test(
-    'update read book, should call method responsible for updating read book in sqlite',
+    'update day, should update every read book in sqlite',
     () async {
-      const String userId = 'u1';
-      const String date = '20-09-2022';
-      const String bookId = 'b1';
-      const int readPagesAmount = 130;
-      const SyncState syncState = SyncState.added;
+      final Day updatedDay = createDay(
+        date: DateTime(2022, 10, 15),
+        userId: 'u1',
+        readBooks: [
+          createReadBook(bookId: 'b1', readPagesAmount: 100),
+          createReadBook(bookId: 'b2', readPagesAmount: 200),
+        ],
+      );
+      const SyncState syncState = SyncState.updated;
       sqliteReadBookService.mockUpdateReadBook();
 
-      await service.updateReadBook(
-        userId: userId,
-        date: date,
-        bookId: bookId,
-        readPagesAmount: readPagesAmount,
+      await service.updateDay(
+        updatedDay: updatedDay,
         syncState: syncState,
       );
 
       verify(
         () => sqliteReadBookService.updateReadBook(
-          userId: userId,
-          date: date,
-          bookId: bookId,
-          readPagesAmount: readPagesAmount,
+          userId: updatedDay.userId,
+          date: DateMapper.mapFromDateTimeToString(updatedDay.date),
+          bookId: updatedDay.readBooks.first.bookId,
+          readPagesAmount: updatedDay.readBooks.first.readPagesAmount,
+          syncState: syncState,
+        ),
+      ).called(1);
+      verify(
+        () => sqliteReadBookService.updateReadBook(
+          userId: updatedDay.userId,
+          date: DateMapper.mapFromDateTimeToString(updatedDay.date),
+          bookId: updatedDay.readBooks.last.bookId,
+          readPagesAmount: updatedDay.readBooks.last.readPagesAmount,
           syncState: syncState,
         ),
       ).called(1);
@@ -226,15 +249,19 @@ void main() {
   );
 
   test(
-    'delete read book, should call method responsible for deleting read book in sqlite',
+    'delete day, should delete read books from given date from sqlite',
     () async {
-      const String bookId = 'b1';
-      sqliteReadBookService.mockDeleteReadBook();
+      const String userId = 'u1';
+      final DateTime date = DateTime(2022, 10, 18);
+      sqliteReadBookService.mockDeleteReadBooksFromDate();
 
-      await service.deleteReadBook(bookId: bookId);
+      await service.deleteDay(userId: userId, date: date);
 
       verify(
-        () => sqliteReadBookService.deleteReadBook(bookId: bookId),
+        () => sqliteReadBookService.deleteReadBooksFromDate(
+          userId: userId,
+          date: DateMapper.mapFromDateTimeToString(date),
+        ),
       ).called(1);
     },
   );

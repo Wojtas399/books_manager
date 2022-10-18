@@ -1,10 +1,11 @@
 import 'package:app/data/data_sources/local_db/day_local_db_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/domain/entities/day.dart';
-import 'package:app/domain/entities/read_book.dart';
 import 'package:mocktail/mocktail.dart';
 
-class FakeReadBook extends Fake implements ReadBook {}
+class FakeDay extends Fake implements Day {}
+
+class FakeDateTime extends Fake implements DateTime {}
 
 class MockDayLocalDbService extends Mock implements DayLocalDbService {
   void mockLoadUserDays({required List<Day> userDays}) {
@@ -27,37 +28,47 @@ class MockDayLocalDbService extends Mock implements DayLocalDbService {
     ).thenAnswer((_) async => userDaysFromMonth);
   }
 
-  void mockAddUserReadBook() {
-    _mockReadBook();
+  void mockAddDay() {
+    _mockDay();
     _mockSyncState();
     when(
-      () => addUserReadBook(
-        readBook: any(named: 'readBook'),
-        userId: any(named: 'userId'),
-        date: any(named: 'date'),
+      () => addDay(
+        day: any(named: 'day'),
         syncState: any(named: 'syncState'),
       ),
     ).thenAnswer((_) async => '');
   }
 
-  void mockUpdateReadBook() {
+  void mockUpdateDay() {
+    _mockDay();
     _mockSyncState();
     when(
-      () => updateReadBook(
-        userId: any(named: 'userId'),
-        date: any(named: 'date'),
-        bookId: any(named: 'bookId'),
-        readPagesAmount: any(named: 'readPagesAmount'),
+      () => updateDay(
+        updatedDay: any(named: 'updatedDay'),
         syncState: any(named: 'syncState'),
       ),
     ).thenAnswer((_) async => '');
   }
 
-  void _mockReadBook() {
-    registerFallbackValue(FakeReadBook());
+  void mockDeleteDay() {
+    _mockDateTime();
+    when(
+      () => deleteDay(
+        userId: any(named: 'userId'),
+        date: any(named: 'date'),
+      ),
+    ).thenAnswer((_) async => '');
+  }
+
+  void _mockDay() {
+    registerFallbackValue(FakeDay());
   }
 
   void _mockSyncState() {
     registerFallbackValue(SyncState.none);
+  }
+
+  void _mockDateTime() {
+    registerFallbackValue(FakeDateTime());
   }
 }

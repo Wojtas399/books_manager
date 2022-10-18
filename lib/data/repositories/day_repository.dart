@@ -1,8 +1,8 @@
 import 'package:app/data/data_sources/local_db/day_local_db_service.dart';
 import 'package:app/data/data_sources/remote_db/day_remote_db_service.dart';
-import 'package:app/data/mappers/date_mapper.dart';
 import 'package:app/data/synchronizers/day_synchronizer.dart';
 import 'package:app/domain/entities/day.dart';
+import 'package:app/domain/entities/read_book.dart';
 import 'package:app/domain/interfaces/day_interface.dart';
 import 'package:app/models/device.dart';
 import 'package:app/models/repository.dart';
@@ -65,47 +65,24 @@ class DayRepository extends Repository<Day> implements DayInterface {
   }
 
   @override
-  Future<void> addNewReadPages({
+  Future<void> addNewDay({required Day day}) async {
+    //TODO
+  }
+
+  @override
+  Future<void> updateDay({
     required String userId,
     required DateTime date,
-    required String bookId,
-    required int amountOfReadPagesToAdd,
+    required List<ReadBook> readBooks,
   }) async {
-    final String dateInString = DateMapper.mapFromDateTimeToString(date);
-    bool shouldModifySyncStateInLocalDb = true;
-    if (await _device.hasInternetConnection()) {
-      await _dayRemoteDbService.addNewReadPages(
-        userId: userId,
-        date: dateInString,
-        bookId: bookId,
-        amountOfReadPagesToAdd: amountOfReadPagesToAdd,
-      );
-      shouldModifySyncStateInLocalDb = false;
-    }
-    final Day updatedDay = await _dayLocalDbService.addNewReadPages(
-      userId: userId,
-      date: dateInString,
-      bookId: bookId,
-      amountOfReadPagesToAdd: amountOfReadPagesToAdd,
-      withModifiedSyncState: shouldModifySyncStateInLocalDb,
-    );
-    if (value?.containsUserDay(userId: userId, date: date) == true) {
-      updateEntity(updatedDay);
-    } else {
-      addEntity(updatedDay);
-    }
-  }
-}
-
-extension _DaysExtensions on List<Day> {
-  bool containsUserDay({required String userId, required DateTime date}) {
-    final int dayIndex = indexOfUserDay(userId: userId, date: date);
-    return dayIndex >= 0;
+    //TODO
   }
 
-  int indexOfUserDay({required String userId, required DateTime date}) {
-    return indexWhere(
-      (Day day) => day.userId == userId && day.date == date,
-    );
+  @override
+  Future<void> deleteDay({
+    required String userId,
+    required DateTime date,
+  }) async {
+    //TODO
   }
 }

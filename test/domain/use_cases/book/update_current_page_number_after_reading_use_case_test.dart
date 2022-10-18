@@ -1,7 +1,5 @@
-import 'package:app/config/errors.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/use_cases/book/update_current_page_number_after_reading_use_case.dart';
-import 'package:app/models/error.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -33,7 +31,6 @@ void main() {
     );
     bookInterface.mockGetBookById(book: book);
     bookInterface.mockUpdateBookData();
-    dayInterface.mockAddNewReadPages();
   });
 
   tearDown(() {
@@ -42,96 +39,5 @@ void main() {
     reset(dateProvider);
   });
 
-  test(
-    'new current page number is higher than all pages amount, should throw book error',
-    () async {
-      const BookError expectedBookError = BookError(
-        code: BookErrorCode.newCurrentPageIsTooHigh,
-      );
-
-      try {
-        await useCase.execute(
-          bookId: bookId,
-          newCurrentPageNumber: 101,
-        );
-      } on BookError catch (error) {
-        expect(error, expectedBookError);
-      }
-    },
-  );
-
-  test(
-    'new current page number is lower than current page number, should throw book error',
-    () async {
-      const BookError expectedBookError = BookError(
-        code: BookErrorCode.newCurrentPageIsLowerThanCurrentPage,
-      );
-
-      try {
-        await useCase.execute(
-          bookId: bookId,
-          newCurrentPageNumber: 10,
-        );
-      } on BookError catch (error) {
-        expect(error, expectedBookError);
-      }
-    },
-  );
-
-  test(
-    'new current page number is lower than the last page number, should call method responsible for updating book with number of new current page assigned to read pages amount and should call method responsible for adding amount of new read pages with today date to days',
-    () async {
-      const int newCurrentPage = 50;
-      dateProvider.mockGetNow(nowDateTime: todayDate);
-
-      await useCase.execute(
-        bookId: bookId,
-        newCurrentPageNumber: newCurrentPage,
-      );
-
-      verify(
-        () => bookInterface.updateBookData(
-          bookId: bookId,
-          readPagesAmount: newCurrentPage,
-        ),
-      ).called(1);
-      verify(
-        () => dayInterface.addNewReadPages(
-          userId: userId,
-          date: todayDate,
-          bookId: bookId,
-          amountOfReadPagesToAdd: newCurrentPage - book.readPagesAmount,
-        ),
-      ).called(1);
-    },
-  );
-
-  test(
-    'new current page number is equal to the last page number, should call method responsible for updating book with number of current page assigned to read pages amount and book status set as finished and should call method responsible for adding amount of new read pages with today date to days',
-    () async {
-      final int newCurrentPage = book.allPagesAmount;
-      dateProvider.mockGetNow(nowDateTime: todayDate);
-
-      await useCase.execute(
-        bookId: bookId,
-        newCurrentPageNumber: newCurrentPage,
-      );
-
-      verify(
-        () => bookInterface.updateBookData(
-          bookId: bookId,
-          readPagesAmount: newCurrentPage,
-          bookStatus: BookStatus.finished,
-        ),
-      ).called(1);
-      verify(
-        () => dayInterface.addNewReadPages(
-          userId: userId,
-          date: todayDate,
-          bookId: bookId,
-          amountOfReadPagesToAdd: newCurrentPage - book.readPagesAmount,
-        ),
-      ).called(1);
-    },
-  );
+  //TODO
 }

@@ -77,53 +77,6 @@ class DayLocalDbService {
     await _sqliteReadBookService.deleteReadBook(bookId: bookId);
   }
 
-  Future<Day> addNewReadPages({
-    required String userId,
-    required String date,
-    required String bookId,
-    required int amountOfReadPagesToAdd,
-    bool withModifiedSyncState = false,
-  }) async {
-    final SqliteReadBook? sqliteReadBook = await _sqliteReadBookService
-        .loadReadBook(userId: userId, date: date, bookId: bookId);
-    if (sqliteReadBook != null) {
-      final int newReadPagesAmount =
-          sqliteReadBook.readPagesAmount + amountOfReadPagesToAdd;
-      await _sqliteReadBookService.updateReadBook(
-        userId: userId,
-        date: date,
-        bookId: bookId,
-        readPagesAmount: newReadPagesAmount,
-        syncState: withModifiedSyncState ? SyncState.updated : SyncState.none,
-      );
-    } else {
-      final SqliteReadBook newSqliteReadBook = SqliteReadBook(
-        userId: userId,
-        date: date,
-        bookId: bookId,
-        readPagesAmount: amountOfReadPagesToAdd,
-        syncState: withModifiedSyncState ? SyncState.added : SyncState.none,
-      );
-      await _sqliteReadBookService.addReadBook(
-        sqliteReadBook: newSqliteReadBook,
-      );
-    }
-    return await _loadUserDay(userId, date);
-  }
-
-  Future<Day> _loadUserDay(String userId, String date) async {
-    final List<SqliteReadBook> userReadBooksFromDay =
-        await _sqliteReadBookService.loadUserReadBooks(
-      userId: userId,
-      date: date,
-    );
-    return Day(
-      userId: userId,
-      date: DateMapper.mapFromStringToDateTime(date),
-      readBooks: userReadBooksFromDay.map(_createReadBook).toList(),
-    );
-  }
-
   List<Day> _segregateReadBooksIntoDbDays(
     List<SqliteReadBook> sqliteReadBooks,
   ) {

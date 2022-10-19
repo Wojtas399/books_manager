@@ -1,9 +1,12 @@
 import 'package:app/data/data_sources/local_db/day_local_db_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/domain/entities/day.dart';
+import 'package:app/domain/entities/read_book.dart';
 import 'package:mocktail/mocktail.dart';
 
 class FakeDay extends Fake implements Day {}
+
+class FakeReadBook extends Fake implements ReadBook {}
 
 class FakeDateTime extends Fake implements DateTime {}
 
@@ -40,11 +43,14 @@ class MockDayLocalDbService extends Mock implements DayLocalDbService {
   }
 
   void mockUpdateDay() {
-    _mockDay();
+    _mockDateTime();
+    _mockReadBook();
     _mockSyncState();
     when(
       () => updateDay(
-        updatedDay: any(named: 'updatedDay'),
+        userId: any(named: 'userId'),
+        date: any(named: 'date'),
+        readBooks: any(named: 'readBooks'),
         syncState: any(named: 'syncState'),
       ),
     ).thenAnswer((_) async => '');
@@ -62,6 +68,10 @@ class MockDayLocalDbService extends Mock implements DayLocalDbService {
 
   void _mockDay() {
     registerFallbackValue(FakeDay());
+  }
+
+  void _mockReadBook() {
+    registerFallbackValue(FakeReadBook());
   }
 
   void _mockSyncState() {

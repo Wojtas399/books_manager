@@ -63,6 +63,17 @@ class MockSqliteReadBookService extends Mock implements SqliteReadBookService {
     ).thenAnswer((_) async => '');
   }
 
+  void mockUpdateReadBooksSyncState() {
+    _mockSyncState();
+    when(
+      () => updateReadBooksSyncState(
+        userId: any(named: 'userId'),
+        date: any(named: 'date'),
+        syncState: any(named: 'syncState'),
+      ),
+    ).thenAnswer((_) async => '');
+  }
+
   void mockDeleteReadBooksFromDate() {
     when(
       () => deleteReadBooksFromDate(

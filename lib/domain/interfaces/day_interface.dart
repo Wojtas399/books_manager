@@ -1,5 +1,4 @@
 import 'package:app/domain/entities/day.dart';
-import 'package:app/domain/entities/read_book.dart';
 
 abstract class DayInterface {
   Stream<List<Day>?> getUserDays({required String userId});
@@ -14,11 +13,7 @@ abstract class DayInterface {
 
   Future<void> addNewDay({required Day day});
 
-  Future<void> updateDay({
-    required String userId,
-    required DateTime date,
-    required List<ReadBook> readBooks,
-  });
+  Future<void> updateDay({required Day updatedDay});
 
   Future<void> deleteDay({
     required String userId,

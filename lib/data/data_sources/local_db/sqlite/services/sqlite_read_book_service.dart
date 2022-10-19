@@ -85,6 +85,19 @@ class SqliteReadBookService {
     await _updateReadBook(updatedSqliteReadBook);
   }
 
+  Future<void> updateReadBooksSyncState({
+    required String userId,
+    required String date,
+    required SyncState syncState,
+  }) async {
+    final Database database = await SqliteDatabase.instance.database;
+    String query = "UPDATE ${SqliteTables.readBooksTable}";
+    query += " SET ${SqliteReadBookFields.syncState} = '${syncState.name}'";
+    query += " WHERE ${SqliteReadBookFields.userId} = '$userId'";
+    query += " AND ${SqliteReadBookFields.date} = '$date'";
+    await database.rawQuery(query);
+  }
+
   Future<void> deleteReadBooksFromDate({
     required String userId,
     required String date,

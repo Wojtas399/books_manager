@@ -57,15 +57,25 @@ class DayLocalDbService {
   }
 
   Future<void> updateDay({
-    required Day updatedDay,
-    SyncState syncState = SyncState.none,
+    required String userId,
+    required DateTime date,
+    List<ReadBook>? readBooks,
+    SyncState? syncState,
   }) async {
-    for (final ReadBook readBook in updatedDay.readBooks) {
-      await _sqliteReadBookService.updateReadBook(
-        userId: updatedDay.userId,
-        date: DateMapper.mapFromDateTimeToString(updatedDay.date),
-        bookId: readBook.bookId,
-        readPagesAmount: readBook.readPagesAmount,
+    if (readBooks != null) {
+      for (final ReadBook readBook in readBooks) {
+        await _sqliteReadBookService.updateReadBook(
+          userId: userId,
+          date: DateMapper.mapFromDateTimeToString(date),
+          bookId: readBook.bookId,
+          readPagesAmount: readBook.readPagesAmount,
+          syncState: syncState,
+        );
+      }
+    } else if (syncState != null) {
+      await _sqliteReadBookService.updateReadBooksSyncState(
+        userId: userId,
+        date: DateMapper.mapFromDateTimeToString(date),
         syncState: syncState,
       );
     }

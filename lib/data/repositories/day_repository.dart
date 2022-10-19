@@ -1,8 +1,8 @@
 import 'package:app/data/data_sources/local_db/day_local_db_service.dart';
+import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/data/data_sources/remote_db/day_remote_db_service.dart';
 import 'package:app/data/synchronizers/day_synchronizer.dart';
 import 'package:app/domain/entities/day.dart';
-import 'package:app/domain/entities/read_book.dart';
 import 'package:app/domain/interfaces/day_interface.dart';
 import 'package:app/models/device.dart';
 import 'package:app/models/repository.dart';
@@ -66,16 +66,32 @@ class DayRepository extends Repository<Day> implements DayInterface {
 
   @override
   Future<void> addNewDay({required Day day}) async {
-    //TODO
+    SyncState syncState = SyncState.added;
+    if (await _device.hasInternetConnection()) {
+      await _dayRemoteDbService.addDay(day: day);
+      syncState = SyncState.none;
+    }
+    await _dayLocalDbService.addDay(
+      day: day,
+      syncState: syncState,
+    );
+    addEntity(day);
   }
 
   @override
-  Future<void> updateDay({
-    required String userId,
-    required DateTime date,
-    required List<ReadBook> readBooks,
-  }) async {
-    //TODO
+  Future<void> updateDay({required Day updatedDay}) async {
+    SyncState syncState = SyncState.updated;
+    if (await _device.hasInternetConnection()) {
+      await _dayRemoteDbService.updateDay(updatedDay: updatedDay);
+      syncState = SyncState.none;
+    }
+    await _dayLocalDbService.updateDay(
+      userId: updatedDay.userId,
+      date: updatedDay.date,
+      readBooks: updatedDay.readBooks,
+      syncState: syncState,
+    );
+    updateEntity(updatedDay);
   }
 
   @override
@@ -83,6 +99,21 @@ class DayRepository extends Repository<Day> implements DayInterface {
     required String userId,
     required DateTime date,
   }) async {
-    //TODO
+    if (await _device.hasInternetConnection()) {
+      await _dayRemoteDbService.deleteDay(userId: userId, date: date);
+      await _dayLocalDbService.deleteDay(userId: userId, date: date);
+    } else {
+      await _dayLocalDbService.updateDay(
+        userId: userId,
+        date: date,
+        syncState: SyncState.deleted,
+      );
+    }
+    final String dayId = _getDayId(userId, date);
+    removeEntity(dayId);
+  }
+
+  String _getDayId(String userId, DateTime date) {
+    return Day(userId: userId, date: date, readBooks: const []).id;
   }
 }

@@ -208,43 +208,72 @@ void main() {
     },
   );
 
-  test(
-    'update day, should update every read book in sqlite',
-    () async {
-      final Day updatedDay = createDay(
-        date: DateTime(2022, 10, 15),
-        userId: 'u1',
-        readBooks: [
-          createReadBook(bookId: 'b1', readPagesAmount: 100),
-          createReadBook(bookId: 'b2', readPagesAmount: 200),
-        ],
-      );
-      const SyncState syncState = SyncState.updated;
-      sqliteReadBookService.mockUpdateReadBook();
+  group(
+    'update day',
+    () {
+      const String userId = 'u1';
+      final DateTime date = DateTime(2022, 10, 15);
+      final String dateAsStr = DateMapper.mapFromDateTimeToString(date);
 
-      await service.updateDay(
-        updatedDay: updatedDay,
-        syncState: syncState,
+      test(
+        'list of read books is not null, should update every read book in sqlite',
+        () async {
+          final List<ReadBook> readBooks = [
+            createReadBook(bookId: 'b1', readPagesAmount: 100),
+            createReadBook(bookId: 'b2', readPagesAmount: 200),
+          ];
+          const SyncState syncState = SyncState.updated;
+          sqliteReadBookService.mockUpdateReadBook();
+
+          await service.updateDay(
+            userId: userId,
+            date: date,
+            readBooks: readBooks,
+            syncState: syncState,
+          );
+
+          verify(
+            () => sqliteReadBookService.updateReadBook(
+              userId: userId,
+              date: dateAsStr,
+              bookId: readBooks.first.bookId,
+              readPagesAmount: readBooks.first.readPagesAmount,
+              syncState: syncState,
+            ),
+          ).called(1);
+          verify(
+            () => sqliteReadBookService.updateReadBook(
+              userId: userId,
+              date: dateAsStr,
+              bookId: readBooks.last.bookId,
+              readPagesAmount: readBooks.last.readPagesAmount,
+              syncState: syncState,
+            ),
+          ).called(1);
+        },
       );
 
-      verify(
-        () => sqliteReadBookService.updateReadBook(
-          userId: updatedDay.userId,
-          date: DateMapper.mapFromDateTimeToString(updatedDay.date),
-          bookId: updatedDay.readBooks.first.bookId,
-          readPagesAmount: updatedDay.readBooks.first.readPagesAmount,
-          syncState: syncState,
-        ),
-      ).called(1);
-      verify(
-        () => sqliteReadBookService.updateReadBook(
-          userId: updatedDay.userId,
-          date: DateMapper.mapFromDateTimeToString(updatedDay.date),
-          bookId: updatedDay.readBooks.last.bookId,
-          readPagesAmount: updatedDay.readBooks.last.readPagesAmount,
-          syncState: syncState,
-        ),
-      ).called(1);
+      test(
+        'list of read books is null but sync state is not null, should update sync state of read books from day in sqlite',
+        () async {
+          const SyncState syncState = SyncState.deleted;
+          sqliteReadBookService.mockUpdateReadBooksSyncState();
+
+          await service.updateDay(
+            userId: userId,
+            date: date,
+            syncState: syncState,
+          );
+
+          verify(
+            () => sqliteReadBookService.updateReadBooksSyncState(
+              userId: userId,
+              date: dateAsStr,
+              syncState: syncState,
+            ),
+          ).called(1);
+        },
+      );
     },
   );
 

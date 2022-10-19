@@ -1,9 +1,7 @@
 import 'package:app/data/data_sources/local_db/day_local_db_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/data/data_sources/remote_db/day_remote_db_service.dart';
-import 'package:app/data/mappers/date_mapper.dart';
 import 'package:app/domain/entities/day.dart';
-import 'package:app/domain/entities/read_book.dart';
 import 'package:app/extensions/list_extensions.dart';
 
 class DaySynchronizer {
@@ -79,13 +77,13 @@ class DaySynchronizer {
   }
 
   Future<void> _addReadBooksFromDayToRemoteDb(Day day) async {
-    for (final ReadBook readBook in day.readBooks) {
-      await _dayRemoteDbService.addUserReadBook(
-        readBook: readBook,
-        userId: day.userId,
-        date: DateMapper.mapFromDateTimeToString(day.date),
-      );
-    }
+    // for (final ReadBook readBook in day.readBooks) {
+    //   await _dayRemoteDbService.addUserReadBook(
+    //     readBook: readBook,
+    //     userId: day.userId,
+    //     date: DateMapper.mapFromDateTimeToString(day.date),
+    //   );
+    // }
   }
 
   Future<void> _addReadBooksFromDayToLocalDb(Day day) async {
@@ -99,13 +97,13 @@ class DaySynchronizer {
   }
 
   Future<void> _updateReadBooksFromDayInRemoteDb(Day day) async {
-    for (final ReadBook readBook in day.readBooks) {
-      await _dayRemoteDbService.updateBookReadPagesAmountInDay(
-        updatedReadBook: readBook,
-        userId: day.userId,
-        date: DateMapper.mapFromDateTimeToString(day.date),
-      );
-    }
+    // for (final ReadBook readBook in day.readBooks) {
+    //   await _dayRemoteDbService.updateBookReadPagesAmountInDay(
+    //     updatedReadBook: readBook,
+    //     userId: day.userId,
+    //     date: DateMapper.mapFromDateTimeToString(day.date),
+    //   );
+    // }
   }
 
   Future<void> _updateReadBooksFromDayInLocalDb(Day day) async {

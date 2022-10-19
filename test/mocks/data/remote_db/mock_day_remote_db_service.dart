@@ -1,9 +1,10 @@
 import 'package:app/data/data_sources/remote_db/day_remote_db_service.dart';
 import 'package:app/domain/entities/day.dart';
-import 'package:app/domain/entities/read_book.dart';
 import 'package:mocktail/mocktail.dart';
 
-class FakeReadBook extends Fake implements ReadBook {}
+class FakeDay extends Fake implements Day {}
+
+class FakeDateTime extends Fake implements DateTime {}
 
 class MockDayRemoteDbService extends Mock implements DayRemoteDbService {
   void mockLoadUserDays({required List<Day> userDays}) {
@@ -14,40 +15,39 @@ class MockDayRemoteDbService extends Mock implements DayRemoteDbService {
     ).thenAnswer((_) async => userDays);
   }
 
-  void mockAddUserReadBooks() {
-    _mockReadBook();
+  void mockAddDay() {
+    _mockDay();
     when(
-      () => addUserReadBook(
-        readBook: any(named: 'readBook'),
+      () => addDay(
+        day: any(named: 'day'),
+      ),
+    ).thenAnswer((_) async => '');
+  }
+
+  void mockUpdateDay() {
+    _mockDay();
+    when(
+      () => updateDay(
+        updatedDay: any(named: 'updatedDay'),
+      ),
+    ).thenAnswer((_) async => '');
+  }
+
+  void mockDeleteDay() {
+    _mockDateTime();
+    when(
+      () => deleteDay(
         userId: any(named: 'userId'),
         date: any(named: 'date'),
       ),
     ).thenAnswer((_) async => '');
   }
 
-  void mockUpdateBookReadPagesAmountInDay() {
-    _mockReadBook();
-    when(
-      () => updateBookReadPagesAmountInDay(
-        updatedReadBook: any(named: 'updatedReadBook'),
-        userId: any(named: 'userId'),
-        date: any(named: 'date'),
-      ),
-    ).thenAnswer((_) async => '');
+  void _mockDay() {
+    registerFallbackValue(FakeDay());
   }
 
-  void mockAddNewReadPages() {
-    when(
-      () => addNewReadPages(
-        userId: any(named: 'userId'),
-        date: any(named: 'date'),
-        bookId: any(named: 'bookId'),
-        amountOfReadPagesToAdd: any(named: 'amountOfReadPagesToAdd'),
-      ),
-    ).thenAnswer((_) async => '');
-  }
-
-  void _mockReadBook() {
-    registerFallbackValue(FakeReadBook());
+  void _mockDateTime() {
+    registerFallbackValue(FakeDateTime());
   }
 }

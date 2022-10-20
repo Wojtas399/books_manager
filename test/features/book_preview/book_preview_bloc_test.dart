@@ -7,12 +7,14 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../mocks/domain/use_cases/auth/mock_get_logged_user_id_use_case.dart';
 import '../../mocks/domain/use_cases/book/mock_delete_book_use_case.dart';
 import '../../mocks/domain/use_cases/book/mock_get_book_by_id_use_case.dart';
 import '../../mocks/domain/use_cases/book/mock_start_reading_book_use_case.dart';
 import '../../mocks/domain/use_cases/book/mock_update_current_page_number_after_reading_use_case.dart';
 
 void main() {
+  final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
   final getBookByIdUseCase = MockGetBookByIdUseCase();
   final startReadingBookUseCase = MockStartReadingBookUseCase();
   final updateCurrentPageNumberAfterReadingUseCase =
@@ -24,6 +26,7 @@ void main() {
     Book? book,
   }) {
     return BookPreviewBloc(
+      getLoggedUserIdUseCase: getLoggedUserIdUseCase,
       getBookByIdUseCase: getBookByIdUseCase,
       startReadingBookUseCase: startReadingBookUseCase,
       updateCurrentPageNumberAfterReadingUseCase:
@@ -47,6 +50,7 @@ void main() {
   }
 
   tearDown(() {
+    reset(getLoggedUserIdUseCase);
     reset(getBookByIdUseCase);
     reset(startReadingBookUseCase);
     reset(updateCurrentPageNumberAfterReadingUseCase);
@@ -139,28 +143,50 @@ void main() {
   group(
     'update current page number',
     () {
+      const String loggedUserId = 'u1';
       const String bookId = 'b1';
       const int newCurrentPageNumber = 50;
 
-      void callUpdateCurrentPageNumberAfterReadingUseCase() =>
-          updateCurrentPageNumberAfterReadingUseCase.execute(
-            userId: '',
+      void eventCall(BookPreviewBloc bloc) => bloc.add(
+            const BookPreviewEventUpdateCurrentPageNumber(
+              currentPageNumber: newCurrentPageNumber,
+            ),
+          );
+
+      void useCaseCall() => updateCurrentPageNumberAfterReadingUseCase.execute(
+            userId: loggedUserId,
             bookId: bookId,
             newCurrentPageNumber: newCurrentPageNumber,
           );
 
       blocTest(
+        'should emit logged user not found status if logged user does not exist',
+        build: () => createBloc(),
+        setUp: () {
+          getLoggedUserIdUseCase.mock();
+        },
+        act: (BookPreviewBloc bloc) {
+          eventCall(bloc);
+        },
+        expect: () => [
+          createState(
+            status: const BlocStatusLoading(),
+          ),
+          createState(
+            status: const BlocStatusLoggedUserNotFound(),
+          ),
+        ],
+      );
+
+      blocTest(
         'should try to call use case responsible for updating current page number',
         build: () => createBloc(book: createBook(id: bookId)),
         setUp: () {
+          getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
           updateCurrentPageNumberAfterReadingUseCase.mock();
         },
         act: (BookPreviewBloc bloc) {
-          bloc.add(
-            const BookPreviewEventUpdateCurrentPageNumber(
-              currentPageNumber: newCurrentPageNumber,
-            ),
-          );
+          eventCall(bloc);
         },
         expect: () => [
           createState(
@@ -175,9 +201,7 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(
-            callUpdateCurrentPageNumberAfterReadingUseCase,
-          ).called(1);
+          verify(useCaseCall).called(1);
         },
       );
 
@@ -185,6 +209,7 @@ void main() {
         'should emit appropriate error if called use case throws book error because new current page is too high',
         build: () => createBloc(book: createBook(id: bookId)),
         setUp: () {
+          getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
           updateCurrentPageNumberAfterReadingUseCase.mock(
             throwable: const BookError(
               code: BookErrorCode.newCurrentPageIsTooHigh,
@@ -192,11 +217,7 @@ void main() {
           );
         },
         act: (BookPreviewBloc bloc) {
-          bloc.add(
-            const BookPreviewEventUpdateCurrentPageNumber(
-              currentPageNumber: newCurrentPageNumber,
-            ),
-          );
+          eventCall(bloc);
         },
         expect: () => [
           createState(
@@ -211,9 +232,7 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(
-            callUpdateCurrentPageNumberAfterReadingUseCase,
-          ).called(1);
+          verify(useCaseCall).called(1);
         },
       );
 
@@ -221,6 +240,7 @@ void main() {
         'should emit appropriate error if called use case throws book error because new current page is lower than current page',
         build: () => createBloc(book: createBook(id: bookId)),
         setUp: () {
+          getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
           updateCurrentPageNumberAfterReadingUseCase.mock(
             throwable: const BookError(
               code: BookErrorCode.newCurrentPageIsLowerThanCurrentPage,
@@ -228,11 +248,7 @@ void main() {
           );
         },
         act: (BookPreviewBloc bloc) {
-          bloc.add(
-            const BookPreviewEventUpdateCurrentPageNumber(
-              currentPageNumber: newCurrentPageNumber,
-            ),
-          );
+          eventCall(bloc);
         },
         expect: () => [
           createState(
@@ -247,9 +263,7 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(
-            callUpdateCurrentPageNumberAfterReadingUseCase,
-          ).called(1);
+          verify(useCaseCall).called(1);
         },
       );
     },

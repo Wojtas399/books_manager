@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:app/config/errors.dart';
 import 'package:app/domain/entities/book.dart';
+import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/book/delete_book_use_case.dart';
 import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
 import 'package:app/domain/use_cases/book/start_reading_book_use_case.dart';
@@ -17,6 +18,7 @@ part 'book_preview_event.dart';
 part 'book_preview_state.dart';
 
 class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
+  late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
   late final GetBookByIdUseCase _getBookByIdUseCase;
   late final StartReadingBookUseCase _startReadingBookUseCase;
   late final UpdateCurrentPageNumberAfterReadingUseCase
@@ -25,6 +27,7 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
   StreamSubscription<Book?>? _bookListener;
 
   BookPreviewBloc({
+    required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
     required GetBookByIdUseCase getBookByIdUseCase,
     required StartReadingBookUseCase startReadingBookUseCase,
     required UpdateCurrentPageNumberAfterReadingUseCase
@@ -42,6 +45,7 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
             book: book,
           ),
         ) {
+    _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
     _getBookByIdUseCase = getBookByIdUseCase;
     _startReadingBookUseCase = startReadingBookUseCase;
     _updateCurrentPageNumberAfterReadingUseCase =
@@ -97,9 +101,14 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
     Emitter<BookPreviewState> emit,
   ) async {
     emitLoadingStatus(emit);
+    final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
+    if (loggedUserId == null) {
+      emitLoggedUserNotFoundStatus(emit);
+      return;
+    }
     try {
       await _updateCurrentPageNumberAfterReadingUseCase.execute(
-        userId: '',
+        userId: loggedUserId,
         bookId: state.bookId,
         newCurrentPageNumber: event.currentPageNumber,
       );

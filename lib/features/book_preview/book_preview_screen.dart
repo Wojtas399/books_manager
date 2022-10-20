@@ -1,9 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:app/components/bloc_listener_component.dart';
+import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/interfaces/day_interface.dart';
 import 'package:app/domain/interfaces/dialog_interface.dart';
+import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/book/delete_book_use_case.dart';
 import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
 import 'package:app/domain/use_cases/book/start_reading_book_use_case.dart';
@@ -51,6 +53,9 @@ class _BookPreviewBlocProvider extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (BuildContext context) => BookPreviewBloc(
+        getLoggedUserIdUseCase: GetLoggedUserIdUseCase(
+          authInterface: context.read<AuthInterface>(),
+        ),
         getBookByIdUseCase: GetBookByIdUseCase(
           bookInterface: context.read<BookInterface>(),
         ),

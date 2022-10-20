@@ -237,13 +237,13 @@ void main() {
       );
 
       blocTest(
-        'should emit appropriate error if called use case throws book error because new current page is lower than current page',
+        'should emit appropriate error if called use case throws book error because new current page is lower than read pages amount from the book',
         build: () => createBloc(book: createBook(id: bookId)),
         setUp: () {
           getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
           updateCurrentPageNumberAfterReadingUseCase.mock(
             throwable: const BookError(
-              code: BookErrorCode.newCurrentPageIsLowerThanCurrentPage,
+              code: BookErrorCode.newCurrentPageIsLowerThanReadPagesAmount,
             ),
           );
         },
@@ -257,7 +257,8 @@ void main() {
           ),
           createState(
             status: const BlocStatusError<BookPreviewBlocError>(
-              error: BookPreviewBlocError.newCurrentPageIsLowerThanCurrentPage,
+              error:
+                  BookPreviewBlocError.newCurrentPageIsLowerThanReadPagesAmount,
             ),
             book: createBook(id: bookId),
           ),

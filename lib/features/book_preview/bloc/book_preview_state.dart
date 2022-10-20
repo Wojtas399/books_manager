@@ -55,5 +55,5 @@ enum BookPreviewBlocInfo {
 
 enum BookPreviewBlocError {
   newCurrentPageNumberIsTooHigh,
-  newCurrentPageIsLowerThanCurrentPage,
+  newCurrentPageIsLowerThanReadPagesAmount,
 }

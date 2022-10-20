@@ -147,10 +147,10 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
         BookPreviewBlocError.newCurrentPageNumberIsTooHigh,
       );
     } else if (bookError.code ==
-        BookErrorCode.newCurrentPageIsLowerThanCurrentPage) {
+        BookErrorCode.newCurrentPageIsLowerThanReadPagesAmount) {
       emitError<BookPreviewBlocError>(
         emit,
-        BookPreviewBlocError.newCurrentPageIsLowerThanCurrentPage,
+        BookPreviewBlocError.newCurrentPageIsLowerThanReadPagesAmount,
       );
     }
   }

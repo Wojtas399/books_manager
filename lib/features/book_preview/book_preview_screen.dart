@@ -117,7 +117,7 @@ class _BookPreviewBlocListener extends StatelessWidget {
       case BookPreviewBlocError.newCurrentPageNumberIsTooHigh:
         _showInfoAboutTooHighNumberOfNewCurrentPage(context);
         break;
-      case BookPreviewBlocError.newCurrentPageIsLowerThanCurrentPage:
+      case BookPreviewBlocError.newCurrentPageIsLowerThanReadPagesAmount:
         _showInfoAboutNewPageNumberLowerThanCurrentPageNumber(context);
         break;
     }

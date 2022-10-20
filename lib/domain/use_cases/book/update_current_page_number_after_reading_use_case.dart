@@ -1,7 +1,9 @@
+import 'package:app/config/errors.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/entities/read_book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/use_cases/day/add_new_read_book_to_user_days_use_case.dart';
+import 'package:app/models/error.dart';
 
 class UpdateCurrentPageNumberAfterReadingUseCase {
   late final BookInterface _bookInterface;
@@ -40,12 +42,24 @@ class UpdateCurrentPageNumberAfterReadingUseCase {
     String bookId,
     int newCurrentPageNumber,
   ) async {
-    final int currentPageNumber = await _loadBookCurrentPageNumber(bookId);
-    return newCurrentPageNumber - currentPageNumber;
+    final Book book = await _loadBook(bookId);
+    if (newCurrentPageNumber > book.allPagesAmount) {
+      throw const BookError(
+        code: BookErrorCode.newCurrentPageIsTooHigh,
+      );
+    } else if (newCurrentPageNumber <= book.readPagesAmount) {
+      throw const BookError(
+        code: BookErrorCode.newCurrentPageIsLowerThanReadPagesAmount,
+      );
+    }
+    return newCurrentPageNumber - book.readPagesAmount;
   }
 
-  Future<int> _loadBookCurrentPageNumber(String bookId) async {
+  Future<Book> _loadBook(String bookId) async {
     final Book? book = await _bookInterface.getBookById(bookId: bookId).first;
-    return book?.readPagesAmount ?? 0;
+    if (book == null) {
+      throw '(UpdateCurrentPageNumberAfterReadingUseCase) Cannot load book';
+    }
+    return book;
   }
 }

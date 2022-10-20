@@ -35,8 +35,8 @@ class DaySynchronizer {
       syncState: SyncState.added,
     );
     for (final Day day in daysMarkedAsAdded) {
-      await _addReadBooksFromDayToRemoteDb(day);
-      await _setSyncStateAsNoneInLocalDbForAllReadBooksFromDay(day);
+      await _dayRemoteDbService.addDay(day: day);
+      await _setSyncStateAsNoneForDay(day);
     }
   }
 
@@ -48,8 +48,8 @@ class DaySynchronizer {
       syncState: SyncState.updated,
     );
     for (final Day day in daysMarkedAsUpdated) {
-      await _updateReadBooksFromDayInRemoteDb(day);
-      await _setSyncStateAsNoneInLocalDbForAllReadBooksFromDay(day);
+      await _dayRemoteDbService.updateDay(updatedDay: day);
+      await _setSyncStateAsNoneForDay(day);
     }
   }
 
@@ -67,68 +67,25 @@ class DaySynchronizer {
       final Day? remoteDay = remoteDays.getDayByDate(date);
       final Day? localDay = localDays.getDayByDate(date);
       if (localDay != null && remoteDay != null && remoteDay != localDay) {
-        await _updateReadBooksFromDayInLocalDb(remoteDay);
+        await _dayLocalDbService.updateDay(
+          userId: remoteDay.userId,
+          date: date,
+          readBooks: remoteDay.readBooks,
+        );
       } else if (remoteDay != null && localDay == null) {
-        await _addReadBooksFromDayToLocalDb(remoteDay);
+        await _dayLocalDbService.addDay(day: remoteDay);
       } else if (remoteDay == null && localDay != null) {
-        await _addReadBooksFromDayToRemoteDb(localDay);
+        await _dayRemoteDbService.addDay(day: localDay);
       }
     }
   }
 
-  Future<void> _addReadBooksFromDayToRemoteDb(Day day) async {
-    // for (final ReadBook readBook in day.readBooks) {
-    //   await _dayRemoteDbService.addUserReadBook(
-    //     readBook: readBook,
-    //     userId: day.userId,
-    //     date: DateMapper.mapFromDateTimeToString(day.date),
-    //   );
-    // }
-  }
-
-  Future<void> _addReadBooksFromDayToLocalDb(Day day) async {
-    // for (final ReadBook readBook in day.readBooks) {
-    //   await _dayLocalDbService.addUserReadBook(
-    //     readBook: readBook,
-    //     userId: day.userId,
-    //     date: DateMapper.mapFromDateTimeToString(day.date),
-    //   );
-    // }
-  }
-
-  Future<void> _updateReadBooksFromDayInRemoteDb(Day day) async {
-    // for (final ReadBook readBook in day.readBooks) {
-    //   await _dayRemoteDbService.updateBookReadPagesAmountInDay(
-    //     updatedReadBook: readBook,
-    //     userId: day.userId,
-    //     date: DateMapper.mapFromDateTimeToString(day.date),
-    //   );
-    // }
-  }
-
-  Future<void> _updateReadBooksFromDayInLocalDb(Day day) async {
-    // for (final ReadBook readBook in day.readBooks) {
-    //   await _dayLocalDbService.updateReadBook(
-    //     userId: day.userId,
-    //     date: DateMapper.mapFromDateTimeToString(day.date),
-    //     bookId: readBook.bookId,
-    //     readPagesAmount: readBook.readPagesAmount,
-    //     syncState: SyncState.none,
-    //   );
-    // }
-  }
-
-  Future<void> _setSyncStateAsNoneInLocalDbForAllReadBooksFromDay(
-    Day day,
-  ) async {
-    // for (final ReadBook readBook in day.readBooks) {
-    //   await _dayLocalDbService.updateReadBook(
-    //     userId: day.userId,
-    //     date: DateMapper.mapFromDateTimeToString(day.date),
-    //     bookId: readBook.bookId,
-    //     syncState: SyncState.none,
-    //   );
-    // }
+  Future<void> _setSyncStateAsNoneForDay(Day day) async {
+    await _dayLocalDbService.updateDay(
+      userId: day.userId,
+      date: day.date,
+      syncState: SyncState.none,
+    );
   }
 }
 

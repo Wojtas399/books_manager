@@ -144,6 +144,7 @@ void main() {
 
       void callUpdateCurrentPageNumberAfterReadingUseCase() =>
           updateCurrentPageNumberAfterReadingUseCase.execute(
+            userId: '',
             bookId: bookId,
             newCurrentPageNumber: newCurrentPageNumber,
           );

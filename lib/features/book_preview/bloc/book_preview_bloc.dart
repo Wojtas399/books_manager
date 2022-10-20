@@ -99,6 +99,7 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
     emitLoadingStatus(emit);
     try {
       await _updateCurrentPageNumberAfterReadingUseCase.execute(
+        userId: '',
         bookId: state.bookId,
         newCurrentPageNumber: event.currentPageNumber,
       );

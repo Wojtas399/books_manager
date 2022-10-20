@@ -1,6 +1,8 @@
 import 'package:app/domain/entities/day.dart';
 import 'package:app/domain/entities/read_book.dart';
 import 'package:app/domain/interfaces/day_interface.dart';
+import 'package:app/extensions/list_of_days_extensions.dart';
+import 'package:app/extensions/list_of_read_books_extensions.dart';
 import 'package:app/providers/date_provider.dart';
 
 class AddNewReadBookToUserDaysUseCase {
@@ -63,28 +65,5 @@ class AddNewReadBookToUserDaysUseCase {
     return day.copyWith(
       readBooks: updatedReadBooks,
     );
-  }
-}
-
-extension DaysExtensions on List<Day> {
-  bool doesNotContainDate(DateTime date) {
-    final List<DateTime> dates = map((Day day) => day.date).toList();
-    return !dates.contains(date);
-  }
-
-  Day selectDayByDate(DateTime date) {
-    return firstWhere((Day day) => day.date == date);
-  }
-}
-
-extension ReadBooksExtensions on List<ReadBook> {
-  bool doesNotContainBook(String bookId) {
-    final List<String> booksIds =
-        map((ReadBook readBook) => readBook.bookId).toList();
-    return !booksIds.contains(bookId);
-  }
-
-  int selectReadBookIndexByBookId(String bookId) {
-    return indexWhere((ReadBook readBook) => readBook.bookId == bookId);
   }
 }

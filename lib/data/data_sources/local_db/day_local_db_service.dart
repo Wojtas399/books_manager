@@ -4,8 +4,8 @@ import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/data/mappers/date_mapper.dart';
 import 'package:app/domain/entities/day.dart';
 import 'package:app/domain/entities/read_book.dart';
-import 'package:app/domain/use_cases/day/add_new_read_book_to_user_days_use_case.dart';
 import 'package:app/extensions/list_extensions.dart';
+import 'package:app/extensions/list_of_read_books_extensions.dart';
 
 class DayLocalDbService {
   late final SqliteReadBookService _sqliteReadBookService;

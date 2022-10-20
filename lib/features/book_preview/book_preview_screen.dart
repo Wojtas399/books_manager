@@ -11,6 +11,7 @@ import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
 import 'package:app/domain/use_cases/book/start_reading_book_use_case.dart';
 import 'package:app/domain/use_cases/book/update_current_page_number_after_reading_use_case.dart';
 import 'package:app/domain/use_cases/day/add_new_read_book_to_user_days_use_case.dart';
+import 'package:app/domain/use_cases/day/delete_book_from_user_days_use_case.dart';
 import 'package:app/features/book_preview/bloc/book_preview_bloc.dart';
 import 'package:app/features/book_preview/book_preview_arguments.dart';
 import 'package:app/features/book_preview/components/book_preview_content.dart';
@@ -72,6 +73,9 @@ class _BookPreviewBlocProvider extends StatelessWidget {
         ),
         deleteBookUseCase: DeleteBookUseCase(
           bookInterface: context.read<BookInterface>(),
+          deleteBookFromUserDaysUseCase: DeleteBookFromUserDaysUseCase(
+            dayInterface: context.read<DayInterface>(),
+          ),
         ),
         bookId: bookId,
         initialBookImageData: initialBookImageData,

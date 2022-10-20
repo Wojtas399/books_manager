@@ -126,7 +126,15 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
     Emitter<BookPreviewState> emit,
   ) async {
     emitLoadingStatus(emit);
-    await _deleteBookUseCase.execute(bookId: state.bookId);
+    final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
+    if (loggedUserId == null) {
+      emitLoggedUserNotFoundStatus(emit);
+      return;
+    }
+    await _deleteBookUseCase.execute(
+      bookId: state.bookId,
+      userId: loggedUserId,
+    );
     emitInfo<BookPreviewBlocInfo>(emit, BookPreviewBlocInfo.bookHasBeenDeleted);
   }
 

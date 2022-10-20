@@ -6,6 +6,7 @@ class MockDeleteBookUseCase extends Mock implements DeleteBookUseCase {
     when(
       () => execute(
         bookId: any(named: 'bookId'),
+        userId: any(named: 'userId'),
       ),
     ).thenAnswer((_) async => '');
   }

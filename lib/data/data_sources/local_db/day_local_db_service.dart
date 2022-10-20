@@ -4,6 +4,7 @@ import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/data/mappers/date_mapper.dart';
 import 'package:app/domain/entities/day.dart';
 import 'package:app/domain/entities/read_book.dart';
+import 'package:app/domain/use_cases/day/add_new_read_book_to_user_days_use_case.dart';
 import 'package:app/extensions/list_extensions.dart';
 
 class DayLocalDbService {
@@ -63,15 +64,9 @@ class DayLocalDbService {
     SyncState? syncState,
   }) async {
     if (readBooks != null) {
-      for (final ReadBook readBook in readBooks) {
-        await _sqliteReadBookService.updateReadBook(
-          userId: userId,
-          date: DateMapper.mapFromDateTimeToString(date),
-          bookId: readBook.bookId,
-          readPagesAmount: readBook.readPagesAmount,
-          syncState: syncState,
-        );
-      }
+      final String dateAsStr = DateMapper.mapFromDateTimeToString(date);
+      await _updateReadBooks(userId, dateAsStr, readBooks, syncState);
+      await _deleteUnusedReadBooksFromDay(userId, dateAsStr, readBooks);
     } else if (syncState != null) {
       await _sqliteReadBookService.updateReadBooksSyncState(
         userId: userId,
@@ -110,6 +105,54 @@ class DayLocalDbService {
       }
     }
     return days;
+  }
+
+  Future<void> _updateReadBooks(
+    String userId,
+    String date,
+    List<ReadBook> updatedReadBooks,
+    SyncState? syncState,
+  ) async {
+    for (final ReadBook readBook in updatedReadBooks) {
+      await _sqliteReadBookService.updateReadBook(
+        userId: userId,
+        date: date,
+        bookId: readBook.bookId,
+        readPagesAmount: readBook.readPagesAmount,
+        syncState: syncState,
+      );
+    }
+  }
+
+  Future<void> _deleteUnusedReadBooksFromDay(
+    String userId,
+    String date,
+    List<ReadBook> updatedReadBooks,
+  ) async {
+    final List<ReadBook> existingReadBooks =
+        await _loadReadBooksFromDay(userId, date);
+    for (final ReadBook readBook in existingReadBooks) {
+      final String bookId = readBook.bookId;
+      if (updatedReadBooks.doesNotContainBook(bookId)) {
+        await _sqliteReadBookService.deleteReadBook(
+          userId: userId,
+          date: date,
+          bookId: bookId,
+        );
+      }
+    }
+  }
+
+  Future<List<ReadBook>> _loadReadBooksFromDay(
+    String userId,
+    String date,
+  ) async {
+    final List<SqliteReadBook> readBooks =
+        await _sqliteReadBookService.loadUserReadBooks(
+      userId: userId,
+      date: date,
+    );
+    return _segregateReadBooksIntoDbDays(readBooks).first.readBooks;
   }
 
   Day _createDay(SqliteReadBook sqliteReadBook) {

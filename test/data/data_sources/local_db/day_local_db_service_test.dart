@@ -216,19 +216,40 @@ void main() {
       final String dateAsStr = DateMapper.mapFromDateTimeToString(date);
 
       test(
-        'list of read books is not null, should update every read book in sqlite',
+        'list of read books is not null, should update every read book in sqlite and should delete unused read books',
         () async {
-          final List<ReadBook> readBooks = [
+          final List<SqliteReadBook> existingReadBooks = [
+            createSqliteReadBook(
+              date: '15-10-2022',
+              bookId: 'b1',
+              readPagesAmount: 50,
+            ),
+            createSqliteReadBook(
+              date: '15-10-2022',
+              bookId: 'b3',
+              readPagesAmount: 100,
+            ),
+            createSqliteReadBook(
+              date: '15-10-2022',
+              bookId: 'b2',
+              readPagesAmount: 150,
+            ),
+          ];
+          final List<ReadBook> newReadBooks = [
             createReadBook(bookId: 'b1', readPagesAmount: 100),
             createReadBook(bookId: 'b2', readPagesAmount: 200),
           ];
           const SyncState syncState = SyncState.updated;
+          sqliteReadBookService.mockLoadUserReadBooks(
+            userReadBooks: existingReadBooks,
+          );
           sqliteReadBookService.mockUpdateReadBook();
+          sqliteReadBookService.mockDeleteReadBook();
 
           await service.updateDay(
             userId: userId,
             date: date,
-            readBooks: readBooks,
+            readBooks: newReadBooks,
             syncState: syncState,
           );
 
@@ -236,8 +257,8 @@ void main() {
             () => sqliteReadBookService.updateReadBook(
               userId: userId,
               date: dateAsStr,
-              bookId: readBooks.first.bookId,
-              readPagesAmount: readBooks.first.readPagesAmount,
+              bookId: newReadBooks.first.bookId,
+              readPagesAmount: newReadBooks.first.readPagesAmount,
               syncState: syncState,
             ),
           ).called(1);
@@ -245,9 +266,16 @@ void main() {
             () => sqliteReadBookService.updateReadBook(
               userId: userId,
               date: dateAsStr,
-              bookId: readBooks.last.bookId,
-              readPagesAmount: readBooks.last.readPagesAmount,
+              bookId: newReadBooks.last.bookId,
+              readPagesAmount: newReadBooks.last.readPagesAmount,
               syncState: syncState,
+            ),
+          ).called(1);
+          verify(
+            () => sqliteReadBookService.deleteReadBook(
+              userId: userId,
+              date: existingReadBooks[1].date,
+              bookId: existingReadBooks[1].bookId,
             ),
           ).called(1);
         },

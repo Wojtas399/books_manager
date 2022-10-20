@@ -102,7 +102,22 @@ class SqliteReadBookService {
     required String userId,
     required String date,
   }) async {
-    await _deleteReadBooksByUserIdAndDate(userId, date);
+    await _deleteReadBooks(
+      userId: userId,
+      date: date,
+    );
+  }
+
+  Future<void> deleteReadBook({
+    required String userId,
+    required String date,
+    required String bookId,
+  }) async {
+    await _deleteReadBooks(
+      userId: userId,
+      date: date,
+      bookId: bookId,
+    );
   }
 
   Future<List<Map<String, Object?>>> _queryUserReadBooks({
@@ -184,16 +199,20 @@ class SqliteReadBookService {
     );
   }
 
-  Future<void> _deleteReadBooksByUserIdAndDate(
-    String userId,
-    String date,
-  ) async {
+  Future<void> _deleteReadBooks({
+    required String userId,
+    String? date,
+    String? bookId,
+  }) async {
     final Database database = await SqliteDatabase.instance.database;
-    await database.delete(
-      SqliteTables.readBooksTable,
-      where:
-          '${SqliteReadBookFields.userId} = ? AND ${SqliteReadBookFields.date} = ?',
-      whereArgs: [userId, date],
-    );
+    String query = "DELETE FROM ${SqliteTables.readBooksTable}";
+    query += " WHERE ${SqliteReadBookFields.userId} = '$userId'";
+    if (date != null) {
+      query += " AND ${SqliteReadBookFields.date} = '$date'";
+    }
+    if (bookId != null) {
+      query += " AND ${SqliteReadBookFields.bookId} = '$bookId'";
+    }
+    await database.rawQuery(query);
   }
 }

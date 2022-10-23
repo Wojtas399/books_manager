@@ -7,10 +7,8 @@ import 'package:app/data/id_generator.dart';
 import 'package:app/data/synchronizers/book_synchronizer.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
-import 'package:app/extensions/book_extensions.dart';
 import 'package:app/models/device.dart';
 import 'package:app/models/repository.dart';
-import 'package:rxdart/rxdart.dart';
 
 class BookRepository extends Repository<Book> implements BookInterface {
   late final BookSynchronizer _bookSynchronizer;
@@ -41,40 +39,42 @@ class BookRepository extends Repository<Book> implements BookInterface {
   @override
   Future<void> initializeForUser({required String userId}) async {
     if (await _device.hasInternetConnection()) {
-      await _bookSynchronizer.synchronizeUserBooksMarkedAsDeleted(
-        userId: userId,
-      );
-      await _bookSynchronizer.synchronizeUserBooksMarkedAsAdded(userId: userId);
-      await _bookSynchronizer.synchronizeUserBooksMarkedAsUpdated(
-        userId: userId,
-      );
-      await _bookSynchronizer.synchronizeUnmodifiedUserBooks(userId: userId);
+      // await _bookSynchronizer.synchronizeUserBooksMarkedAsDeleted(
+      //   userId: userId,
+      // );
+      // await _bookSynchronizer.synchronizeUserBooksMarkedAsAdded(userId: userId);
+      // await _bookSynchronizer.synchronizeUserBooksMarkedAsUpdated(
+      //   userId: userId,
+      // );
+      // await _bookSynchronizer.synchronizeUnmodifiedUserBooks(userId: userId);
     }
   }
 
   @override
   Stream<Book?> getBookById({required String bookId}) {
-    return stream.map(
-      (List<Book>? books) {
-        if (books == null) {
-          return null;
-        }
-        final List<Book?> allBooks = [...books];
-        return allBooks.firstWhere(
-          (Book? book) => book?.id == bookId,
-          orElse: () => null,
-        );
-      },
-    ).whereType<Book>();
+    return const Stream.empty();
+    // return stream.map(
+    //   (List<Book>? books) {
+    //     if (books == null) {
+    //       return null;
+    //     }
+    //     final List<Book?> allBooks = [...books];
+    //     return allBooks.firstWhere(
+    //       (Book? book) => book?.id == bookId,
+    //       orElse: () => null,
+    //     );
+    //   },
+    // ).whereType<Book>();
   }
 
   @override
   Stream<List<Book>?> getBooksByUserId({required String userId}) {
-    return stream.map(
-      (List<Book>? books) {
-        return books?.where((Book book) => book.belongsTo(userId)).toList();
-      },
-    );
+    return const Stream.empty();
+    // return stream.map(
+    //   (List<Book>? books) {
+    //     return books?.where((Book book) => book.belongsTo(userId)).toList();
+    //   },
+    // );
   }
 
   @override
@@ -82,11 +82,11 @@ class BookRepository extends Repository<Book> implements BookInterface {
     required String userId,
     BookStatus? bookStatus,
   }) async {
-    final List<Book> books = await _bookLocalDbService.loadUserBooks(
-      userId: userId,
-      bookStatus: bookStatus?.name,
-    );
-    addEntities(books);
+    // final List<Book> books = await _bookLocalDbService.loadUserBooks(
+    //   userId: userId,
+    //   bookStatus: bookStatus?.name,
+    // );
+    // addEntities(books);
   }
 
   @override
@@ -99,23 +99,23 @@ class BookRepository extends Repository<Book> implements BookInterface {
     required int readPagesAmount,
     required int allPagesAmount,
   }) async {
-    final Book book = Book(
-      id: _idGenerator.generateRandomId(),
-      imageData: imageData,
-      userId: userId,
-      status: status,
-      title: title,
-      author: author,
-      readPagesAmount: readPagesAmount,
-      allPagesAmount: allPagesAmount,
-    );
-    SyncState syncState = SyncState.added;
-    if (await _device.hasInternetConnection()) {
-      await _bookRemoteDbService.addBook(book: book);
-      syncState = SyncState.none;
-    }
-    await _bookLocalDbService.addBook(book: book, syncState: syncState);
-    addEntity(book);
+    // final Book book = Book(
+    //   id: _idGenerator.generateRandomId(),
+    //   imageData: imageData,
+    //   userId: userId,
+    //   status: status,
+    //   title: title,
+    //   author: author,
+    //   readPagesAmount: readPagesAmount,
+    //   allPagesAmount: allPagesAmount,
+    // );
+    // SyncState syncState = SyncState.added;
+    // if (await _device.hasInternetConnection()) {
+    //   await _bookRemoteDbService.addBook(book: book);
+    //   syncState = SyncState.none;
+    // }
+    // await _bookLocalDbService.addBook(book: book, syncState: syncState);
+    // addEntity(book);
   }
 
   @override
@@ -127,33 +127,33 @@ class BookRepository extends Repository<Book> implements BookInterface {
     int? readPagesAmount,
     int? allPagesAmount,
   }) async {
-    final String? userId = _getIdOfUserAssignedToBook(bookId);
-    SyncState syncState = SyncState.updated;
-    if (userId == null) {
-      return;
-    }
-    if (await _device.hasInternetConnection()) {
-      await _bookRemoteDbService.updateBookData(
-        bookId: bookId,
-        userId: userId,
-        status: bookStatus?.name,
-        title: title,
-        author: author,
-        readPagesAmount: readPagesAmount,
-        allPagesAmount: allPagesAmount,
-      );
-      syncState = SyncState.none;
-    }
-    final Book updatedBook = await _bookLocalDbService.updateBookData(
-      bookId: bookId,
-      status: bookStatus?.name,
-      title: title,
-      author: author,
-      readPagesAmount: readPagesAmount,
-      allPagesAmount: allPagesAmount,
-      syncState: syncState,
-    );
-    updateEntity(updatedBook);
+    // final String? userId = _getIdOfUserAssignedToBook(bookId);
+    // SyncState syncState = SyncState.updated;
+    // if (userId == null) {
+    //   return;
+    // }
+    // if (await _device.hasInternetConnection()) {
+    //   await _bookRemoteDbService.updateBookData(
+    //     bookId: bookId,
+    //     userId: userId,
+    //     status: bookStatus?.name,
+    //     title: title,
+    //     author: author,
+    //     readPagesAmount: readPagesAmount,
+    //     allPagesAmount: allPagesAmount,
+    //   );
+    //   syncState = SyncState.none;
+    // }
+    // final Book updatedBook = await _bookLocalDbService.updateBookData(
+    //   bookId: bookId,
+    //   status: bookStatus?.name,
+    //   title: title,
+    //   author: author,
+    //   readPagesAmount: readPagesAmount,
+    //   allPagesAmount: allPagesAmount,
+    //   syncState: syncState,
+    // );
+    // updateEntity(updatedBook);
   }
 
   @override
@@ -161,59 +161,59 @@ class BookRepository extends Repository<Book> implements BookInterface {
     required String bookId,
     required Uint8List? imageData,
   }) async {
-    final String? userId = _getIdOfUserAssignedToBook(bookId);
-    SyncState? newSyncState;
-    if (userId == null) {
-      return;
-    }
-    if (await _device.hasInternetConnection()) {
-      await _bookRemoteDbService.updateBookImage(
-        bookId: bookId,
-        userId: userId,
-        imageData: imageData,
-      );
-    } else {
-      newSyncState = SyncState.updated;
-    }
-    Book updatedBook = await _bookLocalDbService.updateBookImage(
-      bookId: bookId,
-      userId: userId,
-      imageData: imageData,
-    );
-    if (newSyncState != null) {
-      updatedBook = await _bookLocalDbService.updateBookData(
-        bookId: bookId,
-        syncState: newSyncState,
-      );
-    }
-    updateEntity(updatedBook);
+    // final String? userId = _getIdOfUserAssignedToBook(bookId);
+    // SyncState? newSyncState;
+    // if (userId == null) {
+    //   return;
+    // }
+    // if (await _device.hasInternetConnection()) {
+    //   await _bookRemoteDbService.updateBookImage(
+    //     bookId: bookId,
+    //     userId: userId,
+    //     imageData: imageData,
+    //   );
+    // } else {
+    //   newSyncState = SyncState.updated;
+    // }
+    // Book updatedBook = await _bookLocalDbService.updateBookImage(
+    //   bookId: bookId,
+    //   userId: userId,
+    //   imageData: imageData,
+    // );
+    // if (newSyncState != null) {
+    //   updatedBook = await _bookLocalDbService.updateBookData(
+    //     bookId: bookId,
+    //     syncState: newSyncState,
+    //   );
+    // }
+    // updateEntity(updatedBook);
   }
 
   @override
   Future<void> deleteBook({required String bookId}) async {
-    final String? userId = _getIdOfUserAssignedToBook(bookId);
-    if (userId != null && await _device.hasInternetConnection()) {
-      await _bookRemoteDbService.deleteBook(userId: userId, bookId: bookId);
-      await _bookLocalDbService.deleteBook(userId: userId, bookId: bookId);
-    } else {
-      await _bookLocalDbService.updateBookData(
-        bookId: bookId,
-        syncState: SyncState.deleted,
-      );
-    }
-    removeEntity(bookId);
+    // final String? userId = _getIdOfUserAssignedToBook(bookId);
+    // if (userId != null && await _device.hasInternetConnection()) {
+    //   await _bookRemoteDbService.deleteBook(userId: userId, bookId: bookId);
+    //   await _bookLocalDbService.deleteBook(userId: userId, bookId: bookId);
+    // } else {
+    //   await _bookLocalDbService.updateBookData(
+    //     bookId: bookId,
+    //     syncState: SyncState.deleted,
+    //   );
+    // }
+    // removeEntity(bookId);
   }
 
   @override
   Future<void> deleteAllUserBooks({required String userId}) async {
-    final List<Book> userBooks = await _bookLocalDbService.loadUserBooks(
-      userId: userId,
-    );
-    if (await _device.hasInternetConnection()) {
-      await _deleteEachBookFromBothDatabases(userBooks);
-    } else {
-      await _markEachBookAsDeletedInLocalDb(userBooks);
-    }
+    // final List<Book> userBooks = await _bookLocalDbService.loadUserBooks(
+    //   userId: userId,
+    // );
+    // if (await _device.hasInternetConnection()) {
+    //   await _deleteEachBookFromBothDatabases(userBooks);
+    // } else {
+    //   await _markEachBookAsDeletedInLocalDb(userBooks);
+    // }
   }
 
   String? _getIdOfUserAssignedToBook(String bookId) {

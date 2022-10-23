@@ -1,5 +1,4 @@
 import 'package:app/data/data_sources/local_db/day_local_db_service.dart';
-import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:app/data/data_sources/remote_db/day_remote_db_service.dart';
 import 'package:app/data/synchronizers/day_synchronizer.dart';
 import 'package:app/domain/entities/day.dart';
@@ -44,9 +43,9 @@ class DayRepository extends Repository<Day> implements DayInterface {
   @override
   Future<void> initializeForUser({required String userId}) async {
     if (await _device.hasInternetConnection()) {
-      await _daySynchronizer.synchronizeUserDaysMarkedAsAdded(userId: userId);
-      await _daySynchronizer.synchronizeUserDaysMarkedAsUpdated(userId: userId);
-      await _daySynchronizer.synchronizeUserUnmodifiedDays(userId: userId);
+      // await _daySynchronizer.synchronizeUserDaysMarkedAsAdded(userId: userId);
+      // await _daySynchronizer.synchronizeUserDaysMarkedAsUpdated(userId: userId);
+      // await _daySynchronizer.synchronizeUserUnmodifiedDays(userId: userId);
     }
   }
 
@@ -56,42 +55,42 @@ class DayRepository extends Repository<Day> implements DayInterface {
     required int month,
     required int year,
   }) async {
-    final List<Day> userDays = await _dayLocalDbService.loadUserDaysFromMonth(
-      userId: userId,
-      month: month,
-      year: year,
-    );
-    addEntities(userDays);
+    // final List<Day> userDays = await _dayLocalDbService.loadUserDaysFromMonth(
+    //   userId: userId,
+    //   month: month,
+    //   year: year,
+    // );
+    // addEntities(userDays);
   }
 
   @override
   Future<void> addNewDay({required Day day}) async {
-    SyncState syncState = SyncState.added;
-    if (await _device.hasInternetConnection()) {
-      await _dayRemoteDbService.addDay(day: day);
-      syncState = SyncState.none;
-    }
-    await _dayLocalDbService.addDay(
-      day: day,
-      syncState: syncState,
-    );
-    addEntity(day);
+    // SyncState syncState = SyncState.added;
+    // if (await _device.hasInternetConnection()) {
+    //   await _dayRemoteDbService.addDay(day: day);
+    //   syncState = SyncState.none;
+    // }
+    // await _dayLocalDbService.addDay(
+    //   day: day,
+    //   syncState: syncState,
+    // );
+    // addEntity(day);
   }
 
   @override
   Future<void> updateDay({required Day updatedDay}) async {
-    SyncState syncState = SyncState.updated;
-    if (await _device.hasInternetConnection()) {
-      await _dayRemoteDbService.updateDay(updatedDay: updatedDay);
-      syncState = SyncState.none;
-    }
-    await _dayLocalDbService.updateDay(
-      userId: updatedDay.userId,
-      date: updatedDay.date,
-      readBooks: updatedDay.readBooks,
-      syncState: syncState,
-    );
-    updateEntity(updatedDay);
+    // SyncState syncState = SyncState.updated;
+    // if (await _device.hasInternetConnection()) {
+    //   await _dayRemoteDbService.updateDay(updatedDay: updatedDay);
+    //   syncState = SyncState.none;
+    // }
+    // await _dayLocalDbService.updateDay(
+    //   userId: updatedDay.userId,
+    //   date: updatedDay.date,
+    //   readBooks: updatedDay.readBooks,
+    //   syncState: syncState,
+    // );
+    // updateEntity(updatedDay);
   }
 
   @override
@@ -99,18 +98,18 @@ class DayRepository extends Repository<Day> implements DayInterface {
     required String userId,
     required DateTime date,
   }) async {
-    if (await _device.hasInternetConnection()) {
-      await _dayRemoteDbService.deleteDay(userId: userId, date: date);
-      await _dayLocalDbService.deleteDay(userId: userId, date: date);
-    } else {
-      await _dayLocalDbService.updateDay(
-        userId: userId,
-        date: date,
-        syncState: SyncState.deleted,
-      );
-    }
-    final String dayId = _getDayId(userId, date);
-    removeEntity(dayId);
+    // if (await _device.hasInternetConnection()) {
+    //   await _dayRemoteDbService.deleteDay(userId: userId, date: date);
+    //   await _dayLocalDbService.deleteDay(userId: userId, date: date);
+    // } else {
+    //   await _dayLocalDbService.updateDay(
+    //     userId: userId,
+    //     date: date,
+    //     syncState: SyncState.deleted,
+    //   );
+    // }
+    // final String dayId = _getDayId(userId, date);
+    // removeEntity(dayId);
   }
 
   String _getDayId(String userId, DateTime date) {

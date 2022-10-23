@@ -1,15 +1,18 @@
+import 'package:app/config/themes/global_material_theme.dart';
+import 'package:app/features/sign_in/sign_in_screen.dart';
+import 'package:app/firebase_options.dart';
+import 'package:app/global_provider.dart';
 import 'package:app/providers/theme_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'config/themes/global_material_theme.dart';
-import 'features/sign_in/sign_in_screen.dart';
-import 'global_provider.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    name: 'BooksManager',
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 

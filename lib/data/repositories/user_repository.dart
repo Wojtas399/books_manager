@@ -1,29 +1,19 @@
-import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
-import 'package:app/data/data_sources/local_db/user_local_db_service.dart';
-import 'package:app/data/data_sources/remote_db/user_remote_db_service.dart';
-import 'package:app/data/synchronizers/user_synchronizer.dart';
+import 'dart:async';
+
+import 'package:app/data/data_sources/users_data_source.dart';
 import 'package:app/domain/entities/user.dart';
 import 'package:app/domain/interfaces/user_interface.dart';
-import 'package:app/models/device.dart';
 import 'package:app/models/repository.dart';
 
 class UserRepository extends Repository<User> implements UserInterface {
-  late final UserSynchronizer _userSynchronizer;
-  late final UserLocalDbService _userLocalDbService;
-  late final UserRemoteDbService _userRemoteDbService;
-  late final Device _device;
+  late final UsersDataSource _usersDataSource;
+  StreamSubscription<User?>? _userListener;
 
   UserRepository({
-    required UserSynchronizer userSynchronizer,
-    required UserLocalDbService userLocalDbService,
-    required UserRemoteDbService userRemoteDbService,
-    required Device device,
+    required UsersDataSource usersDataSource,
     List<User>? users,
   }) {
-    _userSynchronizer = userSynchronizer;
-    _userLocalDbService = userLocalDbService;
-    _userRemoteDbService = userRemoteDbService;
-    _device = device;
+    _usersDataSource = usersDataSource;
 
     if (users != null) {
       addEntities(users);
@@ -31,41 +21,36 @@ class UserRepository extends Repository<User> implements UserInterface {
   }
 
   @override
-  Future<void> initializeUser({required String userId}) async {
-    // if (await _device.hasInternetConnection()) {
-    //   await _userSynchronizer.synchronizeUser(userId: userId);
-    // }
+  void reset() {
+    _resetUserListener();
+    super.reset();
   }
 
   @override
   Stream<User?> getUser({required String userId}) {
-    return const Stream.empty();
-    // return stream.map(
-    //   (List<User>? users) {
-    //     final List<User?> allUsers = [...?users];
-    //     return allUsers.firstWhere(
-    //       (User? user) => user?.id == userId,
-    //       orElse: () => null,
-    //     );
-    //   },
-    // );
+    return stream.map(
+      (List<User>? users) {
+        final List<User?> allUsers = [...?users];
+        return allUsers.firstWhere(
+          (User? user) => user?.id == userId,
+          orElse: () => null,
+        );
+      },
+    );
   }
 
   @override
   Future<void> loadUser({required String userId}) async {
-    // final User user = await _userRemoteDbService.loadUser(userId: userId);
-    // addEntity(user);
+    _resetUserListener();
+    _userListener ??= _usersDataSource
+        .getUserStream(userId: userId)
+        .listen((User? user) => _manageUser(userId, user));
   }
 
   @override
   Future<void> addUser({required User user}) async {
-    // SyncState syncState = SyncState.added;
-    // if (await _device.hasInternetConnection()) {
-    //   await _userRemoteDbService.addUser(user: user);
-    //   syncState = SyncState.none;
-    // }
-    // await _userLocalDbService.addUser(user: user, syncState: syncState);
-    // addEntity(user);
+    await _usersDataSource.addUser(user: user);
+    addEntity(user);
   }
 
   @override
@@ -74,60 +59,49 @@ class UserRepository extends Repository<User> implements UserInterface {
     bool? isDarkModeOn,
     bool? isDarkModeCompatibilityWithSystemOn,
   }) async {
-    // final User? originalUser = await getUser(userId: userId).first;
-    // if (originalUser == null) {
-    //   return;
-    // }
-    // final User updatedUser = originalUser.copyWith(
-    //   isDarkModeOn: isDarkModeOn,
-    //   isDarkModeCompatibilityWithSystemOn: isDarkModeCompatibilityWithSystemOn,
-    // );
-    // updateEntity(updatedUser);
-    // try {
-    //   await _tryUpdateUserThemeSettings(
-    //     userId,
-    //     isDarkModeOn,
-    //     isDarkModeCompatibilityWithSystemOn,
-    //   );
-    // } catch (_) {
-    //   updateEntity(originalUser);
-    // }
-  }
-
-  @override
-  Future<void> deleteUser({required String userId}) async {
-    // if (await _device.hasInternetConnection()) {
-    //   await _userRemoteDbService.deleteUser(userId: userId);
-    //   await _userLocalDbService.deleteUser(userId: userId);
-    // } else {
-    //   await _userLocalDbService.updateUser(
-    //     userId: userId,
-    //     syncState: SyncState.deleted,
-    //   );
-    // }
-    // removeEntity(userId);
-  }
-
-  Future<void> _tryUpdateUserThemeSettings(
-    String userId,
-    bool? isDarkModeOn,
-    bool? isDarkModeCompatibilityWithSystemOn,
-  ) async {
-    SyncState? syncState = SyncState.updated;
-    if (await _device.hasInternetConnection()) {
-      await _userRemoteDbService.updateUser(
+    final User? originalUser = await getUser(userId: userId).first;
+    if (originalUser == null) {
+      return;
+    }
+    final User updatedUser = originalUser.copyWith(
+      isDarkModeOn: isDarkModeOn,
+      isDarkModeCompatibilityWithSystemOn: isDarkModeCompatibilityWithSystemOn,
+    );
+    updateEntity(updatedUser);
+    try {
+      await _usersDataSource.updateUser(
         userId: userId,
         isDarkModeOn: isDarkModeOn,
         isDarkModeCompatibilityWithSystemOn:
             isDarkModeCompatibilityWithSystemOn,
       );
-      syncState = SyncState.none;
+    } catch (error) {
+      updateEntity(originalUser);
     }
-    await _userLocalDbService.updateUser(
-      userId: userId,
-      isDarkModeOn: isDarkModeOn,
-      isDarkModeCompatibilityWithSystemOn: isDarkModeCompatibilityWithSystemOn,
-      syncState: syncState,
-    );
+  }
+
+  @override
+  Future<void> deleteUser({required String userId}) async {
+    await _usersDataSource.deleteUser(userId: userId);
+    removeEntity(userId);
+  }
+
+  void _resetUserListener() {
+    _userListener?.cancel();
+    _userListener = null;
+  }
+
+  void _manageUser(String userId, User? user) {
+    if (user == null) {
+      removeEntity(userId);
+    } else {
+      final List<String> existingUsersIds =
+          <User>[...?value].map((User user) => user.id).toList();
+      if (existingUsersIds.contains(userId)) {
+        updateEntity(user);
+      } else {
+        addEntity(user);
+      }
+    }
   }
 }

@@ -1,8 +1,6 @@
 import 'package:app/domain/entities/user.dart';
 
 abstract class UserInterface {
-  Future<void> initializeUser({required String userId});
-
   Stream<User?> getUser({required String userId});
 
   Future<void> loadUser({required String userId});
@@ -16,4 +14,6 @@ abstract class UserInterface {
   });
 
   Future<void> deleteUser({required String userId});
+
+  void reset();
 }

@@ -17,19 +17,15 @@ void main() {
   );
 
   test(
-    'should call methods responsible for initializing user, his books and his days and should call method responsible for loading user data',
+    'should call methods responsible for initializing user books and his days and should call method responsible for loading user data',
     () async {
       const String userId = 'u1';
-      userInterface.mockInitializeUser();
       bookInterface.mockInitializeForUser();
       dayInterface.mockInitializeForUser();
       userInterface.mockLoadUser();
 
       await useCase.execute(userId: userId);
 
-      verify(
-        () => userInterface.initializeUser(userId: userId),
-      ).called(1);
       verify(
         () => bookInterface.initializeForUser(userId: userId),
       ).called(1);

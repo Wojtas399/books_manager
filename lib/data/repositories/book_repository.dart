@@ -69,7 +69,7 @@ class BookRepository extends Repository<Book> implements BookInterface {
 
   @override
   Stream<List<Book>?> getBooksByUserId({required String userId}) {
-    return const Stream.empty();
+    return Stream.value([]);
     // return stream.map(
     //   (List<Book>? books) {
     //     return books?.where((Book book) => book.belongsTo(userId)).toList();

@@ -2,6 +2,7 @@ import 'package:app/components/custom_button_component.dart';
 import 'package:app/config/navigation.dart';
 import 'package:app/config/themes/app_colors.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
+import 'package:app/domain/interfaces/user_interface.dart';
 import 'package:app/domain/use_cases/auth/sign_out_use_case.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -71,6 +72,7 @@ class _ExitButton extends StatelessWidget {
   Future<void> _onButtonPressed(BuildContext context) async {
     await SignOutUseCase(
       authInterface: context.read<AuthInterface>(),
+      userInterface: context.read<UserInterface>(),
     ).execute();
     Navigation.navigateToSignInScreen(context: context);
   }

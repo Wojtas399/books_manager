@@ -1,3 +1,4 @@
+import 'package:app/data/data_sources/firebase/services/firebase_database_users_service.dart';
 import 'package:app/data/data_sources/local_db/auth_local_db_service.dart';
 import 'package:app/data/data_sources/local_db/book_local_db_service.dart';
 import 'package:app/data/data_sources/local_db/day_local_db_service.dart';
@@ -5,8 +6,6 @@ import 'package:app/data/data_sources/local_db/local_storage_service.dart';
 import 'package:app/data/data_sources/local_db/shared_preferences_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/services/sqlite_book_service.dart';
 import 'package:app/data/data_sources/local_db/sqlite/services/sqlite_read_book_service.dart';
-import 'package:app/data/data_sources/local_db/sqlite/services/sqlite_user_service.dart';
-import 'package:app/data/data_sources/local_db/user_local_db_service.dart';
 import 'package:app/data/data_sources/remote_db/auth_remote_db_service.dart';
 import 'package:app/data/data_sources/remote_db/book_remote_db_service.dart';
 import 'package:app/data/data_sources/remote_db/day_remote_db_service.dart';
@@ -14,7 +13,7 @@ import 'package:app/data/data_sources/remote_db/firebase/services/firebase_auth_
 import 'package:app/data/data_sources/remote_db/firebase/services/firebase_firestore_book_service.dart';
 import 'package:app/data/data_sources/remote_db/firebase/services/firebase_firestore_user_service.dart';
 import 'package:app/data/data_sources/remote_db/firebase/services/firebase_storage_service.dart';
-import 'package:app/data/data_sources/remote_db/user_remote_db_service.dart';
+import 'package:app/data/data_sources/users_data_source.dart';
 import 'package:app/data/id_generator.dart';
 import 'package:app/data/repositories/auth_repository.dart';
 import 'package:app/data/repositories/book_repository.dart';
@@ -22,7 +21,6 @@ import 'package:app/data/repositories/day_repository.dart';
 import 'package:app/data/repositories/user_repository.dart';
 import 'package:app/data/synchronizers/book_synchronizer.dart';
 import 'package:app/data/synchronizers/day_synchronizer.dart';
-import 'package:app/data/synchronizers/user_synchronizer.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/interfaces/day_interface.dart';
@@ -43,13 +41,7 @@ class DataProvider {
 
   static UserInterface provideUserInterface() {
     return UserRepository(
-      userSynchronizer: UserSynchronizer(
-        userLocalDbService: _provideUserLocalDbService(),
-        userRemoteDbService: _provideUserRemoteDbService(),
-      ),
-      userLocalDbService: _provideUserLocalDbService(),
-      userRemoteDbService: _provideUserRemoteDbService(),
-      device: DeviceProvider.provide(),
+      usersDataSource: _provideUsersDataSource(),
     );
   }
 
@@ -78,15 +70,9 @@ class DataProvider {
     );
   }
 
-  static UserLocalDbService _provideUserLocalDbService() {
-    return UserLocalDbService(
-      sqliteUserService: SqliteUserService(),
-    );
-  }
-
-  static UserRemoteDbService _provideUserRemoteDbService() {
-    return UserRemoteDbService(
-      firebaseFirestoreUserService: FirebaseFirestoreUserService(),
+  static UsersDataSource _provideUsersDataSource() {
+    return UsersDataSource(
+      firebaseDatabaseUsersService: FirebaseDatabaseUsersService(),
     );
   }
 

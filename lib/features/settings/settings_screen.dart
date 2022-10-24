@@ -56,6 +56,7 @@ class _SettingsBlocProvider extends StatelessWidget {
         ),
         signOutUseCase: SignOutUseCase(
           authInterface: context.read<AuthInterface>(),
+          userInterface: context.read<UserInterface>(),
         ),
         deleteLoggedUserUseCase: DeleteLoggedUserUseCase(
           device: DeviceProvider.provide(),

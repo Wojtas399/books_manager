@@ -5,14 +5,6 @@ import 'package:mocktail/mocktail.dart';
 class FakeUser extends Fake implements User {}
 
 class MockUserInterface extends Mock implements UserInterface {
-  void mockInitializeUser() {
-    when(
-      () => initializeUser(
-        userId: any(named: 'userId'),
-      ),
-    ).thenAnswer((_) async => '');
-  }
-
   void mockGetUser({User? user}) {
     when(
       () => getUser(

@@ -1,4 +1,4 @@
-import 'package:app/data/data_sources/firebase/services/firebase_database_users_service.dart';
+import 'package:app/data/data_sources/firebase/services/firebase_firestore_user_service.dart';
 import 'package:app/data/data_sources/local_db/auth_local_db_service.dart';
 import 'package:app/data/data_sources/local_db/book_local_db_service.dart';
 import 'package:app/data/data_sources/local_db/day_local_db_service.dart';
@@ -11,9 +11,8 @@ import 'package:app/data/data_sources/remote_db/book_remote_db_service.dart';
 import 'package:app/data/data_sources/remote_db/day_remote_db_service.dart';
 import 'package:app/data/data_sources/remote_db/firebase/services/firebase_auth_service.dart';
 import 'package:app/data/data_sources/remote_db/firebase/services/firebase_firestore_book_service.dart';
-import 'package:app/data/data_sources/remote_db/firebase/services/firebase_firestore_user_service.dart';
 import 'package:app/data/data_sources/remote_db/firebase/services/firebase_storage_service.dart';
-import 'package:app/data/data_sources/users_data_source.dart';
+import 'package:app/data/data_sources/user_data_source.dart';
 import 'package:app/data/id_generator.dart';
 import 'package:app/data/repositories/auth_repository.dart';
 import 'package:app/data/repositories/book_repository.dart';
@@ -41,7 +40,7 @@ class DataProvider {
 
   static UserInterface provideUserInterface() {
     return UserRepository(
-      usersDataSource: _provideUsersDataSource(),
+      userDataSource: _provideUserDataSource(),
     );
   }
 
@@ -70,9 +69,9 @@ class DataProvider {
     );
   }
 
-  static UsersDataSource _provideUsersDataSource() {
-    return UsersDataSource(
-      firebaseDatabaseUsersService: FirebaseDatabaseUsersService(),
+  static UserDataSource _provideUserDataSource() {
+    return UserDataSource(
+      firebaseFirestoreUserService: FirebaseFirestoreUserService(),
     );
   }
 

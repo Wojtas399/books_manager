@@ -1,11 +1,11 @@
+import 'package:app/data/data_sources/user_data_source.dart';
 import 'package:app/domain/entities/user.dart';
-import 'package:app/domain/interfaces/user_interface.dart';
 import 'package:mocktail/mocktail.dart';
 
 class FakeUser extends Fake implements User {}
 
-class MockUserInterface extends Mock implements UserInterface {
-  void mockGetUser({User? user}) {
+class MockUserDataSource extends Mock implements UserDataSource {
+  void mockGetUser({required User user}) {
     when(
       () => getUser(
         userId: any(named: 'userId'),
@@ -27,9 +27,8 @@ class MockUserInterface extends Mock implements UserInterface {
       () => updateUser(
         userId: any(named: 'userId'),
         isDarkModeOn: any(named: 'isDarkModeOn'),
-        isDarkModeCompatibilityWithSystemOn: any(
-          named: 'isDarkModeCompatibilityWithSystemOn',
-        ),
+        isDarkModeCompatibilityWithSystemOn:
+            any(named: 'isDarkModeCompatibilityWithSystemOn'),
       ),
     ).thenAnswer((_) async => '');
   }

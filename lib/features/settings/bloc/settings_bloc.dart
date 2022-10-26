@@ -7,8 +7,7 @@ import 'package:app/domain/use_cases/auth/delete_logged_user_use_case.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/auth/sign_out_use_case.dart';
 import 'package:app/domain/use_cases/user/get_user_use_case.dart';
-import 'package:app/domain/use_cases/user/load_user_use_case.dart';
-import 'package:app/domain/use_cases/user/update_theme_settings_use_case.dart';
+import 'package:app/domain/use_cases/user/update_user_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/custom_bloc.dart';
@@ -20,9 +19,8 @@ part 'settings_state.dart';
 
 class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
-  late final LoadUserUseCase _loadUserUseCase;
   late final GetUserUseCase _getUserUseCase;
-  late final UpdateThemeSettingsUseCase _updateThemeSettingsUseCase;
+  late final UpdateUserUseCase _updateUserUseCase;
   late final ChangeLoggedUserPasswordUseCase _changeLoggedUserPasswordUseCase;
   late final SignOutUseCase _signOutUseCase;
   late final DeleteLoggedUserUseCase _deleteLoggedUserUseCase;
@@ -30,9 +28,8 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
 
   SettingsBloc({
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
-    required LoadUserUseCase loadUserUseCase,
     required GetUserUseCase getUserUseCase,
-    required UpdateThemeSettingsUseCase updateThemeSettingsUseCase,
+    required UpdateUserUseCase updateUserUseCase,
     required ChangeLoggedUserPasswordUseCase changeLoggedUserPasswordUseCase,
     required SignOutUseCase signOutUseCase,
     required DeleteLoggedUserUseCase deleteLoggedUserUseCase,
@@ -48,9 +45,8 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
           ),
         ) {
     _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
-    _loadUserUseCase = loadUserUseCase;
     _getUserUseCase = getUserUseCase;
-    _updateThemeSettingsUseCase = updateThemeSettingsUseCase;
+    _updateUserUseCase = updateUserUseCase;
     _changeLoggedUserPasswordUseCase = changeLoggedUserPasswordUseCase;
     _signOutUseCase = signOutUseCase;
     _deleteLoggedUserUseCase = deleteLoggedUserUseCase;
@@ -80,7 +76,6 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
     if (loggedUserId == null) {
       emitLoggedUserNotFoundStatus(emit);
     } else {
-      await _loadUserUseCase.execute(userId: loggedUserId);
       _setUserListener(loggedUserId);
     }
   }
@@ -105,10 +100,20 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
     if (loggedUserId == null) {
       return;
     }
-    await _updateThemeSettingsUseCase.execute(
-      userId: loggedUserId,
+    final bool previousValue = state.isDarkModeOn;
+    emit(state.copyWith(
       isDarkModeOn: event.isSwitched,
-    );
+    ));
+    try {
+      await _updateUserUseCase.execute(
+        userId: loggedUserId,
+        isDarkModeOn: event.isSwitched,
+      );
+    } catch (_) {
+      emit(state.copyWith(
+        isDarkModeOn: previousValue,
+      ));
+    }
   }
 
   Future<void> _switchDarkModeCompatibilityWithSystem(
@@ -119,10 +124,20 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
     if (loggedUserId == null) {
       return;
     }
-    await _updateThemeSettingsUseCase.execute(
-      userId: loggedUserId,
+    final bool previousValue = state.isDarkModeCompatibilityWithSystemOn;
+    emit(state.copyWith(
       isDarkModeCompatibilityWithSystemOn: event.isSwitched,
-    );
+    ));
+    try {
+      await _updateUserUseCase.execute(
+        userId: loggedUserId,
+        isDarkModeCompatibilityWithSystemOn: event.isSwitched,
+      );
+    } catch (_) {
+      emit(state.copyWith(
+        isDarkModeCompatibilityWithSystemOn: previousValue,
+      ));
+    }
   }
 
   Future<void> _changePassword(

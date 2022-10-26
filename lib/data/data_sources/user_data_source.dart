@@ -1,20 +1,22 @@
-import 'package:app/data/data_sources/remote_db/firebase/models/firebase_user.dart';
-import 'package:app/data/data_sources/remote_db/firebase/services/firebase_firestore_user_service.dart';
+import 'package:app/data/data_sources/firebase/entities/firebase_user.dart';
+import 'package:app/data/data_sources/firebase/services/firebase_firestore_user_service.dart';
 import 'package:app/domain/entities/user.dart';
 
-class UserRemoteDbService {
+class UserDataSource {
   late final FirebaseFirestoreUserService _firebaseFirestoreUserService;
 
-  UserRemoteDbService({
+  UserDataSource({
     required FirebaseFirestoreUserService firebaseFirestoreUserService,
   }) {
     _firebaseFirestoreUserService = firebaseFirestoreUserService;
   }
 
-  Future<User> loadUser({required String userId}) async {
-    final FirebaseUser firebaseUser =
-        await _firebaseFirestoreUserService.loadUser(userId: userId);
-    return _createUser(firebaseUser);
+  Stream<User?> getUser({required String userId}) {
+    return _firebaseFirestoreUserService.getUser(userId: userId).map(
+      (FirebaseUser? firebaseUser) {
+        return firebaseUser == null ? null : _createUser(firebaseUser);
+      },
+    );
   }
 
   Future<void> addUser({required User user}) async {

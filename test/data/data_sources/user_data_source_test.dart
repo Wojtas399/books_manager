@@ -1,17 +1,17 @@
-import 'package:app/data/data_sources/remote_db/firebase/models/firebase_user.dart';
-import 'package:app/data/data_sources/remote_db/user_remote_db_service.dart';
+import 'package:app/data/data_sources/firebase/entities/firebase_user.dart';
+import 'package:app/data/data_sources/user_data_source.dart';
 import 'package:app/domain/entities/user.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../mocks/data/remote_db/firebase/mock_firebase_firestore_user_service.dart';
+import '../../mocks/data/data_sources/firebase/mock_firebase_firestore_user_service.dart';
 
 void main() {
   final firebaseFirestoreUserService = MockFirebaseFirestoreUserService();
-  late UserRemoteDbService service;
+  late UserDataSource dataSource;
 
   setUp(() {
-    service = UserRemoteDbService(
+    dataSource = UserDataSource(
       firebaseFirestoreUserService: firebaseFirestoreUserService,
     );
   });
@@ -21,7 +21,7 @@ void main() {
   });
 
   test(
-    'load user, should load user from firebase firestore',
+    'get user, should return stream which contains matching user',
     () async {
       const String userId = 'u1';
       final FirebaseUser firebaseUser = createFirebaseUser(id: userId);
@@ -31,11 +31,11 @@ void main() {
         isDarkModeCompatibilityWithSystemOn:
             firebaseUser.isDarkModeCompatibilityWithSystemOn,
       );
-      firebaseFirestoreUserService.mockLoadUser(firebaseUser: firebaseUser);
+      firebaseFirestoreUserService.mockGetUser(firebaseUser: firebaseUser);
 
-      final User user = await service.loadUser(userId: userId);
+      final Stream<User?> user$ = dataSource.getUser(userId: userId);
 
-      expect(user, expectedUser);
+      expect(await user$.first, expectedUser);
     },
   );
 
@@ -51,7 +51,7 @@ void main() {
       );
       firebaseFirestoreUserService.mockAddUser();
 
-      await service.addUser(user: userToAdd);
+      await dataSource.addUser(user: userToAdd);
 
       verify(
         () => firebaseFirestoreUserService.addUser(
@@ -69,7 +69,7 @@ void main() {
       const bool isDarkModeCompatibilityWithSystemOn = false;
       firebaseFirestoreUserService.mockUpdateUser();
 
-      await service.updateUser(
+      await dataSource.updateUser(
         userId: userId,
         isDarkModeOn: isDarkModeOn,
         isDarkModeCompatibilityWithSystemOn:
@@ -93,7 +93,7 @@ void main() {
       const String userId = 'u1';
       firebaseFirestoreUserService.mockDeleteUser();
 
-      await service.deleteUser(userId: userId);
+      await dataSource.deleteUser(userId: userId);
 
       verify(
         () => firebaseFirestoreUserService.deleteUser(userId: userId),

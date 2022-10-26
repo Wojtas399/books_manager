@@ -1,17 +1,17 @@
-import 'package:app/data/data_sources/remote_db/firebase/models/firebase_user.dart';
-import 'package:app/data/data_sources/remote_db/firebase/services/firebase_firestore_user_service.dart';
+import 'package:app/data/data_sources/firebase/entities/firebase_user.dart';
+import 'package:app/data/data_sources/firebase/services/firebase_firestore_user_service.dart';
 import 'package:mocktail/mocktail.dart';
 
 class FakeFirebaseUser extends Fake implements FirebaseUser {}
 
 class MockFirebaseFirestoreUserService extends Mock
     implements FirebaseFirestoreUserService {
-  void mockLoadUser({required FirebaseUser firebaseUser}) {
+  void mockGetUser({required FirebaseUser? firebaseUser}) {
     when(
-      () => loadUser(
+      () => getUser(
         userId: any(named: 'userId'),
       ),
-    ).thenAnswer((_) async => firebaseUser);
+    ).thenAnswer((_) => Stream.value(firebaseUser));
   }
 
   void mockAddUser() {

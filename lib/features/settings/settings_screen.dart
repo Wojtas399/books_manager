@@ -9,8 +9,7 @@ import 'package:app/domain/use_cases/auth/delete_logged_user_use_case.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/auth/sign_out_use_case.dart';
 import 'package:app/domain/use_cases/user/get_user_use_case.dart';
-import 'package:app/domain/use_cases/user/load_user_use_case.dart';
-import 'package:app/domain/use_cases/user/update_theme_settings_use_case.dart';
+import 'package:app/domain/use_cases/user/update_user_use_case.dart';
 import 'package:app/features/settings/bloc/settings_bloc.dart';
 import 'package:app/features/settings/components/settings_content.dart';
 import 'package:app/providers/device_provider.dart';
@@ -42,13 +41,10 @@ class _SettingsBlocProvider extends StatelessWidget {
         getLoggedUserIdUseCase: GetLoggedUserIdUseCase(
           authInterface: context.read<AuthInterface>(),
         ),
-        loadUserUseCase: LoadUserUseCase(
-          userInterface: context.read<UserInterface>(),
-        ),
         getUserUseCase: GetUserUseCase(
           userInterface: context.read<UserInterface>(),
         ),
-        updateThemeSettingsUseCase: UpdateThemeSettingsUseCase(
+        updateUserUseCase: UpdateUserUseCase(
           userInterface: context.read<UserInterface>(),
         ),
         changeLoggedUserPasswordUseCase: ChangeLoggedUserPasswordUseCase(
@@ -56,7 +52,6 @@ class _SettingsBlocProvider extends StatelessWidget {
         ),
         signOutUseCase: SignOutUseCase(
           authInterface: context.read<AuthInterface>(),
-          userInterface: context.read<UserInterface>(),
         ),
         deleteLoggedUserUseCase: DeleteLoggedUserUseCase(
           device: DeviceProvider.provide(),

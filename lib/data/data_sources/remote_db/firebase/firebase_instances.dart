@@ -1,5 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class FireInstances {
@@ -7,5 +7,5 @@ class FireInstances {
 
   static FirebaseStorage storage = FirebaseStorage.instance;
 
-  static FirebaseDatabase database = FirebaseDatabase.instance;
+  static FirebaseFirestore firestore = FirebaseFirestore.instance;
 }

@@ -1,7 +1,6 @@
+import 'package:app/data/data_sources/firebase/services/firebase_firestore_user_service.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day.dart';
 import 'package:app/data/data_sources/remote_db/firebase/models/firebase_read_book.dart';
-import 'package:app/data/data_sources/remote_db/firebase/models/firebase_user.dart';
-import 'package:app/data/data_sources/remote_db/firebase/services/firebase_firestore_user_service.dart';
 import 'package:app/data/mappers/date_mapper.dart';
 import 'package:app/domain/entities/day.dart';
 import 'package:app/domain/entities/read_book.dart';
@@ -60,9 +59,10 @@ class DayRemoteDbService {
   }
 
   Future<List<FirebaseDay>> _loadUserDaysOfReading(String userId) async {
-    final FirebaseUser firebaseUser =
-        await _firebaseFirestoreUserService.loadUser(userId: userId);
-    return firebaseUser.daysOfReading;
+    return [];
+    // final FirebaseUser firebaseUser =
+    //     await _firebaseFirestoreUserService.loadUser(userId: userId);
+    // return firebaseUser.daysOfReading;
   }
 
   Day _createDay(FirebaseDay firebaseDay) {

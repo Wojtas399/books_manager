@@ -1,9 +1,9 @@
 import 'package:app/domain/interfaces/user_interface.dart';
 
-class UpdateThemeSettingsUseCase {
+class UpdateUserUseCase {
   late final UserInterface _userInterface;
 
-  UpdateThemeSettingsUseCase({required UserInterface userInterface}) {
+  UpdateUserUseCase({required UserInterface userInterface}) {
     _userInterface = userInterface;
   }
 
@@ -12,7 +12,7 @@ class UpdateThemeSettingsUseCase {
     bool? isDarkModeOn,
     bool? isDarkModeCompatibilityWithSystemOn,
   }) async {
-    await _userInterface.updateUserThemeSettings(
+    await _userInterface.updateUser(
       userId: userId,
       isDarkModeOn: isDarkModeOn,
       isDarkModeCompatibilityWithSystemOn: isDarkModeCompatibilityWithSystemOn,

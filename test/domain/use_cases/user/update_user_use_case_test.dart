@@ -1,4 +1,4 @@
-import 'package:app/domain/use_cases/user/update_theme_settings_use_case.dart';
+import 'package:app/domain/use_cases/user/update_user_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -6,15 +6,15 @@ import '../../../mocks/domain/interfaces/mock_user_interface.dart';
 
 void main() {
   final userInterface = MockUserInterface();
-  final useCase = UpdateThemeSettingsUseCase(userInterface: userInterface);
+  final useCase = UpdateUserUseCase(userInterface: userInterface);
 
   test(
-    'should call method responsible for updating user theme settings',
+    'should call method responsible for updating user',
     () async {
       const String userId = 'u1';
       const bool isDarkModeOn = true;
       const bool isDarkModeCompatibilityWithSystemOn = false;
-      userInterface.mockUpdateUserThemeSettings();
+      userInterface.mockUpdateUser();
 
       useCase.execute(
         userId: userId,
@@ -24,7 +24,7 @@ void main() {
       );
 
       verify(
-        () => userInterface.updateUserThemeSettings(
+        () => userInterface.updateUser(
           userId: userId,
           isDarkModeOn: isDarkModeOn,
           isDarkModeCompatibilityWithSystemOn:

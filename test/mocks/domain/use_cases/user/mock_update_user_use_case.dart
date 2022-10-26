@@ -1,8 +1,7 @@
-import 'package:app/domain/use_cases/user/update_theme_settings_use_case.dart';
+import 'package:app/domain/use_cases/user/update_user_use_case.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockUpdateThemeSettingsUseCase extends Mock
-    implements UpdateThemeSettingsUseCase {
+class MockUpdateUserUseCase extends Mock implements UpdateUserUseCase {
   void mock({Object? throwable}) {
     if (throwable != null) {
       when(_execute).thenThrow(throwable);

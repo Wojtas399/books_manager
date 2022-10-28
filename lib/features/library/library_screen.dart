@@ -3,7 +3,6 @@ import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/book/get_all_user_books_use_case.dart';
-import 'package:app/domain/use_cases/book/load_all_user_books_use_case.dart';
 import 'package:app/features/library/bloc/library_bloc.dart';
 import 'package:app/features/library/components/library_content.dart';
 import 'package:flutter/widgets.dart';
@@ -31,9 +30,6 @@ class _LibraryBlocProvider extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (BuildContext context) => LibraryBloc(
-        loadAllUserBooksUseCase: LoadAllUserBooksUseCase(
-          bookInterface: context.read<BookInterface>(),
-        ),
         getLoggedUserIdUseCase: GetLoggedUserIdUseCase(
           authInterface: context.read<AuthInterface>(),
         ),

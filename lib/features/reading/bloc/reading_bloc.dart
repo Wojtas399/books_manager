@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/book/get_user_books_in_progress_use_case.dart';
-import 'package:app/domain/use_cases/book/load_user_books_in_progress_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/custom_bloc.dart';
@@ -14,13 +13,11 @@ part 'reading_state.dart';
 
 class ReadingBloc extends CustomBloc<ReadingEvent, ReadingState> {
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
-  late final LoadUserBooksInProgressUseCase _loadUserBooksInProgressUseCase;
   late final GetUserBooksInProgressUseCase _getUserBooksInProgressUseCase;
   StreamSubscription<List<Book>?>? _booksInProgressListener;
 
   ReadingBloc({
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
-    required LoadUserBooksInProgressUseCase loadUserBooksInProgressUseCase,
     required GetUserBooksInProgressUseCase getUserBooksInProgressUseCase,
     BlocStatus status = const BlocStatusInitial(),
     List<Book> booksInProgress = const [],
@@ -31,7 +28,6 @@ class ReadingBloc extends CustomBloc<ReadingEvent, ReadingState> {
           ),
         ) {
     _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
-    _loadUserBooksInProgressUseCase = loadUserBooksInProgressUseCase;
     _getUserBooksInProgressUseCase = getUserBooksInProgressUseCase;
     on<ReadingEventInitialize>(_initialize);
     on<ReadingEventBooksInProgressUpdated>(_booksInProgressUpdated);
@@ -56,10 +52,6 @@ class ReadingBloc extends CustomBloc<ReadingEvent, ReadingState> {
       emitLoadingStatus(emit);
     }
     _setBooksInProgressListener(loggedUserId);
-    await Future.delayed(
-      const Duration(milliseconds: 300),
-    );
-    await _loadUserBooksInProgressUseCase.execute(userId: loggedUserId);
   }
 
   void _booksInProgressUpdated(

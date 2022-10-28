@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:app/domain/entities/book.dart';
 import 'package:app/features/book_preview/bloc/book_preview_bloc.dart';
 import 'package:app/models/bloc_status.dart';
@@ -17,18 +15,18 @@ void main() {
     );
   });
 
-  test(
-    'book image data, should return book image data',
-    () {
-      final Uint8List expectedImageData = Uint8List(10);
-      final Book book = createBook(imageData: expectedImageData);
-      state = state.copyWith(book: book);
-
-      final Uint8List? imageData = state.bookImageData;
-
-      expect(imageData, expectedImageData);
-    },
-  );
+  // test(
+  //   'book image data, should return book image data',
+  //   () {
+  //     final Uint8List expectedImageData = Uint8List(10);
+  //     final Book book = createBook(imageData: expectedImageData);
+  //     state = state.copyWith(book: book);
+  //
+  //     final Uint8List? imageData = state.bookImageData;
+  //
+  //     expect(imageData, expectedImageData);
+  //   },
+  // );
 
   test(
     'book status, should return book status',

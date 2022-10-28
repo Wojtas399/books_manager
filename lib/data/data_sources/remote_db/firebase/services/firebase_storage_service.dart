@@ -6,18 +6,18 @@ import 'package:firebase_storage/firebase_storage.dart';
 class FirebaseStorageService {
   Future<void> saveBookImageData({
     required Uint8List imageData,
+    required String fileName,
     required String userId,
-    required String bookId,
   }) async {
-    final Reference imageRef = _getBookImageReference(userId, bookId);
+    final Reference imageRef = _getBookImageReference(userId, fileName);
     await imageRef.putData(imageData);
   }
 
   Future<Uint8List?> loadBookImageData({
+    required String fileName,
     required String userId,
-    required String bookId,
   }) async {
-    final Reference imageRef = _getBookImageReference(userId, bookId);
+    final Reference imageRef = _getBookImageReference(userId, fileName);
     try {
       return await imageRef.getData();
     } catch (_) {
@@ -26,16 +26,16 @@ class FirebaseStorageService {
   }
 
   Future<void> deleteBookImageData({
+    required String fileName,
     required String userId,
-    required String bookId,
   }) async {
-    final Reference imageRef = _getBookImageReference(userId, bookId);
+    final Reference imageRef = _getBookImageReference(userId, fileName);
     try {
       return await imageRef.delete();
     } catch (_) {}
   }
 
-  Reference _getBookImageReference(String userId, String bookId) {
-    return FireInstances.storage.ref('$userId/$bookId.jpg');
+  Reference _getBookImageReference(String userId, String fileName) {
+    return FireInstances.storage.ref('$userId/$fileName.jpg');
   }
 }

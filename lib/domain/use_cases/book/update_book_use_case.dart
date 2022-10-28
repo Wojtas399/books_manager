@@ -18,23 +18,23 @@ class UpdateBookUseCase {
     int? readPagesAmount,
     int? allPagesAmount,
   }) async {
-    if (imageData != null) {
-      await _bookInterface.updateBookImage(
-        bookId: bookId,
-        imageData: imageData,
-      );
-    } else if (deleteImage) {
-      await _bookInterface.updateBookImage(
-        bookId: bookId,
-        imageData: null,
-      );
-    }
-    await _bookInterface.updateBookData(
-      bookId: bookId,
-      title: title,
-      author: author,
-      readPagesAmount: readPagesAmount,
-      allPagesAmount: allPagesAmount,
-    );
+    // if (imageData != null) {
+    //   await _bookInterface.updateBookImage(
+    //     bookId: bookId,
+    //     imageData: imageData,
+    //   );
+    // } else if (deleteImage) {
+    //   await _bookInterface.updateBookImage(
+    //     bookId: bookId,
+    //     imageData: null,
+    //   );
+    // }
+    // await _bookInterface.updateBookData(
+    //   bookId: bookId,
+    //   title: title,
+    //   author: author,
+    //   readPagesAmount: readPagesAmount,
+    //   allPagesAmount: allPagesAmount,
+    // );
   }
 }

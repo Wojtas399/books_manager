@@ -24,7 +24,10 @@ void main() {
       await useCase.execute(bookId: bookId, userId: userId);
 
       verify(
-        () => bookInterface.deleteBook(bookId: bookId),
+        () => bookInterface.deleteBook(
+          bookId: bookId,
+          userId: userId,
+        ),
       ).called(1);
       verify(
         () => deleteBookFromUserDaysUseCase.execute(

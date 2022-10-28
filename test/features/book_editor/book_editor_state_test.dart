@@ -20,114 +20,114 @@ void main() {
     );
   });
 
-  group(
-    'is button disabled',
-    () {
-      final Book book = createBook(
-        imageData: Uint8List(1),
-        title: 'title',
-        author: 'author',
-        readPagesAmount: 0,
-        allPagesAmount: 100,
-      );
-
-      test(
-        'should be true if all params are the same as original',
-        () {
-          state = state.copyWith(
-            originalBook: book,
-            imageData: book.imageData,
-            title: book.title,
-            author: book.author,
-            readPagesAmount: book.readPagesAmount,
-            allPagesAmount: book.allPagesAmount,
-          );
-
-          expect(state.isButtonDisabled, true);
-        },
-      );
-
-      test(
-        'should be false if image data are different than original',
-        () {
-          state = state.copyWith(
-            originalBook: book,
-            imageData: Uint8List(10),
-            title: book.title,
-            author: book.author,
-            readPagesAmount: book.readPagesAmount,
-            allPagesAmount: book.allPagesAmount,
-          );
-
-          expect(state.isButtonDisabled, false);
-        },
-      );
-
-      test(
-        'should be false if title is different than original',
-        () {
-          state = state.copyWith(
-            originalBook: book,
-            imageData: book.imageData,
-            title: 'book title',
-            author: book.author,
-            readPagesAmount: book.readPagesAmount,
-            allPagesAmount: book.allPagesAmount,
-          );
-
-          expect(state.isButtonDisabled, false);
-        },
-      );
-
-      test(
-        'should be false if author is different than original',
-        () {
-          state = state.copyWith(
-            originalBook: book,
-            imageData: book.imageData,
-            title: book.title,
-            author: 'book author',
-            readPagesAmount: book.readPagesAmount,
-            allPagesAmount: book.allPagesAmount,
-          );
-
-          expect(state.isButtonDisabled, false);
-        },
-      );
-
-      test(
-        'should be false if read pages amount is different than original',
-        () {
-          state = state.copyWith(
-            originalBook: book,
-            imageData: book.imageData,
-            title: book.title,
-            author: book.author,
-            readPagesAmount: 100,
-            allPagesAmount: book.allPagesAmount,
-          );
-
-          expect(state.isButtonDisabled, false);
-        },
-      );
-
-      test(
-        'should be false if all pages amount is different than original',
-        () {
-          state = state.copyWith(
-            originalBook: book,
-            imageData: book.imageData,
-            title: book.title,
-            author: book.author,
-            readPagesAmount: book.readPagesAmount,
-            allPagesAmount: 1,
-          );
-
-          expect(state.isButtonDisabled, false);
-        },
-      );
-    },
-  );
+  // group(
+  //   'is button disabled',
+  //   () {
+  //     final Book book = createBook(
+  //       imageData: Uint8List(1),
+  //       title: 'title',
+  //       author: 'author',
+  //       readPagesAmount: 0,
+  //       allPagesAmount: 100,
+  //     );
+  //
+  //     test(
+  //       'should be true if all params are the same as original',
+  //       () {
+  //         state = state.copyWith(
+  //           originalBook: book,
+  //           imageData: book.imageData,
+  //           title: book.title,
+  //           author: book.author,
+  //           readPagesAmount: book.readPagesAmount,
+  //           allPagesAmount: book.allPagesAmount,
+  //         );
+  //
+  //         expect(state.isButtonDisabled, true);
+  //       },
+  //     );
+  //
+  //     test(
+  //       'should be false if image data are different than original',
+  //       () {
+  //         state = state.copyWith(
+  //           originalBook: book,
+  //           imageData: Uint8List(10),
+  //           title: book.title,
+  //           author: book.author,
+  //           readPagesAmount: book.readPagesAmount,
+  //           allPagesAmount: book.allPagesAmount,
+  //         );
+  //
+  //         expect(state.isButtonDisabled, false);
+  //       },
+  //     );
+  //
+  //     test(
+  //       'should be false if title is different than original',
+  //       () {
+  //         state = state.copyWith(
+  //           originalBook: book,
+  //           imageData: book.imageData,
+  //           title: 'book title',
+  //           author: book.author,
+  //           readPagesAmount: book.readPagesAmount,
+  //           allPagesAmount: book.allPagesAmount,
+  //         );
+  //
+  //         expect(state.isButtonDisabled, false);
+  //       },
+  //     );
+  //
+  //     test(
+  //       'should be false if author is different than original',
+  //       () {
+  //         state = state.copyWith(
+  //           originalBook: book,
+  //           imageData: book.imageData,
+  //           title: book.title,
+  //           author: 'book author',
+  //           readPagesAmount: book.readPagesAmount,
+  //           allPagesAmount: book.allPagesAmount,
+  //         );
+  //
+  //         expect(state.isButtonDisabled, false);
+  //       },
+  //     );
+  //
+  //     test(
+  //       'should be false if read pages amount is different than original',
+  //       () {
+  //         state = state.copyWith(
+  //           originalBook: book,
+  //           imageData: book.imageData,
+  //           title: book.title,
+  //           author: book.author,
+  //           readPagesAmount: 100,
+  //           allPagesAmount: book.allPagesAmount,
+  //         );
+  //
+  //         expect(state.isButtonDisabled, false);
+  //       },
+  //     );
+  //
+  //     test(
+  //       'should be false if all pages amount is different than original',
+  //       () {
+  //         state = state.copyWith(
+  //           originalBook: book,
+  //           imageData: book.imageData,
+  //           title: book.title,
+  //           author: book.author,
+  //           readPagesAmount: book.readPagesAmount,
+  //           allPagesAmount: 1,
+  //         );
+  //
+  //         expect(state.isButtonDisabled, false);
+  //       },
+  //     );
+  //   },
+  // );
 
   test(
     'copy with status',

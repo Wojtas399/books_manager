@@ -14,7 +14,7 @@ class InitializeUserDataUseCase {
   }
 
   Future<void> execute({required String userId}) async {
-    await _bookInterface.initializeForUser(userId: userId);
+    // await _bookInterface.initializeForUser(userId: userId);
     await _dayInterface.initializeForUser(userId: userId);
   }
 }

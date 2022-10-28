@@ -1,4 +1,3 @@
-import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 
 class StartReadingBookUseCase {
@@ -12,10 +11,10 @@ class StartReadingBookUseCase {
     required String bookId,
     bool fromBeginning = false,
   }) async {
-    await _bookInterface.updateBookData(
-      bookId: bookId,
-      bookStatus: BookStatus.inProgress,
-      readPagesAmount: fromBeginning ? 0 : null,
-    );
+    // await _bookInterface.updateBook(
+    //   bookId: bookId,
+    //   bookStatus: BookStatus.inProgress,
+    //   readPagesAmount: fromBeginning ? 0 : null,
+    // );
   }
 }

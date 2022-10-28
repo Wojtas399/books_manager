@@ -58,15 +58,15 @@ class BookEditorBloc extends CustomBloc<BookEditorEvent, BookEditorState> {
     if (book == null) {
       return;
     }
-    emit(state.copyWith(
-      status: const BlocStatusComplete(),
-      originalBook: book,
-      imageData: book.imageData,
-      title: book.title,
-      author: book.author,
-      readPagesAmount: book.readPagesAmount,
-      allPagesAmount: book.allPagesAmount,
-    ));
+    // emit(state.copyWith(
+    //   status: const BlocStatusComplete(),
+    //   originalBook: book,
+    //   imageData: book.imageData,
+    //   title: book.title,
+    //   author: book.author,
+    //   readPagesAmount: book.readPagesAmount,
+    //   allPagesAmount: book.allPagesAmount,
+    // ));
   }
 
   void _imageChanged(
@@ -83,9 +83,9 @@ class BookEditorBloc extends CustomBloc<BookEditorEvent, BookEditorState> {
     BookEditorEventRestoreOriginalImage event,
     Emitter<BookEditorState> emit,
   ) {
-    emit(state.copyWith(
-      imageData: state.originalBook?.imageData,
-    ));
+    // emit(state.copyWith(
+    //   imageData: state.originalBook?.imageData,
+    // ));
   }
 
   void _titleChanged(

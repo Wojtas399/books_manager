@@ -1,16 +1,17 @@
 import 'dart:typed_data';
 
-import 'package:app/data/data_sources/local_db/local_storage_service.dart';
+import 'package:app/data/data_sources/remote_db/firebase/services/firebase_storage_service.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockLocalStorageService extends Mock implements LocalStorageService {
+class MockFirebaseStorageService extends Mock
+    implements FirebaseStorageService {
   void mockSaveBookImageData() {
     _mockUint8List();
     when(
       () => saveBookImageData(
         imageData: any(named: 'imageData'),
+        fileName: any(named: 'fileName'),
         userId: any(named: 'userId'),
-        bookId: any(named: 'bookId'),
       ),
     ).thenAnswer((_) async => '');
   }
@@ -18,8 +19,8 @@ class MockLocalStorageService extends Mock implements LocalStorageService {
   void mockLoadBookImageData({Uint8List? imageData}) {
     when(
       () => loadBookImageData(
+        fileName: any(named: 'fileName'),
         userId: any(named: 'userId'),
-        bookId: any(named: 'bookId'),
       ),
     ).thenAnswer((_) async => imageData);
   }
@@ -27,8 +28,8 @@ class MockLocalStorageService extends Mock implements LocalStorageService {
   void mockDeleteBookImageData() {
     when(
       () => deleteBookImageData(
+        fileName: any(named: 'fileName'),
         userId: any(named: 'userId'),
-        bookId: any(named: 'bookId'),
       ),
     ).thenAnswer((_) async => '');
   }

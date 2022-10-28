@@ -1,7 +1,6 @@
-import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
 import 'package:equatable/equatable.dart';
 
-class SqliteBook extends Equatable {
+class FirebaseBook extends Equatable {
   final String id;
   final String userId;
   final String status;
@@ -9,9 +8,9 @@ class SqliteBook extends Equatable {
   final String author;
   final int readPagesAmount;
   final int allPagesAmount;
-  final SyncState syncState;
+  final String? imageFileName;
 
-  const SqliteBook({
+  const FirebaseBook({
     required this.id,
     required this.userId,
     required this.status,
@@ -19,19 +18,22 @@ class SqliteBook extends Equatable {
     required this.author,
     required this.readPagesAmount,
     required this.allPagesAmount,
-    required this.syncState,
+    required this.imageFileName,
   });
 
-  SqliteBook.fromJson(Map<String, Object?> json)
-      : this(
-          id: json[SqliteBookFields.id] as String,
-          userId: json[SqliteBookFields.userId] as String,
-          status: json[SqliteBookFields.status] as String,
-          title: json[SqliteBookFields.title] as String,
-          author: json[SqliteBookFields.author] as String,
-          readPagesAmount: json[SqliteBookFields.readPagesAmount] as int,
-          allPagesAmount: json[SqliteBookFields.allPagesAmount] as int,
-          syncState: (json[SqliteBookFields.syncState] as String).toSyncState(),
+  FirebaseBook.fromJson({
+    required Map<String, Object?> json,
+    required String userId,
+    required String bookId,
+  }) : this(
+          id: bookId,
+          userId: userId,
+          status: json[FirebaseBookFields.status] as String,
+          title: json[FirebaseBookFields.title] as String,
+          author: json[FirebaseBookFields.author] as String,
+          readPagesAmount: json[FirebaseBookFields.readPagesAmount] as int,
+          allPagesAmount: json[FirebaseBookFields.allPagesAmount] as int,
+          imageFileName: json[FirebaseBookFields.imageFileName] as String?,
         );
 
   @override
@@ -43,29 +45,27 @@ class SqliteBook extends Equatable {
         author,
         readPagesAmount,
         allPagesAmount,
-        syncState,
+        imageFileName ?? '',
       ];
 
   Map<String, Object?> toJson() => {
-        SqliteBookFields.id: id,
-        SqliteBookFields.userId: userId,
-        SqliteBookFields.status: status,
-        SqliteBookFields.title: title,
-        SqliteBookFields.author: author,
-        SqliteBookFields.readPagesAmount: readPagesAmount,
-        SqliteBookFields.allPagesAmount: allPagesAmount,
-        SqliteBookFields.syncState: syncState.name,
+        FirebaseBookFields.status: status,
+        FirebaseBookFields.title: title,
+        FirebaseBookFields.author: author,
+        FirebaseBookFields.readPagesAmount: readPagesAmount,
+        FirebaseBookFields.allPagesAmount: allPagesAmount,
+        FirebaseBookFields.imageFileName: imageFileName,
       };
 
-  SqliteBook copyWith({
+  FirebaseBook copyWith({
     String? status,
     String? title,
     String? author,
     int? readPagesAmount,
     int? allPagesAmount,
-    SyncState? syncState,
+    String? imageFileName,
   }) {
-    return SqliteBook(
+    return FirebaseBook(
       id: id,
       userId: userId,
       status: status ?? this.status,
@@ -73,23 +73,21 @@ class SqliteBook extends Equatable {
       author: author ?? this.author,
       readPagesAmount: readPagesAmount ?? this.readPagesAmount,
       allPagesAmount: allPagesAmount ?? this.allPagesAmount,
-      syncState: syncState ?? this.syncState,
+      imageFileName: imageFileName ?? this.imageFileName,
     );
   }
 }
 
-class SqliteBookFields {
-  static const String id = 'id';
-  static const String userId = 'userId';
+class FirebaseBookFields {
   static const String status = 'status';
   static const String title = 'title';
   static const String author = 'author';
   static const String readPagesAmount = 'readPagesAmount';
   static const String allPagesAmount = 'allPagesAmount';
-  static const String syncState = 'syncState';
+  static const String imageFileName = 'imageFileName';
 }
 
-SqliteBook createSqliteBook({
+FirebaseBook createFirebaseBook({
   String id = '',
   String userId = '',
   String status = 'unread',
@@ -97,9 +95,9 @@ SqliteBook createSqliteBook({
   String author = '',
   int readPagesAmount = 0,
   int allPagesAmount = 0,
-  SyncState syncState = SyncState.none,
+  String? imageFileName = '',
 }) {
-  return SqliteBook(
+  return FirebaseBook(
     id: id,
     userId: userId,
     status: status,
@@ -107,6 +105,6 @@ SqliteBook createSqliteBook({
     author: author,
     readPagesAmount: readPagesAmount,
     allPagesAmount: allPagesAmount,
-    syncState: syncState,
+    imageFileName: imageFileName,
   );
 }

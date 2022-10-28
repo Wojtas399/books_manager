@@ -1,49 +1,38 @@
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
+import 'package:app/models/image_file.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockBookInterface extends Mock implements BookInterface {
-  void mockInitializeForUser() {
-    when(
-      () => initializeForUser(
-        userId: any(named: 'userId'),
-      ),
-    ).thenAnswer((_) async => '');
-  }
+class FakeImageFile extends Fake implements ImageFile {}
 
-  void mockGetBookById({required Book book}) {
+class MockBookInterface extends Mock implements BookInterface {
+  void mockGetBook({required Book book}) {
     when(
-      () => getBookById(
+      () => getBook(
         bookId: any(named: 'bookId'),
+        userId: any(named: 'userId'),
       ),
     ).thenAnswer((_) => Stream.value(book));
   }
 
-  void mockGetBooksByUserId({List<Book>? books}) {
+  void mockGetUserBooks({List<Book>? books}) {
+    _mockBookStatus();
     when(
-      () => getBooksByUserId(
+      () => getUserBooks(
         userId: any(named: 'userId'),
+        bookStatus: any(named: 'bookStatus'),
       ),
     ).thenAnswer((_) => Stream.value(books));
   }
 
-  void mockLoadUserBooks() {
-    _mockBookStatus();
-    when(
-      () => loadUserBooks(
-        userId: any(named: 'userId'),
-        bookStatus: any(named: 'bookStatus'),
-      ),
-    ).thenAnswer((_) async => '');
-  }
-
   void mockAddNewBook() {
     _mockBookStatus();
+    _mockImageFile();
     when(
       () => addNewBook(
         userId: any(named: 'userId'),
         status: any(named: 'status'),
-        imageData: any(named: 'imageData'),
+        imageFile: any(named: 'imageFile'),
         title: any(named: 'title'),
         author: any(named: 'author'),
         readPagesAmount: any(named: 'readPagesAmount'),
@@ -52,12 +41,15 @@ class MockBookInterface extends Mock implements BookInterface {
     ).thenAnswer((_) async => '');
   }
 
-  void mockUpdateBookData() {
+  void mockUpdateBook() {
     _mockBookStatus();
+    _mockImageFile();
     when(
-      () => updateBookData(
+      () => updateBook(
         bookId: any(named: 'bookId'),
-        bookStatus: any(named: 'bookStatus'),
+        userId: any(named: 'userId'),
+        status: any(named: 'status'),
+        imageFile: any(named: 'imageFile'),
         title: any(named: 'title'),
         author: any(named: 'author'),
         readPagesAmount: any(named: 'readPagesAmount'),
@@ -66,11 +58,11 @@ class MockBookInterface extends Mock implements BookInterface {
     ).thenAnswer((_) async => '');
   }
 
-  void mockUpdateBookImage() {
+  void mockDeleteBookImage() {
     when(
-      () => updateBookImage(
+      () => deleteBookImage(
         bookId: any(named: 'bookId'),
-        imageData: any(named: 'imageData'),
+        userId: any(named: 'userId'),
       ),
     ).thenAnswer((_) async => '');
   }
@@ -79,6 +71,7 @@ class MockBookInterface extends Mock implements BookInterface {
     when(
       () => deleteBook(
         bookId: any(named: 'bookId'),
+        userId: any(named: 'userId'),
       ),
     ).thenAnswer((_) async => '');
   }
@@ -93,5 +86,9 @@ class MockBookInterface extends Mock implements BookInterface {
 
   void _mockBookStatus() {
     registerFallbackValue(BookStatus.unread);
+  }
+
+  void _mockImageFile() {
+    registerFallbackValue(FakeImageFile());
   }
 }

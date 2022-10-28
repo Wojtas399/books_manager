@@ -21,14 +21,14 @@ class AddBookUseCase {
     required int readPagesAmount,
     required int allPagesAmount,
   }) async {
-    await _bookInterface.addNewBook(
-      userId: userId,
-      status: status,
-      imageData: imageData,
-      title: title,
-      author: author,
-      readPagesAmount: readPagesAmount,
-      allPagesAmount: allPagesAmount,
-    );
+    // await _bookInterface.addNewBook(
+    //   userId: userId,
+    //   status: status,
+    //   imageData: imageData,
+    //   title: title,
+    //   author: author,
+    //   readPagesAmount: readPagesAmount,
+    //   allPagesAmount: allPagesAmount,
+    // );
   }
 }

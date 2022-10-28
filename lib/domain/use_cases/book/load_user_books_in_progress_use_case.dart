@@ -1,4 +1,3 @@
-import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 
 class LoadUserBooksInProgressUseCase {
@@ -9,9 +8,9 @@ class LoadUserBooksInProgressUseCase {
   }
 
   Future<void> execute({required String userId}) async {
-    await _bookInterface.loadUserBooks(
-      userId: userId,
-      bookStatus: BookStatus.inProgress,
-    );
+    // await _bookInterface.loadUserBooks(
+    //   userId: userId,
+    //   bookStatus: BookStatus.inProgress,
+    // );
   }
 }

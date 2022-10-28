@@ -11,6 +11,7 @@ class GetAllUserBooksUseCase {
   }
 
   Stream<List<Book>?> execute({required String userId}) {
-    return _bookInterface.getBooksByUserId(userId: userId);
+    return Stream.value([]);
+    // return _bookInterface.getBooksByUserId(userId: userId);
   }
 }

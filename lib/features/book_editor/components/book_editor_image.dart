@@ -14,7 +14,7 @@ class BookEditorImage extends StatelessWidget {
       (BookEditorBloc bloc) => bloc.state.imageData,
     );
     final Uint8List? originalImageData = context.select(
-      (BookEditorBloc bloc) => bloc.state.originalBook?.imageData,
+      (BookEditorBloc bloc) => bloc.state.originalBook?.imageFile?.data,
     );
 
     return BookImagePickerComponent(

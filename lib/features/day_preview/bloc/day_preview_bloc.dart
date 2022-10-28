@@ -77,7 +77,7 @@ class DayPreviewBloc extends CustomBloc<DayPreviewEvent, DayPreviewState> {
     }
     return DayPreviewReadBook(
       bookId: readBook.bookId,
-      imageData: book.imageData,
+      imageData: book.imageFile?.data,
       title: book.title,
       author: book.author,
       amountOfPagesReadInThisDay: readBook.readPagesAmount,

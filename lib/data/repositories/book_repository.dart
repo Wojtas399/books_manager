@@ -1,248 +1,102 @@
-import 'dart:typed_data';
-
-import 'package:app/data/data_sources/local_db/book_local_db_service.dart';
-import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
-import 'package:app/data/data_sources/remote_db/book_remote_db_service.dart';
-import 'package:app/data/id_generator.dart';
-import 'package:app/data/synchronizers/book_synchronizer.dart';
+import 'package:app/data/data_sources/book_data_source.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
-import 'package:app/models/device.dart';
-import 'package:app/models/repository.dart';
+import 'package:app/models/image_file.dart';
 
-class BookRepository extends Repository<Book> implements BookInterface {
-  late final BookSynchronizer _bookSynchronizer;
-  late final BookLocalDbService _bookLocalDbService;
-  late final BookRemoteDbService _bookRemoteDbService;
-  late final Device _device;
-  late final IdGenerator _idGenerator;
+class BookRepository implements BookInterface {
+  late final BookDataSource _bookDataSource;
 
-  BookRepository({
-    required BookSynchronizer bookSynchronizer,
-    required BookLocalDbService bookLocalDbService,
-    required BookRemoteDbService bookRemoteDbService,
-    required Device device,
-    required IdGenerator idGenerator,
-    final List<Book>? books,
+  BookRepository({required BookDataSource bookDataSource}) {
+    _bookDataSource = bookDataSource;
+  }
+
+  @override
+  Stream<Book?> getBook({
+    required String bookId,
+    required String userId,
   }) {
-    _bookSynchronizer = bookSynchronizer;
-    _bookLocalDbService = bookLocalDbService;
-    _bookRemoteDbService = bookRemoteDbService;
-    _device = device;
-    _idGenerator = idGenerator;
-
-    if (books != null) {
-      addEntities(books);
-    }
+    return _bookDataSource.getBook(bookId: bookId, userId: userId);
   }
 
   @override
-  Future<void> initializeForUser({required String userId}) async {
-    if (await _device.hasInternetConnection()) {
-      // await _bookSynchronizer.synchronizeUserBooksMarkedAsDeleted(
-      //   userId: userId,
-      // );
-      // await _bookSynchronizer.synchronizeUserBooksMarkedAsAdded(userId: userId);
-      // await _bookSynchronizer.synchronizeUserBooksMarkedAsUpdated(
-      //   userId: userId,
-      // );
-      // await _bookSynchronizer.synchronizeUnmodifiedUserBooks(userId: userId);
-    }
-  }
-
-  @override
-  Stream<Book?> getBookById({required String bookId}) {
-    return const Stream.empty();
-    // return stream.map(
-    //   (List<Book>? books) {
-    //     if (books == null) {
-    //       return null;
-    //     }
-    //     final List<Book?> allBooks = [...books];
-    //     return allBooks.firstWhere(
-    //       (Book? book) => book?.id == bookId,
-    //       orElse: () => null,
-    //     );
-    //   },
-    // ).whereType<Book>();
-  }
-
-  @override
-  Stream<List<Book>?> getBooksByUserId({required String userId}) {
-    return Stream.value([]);
-    // return stream.map(
-    //   (List<Book>? books) {
-    //     return books?.where((Book book) => book.belongsTo(userId)).toList();
-    //   },
-    // );
-  }
-
-  @override
-  Future<void> loadUserBooks({
+  Stream<List<Book>> getUserBooks({
     required String userId,
     BookStatus? bookStatus,
-  }) async {
-    // final List<Book> books = await _bookLocalDbService.loadUserBooks(
-    //   userId: userId,
-    //   bookStatus: bookStatus?.name,
-    // );
-    // addEntities(books);
+  }) {
+    return _bookDataSource.getUserBooks(userId: userId, bookStatus: bookStatus);
   }
 
   @override
   Future<void> addNewBook({
     required String userId,
     required BookStatus status,
-    required Uint8List? imageData,
+    required ImageFile? imageFile,
     required String title,
     required String author,
     required int readPagesAmount,
     required int allPagesAmount,
   }) async {
-    // final Book book = Book(
-    //   id: _idGenerator.generateRandomId(),
-    //   imageData: imageData,
-    //   userId: userId,
-    //   status: status,
-    //   title: title,
-    //   author: author,
-    //   readPagesAmount: readPagesAmount,
-    //   allPagesAmount: allPagesAmount,
-    // );
-    // SyncState syncState = SyncState.added;
-    // if (await _device.hasInternetConnection()) {
-    //   await _bookRemoteDbService.addBook(book: book);
-    //   syncState = SyncState.none;
-    // }
-    // await _bookLocalDbService.addBook(book: book, syncState: syncState);
-    // addEntity(book);
+    await _bookDataSource.addBook(
+      userId: userId,
+      status: status,
+      imageFile: imageFile,
+      title: title,
+      author: author,
+      readPagesAmount: readPagesAmount,
+      allPagesAmount: allPagesAmount,
+    );
   }
 
   @override
-  Future<void> updateBookData({
+  Future<void> updateBook({
     required String bookId,
-    BookStatus? bookStatus,
+    required String userId,
+    BookStatus? status,
+    ImageFile? imageFile,
     String? title,
     String? author,
     int? readPagesAmount,
     int? allPagesAmount,
   }) async {
-    // final String? userId = _getIdOfUserAssignedToBook(bookId);
-    // SyncState syncState = SyncState.updated;
-    // if (userId == null) {
-    //   return;
-    // }
-    // if (await _device.hasInternetConnection()) {
-    //   await _bookRemoteDbService.updateBookData(
-    //     bookId: bookId,
-    //     userId: userId,
-    //     status: bookStatus?.name,
-    //     title: title,
-    //     author: author,
-    //     readPagesAmount: readPagesAmount,
-    //     allPagesAmount: allPagesAmount,
-    //   );
-    //   syncState = SyncState.none;
-    // }
-    // final Book updatedBook = await _bookLocalDbService.updateBookData(
-    //   bookId: bookId,
-    //   status: bookStatus?.name,
-    //   title: title,
-    //   author: author,
-    //   readPagesAmount: readPagesAmount,
-    //   allPagesAmount: allPagesAmount,
-    //   syncState: syncState,
-    // );
-    // updateEntity(updatedBook);
+    await _bookDataSource.updateBook(
+      bookId: bookId,
+      userId: userId,
+      status: status,
+      imageFile: imageFile,
+      title: title,
+      author: author,
+      readPagesAmount: readPagesAmount,
+      allPagesAmount: allPagesAmount,
+    );
   }
 
   @override
-  Future<void> updateBookImage({
+  Future<void> deleteBookImage({
     required String bookId,
-    required Uint8List? imageData,
+    required String userId,
   }) async {
-    // final String? userId = _getIdOfUserAssignedToBook(bookId);
-    // SyncState? newSyncState;
-    // if (userId == null) {
-    //   return;
-    // }
-    // if (await _device.hasInternetConnection()) {
-    //   await _bookRemoteDbService.updateBookImage(
-    //     bookId: bookId,
-    //     userId: userId,
-    //     imageData: imageData,
-    //   );
-    // } else {
-    //   newSyncState = SyncState.updated;
-    // }
-    // Book updatedBook = await _bookLocalDbService.updateBookImage(
-    //   bookId: bookId,
-    //   userId: userId,
-    //   imageData: imageData,
-    // );
-    // if (newSyncState != null) {
-    //   updatedBook = await _bookLocalDbService.updateBookData(
-    //     bookId: bookId,
-    //     syncState: newSyncState,
-    //   );
-    // }
-    // updateEntity(updatedBook);
+    await _bookDataSource.deleteBookImage(
+      bookId: bookId,
+      userId: userId,
+    );
   }
 
   @override
-  Future<void> deleteBook({required String bookId}) async {
-    // final String? userId = _getIdOfUserAssignedToBook(bookId);
-    // if (userId != null && await _device.hasInternetConnection()) {
-    //   await _bookRemoteDbService.deleteBook(userId: userId, bookId: bookId);
-    //   await _bookLocalDbService.deleteBook(userId: userId, bookId: bookId);
-    // } else {
-    //   await _bookLocalDbService.updateBookData(
-    //     bookId: bookId,
-    //     syncState: SyncState.deleted,
-    //   );
-    // }
-    // removeEntity(bookId);
+  Future<void> deleteBook({
+    required String bookId,
+    required String userId,
+  }) async {
+    await _bookDataSource.deleteBook(
+      bookId: bookId,
+      userId: userId,
+    );
   }
 
   @override
   Future<void> deleteAllUserBooks({required String userId}) async {
-    // final List<Book> userBooks = await _bookLocalDbService.loadUserBooks(
-    //   userId: userId,
-    // );
-    // if (await _device.hasInternetConnection()) {
-    //   await _deleteEachBookFromBothDatabases(userBooks);
-    // } else {
-    //   await _markEachBookAsDeletedInLocalDb(userBooks);
-    // }
-  }
-
-  String? _getIdOfUserAssignedToBook(String bookId) {
-    return value?.firstWhere((Book book) => book.id == bookId).userId;
-  }
-
-  Future<void> _deleteEachBookFromBothDatabases(
-    List<Book> booksToDelete,
-  ) async {
-    for (final Book book in booksToDelete) {
-      await _bookRemoteDbService.deleteBook(
-        userId: book.userId,
-        bookId: book.id,
-      );
-      await _bookLocalDbService.deleteBook(
-        userId: book.userId,
-        bookId: book.id,
-      );
-    }
-  }
-
-  Future<void> _markEachBookAsDeletedInLocalDb(
-    List<Book> booksToMark,
-  ) async {
-    for (final Book book in booksToMark) {
-      await _bookLocalDbService.updateBookData(
-        bookId: book.id,
-        syncState: SyncState.deleted,
-      );
+    final List<Book> allUserBooks = await getUserBooks(userId: userId).first;
+    for (final Book book in allUserBooks) {
+      await _bookDataSource.deleteBook(bookId: book.id, userId: userId);
     }
   }
 }

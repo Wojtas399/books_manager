@@ -9,14 +9,15 @@ class GetUserBooksInProgressUseCase {
   }
 
   Stream<List<Book>?> execute({required String userId}) {
-    return _bookInterface
-        .getBooksByUserId(userId: userId)
-        .map(_selectBooksInProgress);
+    return Stream.value([]);
+    // return _bookInterface
+    //     .getBooksByUserId(userId: userId)
+    //     .map(_selectBooksInProgress);
   }
 
-  List<Book>? _selectBooksInProgress(List<Book>? books) {
-    return books
-        ?.where((Book book) => book.status == BookStatus.inProgress)
-        .toList();
-  }
+  // List<Book>? _selectBooksInProgress(List<Book>? books) {
+  //   return books
+  //       ?.where((Book book) => book.status == BookStatus.inProgress)
+  //       .toList();
+  // }
 }

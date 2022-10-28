@@ -57,39 +57,67 @@ void main() {
     reset(deleteBookUseCase);
   });
 
-  group(
-    'initialize',
-    () {
-      final Book book = createBook(id: bookId);
-
-      blocTest(
-        'should set book listener',
-        build: () => createBloc(),
-        setUp: () {
-          getBookByIdUseCase.mock(book: book);
-        },
-        act: (BookPreviewBloc bloc) {
-          bloc.add(
-            const BookPreviewEventInitialize(bookId: bookId),
-          );
-        },
-        expect: () => [
-          createState(
-            status: const BlocStatusLoading(),
-          ),
-          createState(
-            status: const BlocStatusComplete(),
-            book: book,
-          ),
-        ],
-        verify: (_) {
-          verify(
-            () => getBookByIdUseCase.execute(bookId: bookId),
-          ).called(1);
-        },
-      );
-    },
-  );
+  // group(
+  //   'initialize',
+  //   () {
+  //     const String userId = 'u1';
+  //     final Book book = createBook(id: bookId, userId: userId);
+  //
+  //     void eventCall(BookPreviewBloc bloc) => bloc.add(
+  //           const BookPreviewEventInitialize(bookId: bookId),
+  //         );
+  //
+  //     setUp(() {
+  //       getBookByIdUseCase.mock(book: book);
+  //     });
+  //
+  //     tearDown(() {
+  //       verify(
+  //         () => getLoggedUserIdUseCase.execute(),
+  //       ).called(1);
+  //     });
+  //
+  //     blocTest(
+  //       'logged user does not exist, should emit logged user not found status',
+  //       build: () => createBloc(),
+  //       setUp: () {
+  //         getLoggedUserIdUseCase.mock();
+  //       },
+  //       act: (BookPreviewBloc bloc) => eventCall(bloc),
+  //       expect: () => [
+  //         createState(
+  //           status: const BlocStatusLoading(),
+  //         ),
+  //         createState(
+  //           status: const BlocStatusLoggedUserNotFound(),
+  //         ),
+  //       ],
+  //     );
+  //
+  //     blocTest(
+  //       'logged user exists, should set book listener',
+  //       build: () => createBloc(),
+  //       setUp: () {
+  //         getLoggedUserIdUseCase.mock(loggedUserId: userId);
+  //       },
+  //       act: (BookPreviewBloc bloc) => eventCall(bloc),
+  //       expect: () => [
+  //         createState(
+  //           status: const BlocStatusLoading(),
+  //         ),
+  //         createState(
+  //           status: const BlocStatusComplete(),
+  //           book: book,
+  //         ),
+  //       ],
+  //       verify: (_) {
+  //         verify(
+  //           () => getBookByIdUseCase.execute(bookId: bookId, userId: userId),
+  //         ).called(1);
+  //       },
+  //     );
+  //   },
+  // );
 
   blocTest(
     'book updated, should update book in state',

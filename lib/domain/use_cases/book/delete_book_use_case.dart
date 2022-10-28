@@ -17,7 +17,10 @@ class DeleteBookUseCase {
     required String bookId,
     required String userId,
   }) async {
-    await _bookInterface.deleteBook(bookId: bookId, userId: userId);
+    await _bookInterface.deleteBook(
+      bookId: bookId,
+      userId: userId,
+    );
     await _deleteBookFromUserDaysUseCase.execute(
       userId: userId,
       bookId: bookId,

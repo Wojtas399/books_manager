@@ -15,14 +15,14 @@ class MockBookInterface extends Mock implements BookInterface {
     ).thenAnswer((_) => Stream.value(book));
   }
 
-  void mockGetUserBooks({List<Book>? books}) {
+  void mockGetUserBooks({required List<Book> userBooks}) {
     _mockBookStatus();
     when(
       () => getUserBooks(
         userId: any(named: 'userId'),
         bookStatus: any(named: 'bookStatus'),
       ),
-    ).thenAnswer((_) => Stream.value(books));
+    ).thenAnswer((_) => Stream.value(userBooks));
   }
 
   void mockAddNewBook() {

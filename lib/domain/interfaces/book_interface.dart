@@ -7,7 +7,7 @@ abstract class BookInterface {
     required String userId,
   });
 
-  Stream<List<Book>?> getUserBooks({
+  Stream<List<Book>> getUserBooks({
     required String userId,
     BookStatus? bookStatus,
   });

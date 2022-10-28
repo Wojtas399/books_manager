@@ -135,38 +135,38 @@ void main() {
     ],
   );
 
-  blocTest(
-    'start reading, should call use case responsible for starting reading book',
-    build: () => createBloc(
-      book: createBook(id: bookId),
-    ),
-    setUp: () {
-      startReadingBookUseCase.mock();
-    },
-    act: (BookPreviewBloc bloc) {
-      bloc.add(
-        const BookPreviewEventStartReading(fromBeginning: true),
-      );
-    },
-    expect: () => [
-      createState(
-        status: const BlocStatusLoading(),
-        book: createBook(id: bookId),
-      ),
-      createState(
-        status: const BlocStatusComplete(),
-        book: createBook(id: bookId),
-      ),
-    ],
-    verify: (_) {
-      verify(
-        () => startReadingBookUseCase.execute(
-          bookId: bookId,
-          fromBeginning: true,
-        ),
-      ).called(1);
-    },
-  );
+  // blocTest(
+  //   'start reading, should call use case responsible for starting reading book',
+  //   build: () => createBloc(
+  //     book: createBook(id: bookId),
+  //   ),
+  //   setUp: () {
+  //     startReadingBookUseCase.mock();
+  //   },
+  //   act: (BookPreviewBloc bloc) {
+  //     bloc.add(
+  //       const BookPreviewEventStartReading(fromBeginning: true),
+  //     );
+  //   },
+  //   expect: () => [
+  //     createState(
+  //       status: const BlocStatusLoading(),
+  //       book: createBook(id: bookId),
+  //     ),
+  //     createState(
+  //       status: const BlocStatusComplete(),
+  //       book: createBook(id: bookId),
+  //     ),
+  //   ],
+  //   verify: (_) {
+  //     verify(
+  //       () => startReadingBookUseCase.execute(
+  //         bookId: bookId,
+  //         fromBeginning: true,
+  //       ),
+  //     ).called(1);
+  //   },
+  // );
 
   group(
     'update current page number',

@@ -86,14 +86,14 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
     BookPreviewEventStartReading event,
     Emitter<BookPreviewState> emit,
   ) async {
-    emitLoadingStatus(emit);
-    await _startReadingBookUseCase.execute(
-      bookId: state.bookId,
-      fromBeginning: event.fromBeginning,
-    );
-    emit(state.copyWith(
-      status: const BlocStatusComplete(),
-    ));
+    // emitLoadingStatus(emit);
+    // await _startReadingBookUseCase.execute(
+    //   bookId: state.bookId,
+    //   fromBeginning: event.fromBeginning,
+    // );
+    // emit(state.copyWith(
+    //   status: const BlocStatusComplete(),
+    // ));
   }
 
   Future<void> _updateCurrentPageNumber(

@@ -5,7 +5,7 @@ import 'package:app/config/errors.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/book/delete_book_use_case.dart';
-import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
+import 'package:app/domain/use_cases/book/get_book_use_case.dart';
 import 'package:app/domain/use_cases/book/start_reading_book_use_case.dart';
 import 'package:app/domain/use_cases/book/update_current_page_number_after_reading_use_case.dart';
 import 'package:app/models/bloc_state.dart';
@@ -19,7 +19,7 @@ part 'book_preview_state.dart';
 
 class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
-  late final GetBookByIdUseCase _getBookByIdUseCase;
+  late final GetBookUseCase _getBookUseCase;
   late final StartReadingBookUseCase _startReadingBookUseCase;
   late final UpdateCurrentPageNumberAfterReadingUseCase
       _updateCurrentPageNumberAfterReadingUseCase;
@@ -28,7 +28,7 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
 
   BookPreviewBloc({
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
-    required GetBookByIdUseCase getBookByIdUseCase,
+    required GetBookUseCase getBookUseCase,
     required StartReadingBookUseCase startReadingBookUseCase,
     required UpdateCurrentPageNumberAfterReadingUseCase
         updateCurrentPageNumberAfterReadingUseCase,
@@ -46,7 +46,7 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
           ),
         ) {
     _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
-    _getBookByIdUseCase = getBookByIdUseCase;
+    _getBookUseCase = getBookUseCase;
     _startReadingBookUseCase = startReadingBookUseCase;
     _updateCurrentPageNumberAfterReadingUseCase =
         updateCurrentPageNumberAfterReadingUseCase;
@@ -139,13 +139,13 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
   }
 
   void _setBookListener(String bookId) {
-    _bookListener ??= _getBookByIdUseCase.execute(bookId: bookId).listen(
-      (Book? book) {
-        if (book != null) {
-          add(BookPreviewEventBookUpdated(book: book));
-        }
-      },
-    );
+    // _bookListener ??= _getBookUseCase.execute(bookId: bookId).listen(
+    //   (Book? book) {
+    //     if (book != null) {
+    //       add(BookPreviewEventBookUpdated(book: book));
+    //     }
+    //   },
+    // );
   }
 
   void _manageBookError(BookError bookError, Emitter<BookPreviewState> emit) {

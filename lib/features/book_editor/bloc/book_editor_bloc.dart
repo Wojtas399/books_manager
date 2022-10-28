@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:app/domain/entities/book.dart';
-import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
+import 'package:app/domain/use_cases/book/get_book_use_case.dart';
 import 'package:app/domain/use_cases/book/update_book_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
@@ -12,11 +12,11 @@ part 'book_editor_event.dart';
 part 'book_editor_state.dart';
 
 class BookEditorBloc extends CustomBloc<BookEditorEvent, BookEditorState> {
-  late final GetBookByIdUseCase _getBookByIdUseCase;
+  late final GetBookUseCase _getBookUseCase;
   late final UpdateBookUseCase _updateBookUseCase;
 
   BookEditorBloc({
-    required GetBookByIdUseCase getBookByIdUseCase,
+    required GetBookUseCase getBookUseCase,
     required UpdateBookUseCase updateBookUseCase,
     BlocStatus status = const BlocStatusInitial(),
     Book? originalBook,
@@ -36,7 +36,7 @@ class BookEditorBloc extends CustomBloc<BookEditorEvent, BookEditorState> {
             allPagesAmount: allPagesAmount,
           ),
         ) {
-    _getBookByIdUseCase = getBookByIdUseCase;
+    _getBookUseCase = getBookUseCase;
     _updateBookUseCase = updateBookUseCase;
     on<BookEditorEventInitialize>(_initialize);
     on<BookEditorEventImageChanged>(_imageChanged);
@@ -52,12 +52,12 @@ class BookEditorBloc extends CustomBloc<BookEditorEvent, BookEditorState> {
     BookEditorEventInitialize event,
     Emitter<BookEditorState> emit,
   ) async {
-    emitLoadingStatus(emit);
-    final Book? book =
-        await _getBookByIdUseCase.execute(bookId: event.bookId).first;
-    if (book == null) {
-      return;
-    }
+    // emitLoadingStatus(emit);
+    // final Book? book =
+    //     await _getBookUseCase.execute(bookId: event.bookId).first;
+    // if (book == null) {
+    //   return;
+    // }
     // emit(state.copyWith(
     //   status: const BlocStatusComplete(),
     //   originalBook: book,

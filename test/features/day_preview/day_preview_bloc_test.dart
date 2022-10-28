@@ -4,16 +4,16 @@ import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 import '../../mocks/domain/use_cases/auth/mock_get_logged_user_id_use_case.dart';
-import '../../mocks/domain/use_cases/book/mock_get_book_by_id_use_case.dart';
+import '../../mocks/domain/use_cases/book/mock_get_book_use_case.dart';
 
 void main() {
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
-  final getBookByIdUseCase = MockGetBookByIdUseCase();
+  final getBookUseCase = MockGetBookUseCase();
 
   DayPreviewBloc createBloc() {
     return DayPreviewBloc(
       getLoggedUserIdUseCase: getLoggedUserIdUseCase,
-      getBookByIdUseCase: getBookByIdUseCase,
+      getBookUseCase: getBookUseCase,
     );
   }
 
@@ -31,7 +31,7 @@ void main() {
 
   tearDown(() {
     reset(getLoggedUserIdUseCase);
-    reset(getBookByIdUseCase);
+    reset(getBookUseCase);
   });
 
   // group(

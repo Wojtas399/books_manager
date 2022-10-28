@@ -9,13 +9,13 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../mocks/domain/use_cases/auth/mock_get_logged_user_id_use_case.dart';
 import '../../mocks/domain/use_cases/book/mock_delete_book_use_case.dart';
-import '../../mocks/domain/use_cases/book/mock_get_book_by_id_use_case.dart';
+import '../../mocks/domain/use_cases/book/mock_get_book_use_case.dart';
 import '../../mocks/domain/use_cases/book/mock_start_reading_book_use_case.dart';
 import '../../mocks/domain/use_cases/book/mock_update_current_page_number_after_reading_use_case.dart';
 
 void main() {
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
-  final getBookByIdUseCase = MockGetBookByIdUseCase();
+  final getBookUseCase = MockGetBookUseCase();
   final startReadingBookUseCase = MockStartReadingBookUseCase();
   final updateCurrentPageNumberAfterReadingUseCase =
       MockUpdateCurrentPageNumberAfterReadingUseCase();
@@ -27,7 +27,7 @@ void main() {
   }) {
     return BookPreviewBloc(
       getLoggedUserIdUseCase: getLoggedUserIdUseCase,
-      getBookByIdUseCase: getBookByIdUseCase,
+      getBookUseCase: getBookUseCase,
       startReadingBookUseCase: startReadingBookUseCase,
       updateCurrentPageNumberAfterReadingUseCase:
           updateCurrentPageNumberAfterReadingUseCase,
@@ -51,7 +51,7 @@ void main() {
 
   tearDown(() {
     reset(getLoggedUserIdUseCase);
-    reset(getBookByIdUseCase);
+    reset(getBookUseCase);
     reset(startReadingBookUseCase);
     reset(updateCurrentPageNumberAfterReadingUseCase);
     reset(deleteBookUseCase);

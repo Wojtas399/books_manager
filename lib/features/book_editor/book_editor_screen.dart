@@ -2,7 +2,7 @@ import 'package:app/components/bloc_listener_component.dart';
 import 'package:app/config/navigation.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/interfaces/dialog_interface.dart';
-import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
+import 'package:app/domain/use_cases/book/get_book_use_case.dart';
 import 'package:app/domain/use_cases/book/update_book_use_case.dart';
 import 'package:app/features/book_editor/bloc/book_editor_bloc.dart';
 import 'package:app/features/book_editor/components/book_editor_content.dart';
@@ -38,7 +38,7 @@ class _BookEditorBlocProvider extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (BuildContext context) => BookEditorBloc(
-        getBookByIdUseCase: GetBookByIdUseCase(
+        getBookUseCase: GetBookUseCase(
           bookInterface: context.read<BookInterface>(),
         ),
         updateBookUseCase: UpdateBookUseCase(

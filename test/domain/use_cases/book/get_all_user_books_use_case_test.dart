@@ -9,7 +9,7 @@ void main() {
   final useCase = GetAllUserBooksUseCase(bookInterface: bookInterface);
 
   test(
-    'should return result of method responsible for getting user books with book status set as null',
+    'should return result of method from book interface responsible for getting user books with book status set as null',
     () async {
       const String userId = 'u1';
       final List<Book> expectedUserBooks = [

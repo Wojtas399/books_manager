@@ -1,10 +1,10 @@
 import '../../mocks/domain/use_cases/auth/mock_get_logged_user_id_use_case.dart';
-import '../../mocks/domain/use_cases/book/mock_get_book_by_id_use_case.dart';
+import '../../mocks/domain/use_cases/book/mock_get_book_use_case.dart';
 import '../../mocks/domain/use_cases/book/mock_update_book_use_case.dart';
 
 void main() {
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
-  final getBookByIdUseCase = MockGetBookByIdUseCase();
+  final getBookUseCase = MockGetBookUseCase();
   final updateBookUseCase = MockUpdateBookUseCase();
 
   // BookEditorBloc createBloc({

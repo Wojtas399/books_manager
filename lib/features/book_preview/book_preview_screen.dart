@@ -7,7 +7,7 @@ import 'package:app/domain/interfaces/day_interface.dart';
 import 'package:app/domain/interfaces/dialog_interface.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/book/delete_book_use_case.dart';
-import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
+import 'package:app/domain/use_cases/book/get_book_use_case.dart';
 import 'package:app/domain/use_cases/book/start_reading_book_use_case.dart';
 import 'package:app/domain/use_cases/book/update_current_page_number_after_reading_use_case.dart';
 import 'package:app/domain/use_cases/day/add_new_read_book_to_user_days_use_case.dart';
@@ -57,7 +57,7 @@ class _BookPreviewBlocProvider extends StatelessWidget {
         getLoggedUserIdUseCase: GetLoggedUserIdUseCase(
           authInterface: context.read<AuthInterface>(),
         ),
-        getBookByIdUseCase: GetBookByIdUseCase(
+        getBookUseCase: GetBookUseCase(
           bookInterface: context.read<BookInterface>(),
         ),
         startReadingBookUseCase: StartReadingBookUseCase(

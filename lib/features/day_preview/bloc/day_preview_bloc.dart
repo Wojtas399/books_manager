@@ -1,9 +1,8 @@
 import 'dart:typed_data';
 
-import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/entities/read_book.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
+import 'package:app/domain/use_cases/book/get_book_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/custom_bloc.dart';
@@ -15,11 +14,11 @@ part 'day_preview_state.dart';
 
 class DayPreviewBloc extends CustomBloc<DayPreviewEvent, DayPreviewState> {
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
-  late final GetBookByIdUseCase _getBookByIdUseCase;
+  late final GetBookUseCase _getBookUseCase;
 
   DayPreviewBloc({
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
-    required GetBookByIdUseCase getBookByIdUseCase,
+    required GetBookUseCase getBookUseCase,
     BlocStatus status = const BlocStatusInitial(),
     DateTime? date,
     List<DayPreviewReadBook> dayPreviewReadBooks = const [],
@@ -31,7 +30,7 @@ class DayPreviewBloc extends CustomBloc<DayPreviewEvent, DayPreviewState> {
           ),
         ) {
     _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
-    _getBookByIdUseCase = getBookByIdUseCase;
+    _getBookUseCase = getBookUseCase;
     on<DayPreviewEventInitialize>(_initialize);
   }
 
@@ -70,17 +69,18 @@ class DayPreviewBloc extends CustomBloc<DayPreviewEvent, DayPreviewState> {
   Future<DayPreviewReadBook?> _createDayPreviewModelFromReadBook(
     ReadBook readBook,
   ) async {
-    final Book? book =
-        await _getBookByIdUseCase.execute(bookId: readBook.bookId).first;
-    if (book == null) {
-      return null;
-    }
-    return DayPreviewReadBook(
-      bookId: readBook.bookId,
-      imageData: book.imageFile?.data,
-      title: book.title,
-      author: book.author,
-      amountOfPagesReadInThisDay: readBook.readPagesAmount,
-    );
+    // final Book? book =
+    //     await _getBookByIdUseCase.execute(bookId: readBook.bookId).first;
+    // if (book == null) {
+    //   return null;
+    // }
+    // return DayPreviewReadBook(
+    //   bookId: readBook.bookId,
+    //   imageData: book.imageFile?.data,
+    //   title: book.title,
+    //   author: book.author,
+    //   amountOfPagesReadInThisDay: readBook.readPagesAmount,
+    // );
+    return null;
   }
 }

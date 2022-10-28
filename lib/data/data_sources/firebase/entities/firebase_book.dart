@@ -64,6 +64,7 @@ class FirebaseBook extends Equatable {
     int? readPagesAmount,
     int? allPagesAmount,
     String? imageFileName,
+    bool deletedImageFileName = false,
   }) {
     return FirebaseBook(
       id: id,
@@ -73,7 +74,8 @@ class FirebaseBook extends Equatable {
       author: author ?? this.author,
       readPagesAmount: readPagesAmount ?? this.readPagesAmount,
       allPagesAmount: allPagesAmount ?? this.allPagesAmount,
-      imageFileName: imageFileName ?? this.imageFileName,
+      imageFileName:
+          deletedImageFileName ? null : imageFileName ?? this.imageFileName,
     );
   }
 }

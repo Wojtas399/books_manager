@@ -49,6 +49,7 @@ class MockFirebaseFirestoreBookService extends Mock
         readPagesAmount: any(named: 'readPagesAmount'),
         allPagesAmount: any(named: 'allPagesAmount'),
         imageFileName: any(named: 'imageFileName'),
+        deletedImageFileName: any(named: 'deletedImageFileName'),
       ),
     ).thenAnswer((_) async => '');
   }

@@ -61,6 +61,7 @@ class FirebaseFirestoreBookService {
     int? readPagesAmount,
     int? allPagesAmount,
     String? imageFileName,
+    bool deletedImageFileName = false,
   }) async {
     final DocumentReference<FirebaseBook> bookRef = _getBookRef(bookId, userId);
     final DocumentSnapshot<FirebaseBook> snapshot = await bookRef.get();
@@ -73,6 +74,7 @@ class FirebaseFirestoreBookService {
         readPagesAmount: readPagesAmount,
         allPagesAmount: allPagesAmount,
         imageFileName: imageFileName,
+        deletedImageFileName: deletedImageFileName,
       );
       await bookRef.set(updatedFirebaseBook);
     } else {

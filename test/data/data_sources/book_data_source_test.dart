@@ -448,7 +448,7 @@ void main() {
       );
 
       test(
-        'book has image, should delete book image from firebase storage',
+        'book has image, should delete book image from firebase storage and should update book in firebase firestore with delete image file name',
         () async {
           final FirebaseBook firebaseBook = createFirebaseBook(
             id: bookId,
@@ -456,6 +456,7 @@ void main() {
             imageFileName: 'i1',
           );
           firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
+          firebaseFirestoreBookService.mockUpdateBook();
 
           await dataSource.deleteBookImage(bookId: bookId, userId: userId);
 
@@ -463,6 +464,13 @@ void main() {
             () => firebaseStorageService.deleteBookImageData(
               fileName: 'i1',
               userId: userId,
+            ),
+          ).called(1);
+          verify(
+            () => firebaseFirestoreBookService.updateBook(
+              bookId: bookId,
+              userId: userId,
+              deletedImageFileName: true,
             ),
           ).called(1);
         },

@@ -107,6 +107,11 @@ class BookDataSource {
         fileName: imageFileName,
         userId: userId,
       );
+      await _firebaseFirestoreBookService.updateBook(
+        bookId: bookId,
+        userId: userId,
+        deletedImageFileName: true,
+      );
     }
   }
 
@@ -114,7 +119,13 @@ class BookDataSource {
     required String bookId,
     required String userId,
   }) async {
-    await deleteBookImage(bookId: bookId, userId: userId);
+    final String? imageFileName = await _getBookImageFileName(bookId, userId);
+    if (imageFileName != null) {
+      await _firebaseStorageService.deleteBookImageData(
+        fileName: imageFileName,
+        userId: userId,
+      );
+    }
     await _firebaseFirestoreBookService.deleteBook(
       userId: userId,
       bookId: bookId,

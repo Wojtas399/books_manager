@@ -128,19 +128,19 @@ class BookEditorBloc extends CustomBloc<BookEditorEvent, BookEditorState> {
     BookEditorEventSubmit event,
     Emitter<BookEditorState> emit,
   ) async {
-    final String? bookId = state.originalBook?.id;
-    if (bookId != null) {
-      emitLoadingStatus(emit);
-      await _updateBookUseCase.execute(
-        bookId: bookId,
-        imageData: state.imageData,
-        deleteImage: state.imageData == null,
-        title: state.title,
-        author: state.author,
-        readPagesAmount: state.readPagesAmount,
-        allPagesAmount: state.allPagesAmount,
-      );
-      emitInfo<BookEditorBlocInfo>(emit, BookEditorBlocInfo.bookHasBeenUpdated);
-    }
+    // final String? bookId = state.originalBook?.id;
+    // if (bookId != null) {
+    //   emitLoadingStatus(emit);
+    //   await _updateBookUseCase.execute(
+    //     bookId: bookId,
+    //     imageData: state.imageData,
+    //     deleteImage: state.imageData == null,
+    //     title: state.title,
+    //     author: state.author,
+    //     readPagesAmount: state.readPagesAmount,
+    //     allPagesAmount: state.allPagesAmount,
+    //   );
+    //   emitInfo<BookEditorBlocInfo>(emit, BookEditorBlocInfo.bookHasBeenUpdated);
+    // }
   }
 }

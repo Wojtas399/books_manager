@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/book/add_book_use_case.dart';
 import 'package:app/models/bloc_state.dart';
@@ -105,14 +104,14 @@ class BookCreatorBloc extends CustomBloc<BookCreatorEvent, BookCreatorState> {
   }
 
   Future<void> _addBook(String loggedUserId) async {
-    await _addBookUseCase.execute(
-      userId: loggedUserId,
-      status: BookStatus.unread,
-      imageData: state.imageData,
-      title: state.title,
-      author: state.author,
-      readPagesAmount: state.readPagesAmount,
-      allPagesAmount: state.allPagesAmount,
-    );
+    // await _addBookUseCase.execute(
+    //   userId: loggedUserId,
+    //   status: BookStatus.unread,
+    //   imageData: state.imageData,
+    //   title: state.title,
+    //   author: state.author,
+    //   readPagesAmount: state.readPagesAmount,
+    //   allPagesAmount: state.allPagesAmount,
+    // );
   }
 }

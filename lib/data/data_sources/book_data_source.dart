@@ -199,7 +199,7 @@ class BookDataSource {
       id: firebaseBook.id,
       userId: firebaseBook.userId,
       status: bookStatus,
-      imageFile: imageFile,
+      imageData: imageFile?.data,
       title: firebaseBook.title,
       author: firebaseBook.author,
       readPagesAmount: firebaseBook.readPagesAmount,

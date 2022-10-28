@@ -33,7 +33,7 @@ class LibraryBooksList extends StatelessWidget {
         return AnimatedOpacityAndScaleComponent(
           child: LibraryBookItem(
             bookId: book.id,
-            imageData: book.imageFile?.data,
+            imageData: book.imageData,
             title: book.title,
             author: book.author,
           ),

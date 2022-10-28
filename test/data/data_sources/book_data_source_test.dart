@@ -42,7 +42,7 @@ void main() {
       final Book expectedBook = createBook(
         id: firebaseBook.id,
         userId: firebaseBook.userId,
-        imageFile: createImageFile(name: 'i1', data: imageData),
+        imageData: imageData,
       );
       firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
       firebaseStorageService.mockLoadBookImageData(imageData: imageData);
@@ -81,7 +81,7 @@ void main() {
         createBook(
           id: userFirebaseBooks.first.id,
           userId: userFirebaseBooks.first.userId,
-          imageFile: createImageFile(name: 'i1', data: book1ImageData),
+          imageData: book1ImageData,
         ),
         createBook(
           id: userFirebaseBooks.last.id,

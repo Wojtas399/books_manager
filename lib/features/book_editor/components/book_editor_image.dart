@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:app/components/book_image_picker_component.dart';
 import 'package:app/features/book_editor/bloc/book_editor_bloc.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,15 +16,16 @@ class BookEditorImage extends StatelessWidget {
       (BookEditorBloc bloc) => bloc.state.originalBook?.imageData,
     );
 
-    return BookImagePickerComponent(
-      imageData: imageData,
-      originalImageData: originalImageData,
-      canDisplayRestoreImageAction: true,
-      onImageDataChanged: (Uint8List? imageData) => _onImageChanged(
-        imageData,
-        context,
-      ),
-    );
+    return const SizedBox();
+    // return BookImagePickerComponent(
+    //   imageData: imageData,
+    //   originalImageData: originalImageData,
+    //   canDisplayRestoreImageAction: true,
+    //   onImageDataChanged: (Uint8List? imageData) => _onImageChanged(
+    //     imageData,
+    //     context,
+    //   ),
+    // );
   }
 
   void _onImageChanged(Uint8List? imageData, BuildContext context) {

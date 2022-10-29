@@ -3,23 +3,24 @@ import 'dart:typed_data';
 import 'package:app/components/book_image_component.dart';
 import 'package:app/domain/interfaces/dialog_interface.dart';
 import 'package:app/models/action_sheet_action.dart';
+import 'package:app/models/image_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class BookImagePickerComponent extends StatelessWidget {
-  final Uint8List? imageData;
-  final Uint8List? originalImageData;
+  final ImageFile? imageFile;
+  final ImageFile? originalImageFile;
   final bool canDisplayRestoreImageAction;
-  final Function(Uint8List? imageData)? onImageDataChanged;
+  final Function(ImageFile? imageFile)? onImageChanged;
 
   const BookImagePickerComponent({
     super.key,
-    required this.imageData,
-    this.originalImageData,
+    required this.imageFile,
+    this.originalImageFile,
     this.canDisplayRestoreImageAction = false,
-    this.onImageDataChanged,
+    this.onImageChanged,
   });
 
   @override
@@ -33,7 +34,7 @@ class BookImagePickerComponent extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          child: _Image(imageData: imageData),
+          child: _Image(imageData: imageFile?.data),
         ),
       ),
     );
@@ -49,7 +50,7 @@ class BookImagePickerComponent extends StatelessWidget {
   Future<_ImageAction?> _askForAction(BuildContext context) async {
     final List<ActionSheetAction> actions = _createActionsToSelect();
     final String? actionId = await context.read<DialogInterface>().askForAction(
-          title: imageData != null ? 'Edytuj zdjęcie' : 'Dodaj zdjęcie',
+          title: imageFile != null ? 'Edytuj zdjęcie' : 'Dodaj zdjęcie',
           actions: actions,
         );
     return actionId.toImageAction();
@@ -85,7 +86,7 @@ class BookImagePickerComponent extends StatelessWidget {
         iconData: MdiIcons.camera,
       ),
     ];
-    if (imageData != null) {
+    if (imageFile != null) {
       actions.add(
         ActionSheetAction(
           id: _ImageAction.delete.name,
@@ -94,7 +95,7 @@ class BookImagePickerComponent extends StatelessWidget {
         ),
       );
     }
-    if (canDisplayRestoreImageAction && imageData != originalImageData) {
+    if (canDisplayRestoreImageAction && imageFile != originalImageFile) {
       actions.add(
         ActionSheetAction(
           id: _ImageAction.restoreOriginal.name,
@@ -107,16 +108,16 @@ class BookImagePickerComponent extends StatelessWidget {
   }
 
   Future<void> _setImageFromGallery() async {
-    final Uint8List? imageData = await _getImageFromGallery();
-    if (imageData != null) {
-      _emitNewImage(imageData);
+    final ImageFile? newImageFile = await _getImageFromGallery();
+    if (newImageFile != null) {
+      _emitNewImage(newImageFile);
     }
   }
 
   Future<void> _setImageFromCamera() async {
-    final Uint8List? imageData = await _getImageFromCamera();
-    if (imageData != null) {
-      _emitNewImage(imageData);
+    final ImageFile? newImageFile = await _getImageFromCamera();
+    if (newImageFile != null) {
+      _emitNewImage(newImageFile);
     }
   }
 
@@ -125,31 +126,38 @@ class BookImagePickerComponent extends StatelessWidget {
   }
 
   void _restoreOriginal() {
-    _emitNewImage(originalImageData);
+    _emitNewImage(originalImageFile);
   }
 
-  Future<Uint8List?> _getImageFromGallery() async {
+  Future<ImageFile?> _getImageFromGallery() async {
     final ImagePicker imagePicker = ImagePicker();
     final XFile? xFile = await imagePicker.pickImage(
       source: ImageSource.gallery,
     );
-    return await xFile?.readAsBytes();
+    return await _mapXFileToImageFile(xFile);
   }
 
-  Future<Uint8List?> _getImageFromCamera() async {
+  Future<ImageFile?> _getImageFromCamera() async {
     final ImagePicker imagePicker = ImagePicker();
     final XFile? xFile = await imagePicker.pickImage(
       source: ImageSource.camera,
     );
-    return await xFile?.readAsBytes();
+    return await _mapXFileToImageFile(xFile);
   }
 
-  void _emitNewImage(Uint8List? newImageData) {
-    final Function(Uint8List? imageData)? onImageDataChanged =
-        this.onImageDataChanged;
-    if (onImageDataChanged != null) {
-      onImageDataChanged(newImageData);
+  void _emitNewImage(ImageFile? newImageFile) {
+    final Function(ImageFile? imageFile)? onImageChanged = this.onImageChanged;
+    if (onImageChanged != null) {
+      onImageChanged(newImageFile);
     }
+  }
+
+  Future<ImageFile?> _mapXFileToImageFile(XFile? xFile) async {
+    final Uint8List? imageData = await xFile?.readAsBytes();
+    if (imageData == null || xFile == null) {
+      return null;
+    }
+    return ImageFile(name: xFile.name, data: imageData);
   }
 }
 

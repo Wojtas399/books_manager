@@ -35,7 +35,7 @@ class BookPreviewState extends BlocState {
     );
   }
 
-  Uint8List? get bookImageData => _book?.imageData;
+  Uint8List? get bookImageData => _book?.imageFile?.data;
 
   BookStatus? get bookStatus => _book?.status;
 

@@ -52,7 +52,7 @@ class BookEditorState extends BlocState {
   }
 
   bool get isButtonDisabled =>
-      imageData == originalBook?.imageData &&
+      imageData == originalBook?.imageFile?.data &&
       title == originalBook?.title &&
       author == originalBook?.author &&
       readPagesAmount == originalBook?.readPagesAmount &&

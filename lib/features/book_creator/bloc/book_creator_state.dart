@@ -1,7 +1,7 @@
 part of 'book_creator_bloc.dart';
 
 class BookCreatorState extends BlocState {
-  final Uint8List? imageData;
+  final ImageFile? imageFile;
   final String title;
   final String author;
   final int readPagesAmount;
@@ -9,7 +9,7 @@ class BookCreatorState extends BlocState {
 
   const BookCreatorState({
     required super.status,
-    required this.imageData,
+    required this.imageFile,
     required this.title,
     required this.author,
     required this.readPagesAmount,
@@ -19,7 +19,7 @@ class BookCreatorState extends BlocState {
   @override
   List<Object> get props => [
         status,
-        imageData ?? '',
+        imageFile ?? '',
         title,
         author,
         readPagesAmount,
@@ -29,7 +29,7 @@ class BookCreatorState extends BlocState {
   @override
   BookCreatorState copyWith({
     BlocStatus? status,
-    Uint8List? imageData,
+    ImageFile? imageFile,
     String? title,
     String? author,
     int? readPagesAmount,
@@ -38,7 +38,7 @@ class BookCreatorState extends BlocState {
   }) {
     return BookCreatorState(
       status: status ?? const BlocStatusInProgress(),
-      imageData: deletedImage ? null : imageData ?? this.imageData,
+      imageFile: deletedImage ? null : imageFile ?? this.imageFile,
       title: title ?? this.title,
       author: author ?? this.author,
       readPagesAmount: readPagesAmount ?? this.readPagesAmount,

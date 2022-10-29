@@ -5,9 +5,9 @@ abstract class BookCreatorEvent {
 }
 
 class BookCreatorEventChangeImage extends BookCreatorEvent {
-  final Uint8List? imageData;
+  final ImageFile? imageFile;
 
-  const BookCreatorEventChangeImage({required this.imageData});
+  const BookCreatorEventChangeImage({required this.imageFile});
 }
 
 class BookCreatorEventTitleChanged extends BookCreatorEvent {

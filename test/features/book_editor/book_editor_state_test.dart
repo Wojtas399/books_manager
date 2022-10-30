@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/features/book_editor/bloc/book_editor_bloc.dart';
 import 'package:app/models/bloc_status.dart';
+import 'package:app/models/image_file.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -12,7 +13,7 @@ void main() {
     state = const BookEditorState(
       status: BlocStatusInitial(),
       originalBook: null,
-      imageData: null,
+      imageFile: null,
       title: '',
       author: '',
       readPagesAmount: 0,
@@ -20,114 +21,114 @@ void main() {
     );
   });
 
-  // group(
-  //   'is button disabled',
-  //   () {
-  //     final Book book = createBook(
-  //       imageData: Uint8List(1),
-  //       title: 'title',
-  //       author: 'author',
-  //       readPagesAmount: 0,
-  //       allPagesAmount: 100,
-  //     );
-  //
-  //     test(
-  //       'should be true if all params are the same as original',
-  //       () {
-  //         state = state.copyWith(
-  //           originalBook: book,
-  //           imageData: book.imageData,
-  //           title: book.title,
-  //           author: book.author,
-  //           readPagesAmount: book.readPagesAmount,
-  //           allPagesAmount: book.allPagesAmount,
-  //         );
-  //
-  //         expect(state.isButtonDisabled, true);
-  //       },
-  //     );
-  //
-  //     test(
-  //       'should be false if image data are different than original',
-  //       () {
-  //         state = state.copyWith(
-  //           originalBook: book,
-  //           imageData: Uint8List(10),
-  //           title: book.title,
-  //           author: book.author,
-  //           readPagesAmount: book.readPagesAmount,
-  //           allPagesAmount: book.allPagesAmount,
-  //         );
-  //
-  //         expect(state.isButtonDisabled, false);
-  //       },
-  //     );
-  //
-  //     test(
-  //       'should be false if title is different than original',
-  //       () {
-  //         state = state.copyWith(
-  //           originalBook: book,
-  //           imageData: book.imageData,
-  //           title: 'book title',
-  //           author: book.author,
-  //           readPagesAmount: book.readPagesAmount,
-  //           allPagesAmount: book.allPagesAmount,
-  //         );
-  //
-  //         expect(state.isButtonDisabled, false);
-  //       },
-  //     );
-  //
-  //     test(
-  //       'should be false if author is different than original',
-  //       () {
-  //         state = state.copyWith(
-  //           originalBook: book,
-  //           imageData: book.imageData,
-  //           title: book.title,
-  //           author: 'book author',
-  //           readPagesAmount: book.readPagesAmount,
-  //           allPagesAmount: book.allPagesAmount,
-  //         );
-  //
-  //         expect(state.isButtonDisabled, false);
-  //       },
-  //     );
-  //
-  //     test(
-  //       'should be false if read pages amount is different than original',
-  //       () {
-  //         state = state.copyWith(
-  //           originalBook: book,
-  //           imageData: book.imageData,
-  //           title: book.title,
-  //           author: book.author,
-  //           readPagesAmount: 100,
-  //           allPagesAmount: book.allPagesAmount,
-  //         );
-  //
-  //         expect(state.isButtonDisabled, false);
-  //       },
-  //     );
-  //
-  //     test(
-  //       'should be false if all pages amount is different than original',
-  //       () {
-  //         state = state.copyWith(
-  //           originalBook: book,
-  //           imageData: book.imageData,
-  //           title: book.title,
-  //           author: book.author,
-  //           readPagesAmount: book.readPagesAmount,
-  //           allPagesAmount: 1,
-  //         );
-  //
-  //         expect(state.isButtonDisabled, false);
-  //       },
-  //     );
-  //   },
-  // );
+  group(
+    'is button disabled',
+    () {
+      final Book book = createBook(
+        imageFile: createImageFile(name: 'i1', data: Uint8List(10)),
+        title: 'title',
+        author: 'author',
+        readPagesAmount: 0,
+        allPagesAmount: 100,
+      );
+
+      test(
+        'should be true if all params are the same as original',
+        () {
+          state = state.copyWith(
+            originalBook: book,
+            imageFile: book.imageFile,
+            title: book.title,
+            author: book.author,
+            readPagesAmount: book.readPagesAmount,
+            allPagesAmount: book.allPagesAmount,
+          );
+
+          expect(state.isButtonDisabled, true);
+        },
+      );
+
+      test(
+        'should be false if image file is different than original',
+        () {
+          state = state.copyWith(
+            originalBook: book,
+            imageFile: createImageFile(name: 'i2', data: Uint8List(10)),
+            title: book.title,
+            author: book.author,
+            readPagesAmount: book.readPagesAmount,
+            allPagesAmount: book.allPagesAmount,
+          );
+
+          expect(state.isButtonDisabled, false);
+        },
+      );
+
+      test(
+        'should be false if title is different than original',
+        () {
+          state = state.copyWith(
+            originalBook: book,
+            imageFile: book.imageFile,
+            title: 'book title',
+            author: book.author,
+            readPagesAmount: book.readPagesAmount,
+            allPagesAmount: book.allPagesAmount,
+          );
+
+          expect(state.isButtonDisabled, false);
+        },
+      );
+
+      test(
+        'should be false if author is different than original',
+        () {
+          state = state.copyWith(
+            originalBook: book,
+            imageFile: book.imageFile,
+            title: book.title,
+            author: 'book author',
+            readPagesAmount: book.readPagesAmount,
+            allPagesAmount: book.allPagesAmount,
+          );
+
+          expect(state.isButtonDisabled, false);
+        },
+      );
+
+      test(
+        'should be false if read pages amount is different than original',
+        () {
+          state = state.copyWith(
+            originalBook: book,
+            imageFile: book.imageFile,
+            title: book.title,
+            author: book.author,
+            readPagesAmount: 100,
+            allPagesAmount: book.allPagesAmount,
+          );
+
+          expect(state.isButtonDisabled, false);
+        },
+      );
+
+      test(
+        'should be false if all pages amount is different than original',
+        () {
+          state = state.copyWith(
+            originalBook: book,
+            imageFile: book.imageFile,
+            title: book.title,
+            author: book.author,
+            readPagesAmount: book.readPagesAmount,
+            allPagesAmount: 1,
+          );
+
+          expect(state.isButtonDisabled, false);
+        },
+      );
+    },
+  );
 
   test(
     'copy with status',
@@ -156,15 +157,18 @@ void main() {
   );
 
   test(
-    'copy with image data',
+    'copy with image file',
     () {
-      final Uint8List expectedImageData = Uint8List(10);
+      final ImageFile expectedImageFile = createImageFile(
+        name: 'i1',
+        data: Uint8List(5),
+      );
 
-      state = state.copyWith(imageData: expectedImageData);
+      state = state.copyWith(imageFile: expectedImageFile);
       final state2 = state.copyWith();
 
-      expect(state.imageData, expectedImageData);
-      expect(state2.imageData, expectedImageData);
+      expect(state.imageFile, expectedImageFile);
+      expect(state2.imageFile, expectedImageFile);
     },
   );
 
@@ -223,13 +227,16 @@ void main() {
   test(
     'copy with deleted image',
     () {
-      final Uint8List imageData = Uint8List(1);
+      final ImageFile imageFile = createImageFile(
+        name: 'i1',
+        data: Uint8List(1),
+      );
 
-      state = state.copyWith(imageData: imageData);
+      state = state.copyWith(imageFile: imageFile);
       final state2 = state.copyWith(deletedImage: true);
 
-      expect(state.imageData, imageData);
-      expect(state2.imageData, null);
+      expect(state.imageFile, imageFile);
+      expect(state2.imageFile, null);
     },
   );
 }

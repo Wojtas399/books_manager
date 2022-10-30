@@ -1,6 +1,6 @@
-import 'dart:typed_data';
-
+import 'package:app/components/book_image_picker_component.dart';
 import 'package:app/features/book_editor/bloc/book_editor_bloc.dart';
+import 'package:app/models/image_file.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -9,28 +9,27 @@ class BookEditorImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Uint8List? imageData = context.select(
-      (BookEditorBloc bloc) => bloc.state.imageData,
+    final ImageFile? imageFile = context.select(
+      (BookEditorBloc bloc) => bloc.state.imageFile,
     );
-    final Uint8List? originalImageData = context.select(
-      (BookEditorBloc bloc) => bloc.state.originalBook?.imageFile?.data,
+    final ImageFile? originalImageFile = context.select(
+      (BookEditorBloc bloc) => bloc.state.originalBook?.imageFile,
     );
 
-    return const SizedBox();
-    // return BookImagePickerComponent(
-    //   imageData: imageData,
-    //   originalImageData: originalImageData,
-    //   canDisplayRestoreImageAction: true,
-    //   onImageDataChanged: (Uint8List? imageData) => _onImageChanged(
-    //     imageData,
-    //     context,
-    //   ),
-    // );
+    return BookImagePickerComponent(
+      imageFile: imageFile,
+      originalImageFile: originalImageFile,
+      canDisplayRestoreImageAction: true,
+      onImageChanged: (ImageFile? imageFile) => _onImageChanged(
+        imageFile,
+        context,
+      ),
+    );
   }
 
-  void _onImageChanged(Uint8List? imageData, BuildContext context) {
+  void _onImageChanged(ImageFile? imageFile, BuildContext context) {
     context.read<BookEditorBloc>().add(
-          BookEditorEventImageChanged(imageData: imageData),
+          BookEditorEventImageChanged(imageFile: imageFile),
         );
   }
 }

@@ -11,9 +11,9 @@ class BookEditorEventInitialize extends BookEditorEvent {
 }
 
 class BookEditorEventImageChanged extends BookEditorEvent {
-  final Uint8List? imageData;
+  final ImageFile? imageFile;
 
-  const BookEditorEventImageChanged({required this.imageData});
+  const BookEditorEventImageChanged({required this.imageFile});
 }
 
 class BookEditorEventRestoreOriginalImage extends BookEditorEvent {

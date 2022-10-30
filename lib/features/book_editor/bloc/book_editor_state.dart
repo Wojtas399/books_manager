@@ -2,16 +2,16 @@ part of 'book_editor_bloc.dart';
 
 class BookEditorState extends BlocState {
   final Book? originalBook;
-  final Uint8List? imageData;
-  final String title;
-  final String author;
-  final int readPagesAmount;
-  final int allPagesAmount;
+  final ImageFile? imageFile;
+  final String? title;
+  final String? author;
+  final int? readPagesAmount;
+  final int? allPagesAmount;
 
   const BookEditorState({
     required super.status,
     required this.originalBook,
-    required this.imageData,
+    required this.imageFile,
     required this.title,
     required this.author,
     required this.readPagesAmount,
@@ -22,18 +22,18 @@ class BookEditorState extends BlocState {
   List<Object> get props => [
         status,
         originalBook ?? '',
-        imageData ?? '',
-        title,
-        author,
-        readPagesAmount,
-        allPagesAmount,
+        imageFile ?? '',
+        title ?? '',
+        author ?? '',
+        readPagesAmount ?? 0,
+        allPagesAmount ?? 0,
       ];
 
   @override
   BookEditorState copyWith({
     BlocStatus? status,
     Book? originalBook,
-    Uint8List? imageData,
+    ImageFile? imageFile,
     String? title,
     String? author,
     int? readPagesAmount,
@@ -43,7 +43,7 @@ class BookEditorState extends BlocState {
     return BookEditorState(
       status: status ?? const BlocStatusInProgress(),
       originalBook: originalBook ?? this.originalBook,
-      imageData: deletedImage ? null : imageData ?? this.imageData,
+      imageFile: deletedImage ? null : imageFile ?? this.imageFile,
       title: title ?? this.title,
       author: author ?? this.author,
       readPagesAmount: readPagesAmount ?? this.readPagesAmount,
@@ -52,7 +52,7 @@ class BookEditorState extends BlocState {
   }
 
   bool get isButtonDisabled =>
-      imageData == originalBook?.imageFile?.data &&
+      imageFile == originalBook?.imageFile &&
       title == originalBook?.title &&
       author == originalBook?.author &&
       readPagesAmount == originalBook?.readPagesAmount &&

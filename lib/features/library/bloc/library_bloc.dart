@@ -46,13 +46,11 @@ class LibraryBloc extends CustomBloc<LibraryEvent, LibraryState> {
     LibraryEventInitialize event,
     Emitter<LibraryState> emit,
   ) async {
+    emitLoadingStatus(emit);
     final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
     if (loggedUserId == null) {
       emitLoggedUserNotFoundStatus(emit);
       return;
-    }
-    if (await _areLoggedUserBooksNotLoaded(loggedUserId)) {
-      emitLoadingStatus(emit);
     }
     _setBooksListener(loggedUserId);
   }
@@ -73,10 +71,6 @@ class LibraryBloc extends CustomBloc<LibraryEvent, LibraryState> {
     emit(state.copyWith(
       searchValue: event.searchValue,
     ));
-  }
-
-  Future<bool> _areLoggedUserBooksNotLoaded(String loggedUserId) async {
-    return await _getAllLoggedUserBooks(loggedUserId).first == null;
   }
 
   void _setBooksListener(String loggedUserId) {

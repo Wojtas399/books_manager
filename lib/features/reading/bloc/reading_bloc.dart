@@ -43,13 +43,11 @@ class ReadingBloc extends CustomBloc<ReadingEvent, ReadingState> {
     ReadingEventInitialize event,
     Emitter<ReadingState> emit,
   ) async {
+    emitLoadingStatus(emit);
     final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
     if (loggedUserId == null) {
       emitLoggedUserNotFoundStatus(emit);
       return;
-    }
-    if (await _areLoggedUserBooksInProgressNotLoaded(loggedUserId)) {
-      emitLoadingStatus(emit);
     }
     _setBooksInProgressListener(loggedUserId);
   }
@@ -61,12 +59,6 @@ class ReadingBloc extends CustomBloc<ReadingEvent, ReadingState> {
     emit(state.copyWith(
       booksInProgress: event.booksInProgress,
     ));
-  }
-
-  Future<bool> _areLoggedUserBooksInProgressNotLoaded(
-    String loggedUserId,
-  ) async {
-    return await _getLoggedUserBooksInProgress(loggedUserId).first == null;
   }
 
   void _setBooksInProgressListener(String loggedUserId) {

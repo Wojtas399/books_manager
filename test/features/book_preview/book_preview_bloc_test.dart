@@ -21,6 +21,7 @@ void main() {
       MockUpdateCurrentPageNumberAfterReadingUseCase();
   final deleteBookUseCase = MockDeleteBookUseCase();
   const String bookId = 'b1';
+  const String userId = 'u1';
 
   BookPreviewBloc createBloc({
     Book? book,
@@ -57,74 +58,75 @@ void main() {
     reset(deleteBookUseCase);
   });
 
-  // group(
-  //   'initialize',
-  //   () {
-  //     const String userId = 'u1';
-  //     final Book book = createBook(id: bookId, userId: userId);
-  //
-  //     void eventCall(BookPreviewBloc bloc) => bloc.add(
-  //           const BookPreviewEventInitialize(bookId: bookId),
-  //         );
-  //
-  //     setUp(() {
-  //       getBookByIdUseCase.mock(book: book);
-  //     });
-  //
-  //     tearDown(() {
-  //       verify(
-  //         () => getLoggedUserIdUseCase.execute(),
-  //       ).called(1);
-  //     });
-  //
-  //     blocTest(
-  //       'logged user does not exist, should emit logged user not found status',
-  //       build: () => createBloc(),
-  //       setUp: () {
-  //         getLoggedUserIdUseCase.mock();
-  //       },
-  //       act: (BookPreviewBloc bloc) => eventCall(bloc),
-  //       expect: () => [
-  //         createState(
-  //           status: const BlocStatusLoading(),
-  //         ),
-  //         createState(
-  //           status: const BlocStatusLoggedUserNotFound(),
-  //         ),
-  //       ],
-  //     );
-  //
-  //     blocTest(
-  //       'logged user exists, should set book listener',
-  //       build: () => createBloc(),
-  //       setUp: () {
-  //         getLoggedUserIdUseCase.mock(loggedUserId: userId);
-  //       },
-  //       act: (BookPreviewBloc bloc) => eventCall(bloc),
-  //       expect: () => [
-  //         createState(
-  //           status: const BlocStatusLoading(),
-  //         ),
-  //         createState(
-  //           status: const BlocStatusComplete(),
-  //           book: book,
-  //         ),
-  //       ],
-  //       verify: (_) {
-  //         verify(
-  //           () => getBookByIdUseCase.execute(bookId: bookId, userId: userId),
-  //         ).called(1);
-  //       },
-  //     );
-  //   },
-  // );
+  group(
+    'initialize',
+    () {
+      final Book book = createBook(id: bookId, userId: userId);
+
+      void eventCall(BookPreviewBloc bloc) => bloc.add(
+            const BookPreviewEventInitialize(bookId: bookId),
+          );
+
+      setUp(() {
+        getBookUseCase.mock(book: book);
+      });
+
+      tearDown(() {
+        verify(
+          () => getLoggedUserIdUseCase.execute(),
+        ).called(1);
+      });
+
+      blocTest(
+        'logged user does not exist, should emit logged user not found status',
+        build: () => createBloc(),
+        setUp: () {
+          getLoggedUserIdUseCase.mock();
+        },
+        act: (BookPreviewBloc bloc) => eventCall(bloc),
+        expect: () => [
+          createState(
+            status: const BlocStatusLoading(),
+          ),
+          createState(
+            status: const BlocStatusLoggedUserNotFound(),
+          ),
+        ],
+      );
+
+      blocTest(
+        'logged user exists, should set book listener',
+        build: () => createBloc(),
+        setUp: () {
+          getLoggedUserIdUseCase.mock(loggedUserId: userId);
+        },
+        act: (BookPreviewBloc bloc) => eventCall(bloc),
+        expect: () => [
+          createState(
+            status: const BlocStatusLoading(),
+          ),
+          createState(
+            status: const BlocStatusComplete(),
+            book: book,
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => getBookUseCase.execute(bookId: bookId, userId: userId),
+          ).called(1);
+        },
+      );
+    },
+  );
 
   blocTest(
     'book updated, should update book in state',
     build: () => createBloc(),
     act: (BookPreviewBloc bloc) {
       bloc.add(
-        BookPreviewEventBookUpdated(book: createBook(id: 'b1')),
+        BookPreviewEventBookUpdated(
+          book: createBook(id: 'b1'),
+        ),
       );
     },
     expect: () => [
@@ -135,38 +137,64 @@ void main() {
     ],
   );
 
-  // blocTest(
-  //   'start reading, should call use case responsible for starting reading book',
-  //   build: () => createBloc(
-  //     book: createBook(id: bookId),
-  //   ),
-  //   setUp: () {
-  //     startReadingBookUseCase.mock();
-  //   },
-  //   act: (BookPreviewBloc bloc) {
-  //     bloc.add(
-  //       const BookPreviewEventStartReading(fromBeginning: true),
-  //     );
-  //   },
-  //   expect: () => [
-  //     createState(
-  //       status: const BlocStatusLoading(),
-  //       book: createBook(id: bookId),
-  //     ),
-  //     createState(
-  //       status: const BlocStatusComplete(),
-  //       book: createBook(id: bookId),
-  //     ),
-  //   ],
-  //   verify: (_) {
-  //     verify(
-  //       () => startReadingBookUseCase.execute(
-  //         bookId: bookId,
-  //         fromBeginning: true,
-  //       ),
-  //     ).called(1);
-  //   },
-  // );
+  group(
+    'start reading',
+    () {
+      const bool fromBeginning = true;
+      final Book book = createBook(id: bookId, userId: userId);
+
+      void eventCall(BookPreviewBloc bloc) {
+        bloc.add(
+          const BookPreviewEventStartReading(fromBeginning: fromBeginning),
+        );
+      }
+
+      setUp(() {
+        startReadingBookUseCase.mock();
+      });
+
+      blocTest(
+        'book is not loaded, should do nothing',
+        build: () => createBloc(),
+        act: (BookPreviewBloc bloc) => eventCall(bloc),
+        expect: () => [],
+        verify: (_) {
+          verifyNever(
+            () => startReadingBookUseCase.execute(
+              bookId: any(named: 'bookId'),
+              userId: any(named: 'userId'),
+              fromBeginning: fromBeginning,
+            ),
+          );
+        },
+      );
+
+      blocTest(
+        'book is loaded, should call use case responsible for starting reading book',
+        build: () => createBloc(book: book),
+        act: (BookPreviewBloc bloc) => eventCall(bloc),
+        expect: () => [
+          createState(
+            status: const BlocStatusLoading(),
+            book: book,
+          ),
+          createState(
+            status: const BlocStatusComplete(),
+            book: book,
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => startReadingBookUseCase.execute(
+              bookId: bookId,
+              userId: userId,
+              fromBeginning: true,
+            ),
+          ).called(1);
+        },
+      );
+    },
+  );
 
   group(
     'update current page number',

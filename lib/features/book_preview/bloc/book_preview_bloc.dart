@@ -15,6 +15,7 @@ import 'package:app/models/error.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'book_preview_event.dart';
+
 part 'book_preview_state.dart';
 
 class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
@@ -64,12 +65,17 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
     super.close();
   }
 
-  void _initialize(
+  Future<void> _initialize(
     BookPreviewEventInitialize event,
     Emitter<BookPreviewState> emit,
-  ) {
+  ) async {
     emitLoadingStatus(emit);
-    _setBookListener(event.bookId);
+    final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
+    if (loggedUserId == null) {
+      emitLoggedUserNotFoundStatus(emit);
+      return;
+    }
+    _setBookListener(event.bookId, loggedUserId);
   }
 
   void _bookUpdated(
@@ -86,14 +92,19 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
     BookPreviewEventStartReading event,
     Emitter<BookPreviewState> emit,
   ) async {
-    // emitLoadingStatus(emit);
-    // await _startReadingBookUseCase.execute(
-    //   bookId: state.bookId,
-    //   fromBeginning: event.fromBeginning,
-    // );
-    // emit(state.copyWith(
-    //   status: const BlocStatusComplete(),
-    // ));
+    final String? userId = state._book?.userId;
+    if (userId == null) {
+      return;
+    }
+    emitLoadingStatus(emit);
+    await _startReadingBookUseCase.execute(
+      bookId: state.bookId,
+      userId: userId,
+      fromBeginning: event.fromBeginning,
+    );
+    emit(state.copyWith(
+      status: const BlocStatusComplete(),
+    ));
   }
 
   Future<void> _updateCurrentPageNumber(
@@ -138,14 +149,15 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
     emitInfo<BookPreviewBlocInfo>(emit, BookPreviewBlocInfo.bookHasBeenDeleted);
   }
 
-  void _setBookListener(String bookId) {
-    // _bookListener ??= _getBookUseCase.execute(bookId: bookId).listen(
-    //   (Book? book) {
-    //     if (book != null) {
-    //       add(BookPreviewEventBookUpdated(book: book));
-    //     }
-    //   },
-    // );
+  void _setBookListener(String bookId, String userId) {
+    _bookListener ??=
+        _getBookUseCase.execute(bookId: bookId, userId: userId).listen(
+      (Book? book) {
+        if (book != null) {
+          add(BookPreviewEventBookUpdated(book: book));
+        }
+      },
+    );
   }
 
   void _manageBookError(BookError bookError, Emitter<BookPreviewState> emit) {

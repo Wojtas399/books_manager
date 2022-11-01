@@ -9,7 +9,7 @@ void main() {
     state = const DayPreviewState(
       status: BlocStatusInitial(),
       date: null,
-      dayPreviewReadBooks: [],
+      dayPreviewBooks: [],
     );
   });
 
@@ -40,18 +40,18 @@ void main() {
   );
 
   test(
-    'copy with day preview read books',
+    'copy with day preview books',
     () {
-      final List<DayPreviewReadBook> expectedDayPreviewReadBooks = [
-        createDayPreviewReadBook(bookId: 'b1'),
-        createDayPreviewReadBook(bookId: 'b2'),
+      final List<DayPreviewBook> expectedDayPreviewBooks = [
+        createDayPreviewBook(id: 'b1'),
+        createDayPreviewBook(id: 'b2'),
       ];
 
-      state = state.copyWith(dayPreviewReadBooks: expectedDayPreviewReadBooks);
+      state = state.copyWith(dayPreviewBooks: expectedDayPreviewBooks);
       final state2 = state.copyWith();
 
-      expect(state.dayPreviewReadBooks, expectedDayPreviewReadBooks);
-      expect(state2.dayPreviewReadBooks, expectedDayPreviewReadBooks);
+      expect(state.dayPreviewBooks, expectedDayPreviewBooks);
+      expect(state2.dayPreviewBooks, expectedDayPreviewBooks);
     },
   );
 }

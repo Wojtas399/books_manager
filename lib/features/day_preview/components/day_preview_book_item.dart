@@ -2,10 +2,10 @@ import 'package:app/components/animated_opacity_and_scale_component.dart';
 import 'package:app/features/day_preview/bloc/day_preview_bloc.dart';
 import 'package:flutter/material.dart';
 
-class DayPreviewReadBookItem extends StatelessWidget {
-  final DayPreviewReadBook readBook;
+class DayPreviewBookItem extends StatelessWidget {
+  final DayPreviewBook dayPreviewBook;
 
-  const DayPreviewReadBookItem({super.key, required this.readBook});
+  const DayPreviewBookItem({super.key, required this.dayPreviewBook});
 
   @override
   Widget build(BuildContext context) {
@@ -22,13 +22,13 @@ class DayPreviewReadBookItem extends StatelessWidget {
               children: [
                 Expanded(
                   child: _TitleAndAuthor(
-                    title: readBook.title,
-                    author: readBook.author,
+                    title: dayPreviewBook.title,
+                    author: dayPreviewBook.author,
                   ),
                 ),
                 const VerticalDivider(thickness: 1),
                 _ReadPagesAmount(
-                  readPagesAmount: readBook.amountOfPagesReadInThisDay,
+                  readPagesAmount: dayPreviewBook.amountOfPagesReadInThisDay,
                 ),
               ],
             ),

@@ -8,7 +8,7 @@ class GetUserDaysFromMonthUseCase {
     _dayInterface = dayInterface;
   }
 
-  Stream<List<Day>?> execute({
+  Stream<List<Day>> execute({
     required String userId,
     required int month,
     required int year,

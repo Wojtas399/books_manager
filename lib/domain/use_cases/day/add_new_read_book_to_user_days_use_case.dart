@@ -32,7 +32,7 @@ class AddNewReadBookToUserDaysUseCase {
   }
 
   Future<List<Day>> _loadUserDays(String userId) async {
-    return await _dayInterface.getUserDays(userId: userId).first ?? [];
+    return await _dayInterface.getUserDays(userId: userId).first;
   }
 
   Future<void> _addNewDayToUserDays(

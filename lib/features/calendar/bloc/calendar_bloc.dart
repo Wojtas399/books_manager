@@ -52,26 +52,17 @@ class CalendarBloc extends CustomBloc<CalendarEvent, CalendarState> {
     CalendarEventInitialize event,
     Emitter<CalendarState> emit,
   ) async {
+    emitLoadingStatus(emit);
     final String? loggedUserId = await _getLoggedUserId();
     if (loggedUserId == null) {
       emitLoggedUserNotFoundStatus(emit);
       return;
     }
     final DateTime todayDate = _dateProvider.getNow();
-    if (await _areLoggedUserDaysOfReadingNotLoaded(loggedUserId, todayDate)) {
-      emit(state.copyWith(
-        status: const BlocStatusLoading(),
-        todayDate: todayDate,
-      ));
-    } else {
-      emit(state.copyWith(
-        todayDate: todayDate,
-      ));
-    }
+    emit(state.copyWith(
+      todayDate: todayDate,
+    ));
     _setDaysListener(loggedUserId, todayDate.month, todayDate.year);
-    await Future.delayed(
-      const Duration(milliseconds: 300),
-    );
   }
 
   void _daysOfReadingUpdated(
@@ -87,12 +78,12 @@ class CalendarBloc extends CustomBloc<CalendarEvent, CalendarState> {
     CalendarEventMonthChanged event,
     Emitter<CalendarState> emit,
   ) async {
+    emitLoadingStatus(emit);
     final String? loggedUserId = await _getLoggedUserId();
     if (loggedUserId == null) {
       emitLoggedUserNotFoundStatus(emit);
       return;
     }
-    emitLoadingStatus(emit);
     _setDaysListener(loggedUserId, event.month, event.year);
   }
 
@@ -100,78 +91,69 @@ class CalendarBloc extends CustomBloc<CalendarEvent, CalendarState> {
     return await _getLoggedUserIdUseCase.execute().first;
   }
 
-  Future<bool> _areLoggedUserDaysOfReadingNotLoaded(
-    String loggedUserId,
-    DateTime date,
-  ) async {
-    return await _getLoggedUserDaysFromGivenMonthPreviousAndNext(
-          loggedUserId,
-          date.month,
-          date.year,
-        ).first ==
-        null;
-  }
-
   void _setDaysListener(String loggedUserId, int month, int year) {
     _daysListener?.cancel();
-    _daysListener = _getLoggedUserDaysFromGivenMonthPreviousAndNext(
-      loggedUserId,
-      month,
-      year,
+    _daysListener = Rx.combineLatest3(
+      _getLoggedUserDaysFromPreviousMonth(loggedUserId, month, year),
+      _getLoggedUserDaysFromMonth(loggedUserId, month, year),
+      _getLoggedUserDaysFromNextMonth(loggedUserId, month, year),
+      _combineDaysFrom3Months,
     ).listen(
-      (List<Day>? daysOfReading) {
-        if (daysOfReading != null) {
-          add(CalendarEventDaysOfReadingUpdated(daysOfReading: daysOfReading));
-        }
+      (List<Day> daysOfReading) {
+        add(
+          CalendarEventDaysOfReadingUpdated(daysOfReading: daysOfReading),
+        );
       },
     );
   }
 
-  Stream<List<Day>?> _getLoggedUserDaysFromGivenMonthPreviousAndNext(
+  Stream<List<Day>> _getLoggedUserDaysFromMonth(
+    String loggedUserId,
+    int month,
+    int year,
+  ) {
+    return _getUserDaysFromMonthUseCase.execute(
+      userId: loggedUserId,
+      month: month,
+      year: year,
+    );
+  }
+
+  Stream<List<Day>> _getLoggedUserDaysFromPreviousMonth(
     String loggedUserId,
     int month,
     int year,
   ) {
     final DateTime previousMonthDate = DateTime(year, month - 1);
-    final DateTime nextMonthDate = DateTime(year, month + 1);
-    final Stream<List<Day>?> daysFromGivenMonth$ =
-        _getUserDaysFromMonthUseCase.execute(
-      userId: loggedUserId,
-      month: month,
-      year: year,
-    );
-    final Stream<List<Day>?> daysFromPreviousMonth$ =
-        _getUserDaysFromMonthUseCase.execute(
+    return _getUserDaysFromMonthUseCase.execute(
       userId: loggedUserId,
       month: previousMonthDate.month,
       year: previousMonthDate.year,
     );
-    final Stream<List<Day>?> daysFromNextMonth$ =
-        _getUserDaysFromMonthUseCase.execute(
+  }
+
+  Stream<List<Day>> _getLoggedUserDaysFromNextMonth(
+    String loggedUserId,
+    int month,
+    int year,
+  ) {
+    final DateTime nextMonthDate = DateTime(year, month + 1);
+    return _getUserDaysFromMonthUseCase.execute(
       userId: loggedUserId,
       month: nextMonthDate.month,
       year: nextMonthDate.year,
     );
-    return Rx.combineLatest3(
-      daysFromPreviousMonth$,
-      daysFromGivenMonth$,
-      daysFromNextMonth$,
-      (
-        List<Day>? daysFromPreviousMonth,
-        List<Day>? daysFromGivenMonth,
-        List<Day>? daysFromNextMonth,
-      ) {
-        if (daysFromPreviousMonth == null &&
-            daysFromGivenMonth == null &&
-            daysFromNextMonth == null) {
-          return null;
-        }
-        return [
-          ...?daysFromPreviousMonth,
-          ...?daysFromGivenMonth,
-          ...?daysFromNextMonth,
-        ];
-      },
-    );
+  }
+
+  List<Day> _combineDaysFrom3Months(
+    List<Day> daysFromFirstMonth,
+    List<Day> daysFromSecondMonth,
+    List<Day> daysFromThirdMonth,
+  ) {
+    return [
+      ...daysFromFirstMonth,
+      ...daysFromSecondMonth,
+      ...daysFromThirdMonth,
+    ];
   }
 }

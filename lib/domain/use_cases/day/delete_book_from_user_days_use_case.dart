@@ -31,7 +31,7 @@ class DeleteBookFromUserDaysUseCase {
     String bookId,
   ) async {
     final List<Day> userDays =
-        await _dayInterface.getUserDays(userId: userId).first ?? [];
+        await _dayInterface.getUserDays(userId: userId).first;
     return userDays.selectDaysContainingBook(bookId);
   }
 

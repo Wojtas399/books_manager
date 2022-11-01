@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:app/data/data_sources/firebase/entities/firebase_book.dart';
 import 'package:app/data/data_sources/firebase/services/firebase_firestore_book_service.dart';
-import 'package:app/data/data_sources/remote_db/firebase/services/firebase_storage_service.dart';
+import 'package:app/data/data_sources/firebase/services/firebase_storage_service.dart';
 import 'package:app/data/mappers/book_status_mapper.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/models/image_file.dart';

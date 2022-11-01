@@ -15,24 +15,6 @@ class MockDayInterface extends Mock implements DayInterface {
     ).thenAnswer((_) => Stream.value(userDays));
   }
 
-  void mockInitializeForUser() {
-    when(
-      () => initializeForUser(
-        userId: any(named: 'userId'),
-      ),
-    ).thenAnswer((_) async => '');
-  }
-
-  void mockLoadUserDaysFromMonth() {
-    when(
-      () => loadUserDaysFromMonth(
-        userId: any(named: 'userId'),
-        month: any(named: 'month'),
-        year: any(named: 'year'),
-      ),
-    ).thenAnswer((_) async => '');
-  }
-
   void mockAddNewDay() {
     _mockDay();
     when(

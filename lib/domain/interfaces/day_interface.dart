@@ -1,11 +1,9 @@
 import 'package:app/domain/entities/day.dart';
 
 abstract class DayInterface {
-  Stream<List<Day>?> getUserDays({required String userId});
+  Stream<List<Day>> getUserDays({required String userId});
 
-  Future<void> initializeForUser({required String userId});
-
-  Future<void> loadUserDaysFromMonth({
+  Stream<List<Day>> getUserDaysFromMonth({
     required String userId,
     required int month,
     required int year,

@@ -7,7 +7,7 @@ import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/book/add_book_use_case.dart';
 import 'package:app/features/book_creator/bloc/book_creator_bloc.dart';
 import 'package:app/features/book_creator/components/book_creator_content.dart';
-import 'package:app/features/home/bloc/home_bloc.dart';
+import 'package:app/features/home/home_cubit.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -75,8 +75,6 @@ class _BookCreatorBlocListener extends StatelessWidget {
           message: 'Pomyślnie dodano książkę',
         );
     Navigation.backHome();
-    context.read<HomeBloc>().add(
-          const HomeEventChangePage(pageIndex: 1),
-        );
+    context.read<HomeCubit>().changePage(1);
   }
 }

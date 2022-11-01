@@ -2,24 +2,20 @@ import 'package:app/data/data_sources/book_data_source.dart';
 import 'package:app/data/data_sources/firebase/services/firebase_firestore_book_service.dart';
 import 'package:app/data/data_sources/firebase/services/firebase_firestore_user_service.dart';
 import 'package:app/data/data_sources/local_db/auth_local_db_service.dart';
-import 'package:app/data/data_sources/local_db/day_local_db_service.dart';
 import 'package:app/data/data_sources/local_db/shared_preferences_service.dart';
-import 'package:app/data/data_sources/local_db/sqlite/services/sqlite_read_book_service.dart';
 import 'package:app/data/data_sources/remote_db/auth_remote_db_service.dart';
-import 'package:app/data/data_sources/remote_db/day_remote_db_service.dart';
-import 'package:app/data/data_sources/remote_db/firebase/services/firebase_auth_service.dart';
-import 'package:app/data/data_sources/remote_db/firebase/services/firebase_storage_service.dart';
+import 'package:app/data/data_sources/day_data_source.dart';
+import 'package:app/data/data_sources/firebase/services/firebase_auth_service.dart';
+import 'package:app/data/data_sources/firebase/services/firebase_storage_service.dart';
 import 'package:app/data/data_sources/user_data_source.dart';
 import 'package:app/data/repositories/auth_repository.dart';
 import 'package:app/data/repositories/book_repository.dart';
 import 'package:app/data/repositories/day_repository.dart';
 import 'package:app/data/repositories/user_repository.dart';
-import 'package:app/data/synchronizers/day_synchronizer.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/interfaces/day_interface.dart';
 import 'package:app/domain/interfaces/user_interface.dart';
-import 'package:app/providers/device_provider.dart';
 
 class DataProvider {
   static AuthInterface provideAuthInterface() {
@@ -47,13 +43,7 @@ class DataProvider {
 
   static DayInterface provideDayInterface() {
     return DayRepository(
-      daySynchronizer: DaySynchronizer(
-        dayLocalDbService: _provideDayLocalDbService(),
-        dayRemoteDbService: _provideDayRemoteDbService(),
-      ),
-      dayLocalDbService: _provideDayLocalDbService(),
-      dayRemoteDbService: _provideDayRemoteDbService(),
-      device: DeviceProvider.provide(),
+      dayDataSource: _provideDayDataSource(),
     );
   }
 
@@ -70,14 +60,8 @@ class DataProvider {
     );
   }
 
-  static DayLocalDbService _provideDayLocalDbService() {
-    return DayLocalDbService(
-      sqliteReadBookService: SqliteReadBookService(),
-    );
-  }
-
-  static DayRemoteDbService _provideDayRemoteDbService() {
-    return DayRemoteDbService(
+  static DayDataSource _provideDayDataSource() {
+    return DayDataSource(
       firebaseFirestoreUserService: FirebaseFirestoreUserService(),
     );
   }

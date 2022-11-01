@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:app/data/data_sources/remote_db/firebase/firebase_instances.dart';
+import 'package:app/data/data_sources/firebase/firebase_instances.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class FirebaseStorageService {

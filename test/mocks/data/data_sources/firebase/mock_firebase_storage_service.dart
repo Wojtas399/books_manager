@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:app/data/data_sources/remote_db/firebase/services/firebase_storage_service.dart';
+import 'package:app/data/data_sources/firebase/services/firebase_storage_service.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockFirebaseStorageService extends Mock

@@ -4,7 +4,6 @@ import 'package:app/domain/entities/day.dart';
 import 'package:app/domain/entities/read_book.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/day/get_user_days_from_month_use_case.dart';
-import 'package:app/domain/use_cases/day/load_user_days_from_month_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/custom_bloc.dart';
@@ -18,14 +17,12 @@ part 'calendar_state.dart';
 class CalendarBloc extends CustomBloc<CalendarEvent, CalendarState> {
   late final DateProvider _dateProvider;
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
-  late final LoadUserDaysFromMonthUseCase _loadUserDaysFromMonthUseCase;
   late final GetUserDaysFromMonthUseCase _getUserDaysFromMonthUseCase;
   StreamSubscription<List<Day>?>? _daysListener;
 
   CalendarBloc({
     required DateProvider dateProvider,
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
-    required LoadUserDaysFromMonthUseCase loadUserDaysFromMonthUseCase,
     required GetUserDaysFromMonthUseCase getUserDaysFromMonthUseCase,
     BlocStatus status = const BlocStatusInitial(),
     DateTime? todayDate,
@@ -39,7 +36,6 @@ class CalendarBloc extends CustomBloc<CalendarEvent, CalendarState> {
         ) {
     _dateProvider = dateProvider;
     _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
-    _loadUserDaysFromMonthUseCase = loadUserDaysFromMonthUseCase;
     _getUserDaysFromMonthUseCase = getUserDaysFromMonthUseCase;
     on<CalendarEventInitialize>(_initialize);
     on<CalendarEventDaysOfReadingUpdated>(_daysOfReadingUpdated);
@@ -76,11 +72,6 @@ class CalendarBloc extends CustomBloc<CalendarEvent, CalendarState> {
     await Future.delayed(
       const Duration(milliseconds: 300),
     );
-    await _loadLoggedUserDaysFromGivenMonthPreviousAndNext(
-      loggedUserId,
-      todayDate.month,
-      todayDate.year,
-    );
   }
 
   void _daysOfReadingUpdated(
@@ -103,11 +94,6 @@ class CalendarBloc extends CustomBloc<CalendarEvent, CalendarState> {
     }
     emitLoadingStatus(emit);
     _setDaysListener(loggedUserId, event.month, event.year);
-    await _loadLoggedUserDaysFromGivenMonthPreviousAndNext(
-      loggedUserId,
-      event.month,
-      event.year,
-    );
   }
 
   Future<String?> _getLoggedUserId() async {
@@ -138,30 +124,6 @@ class CalendarBloc extends CustomBloc<CalendarEvent, CalendarState> {
           add(CalendarEventDaysOfReadingUpdated(daysOfReading: daysOfReading));
         }
       },
-    );
-  }
-
-  Future<void> _loadLoggedUserDaysFromGivenMonthPreviousAndNext(
-    String loggedUserId,
-    int month,
-    int year,
-  ) async {
-    final DateTime previousMonthDate = DateTime(year, month - 1);
-    final DateTime nextMonthDate = DateTime(year, month + 1);
-    await _loadUserDaysFromMonthUseCase.execute(
-      userId: loggedUserId,
-      month: month,
-      year: year,
-    );
-    await _loadUserDaysFromMonthUseCase.execute(
-      userId: loggedUserId,
-      month: previousMonthDate.month,
-      year: previousMonthDate.year,
-    );
-    await _loadUserDaysFromMonthUseCase.execute(
-      userId: loggedUserId,
-      month: nextMonthDate.month,
-      year: nextMonthDate.year,
     );
   }
 

@@ -1,4 +1,4 @@
-import 'package:app/data/data_sources/remote_db/firebase/services/firebase_auth_service.dart';
+import 'package:app/data/data_sources/firebase/services/firebase_auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthRemoteDbService {

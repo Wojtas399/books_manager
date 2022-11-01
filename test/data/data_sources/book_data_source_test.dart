@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../mocks/data/data_sources/firebase/mock_firebase_storage_service.dart';
-import '../../mocks/data/remote_db/firebase/mock_firebase_firestore_book_service.dart';
+import '../../mocks/data/data_sources/firebase/mock_firebase_firestore_book_service.dart';
 
 void main() {
   final firebaseFirestoreBookService = MockFirebaseFirestoreBookService();

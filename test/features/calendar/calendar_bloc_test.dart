@@ -1,12 +1,10 @@
 import '../../mocks/domain/use_cases/auth/mock_get_logged_user_id_use_case.dart';
 import '../../mocks/domain/use_cases/day/mock_get_user_days_from_month_use_case.dart';
-import '../../mocks/domain/use_cases/day/mock_load_user_days_from_month_use_case.dart';
 import '../../mocks/providers/mock_date_provider.dart';
 
 void main() {
   final dateProvider = MockDateProvider();
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
-  final loadUserDaysFromMonthUseCase = MockLoadUserDaysFromMonthUseCase();
   final getUserDaysFromMonthUseCase = MockGetUserDaysFromMonthUseCase();
   const String loggedUserId = 'u1';
 

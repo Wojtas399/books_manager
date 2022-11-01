@@ -1,4 +1,4 @@
-import 'package:app/data/data_sources/remote_db/firebase/models/firebase_day.dart';
+import 'package:app/data/data_sources/firebase/entities/firebase_day.dart';
 import 'package:equatable/equatable.dart';
 
 class FirebaseUser extends Equatable {

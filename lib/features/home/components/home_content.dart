@@ -7,7 +7,7 @@ import '../../../config/navigation.dart';
 import '../../calendar/calendar_screen.dart';
 import '../../library/library_screen.dart';
 import '../../reading/reading_screen.dart';
-import '../bloc/home_bloc.dart';
+import '../home_cubit.dart';
 
 class HomeContent extends StatelessWidget {
   const HomeContent({super.key});
@@ -15,7 +15,7 @@ class HomeContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int pageIndex = context.select(
-      (HomeBloc bloc) => bloc.state.currentPageIndex,
+      (HomeCubit cubit) => cubit.state,
     );
     const List<String> pagesTitles = [
       'Czytanie',
@@ -74,9 +74,7 @@ class HomeContent extends StatelessWidget {
     int pressedItemIndex,
     BuildContext context,
   ) {
-    context.read<HomeBloc>().add(
-          HomeEventChangePage(pageIndex: pressedItemIndex),
-        );
+    context.read<HomeCubit>().changePage(pressedItemIndex);
   }
 
   void _onFloatingActionButtonPressed() {

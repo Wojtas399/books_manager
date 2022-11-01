@@ -1,4 +1,4 @@
-import 'package:app/data/data_sources/remote_db/day_remote_db_service.dart';
+import 'package:app/data/data_sources/day_data_source.dart';
 import 'package:app/domain/entities/day.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -6,13 +6,23 @@ class FakeDay extends Fake implements Day {}
 
 class FakeDateTime extends Fake implements DateTime {}
 
-class MockDayRemoteDbService extends Mock implements DayRemoteDbService {
-  void mockLoadUserDays({required List<Day> userDays}) {
+class MockDayDataSource extends Mock implements DayDataSource {
+  void mockGetUserDays({required List<Day> userDays}) {
     when(
-      () => loadUserDays(
+      () => getUserDays(
         userId: any(named: 'userId'),
       ),
-    ).thenAnswer((_) async => userDays);
+    ).thenAnswer((_) => Stream.value(userDays));
+  }
+
+  void mockGetUserDaysFromMonth({required List<Day> userDaysFromMonth}) {
+    when(
+      () => getUserDaysFromMonth(
+        userId: any(named: 'userId'),
+        month: any(named: 'month'),
+        year: any(named: 'year'),
+      ),
+    ).thenAnswer((_) => Stream.value(userDaysFromMonth));
   }
 
   void mockAddDay() {

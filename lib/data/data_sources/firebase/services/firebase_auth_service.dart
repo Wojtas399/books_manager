@@ -2,16 +2,18 @@ import 'package:app/data/data_sources/firebase/firebase_instances.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class FirebaseAuthService {
-  Future<String> signIn({
+  Stream<String?> getLoggedUserId() {
+    return FireInstances.auth.authStateChanges().map((User? user) => user?.uid);
+  }
+
+  Future<void> signIn({
     required String email,
     required String password,
   }) async {
-    final UserCredential credential =
-        await FireInstances.auth.signInWithEmailAndPassword(
+    await FireInstances.auth.signInWithEmailAndPassword(
       email: email,
       password: password,
     );
-    return _readUserIdFromCredential(credential);
   }
 
   Future<String> signUp({

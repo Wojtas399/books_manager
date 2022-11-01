@@ -1,18 +1,22 @@
 import 'package:app/data/data_sources/firebase/services/firebase_auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class AuthRemoteDbService {
+class AuthDataSource {
   late final FirebaseAuthService _firebaseAuthService;
 
-  AuthRemoteDbService({required FirebaseAuthService firebaseAuthService}) {
+  AuthDataSource({required FirebaseAuthService firebaseAuthService}) {
     _firebaseAuthService = firebaseAuthService;
   }
 
-  Future<String> signIn({
+  Stream<String?> getLoggedUserId() {
+    return _firebaseAuthService.getLoggedUserId();
+  }
+
+  Future<void> signIn({
     required String email,
     required String password,
   }) async {
-    return await _firebaseAuthService.signIn(
+    await _firebaseAuthService.signIn(
       email: email,
       password: password,
     );

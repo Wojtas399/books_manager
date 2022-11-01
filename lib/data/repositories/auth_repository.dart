@@ -1,48 +1,31 @@
 import 'package:app/config/errors.dart';
-import 'package:app/data/data_sources/local_db/auth_local_db_service.dart';
-import 'package:app/data/data_sources/remote_db/auth_remote_db_service.dart';
+import 'package:app/data/data_sources/auth_data_source.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/models/error.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:rxdart/rxdart.dart';
 
 class AuthRepository implements AuthInterface {
-  late final AuthLocalDbService _authLocalDbService;
-  late final AuthRemoteDbService _authRemoteDbService;
-  final BehaviorSubject<String?> _loggedUserId$ =
-      BehaviorSubject<String?>.seeded(null);
+  late final AuthDataSource _authDataSource;
 
   AuthRepository({
-    required AuthLocalDbService authLocalDbService,
-    required AuthRemoteDbService authRemoteDbService,
+    required AuthDataSource authDataSource,
   }) {
-    _authLocalDbService = authLocalDbService;
-    _authRemoteDbService = authRemoteDbService;
+    _authDataSource = authDataSource;
   }
 
   @override
-  Stream<String?> get loggedUserId$ => _loggedUserId$.stream;
+  Stream<String?> get loggedUserId$ => _authDataSource.getLoggedUserId();
 
   @override
-  Future<void> loadLoggedUserId() async {
-    _loggedUserId$.add(
-      await _authLocalDbService.loadLoggedUserId(),
-    );
-  }
-
-  @override
-  Future<String> signIn({
+  Future<void> signIn({
     required String email,
     required String password,
   }) async {
     try {
-      final String loggedUserId = await _authRemoteDbService.signIn(
+      await _authDataSource.signIn(
         email: email,
         password: password,
       );
-      await _authLocalDbService.saveLoggedUserId(loggedUserId: loggedUserId);
-      _loggedUserId$.add(loggedUserId);
-      return loggedUserId;
     } on FirebaseAuthException catch (exception) {
       throw _convertFirebaseAuthExceptionToCustomError(exception.code);
     }
@@ -54,13 +37,10 @@ class AuthRepository implements AuthInterface {
     required String password,
   }) async {
     try {
-      final String loggedUserId = await _authRemoteDbService.signUp(
+      return await _authDataSource.signUp(
         email: email,
         password: password,
       );
-      await _authLocalDbService.saveLoggedUserId(loggedUserId: loggedUserId);
-      _loggedUserId$.add(loggedUserId);
-      return loggedUserId;
     } on FirebaseAuthException catch (exception) {
       throw _convertFirebaseAuthExceptionToCustomError(exception.code);
     }
@@ -69,7 +49,7 @@ class AuthRepository implements AuthInterface {
   @override
   Future<void> sendPasswordResetEmail({required String email}) async {
     try {
-      await _authRemoteDbService.sendPasswordResetEmail(email: email);
+      await _authDataSource.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (exception) {
       throw _convertFirebaseAuthExceptionToCustomError(exception.code);
     }
@@ -79,7 +59,7 @@ class AuthRepository implements AuthInterface {
   Future<bool> checkLoggedUserPasswordCorrectness({
     required String password,
   }) async {
-    return await _authRemoteDbService.checkLoggedUserPasswordCorrectness(
+    return await _authDataSource.checkLoggedUserPasswordCorrectness(
       password: password,
     );
   }
@@ -90,7 +70,7 @@ class AuthRepository implements AuthInterface {
     required String newPassword,
   }) async {
     try {
-      await _authRemoteDbService.changeLoggedUserPassword(
+      await _authDataSource.changeLoggedUserPassword(
         currentPassword: currentPassword,
         newPassword: newPassword,
       );
@@ -101,16 +81,13 @@ class AuthRepository implements AuthInterface {
 
   @override
   Future<void> signOut() async {
-    await _authRemoteDbService.signOut();
-    await _authLocalDbService.removeLoggedUserId();
-    _loggedUserId$.add(null);
+    await _authDataSource.signOut();
   }
 
   @override
   Future<void> deleteLoggedUser({required String password}) async {
     try {
-      await _authRemoteDbService.deleteLoggedUser(password: password);
-      await _authLocalDbService.removeLoggedUserId();
+      await _authDataSource.deleteLoggedUser(password: password);
     } on FirebaseAuthException catch (exception) {
       throw _convertFirebaseAuthExceptionToCustomError(exception.code);
     }

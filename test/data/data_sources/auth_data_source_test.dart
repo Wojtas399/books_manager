@@ -1,16 +1,16 @@
-import 'package:app/data/data_sources/remote_db/auth_remote_db_service.dart';
+import 'package:app/data/data_sources/auth_data_source.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../mocks/data/data_sources/firebase/mock_firebase_auth_service.dart';
+import '../../mocks/data/data_sources/firebase/mock_firebase_auth_service.dart';
 
 void main() {
   final firebaseAuthService = MockFirebaseAuthService();
-  late AuthRemoteDbService service;
+  late AuthDataSource dataSource;
 
   setUp(() {
-    service = AuthRemoteDbService(firebaseAuthService: firebaseAuthService);
+    dataSource = AuthDataSource(firebaseAuthService: firebaseAuthService);
   });
 
   tearDown(() {
@@ -18,14 +18,27 @@ void main() {
   });
 
   test(
+    'get logged user id, should return result of method responsible for getting logged user id from firebase auth',
+    () async {
+      const String expectedLoggedUserId = 'u1';
+      firebaseAuthService.mockGetLoggedUserId(
+        loggedUserId: expectedLoggedUserId,
+      );
+
+      final Stream<String?> loggedUserId$ = dataSource.getLoggedUserId();
+
+      expect(await loggedUserId$.first, expectedLoggedUserId);
+    },
+  );
+
+  test(
     'sign in, should call method from firebase auth service responsible for signing in user',
     () async {
       const String email = 'email@example.com';
       const String password = 'password';
-      const String signedInUserId = 'u1';
-      firebaseAuthService.mockSignIn(signedInUserId: signedInUserId);
+      firebaseAuthService.mockSignIn();
 
-      final String userId = await service.signIn(
+      await dataSource.signIn(
         email: email,
         password: password,
       );
@@ -33,7 +46,6 @@ void main() {
       verify(
         () => firebaseAuthService.signIn(email: email, password: password),
       ).called(1);
-      expect(userId, signedInUserId);
     },
   );
 
@@ -45,7 +57,7 @@ void main() {
       const String signedUpUserId = 'u1';
       firebaseAuthService.mockSignUp(signedUpUserId: signedUpUserId);
 
-      final String userId = await service.signUp(
+      final String userId = await dataSource.signUp(
         email: email,
         password: password,
       );
@@ -63,7 +75,7 @@ void main() {
       const String email = 'email@example.com';
       firebaseAuthService.mockSendPasswordResetEmail();
 
-      await service.sendPasswordResetEmail(email: email);
+      await dataSource.sendPasswordResetEmail(email: email);
 
       verify(
         () => firebaseAuthService.sendPasswordResetEmail(email: email),
@@ -81,7 +93,7 @@ void main() {
         () async {
           firebaseAuthService.mockReauthenticateLoggedUserWithPassword();
 
-          final bool isCorrect = await service
+          final bool isCorrect = await dataSource
               .checkLoggedUserPasswordCorrectness(password: password);
 
           expect(isCorrect, true);
@@ -97,7 +109,7 @@ void main() {
             ),
           ).thenThrow(FirebaseAuthException(code: 'wrong-password'));
 
-          final bool isCorrect = await service
+          final bool isCorrect = await dataSource
               .checkLoggedUserPasswordCorrectness(password: password);
 
           expect(isCorrect, false);
@@ -114,7 +126,7 @@ void main() {
           ).thenThrow(FirebaseAuthException(code: 'unknown'));
 
           try {
-            await service.checkLoggedUserPasswordCorrectness(
+            await dataSource.checkLoggedUserPasswordCorrectness(
               password: password,
             );
           } on FirebaseAuthException catch (authException) {
@@ -135,7 +147,7 @@ void main() {
       const String newPassword = 'newPassword';
       firebaseAuthService.mockChangeLoggedUserPassword();
 
-      await service.changeLoggedUserPassword(
+      await dataSource.changeLoggedUserPassword(
         currentPassword: currentPassword,
         newPassword: newPassword,
       );
@@ -154,7 +166,7 @@ void main() {
     () async {
       firebaseAuthService.mockSignOut();
 
-      await service.signOut();
+      await dataSource.signOut();
 
       verify(
         () => firebaseAuthService.signOut(),
@@ -168,7 +180,7 @@ void main() {
       const String password = 'password';
       firebaseAuthService.mockDeleteLoggedUser();
 
-      await service.deleteLoggedUser(password: password);
+      await dataSource.deleteLoggedUser(password: password);
 
       verify(
         () => firebaseAuthService.deleteLoggedUser(password: password),

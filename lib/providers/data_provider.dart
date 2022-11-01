@@ -1,11 +1,9 @@
+import 'package:app/data/data_sources/auth_data_source.dart';
 import 'package:app/data/data_sources/book_data_source.dart';
-import 'package:app/data/data_sources/firebase/services/firebase_firestore_book_service.dart';
-import 'package:app/data/data_sources/firebase/services/firebase_firestore_user_service.dart';
-import 'package:app/data/data_sources/local_db/auth_local_db_service.dart';
-import 'package:app/data/data_sources/local_db/shared_preferences_service.dart';
-import 'package:app/data/data_sources/remote_db/auth_remote_db_service.dart';
 import 'package:app/data/data_sources/day_data_source.dart';
 import 'package:app/data/data_sources/firebase/services/firebase_auth_service.dart';
+import 'package:app/data/data_sources/firebase/services/firebase_firestore_book_service.dart';
+import 'package:app/data/data_sources/firebase/services/firebase_firestore_user_service.dart';
 import 'package:app/data/data_sources/firebase/services/firebase_storage_service.dart';
 import 'package:app/data/data_sources/user_data_source.dart';
 import 'package:app/data/repositories/auth_repository.dart';
@@ -20,12 +18,7 @@ import 'package:app/domain/interfaces/user_interface.dart';
 class DataProvider {
   static AuthInterface provideAuthInterface() {
     return AuthRepository(
-      authLocalDbService: AuthLocalDbService(
-        sharedPreferencesService: SharedPreferencesService(),
-      ),
-      authRemoteDbService: AuthRemoteDbService(
-        firebaseAuthService: FirebaseAuthService(),
-      ),
+      authDataSource: _provideAuthDataSource(),
     );
   }
 
@@ -44,6 +37,12 @@ class DataProvider {
   static DayInterface provideDayInterface() {
     return DayRepository(
       dayDataSource: _provideDayDataSource(),
+    );
+  }
+
+  static AuthDataSource _provideAuthDataSource() {
+    return AuthDataSource(
+      firebaseAuthService: FirebaseAuthService(),
     );
   }
 

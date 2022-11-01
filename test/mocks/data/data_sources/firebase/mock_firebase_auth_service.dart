@@ -2,13 +2,19 @@ import 'package:app/data/data_sources/firebase/services/firebase_auth_service.da
 import 'package:mocktail/mocktail.dart';
 
 class MockFirebaseAuthService extends Mock implements FirebaseAuthService {
-  void mockSignIn({required String signedInUserId}) {
+  void mockGetLoggedUserId({String? loggedUserId}) {
+    when(
+      () => getLoggedUserId(),
+    ).thenAnswer((_) => Stream.value(loggedUserId));
+  }
+
+  void mockSignIn() {
     when(
       () => signIn(
         email: any(named: 'email'),
         password: any(named: 'password'),
       ),
-    ).thenAnswer((_) async => signedInUserId);
+    ).thenAnswer((_) async => '');
   }
 
   void mockSignUp({required String signedUpUserId}) {

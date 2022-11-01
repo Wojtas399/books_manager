@@ -5,36 +5,31 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../mocks/data/local_db/mock_auth_local_db_service.dart';
-import '../../mocks/data/remote_db/mock_auth_remote_db_service.dart';
+import '../../mocks/data/data_sources/mock_auth_data_source.dart';
 
 void main() {
-  final authLocalDbService = MockAuthLocalDbService();
-  final authRemoteDbService = MockAuthRemoteDbService();
+  final authDataSource = MockAuthDataSource();
   late AuthRepository repository;
 
   setUp(() {
     repository = AuthRepository(
-      authLocalDbService: authLocalDbService,
-      authRemoteDbService: authRemoteDbService,
+      authDataSource: authDataSource,
     );
   });
 
   tearDown(() {
-    reset(authLocalDbService);
-    reset(authRemoteDbService);
+    reset(authDataSource);
   });
 
   test(
-    'load logged user id, should load id of logged user from local db and assign it to stream',
+    'logged user id, should return result of method from data source responsible for getting logged user id',
     () async {
-      const String loggedUserId = 'userId';
-      authLocalDbService.mockLoadLoggedUserId(loggedUserId: loggedUserId);
+      const String expectedLoggedUserId = 'u1';
+      authDataSource.mockGetLoggedUserId(loggedUserId: expectedLoggedUserId);
 
-      await repository.loadLoggedUserId();
       final Stream<String?> loggedUserId$ = repository.loggedUserId$;
 
-      expect(await loggedUserId$.first, loggedUserId);
+      expect(await loggedUserId$.first, expectedLoggedUserId);
     },
   );
 
@@ -44,40 +39,33 @@ void main() {
       const String email = 'email@example.com';
       const String password = 'password123';
 
+      Future<void> methodCall() async {
+        await repository.signIn(email: email, password: password);
+      }
+
       test(
-        'should call methods responsible for signing in user in remote db, for saving logged user id in local db and should return signed in user id',
+        'should call method from data source responsible for signing in user',
         () async {
-          const String signedInUserId = 'u1';
-          authRemoteDbService.mockSignIn(signedInUserId: signedInUserId);
-          authLocalDbService.mockSaveLoggedUserId();
+          authDataSource.mockSignIn();
 
-          final String userId = await repository.signIn(
-            email: email,
-            password: password,
-          );
+          await methodCall();
 
           verify(
-            () => authRemoteDbService.signIn(email: email, password: password),
+            () => authDataSource.signIn(email: email, password: password),
           ).called(1);
-          verify(
-            () => authLocalDbService.saveLoggedUserId(
-              loggedUserId: signedInUserId,
-            ),
-          ).called(1);
-          expect(userId, signedInUserId);
         },
       );
 
       test(
         'should throw appropriate auth error if email is invalid',
         () async {
-          when(
-            () => authRemoteDbService.signIn(email: email, password: password),
-          ).thenThrow(FirebaseAuthException(code: 'invalid-email'));
+          authDataSource.mockSignIn(
+            throwable: FirebaseAuthException(code: 'invalid-email'),
+          );
 
           AuthError? authError;
           try {
-            await repository.signIn(email: email, password: password);
+            await methodCall();
           } on AuthError catch (error) {
             authError = error;
           }
@@ -92,13 +80,13 @@ void main() {
       test(
         'should throw appropriate auth error if password is wrong',
         () async {
-          when(
-            () => authRemoteDbService.signIn(email: email, password: password),
-          ).thenThrow(FirebaseAuthException(code: 'wrong-password'));
+          authDataSource.mockSignIn(
+            throwable: FirebaseAuthException(code: 'wrong-password'),
+          );
 
           AuthError? authError;
           try {
-            await repository.signIn(email: email, password: password);
+            await methodCall();
           } on AuthError catch (error) {
             authError = error;
           }
@@ -113,13 +101,13 @@ void main() {
       test(
         'should throw appropriate auth error if user has not been found',
         () async {
-          when(
-            () => authRemoteDbService.signIn(email: email, password: password),
-          ).thenThrow(FirebaseAuthException(code: 'user-not-found'));
+          authDataSource.mockSignIn(
+            throwable: FirebaseAuthException(code: 'user-not-found'),
+          );
 
           AuthError? authError;
           try {
-            await repository.signIn(email: email, password: password);
+            await methodCall();
           } on AuthError catch (error) {
             authError = error;
           }
@@ -134,13 +122,13 @@ void main() {
       test(
         'should throw appropriate network error if network connection has been lost',
         () async {
-          when(
-            () => authRemoteDbService.signIn(email: email, password: password),
-          ).thenThrow(FirebaseAuthException(code: 'network-request-failed'));
+          authDataSource.mockSignIn(
+            throwable: FirebaseAuthException(code: 'network-request-failed'),
+          );
 
           NetworkError? networkError;
           try {
-            await repository.signIn(email: email, password: password);
+            await methodCall();
           } on NetworkError catch (error) {
             networkError = error;
           }
@@ -159,26 +147,22 @@ void main() {
     () {
       const String email = 'email@example.com';
       const String password = 'password123';
+      const String signedUpUserId = 'u1';
+
+      Future<String> methodCall() async {
+        return await repository.signUp(email: email, password: password);
+      }
 
       test(
-        'should call methods responsible for signing up user in remote db, for saving logged user id in local db and should return signed up user id',
+        'should call method from data source responsible for signing up user and should return signed up user id',
         () async {
           const String signedUpUserId = 'u1';
-          authRemoteDbService.mockSignUp(signedUpUserId: signedUpUserId);
-          authLocalDbService.mockSaveLoggedUserId();
+          authDataSource.mockSignUp(signedUpUserId: signedUpUserId);
 
-          final String userId = await repository.signUp(
-            email: email,
-            password: password,
-          );
+          final String userId = await methodCall();
 
           verify(
-            () => authRemoteDbService.signUp(email: email, password: password),
-          ).called(1);
-          verify(
-            () => authLocalDbService.saveLoggedUserId(
-              loggedUserId: signedUpUserId,
-            ),
+            () => authDataSource.signUp(email: email, password: password),
           ).called(1);
           expect(userId, signedUpUserId);
         },
@@ -187,13 +171,14 @@ void main() {
       test(
         'should throw appropriate auth error if email is already in use',
         () async {
-          when(
-            () => authRemoteDbService.signUp(email: email, password: password),
-          ).thenThrow(FirebaseAuthException(code: 'email-already-in-use'));
+          authDataSource.mockSignUp(
+            signedUpUserId: signedUpUserId,
+            throwable: FirebaseAuthException(code: 'email-already-in-use'),
+          );
 
           AuthError? authError;
           try {
-            await repository.signUp(email: email, password: password);
+            await methodCall();
           } on AuthError catch (error) {
             authError = error;
           }
@@ -212,15 +197,19 @@ void main() {
     () {
       const String email = 'email@example.com';
 
-      test(
-        'should call method from remote db responsible for sending password reset email',
-        () async {
-          authRemoteDbService.mockSendPasswordResetEmail();
+      Future<void> methodCall() async {
+        await repository.sendPasswordResetEmail(email: email);
+      }
 
-          await repository.sendPasswordResetEmail(email: email);
+      test(
+        'should call method from data source responsible for sending password reset email',
+        () async {
+          authDataSource.mockSendPasswordResetEmail();
+
+          await methodCall();
 
           verify(
-            () => authRemoteDbService.sendPasswordResetEmail(email: email),
+            () => authDataSource.sendPasswordResetEmail(email: email),
           ).called(1);
         },
       );
@@ -228,13 +217,13 @@ void main() {
       test(
         'should throw auth error if email is invalid',
         () async {
-          when(
-            () => authRemoteDbService.sendPasswordResetEmail(email: email),
-          ).thenThrow(FirebaseAuthException(code: 'invalid-email'));
+          authDataSource.mockSendPasswordResetEmail(
+            throwable: FirebaseAuthException(code: 'invalid-email'),
+          );
 
           AuthError? authError;
           try {
-            await repository.sendPasswordResetEmail(email: email);
+            await methodCall();
           } on AuthError catch (error) {
             authError = error;
           }
@@ -249,13 +238,13 @@ void main() {
       test(
         'should throw auth error if user has not been found',
         () async {
-          when(
-            () => authRemoteDbService.sendPasswordResetEmail(email: email),
-          ).thenThrow(FirebaseAuthException(code: 'user-not-found'));
+          authDataSource.mockSendPasswordResetEmail(
+            throwable: FirebaseAuthException(code: 'user-not-found'),
+          );
 
           AuthError? authError;
           try {
-            await repository.sendPasswordResetEmail(email: email);
+            await methodCall();
           } on AuthError catch (error) {
             authError = error;
           }
@@ -270,10 +259,10 @@ void main() {
   );
 
   test(
-    'check logged user password correctness, should return result of method from remote db responsible for checking logged user password correctness',
+    'check logged user password correctness, should return result of method from data source responsible for checking logged user password correctness',
     () async {
       const bool expectedValue = false;
-      authRemoteDbService.mockCheckLoggedUserPasswordCorrectness(
+      authDataSource.mockCheckLoggedUserPasswordCorrectness(
         isPasswordCorrect: expectedValue,
       );
 
@@ -290,18 +279,22 @@ void main() {
       const String currentPassword = 'currentPassword';
       const String newPassword = 'newPassword';
 
-      test(
-        'should call method from remote db responsible for changing logged user password',
-        () async {
-          authRemoteDbService.mockChangeLoggedUserPassword();
+      Future<void> methodCall() async {
+        await repository.changeLoggedUserPassword(
+          currentPassword: currentPassword,
+          newPassword: newPassword,
+        );
+      }
 
-          await repository.changeLoggedUserPassword(
-            currentPassword: currentPassword,
-            newPassword: newPassword,
-          );
+      test(
+        'should call method from data source responsible for changing logged user password',
+        () async {
+          authDataSource.mockChangeLoggedUserPassword();
+
+          await methodCall();
 
           verify(
-            () => authRemoteDbService.changeLoggedUserPassword(
+            () => authDataSource.changeLoggedUserPassword(
               currentPassword: currentPassword,
               newPassword: newPassword,
             ),
@@ -312,16 +305,13 @@ void main() {
       test(
         'should throw auth error if current password is wrong',
         () async {
-          authRemoteDbService.mockChangeLoggedUserPassword(
+          authDataSource.mockChangeLoggedUserPassword(
             throwable: FirebaseAuthException(code: 'wrong-password'),
           );
 
           AuthError? authError;
           try {
-            await repository.changeLoggedUserPassword(
-              currentPassword: currentPassword,
-              newPassword: newPassword,
-            );
+            await methodCall();
           } on AuthError catch (error) {
             authError = error;
           }
@@ -336,59 +326,59 @@ void main() {
   );
 
   test(
-    'sign out, should call methods responsible for signing out user from remote db and for removing user id from local db',
+    'sign out, should call method from data source responsible for signing out user',
     () async {
-      authRemoteDbService.mockSignOut();
-      authLocalDbService.mockRemoveLoggedUserId();
+      authDataSource.mockSignOut();
 
       await repository.signOut();
 
       verify(
-        () => authRemoteDbService.signOut(),
-      ).called(1);
-      verify(
-        () => authLocalDbService.removeLoggedUserId(),
-      ).called(1);
-      expect(await repository.loggedUserId$.first, null);
-    },
-  );
-
-  test(
-    'delete logged user, should call methods responsible for deleting user from remote db and for removing user id from local db',
-    () async {
-      const String password = 'password';
-      authRemoteDbService.mockDeleteLoggedUser();
-      authLocalDbService.mockRemoveLoggedUserId();
-
-      await repository.deleteLoggedUser(password: password);
-
-      verify(
-        () => authRemoteDbService.deleteLoggedUser(password: password),
-      ).called(1);
-      verify(
-        () => authLocalDbService.removeLoggedUserId(),
+        () => authDataSource.signOut(),
       ).called(1);
     },
   );
 
-  test(
-    'delete logged user, should throw auth error if password is wrong',
-    () async {
+  group(
+    'delete logged user',
+    () {
       const String password = 'password';
-      when(
-        () => authRemoteDbService.deleteLoggedUser(password: password),
-      ).thenThrow(FirebaseAuthException(code: 'wrong-password'));
 
-      AuthError? authError;
-      try {
+      Future<void> methodCall() async {
         await repository.deleteLoggedUser(password: password);
-      } on AuthError catch (error) {
-        authError = error;
       }
 
-      expect(
-        authError,
-        const AuthError(code: AuthErrorCode.wrongPassword),
+      test(
+        'should call method from data source responsible for deleting user',
+        () async {
+          authDataSource.mockDeleteLoggedUser();
+
+          await methodCall();
+
+          verify(
+            () => authDataSource.deleteLoggedUser(password: password),
+          ).called(1);
+        },
+      );
+
+      test(
+        'delete logged user, should throw auth error if password is wrong',
+        () async {
+          authDataSource.mockDeleteLoggedUser(
+            throwable: FirebaseAuthException(code: 'wrong-password'),
+          );
+
+          AuthError? authError;
+          try {
+            await methodCall();
+          } on AuthError catch (error) {
+            authError = error;
+          }
+
+          expect(
+            authError,
+            const AuthError(code: AuthErrorCode.wrongPassword),
+          );
+        },
       );
     },
   );

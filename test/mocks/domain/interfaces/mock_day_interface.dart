@@ -15,6 +15,16 @@ class MockDayInterface extends Mock implements DayInterface {
     ).thenAnswer((_) => Stream.value(userDays));
   }
 
+  void mockGetUserDaysFromMonth({required List<Day> userDaysFromMonth}) {
+    when(
+      () => getUserDaysFromMonth(
+        userId: any(named: 'userId'),
+        month: any(named: 'month'),
+        year: any(named: 'year'),
+      ),
+    ).thenAnswer((_) => Stream.value(userDaysFromMonth));
+  }
+
   void mockAddNewDay() {
     _mockDay();
     when(

@@ -10,17 +10,10 @@ void main() {
   final useCase = GetUserDaysFromMonthUseCase(dayInterface: dayInterface);
 
   test(
-    'should return stream which contains days belonging to user and given month with year',
+    'should return the result of method responsible for getting user days from month',
     () async {
       const String userId = 'u1';
-      final List<Day> allUserDays = [
-        createDay(
-          userId: userId,
-          date: DateTime(2022, 9, 14),
-          readBooks: [
-            createReadBook(bookId: 'b2', readPagesAmount: 50),
-          ],
-        ),
+      final List<Day> expectedUserDaysFromMonth = [
         createDay(
           userId: userId,
           date: DateTime(2022, 8, 20),
@@ -36,24 +29,18 @@ void main() {
             createReadBook(bookId: 'b1', readPagesAmount: 50),
           ],
         ),
-        createDay(
-          userId: userId,
-          date: DateTime(2022, 7, 10),
-          readBooks: [
-            createReadBook(bookId: 'b1', readPagesAmount: 100),
-          ],
-        ),
       ];
-      final List<Day> expectedDays = [allUserDays[1], allUserDays[2]];
-      dayInterface.mockGetUserDays(userDays: allUserDays);
+      dayInterface.mockGetUserDaysFromMonth(
+        userDaysFromMonth: expectedUserDaysFromMonth,
+      );
 
-      final Stream<List<Day>?> daysFromMonth$ = useCase.execute(
+      final Stream<List<Day>?> userDaysFromMonth$ = useCase.execute(
         userId: userId,
         month: 8,
         year: 2022,
       );
 
-      expect(await daysFromMonth$.first, expectedDays);
+      expect(await userDaysFromMonth$.first, expectedUserDaysFromMonth);
     },
   );
 }

@@ -4,7 +4,7 @@ import 'package:app/models/image_file.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../mocks/data/data_sources/mock_book_data_source.dart';
+import '../../mocks/data_sources/mock_book_data_source.dart';
 
 void main() {
   final bookDataSource = MockBookDataSource();

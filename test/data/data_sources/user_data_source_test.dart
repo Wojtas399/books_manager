@@ -4,7 +4,7 @@ import 'package:app/domain/entities/user.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../mocks/data/data_sources/firebase/mock_firebase_firestore_user_service.dart';
+import '../../mocks/data_sources/firebase/mock_firebase_firestore_user_service.dart';
 
 void main() {
   final firebaseFirestoreUserService = MockFirebaseFirestoreUserService();

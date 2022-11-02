@@ -7,10 +7,8 @@ import 'package:mocktail/mocktail.dart';
 import '../../../mocks/domain/interfaces/mock_auth_interface.dart';
 import '../../../mocks/domain/interfaces/mock_book_interface.dart';
 import '../../../mocks/domain/interfaces/mock_user_interface.dart';
-import '../../../mocks/mock_device.dart';
 
 void main() {
-  final device = MockDevice();
   final bookInterface = MockBookInterface();
   final userInterface = MockUserInterface();
   final authInterface = MockAuthInterface();
@@ -19,7 +17,6 @@ void main() {
 
   setUp(() {
     useCase = DeleteLoggedUserUseCase(
-      device: device,
       bookInterface: bookInterface,
       userInterface: userInterface,
       authInterface: authInterface,
@@ -31,70 +28,56 @@ void main() {
   });
 
   tearDown(() {
-    reset(device);
     reset(bookInterface);
     reset(userInterface);
     reset(authInterface);
   });
 
   test(
-    'device has not internet connection, should throw network error',
+    'logged user does not exist, should throw auth error with user not found error code',
     () async {
-      device.mockHasDeviceInternetConnection(value: false);
-
-      try {
-        await useCase.execute(password: password);
-      } on NetworkError catch (networkError) {
-        expect(
-          networkError,
-          const NetworkError(code: NetworkErrorCode.lossOfConnection),
-        );
-      }
-    },
-  );
-
-  test(
-    'device has internet connection, logged user does not exist, should throw auth error with user not found error code',
-    () async {
-      device.mockHasDeviceInternetConnection(value: true);
       authInterface.mockGetLoggedUserId(loggedUserId: null);
 
+      AuthError? authError;
       try {
         await useCase.execute(password: password);
-      } on AuthError catch (authError) {
-        expect(
-          authError,
-          const AuthError(code: AuthErrorCode.userNotFound),
-        );
+      } on AuthError catch (error) {
+        authError = error;
       }
+
+      expect(
+        authError,
+        const AuthError(code: AuthErrorCode.userNotFound),
+      );
     },
   );
 
   test(
-    'device has internet connection, logged user exists, password is wrong, should throw auth error with wrong password error code',
+    'logged user exists, password is wrong, should throw auth error with wrong password error code',
     () async {
-      device.mockHasDeviceInternetConnection(value: true);
       authInterface.mockGetLoggedUserId(loggedUserId: 'u1');
       authInterface.mockCheckLoggedUserPasswordCorrectness(
         isPasswordCorrect: false,
       );
 
+      AuthError? authError;
       try {
         await useCase.execute(password: password);
-      } on AuthError catch (authError) {
-        expect(
-          authError,
-          const AuthError(code: AuthErrorCode.wrongPassword),
-        );
+      } on AuthError catch (error) {
+        authError = error;
       }
+
+      expect(
+        authError,
+        const AuthError(code: AuthErrorCode.wrongPassword),
+      );
     },
   );
 
   test(
-    'device has internet connection, logged user exists, password is correct, should call methods responsible for deleting all logged user books, deleting logged user data and for deleting logged user account',
+    'logged user exists, password is correct, should call methods responsible for deleting all logged user books, deleting logged user data and for deleting logged user account',
     () async {
       const String loggedUserId = 'u1';
-      device.mockHasDeviceInternetConnection(value: true);
       authInterface.mockGetLoggedUserId(loggedUserId: loggedUserId);
       authInterface.mockCheckLoggedUserPasswordCorrectness(
         isPasswordCorrect: true,

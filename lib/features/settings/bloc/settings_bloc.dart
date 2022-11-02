@@ -172,8 +172,6 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
       await _tryDeleteLoggedUserAccount(event.password, emit);
     } on AuthError catch (authError) {
       _manageAuthError(authError, emit);
-    } on NetworkError catch (networkError) {
-      _manageNetworkError(networkError, emit);
     }
   }
 
@@ -218,15 +216,6 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
       emitError(emit, SettingsBlocError.wrongPassword);
     } else if (authError.code == AuthErrorCode.userNotFound) {
       emitLoggedUserNotFoundStatus(emit);
-    }
-  }
-
-  void _manageNetworkError(
-    NetworkError networkError,
-    Emitter<SettingsState> emit,
-  ) {
-    if (networkError.code == NetworkErrorCode.lossOfConnection) {
-      emitLossOfInternetConnectionStatus(emit);
     }
   }
 }

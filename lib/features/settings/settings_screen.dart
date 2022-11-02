@@ -12,7 +12,6 @@ import 'package:app/domain/use_cases/user/get_user_use_case.dart';
 import 'package:app/domain/use_cases/user/update_user_use_case.dart';
 import 'package:app/features/settings/bloc/settings_bloc.dart';
 import 'package:app/features/settings/components/settings_content.dart';
-import 'package:app/providers/device_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -54,7 +53,6 @@ class _SettingsBlocProvider extends StatelessWidget {
           authInterface: context.read<AuthInterface>(),
         ),
         deleteLoggedUserUseCase: DeleteLoggedUserUseCase(
-          device: DeviceProvider.provide(),
           bookInterface: context.read<BookInterface>(),
           userInterface: context.read<UserInterface>(),
           authInterface: context.read<AuthInterface>(),

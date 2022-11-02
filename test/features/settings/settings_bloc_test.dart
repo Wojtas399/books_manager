@@ -471,27 +471,6 @@ void main() {
           ),
         ],
       );
-
-      blocTest(
-        'should emit appropriate state if device has not internet connection',
-        build: () => createBloc(),
-        setUp: () {
-          deleteLoggedUserUseCase.mock(
-            throwable: const NetworkError(
-              code: NetworkErrorCode.lossOfConnection,
-            ),
-          );
-        },
-        act: (SettingsBloc bloc) => eventCall(bloc),
-        expect: () => [
-          createState(
-            status: const BlocStatusLoading(),
-          ),
-          createState(
-            status: const BlocStatusLossOfInternetConnection(),
-          ),
-        ],
-      );
     },
   );
 }

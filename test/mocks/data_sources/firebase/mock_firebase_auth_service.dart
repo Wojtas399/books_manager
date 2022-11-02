@@ -8,39 +8,36 @@ class MockFirebaseAuthService extends Mock implements FirebaseAuthService {
     ).thenAnswer((_) => Stream.value(loggedUserId));
   }
 
-  void mockSignIn() {
-    when(
-      () => signIn(
-        email: any(named: 'email'),
-        password: any(named: 'password'),
-      ),
-    ).thenAnswer((_) async => '');
+  void mockSignIn({Object? throwable}) {
+    if (throwable != null) {
+      when(_signInMethodCall).thenThrow(throwable);
+    } else {
+      when(_signInMethodCall).thenAnswer((_) async => '');
+    }
   }
 
-  void mockSignUp({required String signedUpUserId}) {
-    when(
-      () => signUp(
-        email: any(named: 'email'),
-        password: any(named: 'password'),
-      ),
-    ).thenAnswer((_) async => signedUpUserId);
+  void mockSignUp({required String signedUpUserId, Object? throwable}) {
+    if (throwable != null) {
+      when(_signUpMethodCall).thenThrow(throwable);
+    } else {
+      when(_signUpMethodCall).thenAnswer((_) async => signedUpUserId);
+    }
   }
 
-  void mockSendPasswordResetEmail() {
-    when(
-      () => sendPasswordResetEmail(
-        email: any(named: 'email'),
-      ),
-    ).thenAnswer((_) async => '');
+  void mockSendPasswordResetEmail({Object? throwable}) {
+    if (throwable != null) {
+      when(_sendPasswordResetEmailMethodCall).thenThrow(throwable);
+    } else {
+      when(_sendPasswordResetEmailMethodCall).thenAnswer((_) async => '');
+    }
   }
 
-  void mockChangeLoggedUserPassword() {
-    when(
-      () => changeLoggedUserPassword(
-        currentPassword: any(named: 'currentPassword'),
-        newPassword: any(named: 'newPassword'),
-      ),
-    ).thenAnswer((_) async => '');
+  void mockChangeLoggedUserPassword({Object? throwable}) {
+    if (throwable != null) {
+      when(_changeLoggedUserPasswordMethodCall).thenThrow(throwable);
+    } else {
+      when(_changeLoggedUserPasswordMethodCall).thenAnswer((_) async => '');
+    }
   }
 
   void mockSignOut() {
@@ -49,12 +46,12 @@ class MockFirebaseAuthService extends Mock implements FirebaseAuthService {
     ).thenAnswer((_) async => '');
   }
 
-  void mockDeleteLoggedUser() {
-    when(
-      () => deleteLoggedUser(
-        password: any(named: 'password'),
-      ),
-    ).thenAnswer((_) async => '');
+  void mockDeleteLoggedUser({Object? throwable}) {
+    if (throwable != null) {
+      when(_deleteLoggedUserMethodCall).thenThrow(throwable);
+    } else {
+      when(_deleteLoggedUserMethodCall).thenAnswer((_) async => '');
+    }
   }
 
   void mockReauthenticateLoggedUserWithPassword() {
@@ -63,5 +60,38 @@ class MockFirebaseAuthService extends Mock implements FirebaseAuthService {
         password: any(named: 'password'),
       ),
     ).thenAnswer((_) async => '');
+  }
+
+  Future<void> _signInMethodCall() {
+    return signIn(
+      email: any(named: 'email'),
+      password: any(named: 'password'),
+    );
+  }
+
+  Future<String> _signUpMethodCall() {
+    return signUp(
+      email: any(named: 'email'),
+      password: any(named: 'password'),
+    );
+  }
+
+  Future<void> _sendPasswordResetEmailMethodCall() {
+    return sendPasswordResetEmail(
+      email: any(named: 'email'),
+    );
+  }
+
+  Future<void> _changeLoggedUserPasswordMethodCall() {
+    return changeLoggedUserPassword(
+      currentPassword: any(named: 'currentPassword'),
+      newPassword: any(named: 'newPassword'),
+    );
+  }
+
+  Future<void> _deleteLoggedUserMethodCall() {
+    return deleteLoggedUser(
+      password: any(named: 'password'),
+    );
   }
 }

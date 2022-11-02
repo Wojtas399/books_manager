@@ -5,10 +5,11 @@ import 'package:app/data/data_sources/firebase/services/firebase_firestore_book_
 import 'package:app/data/data_sources/firebase/services/firebase_storage_service.dart';
 import 'package:app/data/mappers/book_status_mapper.dart';
 import 'package:app/domain/entities/book.dart';
+import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/models/image_file.dart';
 import 'package:rxdart/rxdart.dart';
 
-class BookDataSource {
+class BookDataSource implements BookInterface {
   late final FirebaseFirestoreBookService _firebaseFirestoreBookService;
   late final FirebaseStorageService _firebaseStorageService;
 
@@ -20,12 +21,14 @@ class BookDataSource {
     _firebaseStorageService = firebaseStorageService;
   }
 
+  @override
   Stream<Book?> getBook({required String bookId, required String userId}) {
     return _firebaseFirestoreBookService
         .getBook(bookId: bookId, userId: userId)
-        .switchMap(_loadImageForFirebaseBookAndConvertToBookModel);
+        .switchMap(_combineFirebaseBookWithImage);
   }
 
+  @override
   Stream<List<Book>> getUserBooks({
     required String userId,
     BookStatus? bookStatus,
@@ -36,10 +39,11 @@ class BookDataSource {
     }
     return _firebaseFirestoreBookService
         .getUserBooks(userId: userId, bookStatus: bookStatusAsStr)
-        .switchMap(_mapFirebaseBooksToBooks);
+        .switchMap(_mapFirebaseBooksToBookModels);
   }
 
-  Future<void> addBook({
+  @override
+  Future<void> addNewBook({
     required String userId,
     required BookStatus status,
     required ImageFile? imageFile,
@@ -68,6 +72,7 @@ class BookDataSource {
     );
   }
 
+  @override
   Future<void> updateBook({
     required String bookId,
     required String userId,
@@ -97,6 +102,7 @@ class BookDataSource {
     );
   }
 
+  @override
   Future<void> deleteBookImage({
     required String bookId,
     required String userId,
@@ -115,45 +121,42 @@ class BookDataSource {
     }
   }
 
+  @override
   Future<void> deleteBook({
     required String bookId,
     required String userId,
   }) async {
-    final String? imageFileName = await _getBookImageFileName(bookId, userId);
-    if (imageFileName != null) {
-      await _firebaseStorageService.deleteBookImageData(
-        fileName: imageFileName,
-        userId: userId,
+    final FirebaseBook? firebaseBook = await _firebaseFirestoreBookService
+        .getBook(bookId: bookId, userId: userId)
+        .first;
+    if (firebaseBook != null) {
+      await _deleteFirebaseBook(firebaseBook);
+    }
+  }
+
+  @override
+  Future<void> deleteAllUserBooks({required String userId}) async {
+    final List<FirebaseBook> allUserFirebaseBooks =
+        await _firebaseFirestoreBookService.getUserBooks(userId: userId).first;
+    for (final FirebaseBook firebaseBook in allUserFirebaseBooks) {
+      await _deleteFirebaseBook(firebaseBook);
+    }
+  }
+
+  Stream<Book?> _combineFirebaseBookWithImage(FirebaseBook? firebaseBook) {
+    if (firebaseBook != null) {
+      return _getImageDataForFirebaseBook(firebaseBook).map(
+        (Uint8List? imageData) => _createBook(firebaseBook, imageData),
       );
     }
-    await _firebaseFirestoreBookService.deleteBook(
-      userId: userId,
-      bookId: bookId,
-    );
+    return Stream.value(null);
   }
 
-  Stream<Book?> _loadImageForFirebaseBookAndConvertToBookModel(
-    FirebaseBook? firebaseBook,
-  ) {
-    final String? imageFileName = firebaseBook?.imageFileName;
-    if (firebaseBook == null || imageFileName == null) {
-      return Stream.value(null);
-    }
-    return Rx.fromCallable(
-      () async => await _firebaseStorageService.loadBookImageData(
-        fileName: imageFileName,
-        userId: firebaseBook.userId,
-      ),
-    ).map(
-      (Uint8List? imageData) => _createBook(firebaseBook, imageData),
-    );
-  }
-
-  Stream<List<Book>> _mapFirebaseBooksToBooks(
+  Stream<List<Book>> _mapFirebaseBooksToBookModels(
     List<FirebaseBook> firebaseBooks,
   ) {
     final Iterable<Stream<Book?>> books$ =
-        firebaseBooks.map(_loadImageForFirebaseBookAndConvertToBookModel);
+        firebaseBooks.map(_combineFirebaseBookWithImage);
     return Rx.combineLatest(
       books$,
       (List<Book?> books) => books.whereType<Book>().toList(),
@@ -187,14 +190,37 @@ class BookDataSource {
     return firebaseBook?.imageFileName;
   }
 
+  Future<void> _deleteFirebaseBook(FirebaseBook firebaseBook) async {
+    final String? imageFileName = firebaseBook.imageFileName;
+    if (imageFileName != null) {
+      await _firebaseStorageService.deleteBookImageData(
+        fileName: imageFileName,
+        userId: firebaseBook.userId,
+      );
+    }
+    await _firebaseFirestoreBookService.deleteBook(
+      userId: firebaseBook.userId,
+      bookId: firebaseBook.id,
+    );
+  }
+
+  Stream<Uint8List?> _getImageDataForFirebaseBook(FirebaseBook firebaseBook) {
+    final String? imageFileName = firebaseBook.imageFileName;
+    return imageFileName != null
+        ? Rx.fromCallable(
+            () async => await _firebaseStorageService.loadBookImageData(
+              fileName: imageFileName,
+              userId: firebaseBook.userId,
+            ),
+          )
+        : Stream.value(null);
+  }
+
   Book _createBook(FirebaseBook firebaseBook, Uint8List? imageData) {
     final BookStatus bookStatus =
         BookStatusMapper.mapFromStringToEnum(firebaseBook.status);
-    final String? imageFileName = firebaseBook.imageFileName;
-    ImageFile? imageFile;
-    if (imageData != null && imageFileName != null) {
-      imageFile = ImageFile(name: imageFileName, data: imageData);
-    }
+    ImageFile? imageFile =
+        _createImageFile(firebaseBook.imageFileName, imageData);
     return Book(
       id: firebaseBook.id,
       userId: firebaseBook.userId,
@@ -205,5 +231,13 @@ class BookDataSource {
       readPagesAmount: firebaseBook.readPagesAmount,
       allPagesAmount: firebaseBook.allPagesAmount,
     );
+  }
+
+  ImageFile? _createImageFile(String? imageFileName, Uint8List? imageData) {
+    ImageFile? imageFile;
+    if (imageData != null && imageFileName != null) {
+      imageFile = ImageFile(name: imageFileName, data: imageData);
+    }
+    return imageFile;
   }
 }

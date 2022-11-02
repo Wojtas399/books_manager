@@ -6,7 +6,6 @@ import 'package:app/data/data_sources/firebase/services/firebase_firestore_book_
 import 'package:app/data/data_sources/firebase/services/firebase_firestore_user_service.dart';
 import 'package:app/data/data_sources/firebase/services/firebase_storage_service.dart';
 import 'package:app/data/data_sources/user_data_source.dart';
-import 'package:app/data/repositories/book_repository.dart';
 import 'package:app/data/repositories/day_repository.dart';
 import 'package:app/data/repositories/user_repository.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
@@ -28,8 +27,9 @@ class DataProvider {
   }
 
   static BookInterface provideBookInterface() {
-    return BookRepository(
-      bookDataSource: _provideBookDataSource(),
+    return BookDataSource(
+      firebaseFirestoreBookService: FirebaseFirestoreBookService(),
+      firebaseStorageService: FirebaseStorageService(),
     );
   }
 
@@ -42,13 +42,6 @@ class DataProvider {
   static UserDataSource _provideUserDataSource() {
     return UserDataSource(
       firebaseFirestoreUserService: FirebaseFirestoreUserService(),
-    );
-  }
-
-  static BookDataSource _provideBookDataSource() {
-    return BookDataSource(
-      firebaseFirestoreBookService: FirebaseFirestoreBookService(),
-      firebaseStorageService: FirebaseStorageService(),
     );
   }
 

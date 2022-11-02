@@ -28,43 +28,80 @@ void main() {
     reset(firebaseStorageService);
   });
 
-  test(
-    'get book, should query for book with bookId and userId',
-    () async {
+  group(
+    'get book',
+    () {
       const String bookId = 'b1';
       const String userId = 'u1';
-      final Uint8List imageData = Uint8List(10);
-      final FirebaseBook firebaseBook = createFirebaseBook(
-        id: bookId,
-        userId: userId,
-        imageFileName: 'i1',
-      );
-      final Book expectedBook = createBook(
-        id: firebaseBook.id,
-        userId: firebaseBook.userId,
-        imageFile: createImageFile(name: 'i1', data: imageData),
-      );
-      firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
-      firebaseStorageService.mockLoadBookImageData(imageData: imageData);
 
-      final Stream<Book?> book$ = dataSource.getBook(
-        bookId: bookId,
-        userId: userId,
+      Stream<Book?> methodCall() {
+        return dataSource.getBook(bookId: bookId, userId: userId);
+      }
+
+      tearDown(() {
+        verify(
+          () => firebaseFirestoreBookService.getBook(
+            bookId: bookId,
+            userId: userId,
+          ),
+        ).called(1);
+      });
+
+      test(
+        'book has image, should query for book from firebase firestore and for its image from firebase storage',
+        () async {
+          final Uint8List imageData = Uint8List(10);
+          final FirebaseBook firebaseBook = createFirebaseBook(
+            id: bookId,
+            userId: userId,
+            imageFileName: 'i1',
+          );
+          final Book expectedBook = createBook(
+            id: firebaseBook.id,
+            userId: firebaseBook.userId,
+            imageFile: createImageFile(name: 'i1', data: imageData),
+          );
+          firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
+          firebaseStorageService.mockLoadBookImageData(imageData: imageData);
+
+          final Stream<Book?> book$ = methodCall();
+
+          expect(await book$.first, expectedBook);
+          verify(
+            () => firebaseStorageService.loadBookImageData(
+              fileName: 'i1',
+              userId: userId,
+            ),
+          ).called(1);
+        },
       );
 
-      expect(await book$.first, expectedBook);
-      verify(
-        () => firebaseFirestoreBookService.getBook(
-          bookId: bookId,
-          userId: userId,
-        ),
-      ).called(1);
-      verify(
-        () => firebaseStorageService.loadBookImageData(
-          fileName: 'i1',
-          userId: userId,
-        ),
-      ).called(1);
+      test(
+        'book does not have image, should only query for book from firebase firestore',
+        () async {
+          final FirebaseBook firebaseBook = createFirebaseBook(
+            id: bookId,
+            userId: userId,
+            imageFileName: null,
+          );
+          final Book expectedBook = createBook(
+            id: firebaseBook.id,
+            userId: firebaseBook.userId,
+            imageFile: null,
+          );
+          firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
+
+          final Stream<Book?> book$ = methodCall();
+
+          expect(await book$.first, expectedBook);
+          verifyNever(
+            () => firebaseStorageService.loadBookImageData(
+              fileName: any(named: 'fileName'),
+              userId: userId,
+            ),
+          );
+        },
+      );
     },
   );
 
@@ -165,7 +202,7 @@ void main() {
   );
 
   group(
-    'add book',
+    'add new book',
     () {
       const String userId = 'u1';
       const BookStatus bookStatus = BookStatus.inProgress;
@@ -177,7 +214,7 @@ void main() {
       const int allPagesAmount = 200;
 
       Future<void> methodCall(ImageFile? imageFile) async {
-        await dataSource.addBook(
+        await dataSource.addNewBook(
           userId: userId,
           status: bookStatus,
           imageFile: imageFile,
@@ -413,6 +450,10 @@ void main() {
       const String bookId = 'b1';
       const String userId = 'u1';
 
+      Future<void> methodCall() async {
+        await dataSource.deleteBookImage(bookId: bookId, userId: userId);
+      }
+
       setUp(() {
         firebaseStorageService.mockDeleteBookImageData();
       });
@@ -436,7 +477,7 @@ void main() {
           );
           firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
 
-          await dataSource.deleteBookImage(bookId: bookId, userId: userId);
+          await methodCall();
 
           verifyNever(
             () => firebaseStorageService.deleteBookImageData(
@@ -458,7 +499,7 @@ void main() {
           firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
           firebaseFirestoreBookService.mockUpdateBook();
 
-          await dataSource.deleteBookImage(bookId: bookId, userId: userId);
+          await methodCall();
 
           verify(
             () => firebaseStorageService.deleteBookImageData(
@@ -484,10 +525,45 @@ void main() {
       const String bookId = 'b1';
       const String userId = 'u1';
 
+      Future<void> methodCall() async {
+        await dataSource.deleteBook(bookId: bookId, userId: userId);
+      }
+
       setUp(() {
         firebaseStorageService.mockDeleteBookImageData();
         firebaseFirestoreBookService.mockDeleteBook();
       });
+
+      tearDown(() {
+        verify(
+          () => firebaseFirestoreBookService.getBook(
+            bookId: bookId,
+            userId: userId,
+          ),
+        ).called(1);
+      });
+
+      test(
+        'book does not exist, should do nothing',
+        () async {
+          firebaseFirestoreBookService.mockGetBook();
+
+          await methodCall();
+
+          verifyNever(
+            () => firebaseStorageService.deleteBookImageData(
+              fileName: any(named: 'fileName'),
+              userId: userId,
+            ),
+          );
+          verifyNever(
+            () => firebaseFirestoreBookService.deleteBook(
+              userId: userId,
+              bookId: bookId,
+            ),
+          );
+        },
+      );
 
       test(
         'book does not have image, should only delete book from firebase firestore',
@@ -499,7 +575,7 @@ void main() {
           );
           firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
 
-          await dataSource.deleteBook(bookId: bookId, userId: userId);
+          await methodCall();
 
           verifyNever(
             () => firebaseStorageService.deleteBookImageData(
@@ -526,7 +602,7 @@ void main() {
           );
           firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
 
-          await dataSource.deleteBook(bookId: bookId, userId: userId);
+          await methodCall();
 
           verify(
             () => firebaseStorageService.deleteBookImageData(
@@ -542,6 +618,46 @@ void main() {
           ).called(1);
         },
       );
+    },
+  );
+
+  test(
+    'delete all user books, should delete all user books and their images',
+    () async {
+      const String userId = 'u1';
+      final List<FirebaseBook> userFirebaseBooks = [
+        createFirebaseBook(id: 'b1', userId: userId, imageFileName: 'i1'),
+        createFirebaseBook(id: 'b2', userId: userId, imageFileName: null),
+      ];
+      firebaseFirestoreBookService.mockGetUserBooks(
+        userFirebaseBooks: userFirebaseBooks,
+      );
+      firebaseStorageService.mockDeleteBookImageData();
+      firebaseFirestoreBookService.mockDeleteBook();
+
+      await dataSource.deleteAllUserBooks(userId: userId);
+
+      verify(
+        () => firebaseFirestoreBookService.getUserBooks(userId: userId),
+      ).called(1);
+      verify(
+        () => firebaseStorageService.deleteBookImageData(
+          fileName: 'i1',
+          userId: userId,
+        ),
+      ).called(1);
+      verify(
+        () => firebaseFirestoreBookService.deleteBook(
+          userId: userId,
+          bookId: userFirebaseBooks.first.id,
+        ),
+      ).called(1);
+      verify(
+        () => firebaseFirestoreBookService.deleteBook(
+          userId: userId,
+          bookId: userFirebaseBooks.last.id,
+        ),
+      ).called(1);
     },
   );
 }

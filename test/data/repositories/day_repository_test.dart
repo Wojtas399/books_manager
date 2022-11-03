@@ -1,8 +1,8 @@
-import 'package:app/data/data_sources/day_data_source.dart';
 import 'package:app/data/data_sources/firebase/entities/firebase_day.dart';
 import 'package:app/data/data_sources/firebase/entities/firebase_read_book.dart';
 import 'package:app/data/data_sources/firebase/entities/firebase_user.dart';
 import 'package:app/data/mappers/date_mapper.dart';
+import 'package:app/data/repositories/day_repository.dart';
 import 'package:app/domain/entities/day.dart';
 import 'package:app/domain/entities/read_book.dart';
 import 'package:mocktail/mocktail.dart';
@@ -12,11 +12,11 @@ import '../../mocks/data/firebase/mock_firebase_firestore_user_service.dart';
 
 void main() {
   final firebaseFirestoreUserService = MockFirebaseFirestoreUserService();
-  late DayDataSource dataSource;
+  late DayRepository repository;
   const String userId = 'u1';
 
   setUp(() {
-    dataSource = DayDataSource(
+    repository = DayRepository(
       firebaseFirestoreUserService: firebaseFirestoreUserService,
     );
   });
@@ -101,7 +101,7 @@ void main() {
       ];
       firebaseFirestoreUserService.mockGetUser(firebaseUser: firebaseUser);
 
-      final Stream<List<Day>> userDays$ = dataSource.getUserDays(
+      final Stream<List<Day>> userDays$ = repository.getUserDays(
         userId: userId,
       );
 
@@ -182,7 +182,7 @@ void main() {
       ];
       firebaseFirestoreUserService.mockGetUser(firebaseUser: firebaseUser);
 
-      final Stream<List<Day>> userDays$ = dataSource.getUserDaysFromMonth(
+      final Stream<List<Day>> userDays$ = repository.getUserDaysFromMonth(
         userId: userId,
         month: month,
         year: year,
@@ -230,7 +230,7 @@ void main() {
       firebaseFirestoreUserService.mockGetUser(firebaseUser: firebaseUser);
       firebaseFirestoreUserService.mockUpdateUser();
 
-      await dataSource.addNewDay(day: dayToAdd);
+      await repository.addNewDay(day: dayToAdd);
 
       verify(
         () => firebaseFirestoreUserService.getUser(userId: userId),
@@ -288,7 +288,7 @@ void main() {
       firebaseFirestoreUserService.mockGetUser(firebaseUser: firebaseUser);
       firebaseFirestoreUserService.mockUpdateUser();
 
-      await dataSource.updateDay(updatedDay: updatedDay);
+      await repository.updateDay(updatedDay: updatedDay);
 
       verify(
         () => firebaseFirestoreUserService.getUser(userId: userId),
@@ -326,7 +326,7 @@ void main() {
       firebaseFirestoreUserService.mockGetUser(firebaseUser: firebaseUser);
       firebaseFirestoreUserService.mockUpdateUser();
 
-      await dataSource.deleteDay(userId: userId, date: date);
+      await repository.deleteDay(userId: userId, date: date);
 
       verify(
         () => firebaseFirestoreUserService.getUser(userId: userId),

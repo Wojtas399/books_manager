@@ -7,10 +7,10 @@ import 'package:app/domain/entities/day.dart';
 import 'package:app/domain/entities/read_book.dart';
 import 'package:app/domain/interfaces/day_interface.dart';
 
-class DayDataSource implements DayInterface {
+class DayRepository implements DayInterface {
   late final FirebaseFirestoreUserService _firebaseFirestoreUserService;
 
-  DayDataSource({
+  DayRepository({
     required FirebaseFirestoreUserService firebaseFirestoreUserService,
   }) {
     _firebaseFirestoreUserService = firebaseFirestoreUserService;

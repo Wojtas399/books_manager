@@ -1,10 +1,10 @@
 import 'package:app/data/data_sources/book_data_source.dart';
-import 'package:app/data/data_sources/day_data_source.dart';
 import 'package:app/data/data_sources/firebase/services/firebase_auth_service.dart';
 import 'package:app/data/data_sources/firebase/services/firebase_firestore_book_service.dart';
 import 'package:app/data/data_sources/firebase/services/firebase_firestore_user_service.dart';
 import 'package:app/data/data_sources/firebase/services/firebase_storage_service.dart';
 import 'package:app/data/repositories/auth_repository.dart';
+import 'package:app/data/repositories/day_repository.dart';
 import 'package:app/data/repositories/user_repository.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
@@ -34,7 +34,7 @@ class DataProvider {
   }
 
   static DayInterface provideDayInterface() {
-    return DayDataSource(
+    return DayRepository(
       firebaseFirestoreUserService: FirebaseFirestoreUserService(),
     );
   }

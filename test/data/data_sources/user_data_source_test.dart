@@ -21,7 +21,7 @@ void main() {
   });
 
   test(
-    'get user, should return stream which contains matching user',
+    'get user, should query for user from firebase firestore',
     () async {
       const String userId = 'u1';
       final FirebaseUser firebaseUser = createFirebaseUser(id: userId);

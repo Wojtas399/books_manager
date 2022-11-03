@@ -1,8 +1,9 @@
 import 'package:app/data/data_sources/firebase/entities/firebase_user.dart';
 import 'package:app/data/data_sources/firebase/services/firebase_firestore_user_service.dart';
 import 'package:app/domain/entities/user.dart';
+import 'package:app/domain/interfaces/user_interface.dart';
 
-class UserDataSource {
+class UserDataSource implements UserInterface {
   late final FirebaseFirestoreUserService _firebaseFirestoreUserService;
 
   UserDataSource({
@@ -11,6 +12,7 @@ class UserDataSource {
     _firebaseFirestoreUserService = firebaseFirestoreUserService;
   }
 
+  @override
   Stream<User?> getUser({required String userId}) {
     return _firebaseFirestoreUserService.getUser(userId: userId).map(
       (FirebaseUser? firebaseUser) {
@@ -19,11 +21,13 @@ class UserDataSource {
     );
   }
 
+  @override
   Future<void> addUser({required User user}) async {
     final FirebaseUser firebaseUser = _createFirebaseUser(user);
     await _firebaseFirestoreUserService.addUser(firebaseUser: firebaseUser);
   }
 
+  @override
   Future<void> updateUser({
     required String userId,
     bool? isDarkModeOn,
@@ -36,6 +40,7 @@ class UserDataSource {
     );
   }
 
+  @override
   Future<void> deleteUser({required String userId}) async {
     await _firebaseFirestoreUserService.deleteUser(userId: userId);
   }

@@ -1,5 +1,5 @@
 import 'package:app/data/data_sources/firebase/entities/firebase_user.dart';
-import 'package:app/data/data_sources/user_data_source.dart';
+import 'package:app/data/repositories/user_repository.dart';
 import 'package:app/domain/entities/user.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -8,10 +8,10 @@ import '../../mocks/data/firebase/mock_firebase_firestore_user_service.dart';
 
 void main() {
   final firebaseFirestoreUserService = MockFirebaseFirestoreUserService();
-  late UserDataSource dataSource;
+  late UserRepository repository;
 
   setUp(() {
-    dataSource = UserDataSource(
+    repository = UserRepository(
       firebaseFirestoreUserService: firebaseFirestoreUserService,
     );
   });
@@ -33,7 +33,7 @@ void main() {
       );
       firebaseFirestoreUserService.mockGetUser(firebaseUser: firebaseUser);
 
-      final Stream<User?> user$ = dataSource.getUser(userId: userId);
+      final Stream<User?> user$ = repository.getUser(userId: userId);
 
       expect(await user$.first, expectedUser);
     },
@@ -51,7 +51,7 @@ void main() {
       );
       firebaseFirestoreUserService.mockAddUser();
 
-      await dataSource.addUser(user: userToAdd);
+      await repository.addUser(user: userToAdd);
 
       verify(
         () => firebaseFirestoreUserService.addUser(
@@ -69,7 +69,7 @@ void main() {
       const bool isDarkModeCompatibilityWithSystemOn = false;
       firebaseFirestoreUserService.mockUpdateUser();
 
-      await dataSource.updateUser(
+      await repository.updateUser(
         userId: userId,
         isDarkModeOn: isDarkModeOn,
         isDarkModeCompatibilityWithSystemOn:
@@ -93,7 +93,7 @@ void main() {
       const String userId = 'u1';
       firebaseFirestoreUserService.mockDeleteUser();
 
-      await dataSource.deleteUser(userId: userId);
+      await repository.deleteUser(userId: userId);
 
       verify(
         () => firebaseFirestoreUserService.deleteUser(userId: userId),

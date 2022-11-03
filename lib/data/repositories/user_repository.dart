@@ -3,10 +3,10 @@ import 'package:app/data/data_sources/firebase/services/firebase_firestore_user_
 import 'package:app/domain/entities/user.dart';
 import 'package:app/domain/interfaces/user_interface.dart';
 
-class UserDataSource implements UserInterface {
+class UserRepository implements UserInterface {
   late final FirebaseFirestoreUserService _firebaseFirestoreUserService;
 
-  UserDataSource({
+  UserRepository({
     required FirebaseFirestoreUserService firebaseFirestoreUserService,
   }) {
     _firebaseFirestoreUserService = firebaseFirestoreUserService;

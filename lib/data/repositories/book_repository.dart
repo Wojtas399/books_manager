@@ -11,12 +11,12 @@ import 'package:app/models/image_file.dart';
 import 'package:app/utils/image_utils.dart';
 import 'package:rxdart/rxdart.dart';
 
-class BookDataSource implements BookInterface {
+class BookRepository implements BookInterface {
   late final FirebaseFirestoreBookService _firebaseFirestoreBookService;
   late final FirebaseStorageService _firebaseStorageService;
   late final Device _device;
 
-  BookDataSource({
+  BookRepository({
     required FirebaseFirestoreBookService firebaseFirestoreBookService,
     required FirebaseStorageService firebaseStorageService,
     required Device device,

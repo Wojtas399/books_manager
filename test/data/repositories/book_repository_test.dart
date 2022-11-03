@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
-import 'package:app/data/data_sources/book_data_source.dart';
 import 'package:app/data/data_sources/firebase/entities/firebase_book.dart';
 import 'package:app/data/mappers/book_status_mapper.dart';
+import 'package:app/data/repositories/book_repository.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/models/image_file.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,10 +16,10 @@ void main() {
   final firebaseFirestoreBookService = MockFirebaseFirestoreBookService();
   final firebaseStorageService = MockFirebaseStorageService();
   final device = MockDevice();
-  late BookDataSource dataSource;
+  late BookRepository repository;
 
   setUp(() {
-    dataSource = BookDataSource(
+    repository = BookRepository(
       firebaseFirestoreBookService: firebaseFirestoreBookService,
       firebaseStorageService: firebaseStorageService,
       device: device,
@@ -39,7 +39,7 @@ void main() {
       const String userId = 'u1';
 
       Stream<Book?> methodCall() {
-        return dataSource.getBook(bookId: bookId, userId: userId);
+        return repository.getBook(bookId: bookId, userId: userId);
       }
 
       tearDown(() {
@@ -161,7 +161,7 @@ void main() {
       ];
 
       Stream<List<Book>> methodCall(BookStatus? bookStatus) {
-        return dataSource.getUserBooks(userId: userId, bookStatus: bookStatus);
+        return repository.getUserBooks(userId: userId, bookStatus: bookStatus);
       }
 
       setUp(() {
@@ -292,7 +292,7 @@ void main() {
       const int allPagesAmount = 200;
 
       Future<void> methodCall(ImageFile? imageFile) async {
-        await dataSource.addNewBook(
+        await repository.addNewBook(
           userId: userId,
           status: bookStatus,
           imageFile: imageFile,
@@ -381,7 +381,7 @@ void main() {
       const int allPagesAmount = 100;
 
       Future<void> methodCall(ImageFile? imageFile) async {
-        await dataSource.updateBook(
+        await repository.updateBook(
           bookId: bookId,
           userId: userId,
           status: bookStatus,
@@ -529,7 +529,7 @@ void main() {
       const String userId = 'u1';
 
       Future<void> methodCall() async {
-        await dataSource.deleteBookImage(bookId: bookId, userId: userId);
+        await repository.deleteBookImage(bookId: bookId, userId: userId);
       }
 
       setUp(() {
@@ -604,7 +604,7 @@ void main() {
       const String userId = 'u1';
 
       Future<void> methodCall() async {
-        await dataSource.deleteBook(bookId: bookId, userId: userId);
+        await repository.deleteBook(bookId: bookId, userId: userId);
       }
 
       setUp(() {
@@ -713,7 +713,7 @@ void main() {
       firebaseStorageService.mockDeleteBookImageData();
       firebaseFirestoreBookService.mockDeleteBook();
 
-      await dataSource.deleteAllUserBooks(userId: userId);
+      await repository.deleteAllUserBooks(userId: userId);
 
       verify(
         () => firebaseFirestoreBookService.getUserBooks(userId: userId),

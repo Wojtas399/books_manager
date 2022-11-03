@@ -6,19 +6,23 @@ import 'package:app/data/data_sources/firebase/services/firebase_storage_service
 import 'package:app/data/mappers/book_status_mapper.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
+import 'package:app/models/device.dart';
 import 'package:app/models/image_file.dart';
 import 'package:rxdart/rxdart.dart';
 
 class BookDataSource implements BookInterface {
   late final FirebaseFirestoreBookService _firebaseFirestoreBookService;
   late final FirebaseStorageService _firebaseStorageService;
+  late final Device _device;
 
   BookDataSource({
     required FirebaseFirestoreBookService firebaseFirestoreBookService,
     required FirebaseStorageService firebaseStorageService,
+    required Device device,
   }) {
     _firebaseFirestoreBookService = firebaseFirestoreBookService;
     _firebaseStorageService = firebaseStorageService;
+    _device = device;
   }
 
   @override
@@ -205,15 +209,14 @@ class BookDataSource implements BookInterface {
   }
 
   Stream<Uint8List?> _getImageDataForFirebaseBook(FirebaseBook firebaseBook) {
-    final String? imageFileName = firebaseBook.imageFileName;
-    return imageFileName != null
-        ? Rx.fromCallable(
-            () async => await _firebaseStorageService.loadBookImageData(
-              fileName: imageFileName,
-              userId: firebaseBook.userId,
-            ),
-          )
-        : Stream.value(null);
+    return _getInternetConnectionStatus().switchMap(
+      (bool hasDeviceInternetConnection) {
+        final String? imageFileName = firebaseBook.imageFileName;
+        return imageFileName != null && hasDeviceInternetConnection == true
+            ? _getImageData(imageFileName, firebaseBook.userId)
+            : Stream.value(null);
+      },
+    );
   }
 
   Book _createBook(FirebaseBook firebaseBook, Uint8List? imageData) {
@@ -239,5 +242,18 @@ class BookDataSource implements BookInterface {
       imageFile = ImageFile(name: imageFileName, data: imageData);
     }
     return imageFile;
+  }
+
+  Stream<bool> _getInternetConnectionStatus() {
+    return Rx.fromCallable(() async => await _device.hasInternetConnection());
+  }
+
+  Stream<Uint8List?> _getImageData(String fileName, String userId) {
+    return Rx.fromCallable(
+      () async => await _firebaseStorageService.loadBookImageData(
+        fileName: fileName,
+        userId: userId,
+      ),
+    );
   }
 }

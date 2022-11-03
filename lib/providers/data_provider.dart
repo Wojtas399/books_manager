@@ -10,6 +10,7 @@ import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/interfaces/day_interface.dart';
 import 'package:app/domain/interfaces/user_interface.dart';
+import 'package:app/providers/device_provider.dart';
 
 class DataProvider {
   static AuthInterface provideAuthInterface() {
@@ -28,6 +29,7 @@ class DataProvider {
     return BookDataSource(
       firebaseFirestoreBookService: FirebaseFirestoreBookService(),
       firebaseStorageService: FirebaseStorageService(),
+      device: DeviceProvider.provide(),
     );
   }
 

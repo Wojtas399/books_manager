@@ -10,22 +10,26 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../mocks/firebase/mock_firebase_firestore_book_service.dart';
 import '../../mocks/firebase/mock_firebase_storage_service.dart';
+import '../../mocks/models/mock_device.dart';
 
 void main() {
   final firebaseFirestoreBookService = MockFirebaseFirestoreBookService();
   final firebaseStorageService = MockFirebaseStorageService();
+  final device = MockDevice();
   late BookDataSource dataSource;
 
   setUp(() {
     dataSource = BookDataSource(
       firebaseFirestoreBookService: firebaseFirestoreBookService,
       firebaseStorageService: firebaseStorageService,
+      device: device,
     );
   });
 
   tearDown(() {
     reset(firebaseFirestoreBookService);
     reset(firebaseStorageService);
+    reset(device);
   });
 
   group(
@@ -48,7 +52,7 @@ void main() {
       });
 
       test(
-        'book has image, should query for book from firebase firestore and for its image from firebase storage',
+        'book has image, device has internet connection, should query for book from firebase firestore and for its image from firebase storage',
         () async {
           final Uint8List imageData = Uint8List(10);
           final FirebaseBook firebaseBook = createFirebaseBook(
@@ -61,6 +65,7 @@ void main() {
             userId: firebaseBook.userId,
             imageFile: createImageFile(name: 'i1', data: imageData),
           );
+          device.mockHasInternetConnection(value: true);
           firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
           firebaseStorageService.mockLoadBookImageData(imageData: imageData);
 
@@ -77,6 +82,34 @@ void main() {
       );
 
       test(
+        'book has image, device does not have internet connection, should only query for book from firebase firestore',
+        () async {
+          final FirebaseBook firebaseBook = createFirebaseBook(
+            id: bookId,
+            userId: userId,
+            imageFileName: 'i1',
+          );
+          final Book expectedBook = createBook(
+            id: firebaseBook.id,
+            userId: firebaseBook.userId,
+            imageFile: null,
+          );
+          device.mockHasInternetConnection(value: false);
+          firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
+
+          final Stream<Book?> book$ = methodCall();
+
+          expect(await book$.first, expectedBook);
+          verifyNever(
+            () => firebaseStorageService.loadBookImageData(
+              fileName: 'i1',
+              userId: userId,
+            ),
+          );
+        },
+      );
+
+      test(
         'book does not have image, should only query for book from firebase firestore',
         () async {
           final FirebaseBook firebaseBook = createFirebaseBook(
@@ -89,6 +122,7 @@ void main() {
             userId: firebaseBook.userId,
             imageFile: null,
           );
+          device.mockHasInternetConnection(value: true);
           firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
 
           final Stream<Book?> book$ = methodCall();
@@ -148,25 +182,11 @@ void main() {
         ).thenAnswer((_) async => null);
       });
 
-      tearDown(() {
-        verify(
-          () => firebaseStorageService.loadBookImageData(
-            fileName: 'i1',
-            userId: userId,
-          ),
-        ).called(1);
-        verify(
-          () => firebaseStorageService.loadBookImageData(
-            fileName: 'i2',
-            userId: userId,
-          ),
-        ).called(1);
-      });
-
       test(
-        'book status is null, should query for user books with book status set as null',
+        'book status is null, device has internet connection, should query for user books with book status set as null',
         () async {
           const BookStatus? bookStatus = null;
+          device.mockHasInternetConnection(value: true);
 
           final Stream<List<Book>> userBooks$ = methodCall(bookStatus);
 
@@ -177,15 +197,28 @@ void main() {
               bookStatus: null,
             ),
           ).called(1);
+          verify(
+            () => firebaseStorageService.loadBookImageData(
+              fileName: 'i1',
+              userId: userId,
+            ),
+          ).called(1);
+          verify(
+            () => firebaseStorageService.loadBookImageData(
+              fileName: 'i2',
+              userId: userId,
+            ),
+          ).called(1);
         },
       );
 
       test(
-        'book status is not null, should query for user books with book status set as mapped given book status',
+        'book status is not null, device has internet connection, should query for user books with book status set as mapped given book status',
         () async {
           const BookStatus bookStatus = BookStatus.inProgress;
           final String bookStatusAsStr =
               BookStatusMapper.mapFromEnumToString(bookStatus);
+          device.mockHasInternetConnection(value: true);
 
           final Stream<List<Book>> userBooks$ = methodCall(bookStatus);
 
@@ -196,6 +229,51 @@ void main() {
               bookStatus: bookStatusAsStr,
             ),
           ).called(1);
+          verify(
+            () => firebaseStorageService.loadBookImageData(
+              fileName: 'i1',
+              userId: userId,
+            ),
+          ).called(1);
+          verify(
+            () => firebaseStorageService.loadBookImageData(
+              fileName: 'i2',
+              userId: userId,
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'device does not have internet connection, returned user books should be without images',
+        () async {
+          device.mockHasInternetConnection(value: false);
+          final List<Book> expectedUserBooks = [
+            createBook(
+              id: userFirebaseBooks.first.id,
+              userId: userFirebaseBooks.first.userId,
+            ),
+            createBook(
+              id: userFirebaseBooks.last.id,
+              userId: userFirebaseBooks.last.userId,
+            ),
+          ];
+
+          final Stream<List<Book>> userBooks$ = methodCall(null);
+
+          expect(await userBooks$.first, expectedUserBooks);
+          verify(
+            () => firebaseFirestoreBookService.getUserBooks(
+              userId: userId,
+              bookStatus: null,
+            ),
+          ).called(1);
+          verifyNever(
+            () => firebaseStorageService.loadBookImageData(
+              fileName: any(named: 'fileName'),
+              userId: userId,
+            ),
+          );
         },
       );
     },

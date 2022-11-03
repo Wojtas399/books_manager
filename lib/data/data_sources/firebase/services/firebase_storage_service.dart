@@ -17,6 +17,7 @@ class FirebaseStorageService {
     required String fileName,
     required String userId,
   }) async {
+    _setMaximumDownloadingTime();
     final Reference imageRef = _getBookImageReference(userId, fileName);
     try {
       return await imageRef.getData();
@@ -39,5 +40,11 @@ class FirebaseStorageService {
     final List<String> dividedFileName = fileName.split('.');
     final String fileNameWithoutExtension = dividedFileName.first;
     return FireInstances.storage.ref('$userId/$fileNameWithoutExtension.jpg');
+  }
+
+  void _setMaximumDownloadingTime() {
+    FireInstances.storage.setMaxDownloadRetryTime(
+      const Duration(seconds: 10),
+    );
   }
 }

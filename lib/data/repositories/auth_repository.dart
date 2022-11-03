@@ -4,10 +4,10 @@ import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/models/error.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class AuthDataSource implements AuthInterface {
+class AuthRepository implements AuthInterface {
   late final FirebaseAuthService _firebaseAuthService;
 
-  AuthDataSource({required FirebaseAuthService firebaseAuthService}) {
+  AuthRepository({required FirebaseAuthService firebaseAuthService}) {
     _firebaseAuthService = firebaseAuthService;
   }
 

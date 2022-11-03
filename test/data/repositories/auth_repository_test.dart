@@ -1,5 +1,5 @@
 import 'package:app/config/errors.dart';
-import 'package:app/data/data_sources/auth_data_source.dart';
+import 'package:app/data/repositories/auth_repository.dart';
 import 'package:app/models/error.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,10 +9,10 @@ import '../../mocks/data/firebase/mock_firebase_auth_service.dart';
 
 void main() {
   final firebaseAuthService = MockFirebaseAuthService();
-  late AuthDataSource dataSource;
+  late AuthRepository repository;
 
   setUp(() {
-    dataSource = AuthDataSource(firebaseAuthService: firebaseAuthService);
+    repository = AuthRepository(firebaseAuthService: firebaseAuthService);
   });
 
   tearDown(() {
@@ -27,7 +27,7 @@ void main() {
         loggedUserId: expectedLoggedUserId,
       );
 
-      final Stream<String?> loggedUserId$ = dataSource.loggedUserId$;
+      final Stream<String?> loggedUserId$ = repository.loggedUserId$;
 
       expect(await loggedUserId$.first, expectedLoggedUserId);
     },
@@ -40,7 +40,7 @@ void main() {
       const String password = 'password123';
 
       Future<void> methodCall() async {
-        await dataSource.signIn(email: email, password: password);
+        await repository.signIn(email: email, password: password);
       }
 
       test(
@@ -150,7 +150,7 @@ void main() {
       const String signedUpUserId = 'u1';
 
       Future<String> methodCall() async {
-        return await dataSource.signUp(email: email, password: password);
+        return await repository.signUp(email: email, password: password);
       }
 
       test(
@@ -198,7 +198,7 @@ void main() {
       const String email = 'email@example.com';
 
       Future<void> methodCall() async {
-        await dataSource.sendPasswordResetEmail(email: email);
+        await repository.sendPasswordResetEmail(email: email);
       }
 
       test(
@@ -268,7 +268,7 @@ void main() {
         () async {
           firebaseAuthService.mockReauthenticateLoggedUserWithPassword();
 
-          final bool isCorrect = await dataSource
+          final bool isCorrect = await repository
               .checkLoggedUserPasswordCorrectness(password: password);
 
           expect(isCorrect, true);
@@ -284,7 +284,7 @@ void main() {
             ),
           ).thenThrow(FirebaseAuthException(code: 'wrong-password'));
 
-          final bool isCorrect = await dataSource
+          final bool isCorrect = await repository
               .checkLoggedUserPasswordCorrectness(password: password);
 
           expect(isCorrect, false);
@@ -301,7 +301,7 @@ void main() {
           ).thenThrow(FirebaseAuthException(code: 'unknown'));
 
           try {
-            await dataSource.checkLoggedUserPasswordCorrectness(
+            await repository.checkLoggedUserPasswordCorrectness(
               password: password,
             );
           } on FirebaseAuthException catch (authException) {
@@ -322,7 +322,7 @@ void main() {
       const String newPassword = 'newPassword';
 
       Future<void> methodCall() async {
-        await dataSource.changeLoggedUserPassword(
+        await repository.changeLoggedUserPassword(
           currentPassword: currentPassword,
           newPassword: newPassword,
         );
@@ -372,7 +372,7 @@ void main() {
     () async {
       firebaseAuthService.mockSignOut();
 
-      await dataSource.signOut();
+      await repository.signOut();
 
       verify(
         () => firebaseAuthService.signOut(),
@@ -386,7 +386,7 @@ void main() {
       const String password = 'password';
 
       Future<void> methodCall() async {
-        await dataSource.deleteLoggedUser(password: password);
+        await repository.deleteLoggedUser(password: password);
       }
 
       test(

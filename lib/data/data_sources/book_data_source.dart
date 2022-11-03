@@ -8,6 +8,7 @@ import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/models/device.dart';
 import 'package:app/models/image_file.dart';
+import 'package:app/utils/image_utils.dart';
 import 'package:rxdart/rxdart.dart';
 
 class BookDataSource implements BookInterface {
@@ -58,10 +59,13 @@ class BookDataSource implements BookInterface {
   }) async {
     final String mappedBookStatus =
         BookStatusMapper.mapFromEnumToString(status);
+    String? imageFileNameWithoutExtension;
     if (imageFile != null) {
+      imageFileNameWithoutExtension =
+          ImageUtils.removeExtensionFromFileName(imageFile.name);
       await _firebaseStorageService.saveBookImageData(
         imageData: imageFile.data,
-        fileName: imageFile.name,
+        fileName: imageFileNameWithoutExtension,
         userId: userId,
       );
     }
@@ -72,7 +76,7 @@ class BookDataSource implements BookInterface {
       author: author,
       readPagesAmount: readPagesAmount,
       allPagesAmount: allPagesAmount,
-      imageFileName: imageFile?.name,
+      imageFileName: imageFileNameWithoutExtension,
     );
   }
 

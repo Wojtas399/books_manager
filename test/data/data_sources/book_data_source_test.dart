@@ -8,8 +8,8 @@ import 'package:app/models/image_file.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../mocks/firebase/mock_firebase_firestore_book_service.dart';
-import '../../mocks/firebase/mock_firebase_storage_service.dart';
+import '../../mocks/data/firebase/mock_firebase_firestore_book_service.dart';
+import '../../mocks/data/firebase/mock_firebase_storage_service.dart';
 import '../../mocks/models/mock_device.dart';
 
 void main() {
@@ -335,10 +335,10 @@ void main() {
       );
 
       test(
-        'image file is not null, should add image to firebase storage and should add book too firebase firestore',
+        'image file is not null, should remove extension from image file name, should add image to firebase storage and should add book too firebase firestore',
         () async {
           final ImageFile imageFile = createImageFile(
-            name: 'i1',
+            name: 'i1.jpg',
             data: Uint8List(10),
           );
 
@@ -347,7 +347,7 @@ void main() {
           verify(
             () => firebaseStorageService.saveBookImageData(
               imageData: imageFile.data,
-              fileName: imageFile.name,
+              fileName: 'i1',
               userId: userId,
             ),
           ).called(1);
@@ -359,7 +359,7 @@ void main() {
               author: author,
               readPagesAmount: readPagesAmount,
               allPagesAmount: allPagesAmount,
-              imageFileName: imageFile.name,
+              imageFileName: 'i1',
             ),
           ).called(1);
         },

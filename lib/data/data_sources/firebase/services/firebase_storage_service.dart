@@ -37,9 +37,7 @@ class FirebaseStorageService {
   }
 
   Reference _getBookImageReference(String userId, String fileName) {
-    final List<String> dividedFileName = fileName.split('.');
-    final String fileNameWithoutExtension = dividedFileName.first;
-    return FireInstances.storage.ref('$userId/$fileNameWithoutExtension.jpg');
+    return FireInstances.storage.ref('$userId/$fileName.jpg');
   }
 
   void _setMaximumDownloadingTime() {

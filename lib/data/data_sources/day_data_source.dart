@@ -5,8 +5,9 @@ import 'package:app/data/data_sources/firebase/services/firebase_firestore_user_
 import 'package:app/data/mappers/date_mapper.dart';
 import 'package:app/domain/entities/day.dart';
 import 'package:app/domain/entities/read_book.dart';
+import 'package:app/domain/interfaces/day_interface.dart';
 
-class DayDataSource {
+class DayDataSource implements DayInterface {
   late final FirebaseFirestoreUserService _firebaseFirestoreUserService;
 
   DayDataSource({
@@ -15,6 +16,7 @@ class DayDataSource {
     _firebaseFirestoreUserService = firebaseFirestoreUserService;
   }
 
+  @override
   Stream<List<Day>> getUserDays({required String userId}) {
     return _getUserFirebaseDays(userId).map((List<FirebaseDay>? firebaseDays) {
       if (firebaseDays == null) {
@@ -24,6 +26,7 @@ class DayDataSource {
     });
   }
 
+  @override
   Stream<List<Day>> getUserDaysFromMonth({
     required String userId,
     required int month,
@@ -40,7 +43,8 @@ class DayDataSource {
     );
   }
 
-  Future<void> addDay({required Day day}) async {
+  @override
+  Future<void> addNewDay({required Day day}) async {
     final String userId = day.userId;
     final FirebaseDay firebaseDayToAdd = _createFirebaseDay(day);
     final List<FirebaseDay> days = await _loadUserFirebaseDays(userId);
@@ -51,6 +55,7 @@ class DayDataSource {
     );
   }
 
+  @override
   Future<void> updateDay({required Day updatedDay}) async {
     final String userId = updatedDay.userId;
     final FirebaseDay updatedFirebaseDay = _createFirebaseDay(updatedDay);
@@ -63,6 +68,7 @@ class DayDataSource {
     );
   }
 
+  @override
   Future<void> deleteDay({
     required String userId,
     required DateTime date,

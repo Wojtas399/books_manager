@@ -196,7 +196,7 @@ void main() {
   );
 
   test(
-    'add day, should add day to user days of reading and then should update user with updated days of reading',
+    'add new day, should add day to user days of reading and then should update user with updated days of reading',
     () async {
       const String userId = 'u1';
       final Day dayToAdd = createDay(
@@ -230,7 +230,7 @@ void main() {
       firebaseFirestoreUserService.mockGetUser(firebaseUser: firebaseUser);
       firebaseFirestoreUserService.mockUpdateUser();
 
-      await dataSource.addDay(day: dayToAdd);
+      await dataSource.addNewDay(day: dayToAdd);
 
       verify(
         () => firebaseFirestoreUserService.getUser(userId: userId),

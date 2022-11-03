@@ -8,8 +8,8 @@ import 'package:app/models/image_file.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../mocks/data_sources/firebase/mock_firebase_firestore_book_service.dart';
-import '../../mocks/data_sources/firebase/mock_firebase_storage_service.dart';
+import '../../mocks/firebase/mock_firebase_firestore_book_service.dart';
+import '../../mocks/firebase/mock_firebase_storage_service.dart';
 
 void main() {
   final firebaseFirestoreBookService = MockFirebaseFirestoreBookService();

@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/features/book_preview/bloc/book_preview_bloc.dart';
 import 'package:app/models/bloc_status.dart';
-import 'package:app/models/image_file.dart';
+import 'package:app/models/image.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -48,8 +48,8 @@ void main() {
     'book image data, should return book image data',
     () {
       final Uint8List expectedImageData = Uint8List(10);
-      final ImageFile imageFile = createImageFile(data: expectedImageData);
-      final Book book = createBook(imageFile: imageFile);
+      final Image image = createImage(data: expectedImageData);
+      final Book book = createBook(image: image);
       state = state.copyWith(book: book);
 
       final Uint8List? imageData = state.bookImageData;

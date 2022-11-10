@@ -8,7 +8,7 @@ class GetUserBooksInProgressUseCase {
     _bookInterface = bookInterface;
   }
 
-  Stream<List<Book>?> execute({required String userId}) {
+  Stream<List<Book>> execute({required String userId}) {
     return _bookInterface.getUserBooks(
       userId: userId,
       bookStatus: BookStatus.inProgress,

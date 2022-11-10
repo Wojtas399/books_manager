@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/features/book_editor/bloc/book_editor_bloc.dart';
 import 'package:app/models/bloc_status.dart';
-import 'package:app/models/image_file.dart';
+import 'package:app/models/image.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -21,7 +21,7 @@ void main() {
 
   BookEditorBloc createBloc({
     Book? originalBook,
-    ImageFile? imageFile,
+    Image? image,
     String title = '',
     String author = '',
     int readPagesAmount = 0,
@@ -32,7 +32,7 @@ void main() {
       getBookUseCase: getBookUseCase,
       updateBookUseCase: updateBookUseCase,
       originalBook: originalBook,
-      imageFile: imageFile,
+      image: image,
       title: title,
       author: author,
       readPagesAmount: readPagesAmount,
@@ -43,7 +43,7 @@ void main() {
   BookEditorState createState({
     BlocStatus status = const BlocStatusInProgress(),
     Book? originalBook,
-    ImageFile? imageFile,
+    Image? image,
     String title = '',
     String author = '',
     int readPagesAmount = 0,
@@ -52,7 +52,7 @@ void main() {
     return BookEditorState(
       status: status,
       originalBook: originalBook,
-      imageFile: imageFile,
+      image: image,
       title: title,
       author: author,
       readPagesAmount: readPagesAmount,
@@ -72,7 +72,7 @@ void main() {
       final Book book = createBook(
         id: bookId,
         userId: userId,
-        imageFile: createImageFile(name: 'i1', data: Uint8List(10)),
+        image: createImage(fileName: 'i1.jpg', data: Uint8List(10)),
         title: 'title',
         author: 'author',
         readPagesAmount: 0,
@@ -124,7 +124,7 @@ void main() {
           createState(
             status: const BlocStatusComplete(),
             originalBook: book,
-            imageFile: book.imageFile,
+            image: book.image,
             title: book.title,
             author: book.author,
             readPagesAmount: book.readPagesAmount,
@@ -146,33 +146,27 @@ void main() {
   group(
     'image changed',
     () {
-      void eventCall(BookEditorBloc bloc, ImageFile? imageFile) {
+      void eventCall(BookEditorBloc bloc, Image? image) {
         bloc.add(
-          BookEditorEventImageChanged(imageFile: imageFile),
+          BookEditorEventImageChanged(image: image),
         );
       }
 
       blocTest(
         'should update image file in state',
         build: () => createBloc(),
-        act: (BookEditorBloc bloc) => eventCall(bloc, createImageFile()),
+        act: (BookEditorBloc bloc) => eventCall(bloc, createImage()),
         expect: () => [
-          createState(
-            imageFile: createImageFile(),
-          ),
+          createState(image: createImage()),
         ],
       );
 
       blocTest(
         'should set image file as null if given image file is null',
-        build: () => createBloc(
-          imageFile: createImageFile(),
-        ),
+        build: () => createBloc(image: createImage()),
         act: (BookEditorBloc bloc) => eventCall(bloc, null),
         expect: () => [
-          createState(
-            imageFile: null,
-          ),
+          createState(image: null),
         ],
       );
     },
@@ -181,8 +175,8 @@ void main() {
   group(
     'restore original image',
     () {
-      final ImageFile imageFile = createImageFile();
-      final Book book = createBook(imageFile: imageFile);
+      final Image image = createImage();
+      final Book book = createBook(image: image);
 
       blocTest(
         'should assign image file from original book to image file in state',
@@ -195,7 +189,7 @@ void main() {
         expect: () => [
           createState(
             originalBook: book,
-            imageFile: imageFile,
+            image: image,
           ),
         ],
       );
@@ -266,7 +260,7 @@ void main() {
     'submit',
     () {
       final Book originalBook = createBook(id: 'b1', userId: userId);
-      final ImageFile newImageFile = createImageFile(name: 'i1');
+      final Image newImage = createImage(fileName: 'i1.jpg');
       const String newTitle = 'new title';
       const String newAuthor = 'new author';
       const int newReadPagesAmount = 20;
@@ -281,11 +275,11 @@ void main() {
 
       BookEditorBloc createUpdatedBloc({
         Book? originalBook,
-        ImageFile? imageFile,
+        Image? image,
       }) {
         return createBloc(
           originalBook: originalBook,
-          imageFile: imageFile,
+          image: image,
           title: newTitle,
           author: newAuthor,
           readPagesAmount: newReadPagesAmount,
@@ -305,7 +299,7 @@ void main() {
 
       blocTest(
         'should do nothing if book is original book is not set',
-        build: () => createUpdatedBloc(imageFile: newImageFile),
+        build: () => createUpdatedBloc(image: newImage),
         act: (BookEditorBloc bloc) => eventCall(bloc),
         expect: () => [],
         verify: (_) {
@@ -313,7 +307,7 @@ void main() {
             () => updateBookUseCase.execute(
               bookId: any(named: 'bookId'),
               userId: any(named: 'userId'),
-              imageFile: newImageFile,
+              image: newImage,
               title: newTitle,
               author: newAuthor,
               readPagesAmount: newReadPagesAmount,
@@ -327,19 +321,19 @@ void main() {
         'should call use case responsible for updating book',
         build: () => createUpdatedBloc(
           originalBook: originalBook,
-          imageFile: newImageFile,
+          image: newImage,
         ),
         act: (BookEditorBloc bloc) => eventCall(bloc),
         expect: () => [
           state.copyWith(
             status: const BlocStatusLoading(),
-            imageFile: newImageFile,
+            image: newImage,
           ),
           state.copyWith(
             status: const BlocStatusComplete<BookEditorBlocInfo>(
               info: BookEditorBlocInfo.bookHasBeenUpdated,
             ),
-            imageFile: newImageFile,
+            image: newImage,
           ),
         ],
         verify: (_) {
@@ -347,7 +341,7 @@ void main() {
             () => updateBookUseCase.execute(
               bookId: originalBook.id,
               userId: userId,
-              imageFile: newImageFile,
+              image: newImage,
               title: newTitle,
               author: newAuthor,
               readPagesAmount: newReadPagesAmount,

@@ -4,7 +4,7 @@ import 'package:app/domain/use_cases/book/add_book_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/custom_bloc.dart';
-import 'package:app/models/image_file.dart';
+import 'package:app/models/image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'book_creator_event.dart';
@@ -18,7 +18,7 @@ class BookCreatorBloc extends CustomBloc<BookCreatorEvent, BookCreatorState> {
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
     required AddBookUseCase addBookUseCase,
     BlocStatus status = const BlocStatusInitial(),
-    ImageFile? imageFile,
+    Image? image,
     String title = '',
     String author = '',
     int allPagesAmount = 0,
@@ -26,7 +26,7 @@ class BookCreatorBloc extends CustomBloc<BookCreatorEvent, BookCreatorState> {
   }) : super(
           BookCreatorState(
             status: status,
-            imageFile: imageFile,
+            image: image,
             title: title,
             author: author,
             allPagesAmount: allPagesAmount,
@@ -48,8 +48,8 @@ class BookCreatorBloc extends CustomBloc<BookCreatorEvent, BookCreatorState> {
     Emitter<BookCreatorState> emit,
   ) {
     emit(state.copyWith(
-      imageFile: event.imageFile,
-      deletedImage: event.imageFile == null,
+      image: event.image,
+      deletedImage: event.image == null,
     ));
   }
 
@@ -107,7 +107,7 @@ class BookCreatorBloc extends CustomBloc<BookCreatorEvent, BookCreatorState> {
     await _addBookUseCase.execute(
       userId: loggedUserId,
       status: BookStatus.unread,
-      imageFile: state.imageFile,
+      image: state.image,
       title: state.title,
       author: state.author,
       readPagesAmount: state.readPagesAmount,

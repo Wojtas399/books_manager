@@ -27,7 +27,6 @@ dependencies:
   mocktail: ^0.3.0
   equatable: ^2.0.3
   cupertino_icons: ^1.0.5
-  shared_preferences: ^2.0.15
   material_design_icons_flutter: ^5.0.6996
   sqflite: ^2.0.3+1
   path: ^1.8.1

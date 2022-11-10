@@ -1,9 +1,9 @@
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
-import 'package:app/models/image_file.dart';
+import 'package:app/models/image.dart';
 import 'package:mocktail/mocktail.dart';
 
-class FakeImageFile extends Fake implements ImageFile {}
+class FakeImage extends Fake implements Image {}
 
 class MockBookInterface extends Mock implements BookInterface {
   void mockGetBook({required Book book}) {
@@ -27,12 +27,12 @@ class MockBookInterface extends Mock implements BookInterface {
 
   void mockAddNewBook() {
     _mockBookStatus();
-    _mockImageFile();
+    _mockImage();
     when(
       () => addNewBook(
         userId: any(named: 'userId'),
         status: any(named: 'status'),
-        imageFile: any(named: 'imageFile'),
+        image: any(named: 'image'),
         title: any(named: 'title'),
         author: any(named: 'author'),
         readPagesAmount: any(named: 'readPagesAmount'),
@@ -43,13 +43,13 @@ class MockBookInterface extends Mock implements BookInterface {
 
   void mockUpdateBook() {
     _mockBookStatus();
-    _mockImageFile();
+    _mockImage();
     when(
       () => updateBook(
         bookId: any(named: 'bookId'),
         userId: any(named: 'userId'),
         status: any(named: 'status'),
-        imageFile: any(named: 'imageFile'),
+        image: any(named: 'image'),
         title: any(named: 'title'),
         author: any(named: 'author'),
         readPagesAmount: any(named: 'readPagesAmount'),
@@ -88,7 +88,7 @@ class MockBookInterface extends Mock implements BookInterface {
     registerFallbackValue(BookStatus.unread);
   }
 
-  void _mockImageFile() {
-    registerFallbackValue(FakeImageFile());
+  void _mockImage() {
+    registerFallbackValue(FakeImage());
   }
 }

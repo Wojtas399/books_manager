@@ -4,7 +4,7 @@ import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/entities/read_book.dart';
 import 'package:app/features/day_preview/bloc/day_preview_bloc.dart';
 import 'package:app/models/bloc_status.dart';
-import 'package:app/models/image_file.dart';
+import 'package:app/models/image.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
@@ -47,13 +47,13 @@ void main() {
       final DateTime date = DateTime(2022, 9, 20);
       final Book book1 = createBook(
         id: 'b1',
-        imageFile: createImageFile(name: 'i1', data: Uint8List(10)),
+        image: createImage(fileName: 'i1.jpg', data: Uint8List(10)),
         title: 'title 1',
         author: 'author 1',
       );
       final Book book2 = createBook(
         id: 'b2',
-        imageFile: createImageFile(name: 'i2', data: Uint8List(20)),
+        image: createImage(fileName: 'i2.jpg', data: Uint8List(20)),
         title: 'title 2',
         author: 'author 2',
       );
@@ -64,14 +64,14 @@ void main() {
       final List<DayPreviewBook> expectedDayPreviewBooks = [
         createDayPreviewBook(
           id: book1.id,
-          imageData: book1.imageFile?.data,
+          imageData: book1.image?.data,
           title: book1.title,
           author: book1.author,
           amountOfPagesReadInThisDay: readBooks.first.readPagesAmount,
         ),
         createDayPreviewBook(
           id: book2.id,
-          imageData: book2.imageFile?.data,
+          imageData: book2.image?.data,
           title: book2.title,
           author: book2.author,
           amountOfPagesReadInThisDay: readBooks.last.readPagesAmount,

@@ -64,17 +64,15 @@ class ReadingBloc extends CustomBloc<ReadingEvent, ReadingState> {
   void _setBooksInProgressListener(String loggedUserId) {
     _booksInProgressListener ??=
         _getLoggedUserBooksInProgress(loggedUserId).listen(
-      (List<Book>? booksInProgress) {
-        if (booksInProgress != null) {
-          add(ReadingEventBooksInProgressUpdated(
-            booksInProgress: booksInProgress,
-          ));
-        }
+      (List<Book> booksInProgress) {
+        add(ReadingEventBooksInProgressUpdated(
+          booksInProgress: booksInProgress,
+        ));
       },
     );
   }
 
-  Stream<List<Book>?> _getLoggedUserBooksInProgress(String loggedUserId) {
+  Stream<List<Book>> _getLoggedUserBooksInProgress(String loggedUserId) {
     return _getUserBooksInProgressUseCase.execute(userId: loggedUserId);
   }
 }

@@ -5,7 +5,7 @@ import 'package:app/domain/use_cases/book/update_book_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/custom_bloc.dart';
-import 'package:app/models/image_file.dart';
+import 'package:app/models/image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'book_editor_event.dart';
@@ -22,7 +22,7 @@ class BookEditorBloc extends CustomBloc<BookEditorEvent, BookEditorState> {
     required UpdateBookUseCase updateBookUseCase,
     BlocStatus status = const BlocStatusInitial(),
     Book? originalBook,
-    ImageFile? imageFile,
+    Image? image,
     String title = '',
     String author = '',
     int readPagesAmount = 0,
@@ -31,7 +31,7 @@ class BookEditorBloc extends CustomBloc<BookEditorEvent, BookEditorState> {
           BookEditorState(
             status: status,
             originalBook: originalBook,
-            imageFile: imageFile,
+            image: image,
             title: title,
             author: author,
             readPagesAmount: readPagesAmount,
@@ -67,7 +67,7 @@ class BookEditorBloc extends CustomBloc<BookEditorEvent, BookEditorState> {
     emit(state.copyWith(
       status: const BlocStatusComplete(),
       originalBook: book,
-      imageFile: book?.imageFile,
+      image: book?.image,
       title: book?.title,
       author: book?.author,
       readPagesAmount: book?.readPagesAmount,
@@ -80,8 +80,8 @@ class BookEditorBloc extends CustomBloc<BookEditorEvent, BookEditorState> {
     Emitter<BookEditorState> emit,
   ) {
     emit(state.copyWith(
-      imageFile: event.imageFile,
-      deletedImage: event.imageFile == null,
+      image: event.image,
+      deletedImage: event.image == null,
     ));
   }
 
@@ -90,7 +90,7 @@ class BookEditorBloc extends CustomBloc<BookEditorEvent, BookEditorState> {
     Emitter<BookEditorState> emit,
   ) {
     emit(state.copyWith(
-      imageFile: state.originalBook?.imageFile,
+      image: state.originalBook?.image,
     ));
   }
 
@@ -141,8 +141,8 @@ class BookEditorBloc extends CustomBloc<BookEditorEvent, BookEditorState> {
       await _updateBookUseCase.execute(
         bookId: bookId,
         userId: userId,
-        imageFile: state.imageFile,
-        deleteImage: state.imageFile == null,
+        image: state.image,
+        deleteImage: state.image == null,
         title: state.title,
         author: state.author,
         readPagesAmount: state.readPagesAmount,

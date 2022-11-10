@@ -1,19 +1,19 @@
 import 'dart:typed_data';
 
 import 'package:app/data/data_sources/firebase/firebase_instances.dart';
+import 'package:app/models/image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
-class FirebaseStorageService {
-  Future<void> saveBookImageData({
-    required Uint8List imageData,
-    required String fileName,
+class FirebaseStorageImageService {
+  Future<void> saveImage({
+    required Image image,
     required String userId,
   }) async {
-    final Reference imageRef = _getBookImageReference(userId, fileName);
-    await imageRef.putData(imageData);
+    final Reference imageRef = _getBookImageReference(userId, image.fileName);
+    await imageRef.putData(image.data);
   }
 
-  Future<Uint8List?> loadBookImageData({
+  Future<Uint8List?> loadImage({
     required String fileName,
     required String userId,
   }) async {
@@ -26,7 +26,7 @@ class FirebaseStorageService {
     }
   }
 
-  Future<void> deleteBookImageData({
+  Future<void> deleteImage({
     required String fileName,
     required String userId,
   }) async {
@@ -37,7 +37,7 @@ class FirebaseStorageService {
   }
 
   Reference _getBookImageReference(String userId, String fileName) {
-    return FireInstances.storage.ref('$userId/$fileName.jpg');
+    return FireInstances.storage.ref('$userId/$fileName');
   }
 
   void _setMaximumDownloadingTime() {

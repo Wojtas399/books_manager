@@ -1,5 +1,5 @@
 import 'package:app/domain/use_cases/book/update_book_use_case.dart';
-import 'package:app/models/image_file.dart';
+import 'package:app/models/image.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -10,7 +10,7 @@ void main() {
   late UpdateBookUseCase useCase;
   const String bookId = 'b1';
   const String userId = 'u1';
-  final ImageFile newImageFile = createImageFile(name: 'i1');
+  final Image newImage = createImage(fileName: 'i1');
   const String newTitle = 'title';
   const String newAuthor = 'author';
   const int newReadPagesAmount = 20;
@@ -32,7 +32,7 @@ void main() {
       await useCase.execute(
         bookId: bookId,
         userId: userId,
-        imageFile: newImageFile,
+        image: newImage,
         title: newTitle,
         author: newAuthor,
         readPagesAmount: newReadPagesAmount,
@@ -43,7 +43,7 @@ void main() {
         () => bookInterface.updateBook(
           bookId: bookId,
           userId: userId,
-          imageFile: newImageFile,
+          image: newImage,
           title: newTitle,
           author: newAuthor,
           readPagesAmount: newReadPagesAmount,
@@ -65,7 +65,7 @@ void main() {
       await useCase.execute(
         bookId: bookId,
         userId: userId,
-        imageFile: newImageFile,
+        image: newImage,
         deleteImage: true,
         title: newTitle,
         author: newAuthor,
@@ -77,7 +77,7 @@ void main() {
         () => bookInterface.updateBook(
           bookId: bookId,
           userId: userId,
-          imageFile: null,
+          image: null,
           title: newTitle,
           author: newAuthor,
           readPagesAmount: newReadPagesAmount,

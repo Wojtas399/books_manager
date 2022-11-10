@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/features/book_editor/bloc/book_editor_bloc.dart';
 import 'package:app/models/bloc_status.dart';
-import 'package:app/models/image_file.dart';
+import 'package:app/models/image.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -13,7 +13,7 @@ void main() {
     state = const BookEditorState(
       status: BlocStatusInitial(),
       originalBook: null,
-      imageFile: null,
+      image: null,
       title: '',
       author: '',
       readPagesAmount: 0,
@@ -25,7 +25,7 @@ void main() {
     'is button disabled',
     () {
       final Book book = createBook(
-        imageFile: createImageFile(name: 'i1', data: Uint8List(10)),
+        image: createImage(fileName: 'i1.jpg', data: Uint8List(10)),
         title: 'title',
         author: 'author',
         readPagesAmount: 0,
@@ -37,7 +37,7 @@ void main() {
         () {
           state = state.copyWith(
             originalBook: book,
-            imageFile: book.imageFile,
+            image: book.image,
             title: book.title,
             author: book.author,
             readPagesAmount: book.readPagesAmount,
@@ -53,7 +53,7 @@ void main() {
         () {
           state = state.copyWith(
             originalBook: book,
-            imageFile: createImageFile(name: 'i2', data: Uint8List(10)),
+            image: createImage(fileName: 'i2.jpg', data: Uint8List(10)),
             title: book.title,
             author: book.author,
             readPagesAmount: book.readPagesAmount,
@@ -69,7 +69,7 @@ void main() {
         () {
           state = state.copyWith(
             originalBook: book,
-            imageFile: book.imageFile,
+            image: book.image,
             title: 'book title',
             author: book.author,
             readPagesAmount: book.readPagesAmount,
@@ -85,7 +85,7 @@ void main() {
         () {
           state = state.copyWith(
             originalBook: book,
-            imageFile: book.imageFile,
+            image: book.image,
             title: book.title,
             author: 'book author',
             readPagesAmount: book.readPagesAmount,
@@ -101,7 +101,7 @@ void main() {
         () {
           state = state.copyWith(
             originalBook: book,
-            imageFile: book.imageFile,
+            image: book.image,
             title: book.title,
             author: book.author,
             readPagesAmount: 100,
@@ -117,7 +117,7 @@ void main() {
         () {
           state = state.copyWith(
             originalBook: book,
-            imageFile: book.imageFile,
+            image: book.image,
             title: book.title,
             author: book.author,
             readPagesAmount: book.readPagesAmount,
@@ -157,18 +157,18 @@ void main() {
   );
 
   test(
-    'copy with image file',
+    'copy with image',
     () {
-      final ImageFile expectedImageFile = createImageFile(
-        name: 'i1',
+      final Image expectedImage = createImage(
+        fileName: 'i1.jpg',
         data: Uint8List(5),
       );
 
-      state = state.copyWith(imageFile: expectedImageFile);
+      state = state.copyWith(image: expectedImage);
       final state2 = state.copyWith();
 
-      expect(state.imageFile, expectedImageFile);
-      expect(state2.imageFile, expectedImageFile);
+      expect(state.image, expectedImage);
+      expect(state2.image, expectedImage);
     },
   );
 
@@ -227,16 +227,16 @@ void main() {
   test(
     'copy with deleted image',
     () {
-      final ImageFile imageFile = createImageFile(
-        name: 'i1',
+      final Image image = createImage(
+        fileName: 'i1.jpg',
         data: Uint8List(1),
       );
 
-      state = state.copyWith(imageFile: imageFile);
+      state = state.copyWith(image: image);
       final state2 = state.copyWith(deletedImage: true);
 
-      expect(state.imageFile, imageFile);
-      expect(state2.imageFile, null);
+      expect(state.image, image);
+      expect(state2.image, null);
     },
   );
 }

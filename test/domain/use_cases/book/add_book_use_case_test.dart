@@ -1,6 +1,6 @@
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/use_cases/book/add_book_use_case.dart';
-import 'package:app/models/image_file.dart';
+import 'package:app/models/image.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -15,7 +15,7 @@ void main() {
     () async {
       const String userId = 'u1';
       const BookStatus status = BookStatus.unread;
-      final ImageFile imageFile = createImageFile(name: 'i1');
+      final Image image = createImage(fileName: 'i1');
       const String title = 'title';
       const String author = 'author';
       const int readPagesAmount = 0;
@@ -25,7 +25,7 @@ void main() {
       await useCase.execute(
         userId: userId,
         status: status,
-        imageFile: imageFile,
+        image: image,
         title: title,
         author: author,
         readPagesAmount: readPagesAmount,
@@ -36,7 +36,7 @@ void main() {
         () => bookInterface.addNewBook(
           userId: userId,
           status: status,
-          imageFile: imageFile,
+          image: image,
           title: title,
           author: author,
           readPagesAmount: readPagesAmount,

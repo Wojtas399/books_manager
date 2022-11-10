@@ -4,138 +4,77 @@ import 'package:app/data/data_sources/firebase/entities/firebase_book.dart';
 import 'package:app/data/mappers/book_status_mapper.dart';
 import 'package:app/data/repositories/book_repository.dart';
 import 'package:app/domain/entities/book.dart';
-import 'package:app/models/image_file.dart';
+import 'package:app/models/image.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../mocks/data/firebase/mock_firebase_firestore_book_service.dart';
-import '../../mocks/data/firebase/mock_firebase_storage_service.dart';
-import '../../mocks/models/mock_device.dart';
+import '../../mocks/firebase/mock_firebase_firestore_book_service.dart';
+import '../../mocks/firebase/mock_firebase_storage_image_service.dart';
+
+class FakeImage extends Fake implements Image {}
 
 void main() {
   final firebaseFirestoreBookService = MockFirebaseFirestoreBookService();
-  final firebaseStorageService = MockFirebaseStorageService();
-  final device = MockDevice();
+  final firebaseStorageImageService = MockFirebaseStorageImageService();
   late BookRepository repository;
+  const String userId = 'u1';
+
+  setUpAll(() {
+    registerFallbackValue(FakeImage());
+  });
 
   setUp(() {
     repository = BookRepository(
       firebaseFirestoreBookService: firebaseFirestoreBookService,
-      firebaseStorageService: firebaseStorageService,
-      device: device,
+      firebaseStorageImageService: firebaseStorageImageService,
     );
   });
 
   tearDown(() {
     reset(firebaseFirestoreBookService);
-    reset(firebaseStorageService);
-    reset(device);
+    reset(firebaseStorageImageService);
   });
 
-  group(
-    'get book',
-    () {
+  test(
+    'get book, should query for book from firebase firestore and for its image from firebase storage',
+    () async {
       const String bookId = 'b1';
-      const String userId = 'u1';
+      const String imageFileName = 'i1.jpg';
+      final Image image = createImage(
+        fileName: imageFileName,
+        data: Uint8List(2),
+      );
+      final FirebaseBook firebaseBook = createFirebaseBook(
+        id: bookId,
+        userId: userId,
+        imageFileName: imageFileName,
+      );
+      final Book expectedBook = createBook(
+        id: firebaseBook.id,
+        userId: firebaseBook.userId,
+        image: image,
+      );
+      firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
+      firebaseStorageImageService.mockLoadImage(imageData: image.data);
 
-      Stream<Book?> methodCall() {
-        return repository.getBook(bookId: bookId, userId: userId);
-      }
-
-      tearDown(() {
-        verify(
-          () => firebaseFirestoreBookService.getBook(
-            bookId: bookId,
-            userId: userId,
-          ),
-        ).called(1);
-      });
-
-      test(
-        'book has image, device has internet connection, should query for book from firebase firestore and for its image from firebase storage',
-        () async {
-          final Uint8List imageData = Uint8List(10);
-          final FirebaseBook firebaseBook = createFirebaseBook(
-            id: bookId,
-            userId: userId,
-            imageFileName: 'i1',
-          );
-          final Book expectedBook = createBook(
-            id: firebaseBook.id,
-            userId: firebaseBook.userId,
-            imageFile: createImageFile(name: 'i1', data: imageData),
-          );
-          device.mockHasInternetConnection(value: true);
-          firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
-          firebaseStorageService.mockLoadBookImageData(imageData: imageData);
-
-          final Stream<Book?> book$ = methodCall();
-
-          expect(await book$.first, expectedBook);
-          verify(
-            () => firebaseStorageService.loadBookImageData(
-              fileName: 'i1',
-              userId: userId,
-            ),
-          ).called(1);
-        },
+      final Stream<Book?> book$ = repository.getBook(
+        bookId: bookId,
+        userId: userId,
       );
 
-      test(
-        'book has image, device does not have internet connection, should only query for book from firebase firestore',
-        () async {
-          final FirebaseBook firebaseBook = createFirebaseBook(
-            id: bookId,
-            userId: userId,
-            imageFileName: 'i1',
-          );
-          final Book expectedBook = createBook(
-            id: firebaseBook.id,
-            userId: firebaseBook.userId,
-            imageFile: null,
-          );
-          device.mockHasInternetConnection(value: false);
-          firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
-
-          final Stream<Book?> book$ = methodCall();
-
-          expect(await book$.first, expectedBook);
-          verifyNever(
-            () => firebaseStorageService.loadBookImageData(
-              fileName: 'i1',
-              userId: userId,
-            ),
-          );
-        },
-      );
-
-      test(
-        'book does not have image, should only query for book from firebase firestore',
-        () async {
-          final FirebaseBook firebaseBook = createFirebaseBook(
-            id: bookId,
-            userId: userId,
-            imageFileName: null,
-          );
-          final Book expectedBook = createBook(
-            id: firebaseBook.id,
-            userId: firebaseBook.userId,
-            imageFile: null,
-          );
-          device.mockHasInternetConnection(value: true);
-          firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
-
-          final Stream<Book?> book$ = methodCall();
-
-          expect(await book$.first, expectedBook);
-          verifyNever(
-            () => firebaseStorageService.loadBookImageData(
-              fileName: any(named: 'fileName'),
-              userId: userId,
-            ),
-          );
-        },
-      );
+      expect(await book$.first, expectedBook);
+      verify(
+        () => firebaseFirestoreBookService.getBook(
+          bookId: bookId,
+          userId: userId,
+        ),
+      ).called(1);
+      verify(
+        () => firebaseStorageImageService.loadImage(
+          fileName: imageFileName,
+          userId: userId,
+        ),
+      ).called(1);
     },
   );
 
@@ -143,20 +82,29 @@ void main() {
     'get user books',
     () {
       const String userId = 'u1';
-      final Uint8List book1ImageData = Uint8List(10);
+      const String book1ImageFileName = 'i1.jpg';
+      final Image book1Image = createImage(
+        fileName: book1ImageFileName,
+        data: Uint8List(2),
+      );
       final List<FirebaseBook> userFirebaseBooks = [
-        createFirebaseBook(id: 'b1', userId: userId, imageFileName: 'i1'),
-        createFirebaseBook(id: 'b2', userId: userId, imageFileName: 'i2'),
+        createFirebaseBook(
+          id: 'b1',
+          userId: userId,
+          imageFileName: book1ImageFileName,
+        ),
+        createFirebaseBook(id: 'b2', userId: userId, imageFileName: null),
       ];
       final List<Book> expectedUserBooks = [
         createBook(
           id: userFirebaseBooks.first.id,
           userId: userFirebaseBooks.first.userId,
-          imageFile: createImageFile(name: 'i1', data: book1ImageData),
+          image: book1Image,
         ),
         createBook(
           id: userFirebaseBooks.last.id,
           userId: userFirebaseBooks.last.userId,
+          image: null,
         ),
       ];
 
@@ -169,24 +117,26 @@ void main() {
           userFirebaseBooks: userFirebaseBooks,
         );
         when(
-          () => firebaseStorageService.loadBookImageData(
-            fileName: 'i1',
+          () => firebaseStorageImageService.loadImage(
+            fileName: book1ImageFileName,
             userId: userId,
           ),
-        ).thenAnswer((_) async => book1ImageData);
-        when(
-          () => firebaseStorageService.loadBookImageData(
-            fileName: 'i2',
+        ).thenAnswer((_) async => book1Image.data);
+      });
+
+      tearDown(() {
+        verify(
+          () => firebaseStorageImageService.loadImage(
+            fileName: book1ImageFileName,
             userId: userId,
           ),
-        ).thenAnswer((_) async => null);
+        ).called(1);
       });
 
       test(
-        'book status is null, device has internet connection, should query for user books with book status set as null',
+        'book status is null, should query for user books with book status set as null',
         () async {
           const BookStatus? bookStatus = null;
-          device.mockHasInternetConnection(value: true);
 
           final Stream<List<Book>> userBooks$ = methodCall(bookStatus);
 
@@ -197,28 +147,15 @@ void main() {
               bookStatus: null,
             ),
           ).called(1);
-          verify(
-            () => firebaseStorageService.loadBookImageData(
-              fileName: 'i1',
-              userId: userId,
-            ),
-          ).called(1);
-          verify(
-            () => firebaseStorageService.loadBookImageData(
-              fileName: 'i2',
-              userId: userId,
-            ),
-          ).called(1);
         },
       );
 
       test(
-        'book status is not null, device has internet connection, should query for user books with book status set as mapped given book status',
+        'book status is not null, should query for user books with book status set as mapped given book status',
         () async {
           const BookStatus bookStatus = BookStatus.inProgress;
           final String bookStatusAsStr =
               BookStatusMapper.mapFromEnumToString(bookStatus);
-          device.mockHasInternetConnection(value: true);
 
           final Stream<List<Book>> userBooks$ = methodCall(bookStatus);
 
@@ -229,51 +166,6 @@ void main() {
               bookStatus: bookStatusAsStr,
             ),
           ).called(1);
-          verify(
-            () => firebaseStorageService.loadBookImageData(
-              fileName: 'i1',
-              userId: userId,
-            ),
-          ).called(1);
-          verify(
-            () => firebaseStorageService.loadBookImageData(
-              fileName: 'i2',
-              userId: userId,
-            ),
-          ).called(1);
-        },
-      );
-
-      test(
-        'device does not have internet connection, returned user books should be without images',
-        () async {
-          device.mockHasInternetConnection(value: false);
-          final List<Book> expectedUserBooks = [
-            createBook(
-              id: userFirebaseBooks.first.id,
-              userId: userFirebaseBooks.first.userId,
-            ),
-            createBook(
-              id: userFirebaseBooks.last.id,
-              userId: userFirebaseBooks.last.userId,
-            ),
-          ];
-
-          final Stream<List<Book>> userBooks$ = methodCall(null);
-
-          expect(await userBooks$.first, expectedUserBooks);
-          verify(
-            () => firebaseFirestoreBookService.getUserBooks(
-              userId: userId,
-              bookStatus: null,
-            ),
-          ).called(1);
-          verifyNever(
-            () => firebaseStorageService.loadBookImageData(
-              fileName: any(named: 'fileName'),
-              userId: userId,
-            ),
-          );
         },
       );
     },
@@ -291,11 +183,11 @@ void main() {
       const int readPagesAmount = 20;
       const int allPagesAmount = 200;
 
-      Future<void> methodCall(ImageFile? imageFile) async {
+      Future<void> methodCall(Image? image) async {
         await repository.addNewBook(
           userId: userId,
           status: bookStatus,
-          imageFile: imageFile,
+          image: image,
           title: title,
           author: author,
           readPagesAmount: readPagesAmount,
@@ -305,18 +197,17 @@ void main() {
 
       setUp(() {
         firebaseFirestoreBookService.mockAddBook();
-        firebaseStorageService.mockSaveBookImageData();
+        firebaseStorageImageService.mockSaveImage();
       });
 
       test(
-        'image file is null, should only add book to firebase firestore',
+        'image is null, should only add book to firebase firestore',
         () async {
           await methodCall(null);
 
           verifyNever(
-            () => firebaseStorageService.saveBookImageData(
-              imageData: any(named: 'imageData'),
-              fileName: any(named: 'fileName'),
+            () => firebaseStorageImageService.saveImage(
+              image: any(named: 'image'),
               userId: userId,
             ),
           );
@@ -335,19 +226,18 @@ void main() {
       );
 
       test(
-        'image file is not null, should remove extension from image file name, should add image to firebase storage and should add book too firebase firestore',
+        'image is not null, should add image to firebase storage and should add book to firebase firestore',
         () async {
-          final ImageFile imageFile = createImageFile(
-            name: 'i1.jpg',
+          final Image image = createImage(
+            fileName: 'i1.jpg',
             data: Uint8List(10),
           );
 
-          await methodCall(imageFile);
+          await methodCall(image);
 
           verify(
-            () => firebaseStorageService.saveBookImageData(
-              imageData: imageFile.data,
-              fileName: 'i1',
+            () => firebaseStorageImageService.saveImage(
+              image: image,
               userId: userId,
             ),
           ).called(1);
@@ -359,7 +249,7 @@ void main() {
               author: author,
               readPagesAmount: readPagesAmount,
               allPagesAmount: allPagesAmount,
-              imageFileName: 'i1',
+              imageFileName: image.fileName,
             ),
           ).called(1);
         },
@@ -371,7 +261,6 @@ void main() {
     'update book',
     () {
       const String bookId = 'b1';
-      const String userId = 'u1';
       const BookStatus bookStatus = BookStatus.inProgress;
       final String bookStatusAsStr =
           BookStatusMapper.mapFromEnumToString(bookStatus);
@@ -380,12 +269,12 @@ void main() {
       const int readPagesAmount = 40;
       const int allPagesAmount = 100;
 
-      Future<void> methodCall(ImageFile? imageFile) async {
+      Future<void> methodCall(Image? image) async {
         await repository.updateBook(
           bookId: bookId,
           userId: userId,
           status: bookStatus,
-          imageFile: imageFile,
+          image: image,
           title: title,
           author: author,
           readPagesAmount: readPagesAmount,
@@ -394,8 +283,6 @@ void main() {
       }
 
       setUp(() {
-        firebaseStorageService.mockDeleteBookImageData();
-        firebaseStorageService.mockSaveBookImageData();
         firebaseFirestoreBookService.mockUpdateBook();
       });
 
@@ -404,19 +291,6 @@ void main() {
         () async {
           await methodCall(null);
 
-          verifyNever(
-            () => firebaseStorageService.deleteBookImageData(
-              fileName: any(named: 'fileName'),
-              userId: userId,
-            ),
-          );
-          verifyNever(
-            () => firebaseStorageService.saveBookImageData(
-              imageData: any(named: 'imageData'),
-              fileName: any(named: 'fileName'),
-              userId: userId,
-            ),
-          );
           verify(
             () => firebaseFirestoreBookService.updateBook(
               bookId: bookId,
@@ -433,31 +307,24 @@ void main() {
       );
 
       test(
-        'image file is not null, book does not have image currently, should save new image to firebase storage and should update book in firebase firestore',
+        'image file is not null, book does not have image currently, should save new image in firebase storage and should update book in firebase firestore',
         () async {
-          final Uint8List imageData = Uint8List(10);
-          final ImageFile imageFile = createImageFile(
-            name: 'i1',
-            data: imageData,
+          final Image image = createImage(
+            fileName: 'i1.jpg',
+            data: Uint8List(2),
           );
           final FirebaseBook firebaseBook = createFirebaseBook(
             id: bookId,
             imageFileName: null,
           );
           firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
+          firebaseStorageImageService.mockSaveImage();
 
-          await methodCall(imageFile);
+          await methodCall(image);
 
-          verifyNever(
-            () => firebaseStorageService.deleteBookImageData(
-              fileName: any(named: 'fileName'),
-              userId: userId,
-            ),
-          );
           verify(
-            () => firebaseStorageService.saveBookImageData(
-              imageData: imageData,
-              fileName: imageFile.name,
+            () => firebaseStorageImageService.saveImage(
+              image: image,
               userId: userId,
             ),
           ).called(1);
@@ -466,7 +333,7 @@ void main() {
               bookId: bookId,
               userId: userId,
               status: bookStatusAsStr,
-              imageFileName: imageFile.name,
+              imageFileName: image.fileName,
               title: title,
               author: author,
               readPagesAmount: readPagesAmount,
@@ -477,31 +344,31 @@ void main() {
       );
 
       test(
-        'image file is not null, book has image currently, should delete current image from firebase storage, should save new image to firebase storage and should update book in firebase firestore',
+        'image file is not null, book has image currently, should delete current image from firebase storage, should save new image in firebase storage and should update book in firebase firestore',
         () async {
-          final Uint8List imageData = Uint8List(10);
-          final ImageFile imageFile = createImageFile(
-            name: 'i1',
-            data: imageData,
+          final Image image = createImage(
+            fileName: 'i1.jpg',
+            data: Uint8List(2),
           );
           final FirebaseBook firebaseBook = createFirebaseBook(
             id: bookId,
-            imageFileName: 'i123',
+            imageFileName: 'i123.jpg',
           );
           firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
+          firebaseStorageImageService.mockDeleteImage();
+          firebaseStorageImageService.mockSaveImage();
 
-          await methodCall(imageFile);
+          await methodCall(image);
 
           verify(
-            () => firebaseStorageService.deleteBookImageData(
-              fileName: 'i123',
+            () => firebaseStorageImageService.deleteImage(
+              fileName: 'i123.jpg',
               userId: userId,
             ),
           ).called(1);
           verify(
-            () => firebaseStorageService.saveBookImageData(
-              imageData: imageData,
-              fileName: imageFile.name,
+            () => firebaseStorageImageService.saveImage(
+              image: image,
               userId: userId,
             ),
           ).called(1);
@@ -510,7 +377,7 @@ void main() {
               bookId: bookId,
               userId: userId,
               status: bookStatusAsStr,
-              imageFileName: imageFile.name,
+              imageFileName: image.fileName,
               title: title,
               author: author,
               readPagesAmount: readPagesAmount,
@@ -533,7 +400,7 @@ void main() {
       }
 
       setUp(() {
-        firebaseStorageService.mockDeleteBookImageData();
+        firebaseStorageImageService.mockDeleteImage();
       });
 
       tearDown(() {
@@ -546,7 +413,7 @@ void main() {
       });
 
       test(
-        'book does not have image, should not call method responsible for deleting book image from firebase storage',
+        'book does not have image, should do nothing',
         () async {
           final FirebaseBook firebaseBook = createFirebaseBook(
             id: bookId,
@@ -558,21 +425,28 @@ void main() {
           await methodCall();
 
           verifyNever(
-            () => firebaseStorageService.deleteBookImageData(
+            () => firebaseStorageImageService.deleteImage(
               fileName: any(named: 'fileName'),
               userId: userId,
+            ),
+          );
+          verifyNever(
+            () => firebaseFirestoreBookService.updateBook(
+              bookId: bookId,
+              userId: userId,
+              deletedImageFileName: true,
             ),
           );
         },
       );
 
       test(
-        'book has image, should delete book image from firebase storage and should update book in firebase firestore with delete image file name',
+        'book has image, should delete book image from image data source and should update book in firebase firestore with deleted image file name set as null',
         () async {
           final FirebaseBook firebaseBook = createFirebaseBook(
             id: bookId,
             userId: userId,
-            imageFileName: 'i1',
+            imageFileName: 'i1.jpg',
           );
           firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
           firebaseFirestoreBookService.mockUpdateBook();
@@ -580,8 +454,8 @@ void main() {
           await methodCall();
 
           verify(
-            () => firebaseStorageService.deleteBookImageData(
-              fileName: 'i1',
+            () => firebaseStorageImageService.deleteImage(
+              fileName: 'i1.jpg',
               userId: userId,
             ),
           ).called(1);
@@ -608,7 +482,7 @@ void main() {
       }
 
       setUp(() {
-        firebaseStorageService.mockDeleteBookImageData();
+        firebaseStorageImageService.mockDeleteImage();
         firebaseFirestoreBookService.mockDeleteBook();
       });
 
@@ -629,7 +503,7 @@ void main() {
           await methodCall();
 
           verifyNever(
-            () => firebaseStorageService.deleteBookImageData(
+            () => firebaseStorageImageService.deleteImage(
               fileName: any(named: 'fileName'),
               userId: userId,
             ),
@@ -656,7 +530,7 @@ void main() {
           await methodCall();
 
           verifyNever(
-            () => firebaseStorageService.deleteBookImageData(
+            () => firebaseStorageImageService.deleteImage(
               fileName: any(named: 'fileName'),
               userId: userId,
             ),
@@ -676,15 +550,15 @@ void main() {
           final FirebaseBook firebaseBook = createFirebaseBook(
             id: bookId,
             userId: userId,
-            imageFileName: 'i1',
+            imageFileName: 'i1.jpg',
           );
           firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
 
           await methodCall();
 
           verify(
-            () => firebaseStorageService.deleteBookImageData(
-              fileName: 'i1',
+            () => firebaseStorageImageService.deleteImage(
+              fileName: 'i1.jpg',
               userId: userId,
             ),
           ).called(1);
@@ -704,13 +578,13 @@ void main() {
     () async {
       const String userId = 'u1';
       final List<FirebaseBook> userFirebaseBooks = [
-        createFirebaseBook(id: 'b1', userId: userId, imageFileName: 'i1'),
+        createFirebaseBook(id: 'b1', userId: userId, imageFileName: 'i1.jpg'),
         createFirebaseBook(id: 'b2', userId: userId, imageFileName: null),
       ];
       firebaseFirestoreBookService.mockGetUserBooks(
         userFirebaseBooks: userFirebaseBooks,
       );
-      firebaseStorageService.mockDeleteBookImageData();
+      firebaseStorageImageService.mockDeleteImage();
       firebaseFirestoreBookService.mockDeleteBook();
 
       await repository.deleteAllUserBooks(userId: userId);
@@ -719,8 +593,8 @@ void main() {
         () => firebaseFirestoreBookService.getUserBooks(userId: userId),
       ).called(1);
       verify(
-        () => firebaseStorageService.deleteBookImageData(
-          fileName: 'i1',
+        () => firebaseStorageImageService.deleteImage(
+          fileName: 'i1.jpg',
           userId: userId,
         ),
       ).called(1);

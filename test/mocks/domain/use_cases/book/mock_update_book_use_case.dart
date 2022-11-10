@@ -1,17 +1,17 @@
 import 'package:app/domain/use_cases/book/update_book_use_case.dart';
-import 'package:app/models/image_file.dart';
+import 'package:app/models/image.dart';
 import 'package:mocktail/mocktail.dart';
 
-class FakeImageFile extends Fake implements ImageFile {}
+class FakeImage extends Fake implements Image {}
 
 class MockUpdateBookUseCase extends Mock implements UpdateBookUseCase {
   void mock() {
-    _mockImageFile();
+    _mockImage();
     when(
       () => execute(
         bookId: any(named: 'bookId'),
         userId: any(named: 'userId'),
-        imageFile: any(named: 'imageFile'),
+        image: any(named: 'image'),
         deleteImage: any(named: 'deleteImage'),
         title: any(named: 'title'),
         author: any(named: 'author'),
@@ -21,7 +21,7 @@ class MockUpdateBookUseCase extends Mock implements UpdateBookUseCase {
     ).thenAnswer((_) async => '');
   }
 
-  void _mockImageFile() {
-    registerFallbackValue(FakeImageFile());
+  void _mockImage() {
+    registerFallbackValue(FakeImage());
   }
 }

@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/features/book_creator/bloc/book_creator_bloc.dart';
 import 'package:app/models/bloc_status.dart';
-import 'package:app/models/image_file.dart';
+import 'package:app/models/image.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -16,7 +16,7 @@ void main() {
   final addBookUseCase = MockAddBookUseCase();
 
   BookCreatorBloc createBloc({
-    ImageFile? imageFile,
+    Image? image,
     String title = '',
     String author = '',
     int readPagesAmount = 0,
@@ -25,7 +25,7 @@ void main() {
     return BookCreatorBloc(
       getLoggedUserIdUseCase: getLoggedUserIdUseCase,
       addBookUseCase: addBookUseCase,
-      imageFile: imageFile,
+      image: image,
       title: title,
       author: author,
       readPagesAmount: readPagesAmount,
@@ -35,7 +35,7 @@ void main() {
 
   BookCreatorState createState({
     BlocStatus status = const BlocStatusInProgress(),
-    ImageFile? imageFile,
+    Image? image,
     String title = '',
     String author = '',
     int allPagesAmount = 0,
@@ -43,7 +43,7 @@ void main() {
   }) {
     return BookCreatorState(
       status: status,
-      imageFile: imageFile,
+      image: image,
       title: title,
       author: author,
       allPagesAmount: allPagesAmount,
@@ -59,31 +59,27 @@ void main() {
   group(
     'change image',
     () {
-      void eventCall(BookCreatorBloc bloc, ImageFile? imageFile) => bloc.add(
-            BookCreatorEventChangeImage(imageFile: imageFile),
+      void eventCall(BookCreatorBloc bloc, Image? image) => bloc.add(
+            BookCreatorEventChangeImage(image: image),
           );
 
       blocTest(
         'should update image file',
         build: () => createBloc(),
-        act: (BookCreatorBloc bloc) => eventCall(bloc, createImageFile()),
+        act: (BookCreatorBloc bloc) => eventCall(bloc, createImage()),
         expect: () => [
-          createState(
-            imageFile: createImageFile(),
-          ),
+          createState(image: createImage()),
         ],
       );
 
       blocTest(
         'should set image file as null if given image file is null',
         build: () => createBloc(
-          imageFile: createImageFile(),
+          image: createImage(),
         ),
         act: (BookCreatorBloc bloc) => eventCall(bloc, null),
         expect: () => [
-          createState(
-            imageFile: null,
-          ),
+          createState(image: null),
         ],
       );
     },
@@ -145,8 +141,8 @@ void main() {
     'submit',
     () {
       const String loggedUserId = 'loggedUserId';
-      final ImageFile imageFile = createImageFile(
-        name: 'i1',
+      final Image image = createImage(
+        fileName: 'i1.jpg',
         data: Uint8List(1),
       );
       const String title = 'title';
@@ -154,7 +150,7 @@ void main() {
       const int readPagesAmount = 20;
       const int allPagesAmount = 200;
       final BookCreatorState state = createState(
-        imageFile: imageFile,
+        image: image,
         title: title,
         author: author,
         readPagesAmount: readPagesAmount,
@@ -172,7 +168,7 @@ void main() {
       blocTest(
         'should call use case responsible for adding new book',
         build: () => createBloc(
-          imageFile: imageFile,
+          image: image,
           title: title,
           author: author,
           readPagesAmount: readPagesAmount,
@@ -197,7 +193,7 @@ void main() {
             () => addBookUseCase.execute(
               userId: loggedUserId,
               status: BookStatus.unread,
-              imageFile: imageFile,
+              image: image,
               title: title,
               author: author,
               readPagesAmount: readPagesAmount,
@@ -227,7 +223,7 @@ void main() {
             () => addBookUseCase.execute(
               userId: loggedUserId,
               status: BookStatus.unread,
-              imageFile: imageFile,
+              image: image,
               title: title,
               author: author,
               readPagesAmount: readPagesAmount,

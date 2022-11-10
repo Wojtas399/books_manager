@@ -97,7 +97,7 @@ FirebaseBook createFirebaseBook({
   String author = '',
   int readPagesAmount = 0,
   int allPagesAmount = 0,
-  String? imageFileName = '',
+  String? imageFileName,
 }) {
   return FirebaseBook(
     id: id,

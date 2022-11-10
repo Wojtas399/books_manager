@@ -1,5 +1,5 @@
 import 'package:app/domain/entities/book.dart';
-import 'package:app/models/image_file.dart';
+import 'package:app/models/image.dart';
 
 abstract class BookInterface {
   Stream<Book?> getBook({
@@ -15,7 +15,7 @@ abstract class BookInterface {
   Future<void> addNewBook({
     required String userId,
     required BookStatus status,
-    required ImageFile? imageFile,
+    required Image? image,
     required String title,
     required String author,
     required int readPagesAmount,
@@ -26,7 +26,7 @@ abstract class BookInterface {
     required String bookId,
     required String userId,
     BookStatus? status,
-    ImageFile? imageFile,
+    Image? image,
     String? title,
     String? author,
     int? readPagesAmount,

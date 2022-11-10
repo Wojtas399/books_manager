@@ -1,10 +1,10 @@
 import 'package:app/models/entity.dart';
-import 'package:app/models/image_file.dart';
+import 'package:app/models/image.dart';
 
 class Book extends Entity {
   final String userId;
   final BookStatus status;
-  final ImageFile? imageFile;
+  final Image? image;
   final String title;
   final String author;
   final int readPagesAmount;
@@ -14,7 +14,7 @@ class Book extends Entity {
     required super.id,
     required this.userId,
     required this.status,
-    required this.imageFile,
+    required this.image,
     required this.title,
     required this.author,
     required this.readPagesAmount,
@@ -26,7 +26,7 @@ class Book extends Entity {
         id,
         userId,
         status,
-        imageFile ?? '',
+        image ?? '',
         title,
         author,
         readPagesAmount,
@@ -37,7 +37,7 @@ class Book extends Entity {
     String? id,
     String? userId,
     BookStatus? status,
-    ImageFile? imageFile,
+    Image? image,
     String? title,
     String? author,
     int? readPagesAmount,
@@ -47,7 +47,7 @@ class Book extends Entity {
       id: id ?? this.id,
       userId: userId ?? this.userId,
       status: status ?? this.status,
-      imageFile: imageFile ?? this.imageFile,
+      image: image ?? this.image,
       title: title ?? this.title,
       author: author ?? this.author,
       readPagesAmount: readPagesAmount ?? this.readPagesAmount,
@@ -66,7 +66,7 @@ Book createBook({
   String id = 'b1',
   String userId = '',
   BookStatus status = BookStatus.unread,
-  ImageFile? imageFile,
+  Image? image,
   String title = '',
   String author = '',
   int readPagesAmount = 0,
@@ -76,7 +76,7 @@ Book createBook({
     id: id,
     userId: userId,
     status: status,
-    imageFile: imageFile,
+    image: image,
     title: title,
     author: author,
     readPagesAmount: readPagesAmount,

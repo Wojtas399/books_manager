@@ -2,28 +2,23 @@ import 'dart:typed_data';
 
 import 'package:app/data/data_sources/firebase/entities/firebase_book.dart';
 import 'package:app/data/data_sources/firebase/services/firebase_firestore_book_service.dart';
-import 'package:app/data/data_sources/firebase/services/firebase_storage_service.dart';
+import 'package:app/data/data_sources/firebase/services/firebase_storage_image_service.dart';
 import 'package:app/data/mappers/book_status_mapper.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
-import 'package:app/models/device.dart';
-import 'package:app/models/image_file.dart';
-import 'package:app/utils/image_utils.dart';
+import 'package:app/models/image.dart';
 import 'package:rxdart/rxdart.dart';
 
 class BookRepository implements BookInterface {
   late final FirebaseFirestoreBookService _firebaseFirestoreBookService;
-  late final FirebaseStorageService _firebaseStorageService;
-  late final Device _device;
+  late final FirebaseStorageImageService _firebaseStorageImageService;
 
   BookRepository({
     required FirebaseFirestoreBookService firebaseFirestoreBookService,
-    required FirebaseStorageService firebaseStorageService,
-    required Device device,
+    required FirebaseStorageImageService firebaseStorageImageService,
   }) {
     _firebaseFirestoreBookService = firebaseFirestoreBookService;
-    _firebaseStorageService = firebaseStorageService;
-    _device = device;
+    _firebaseStorageImageService = firebaseStorageImageService;
   }
 
   @override
@@ -51,7 +46,7 @@ class BookRepository implements BookInterface {
   Future<void> addNewBook({
     required String userId,
     required BookStatus status,
-    required ImageFile? imageFile,
+    required Image? image,
     required String title,
     required String author,
     required int readPagesAmount,
@@ -59,13 +54,9 @@ class BookRepository implements BookInterface {
   }) async {
     final String mappedBookStatus =
         BookStatusMapper.mapFromEnumToString(status);
-    String? imageFileNameWithoutExtension;
-    if (imageFile != null) {
-      imageFileNameWithoutExtension =
-          ImageUtils.removeExtensionFromFileName(imageFile.name);
-      await _firebaseStorageService.saveBookImageData(
-        imageData: imageFile.data,
-        fileName: imageFileNameWithoutExtension,
+    if (image != null) {
+      await _firebaseStorageImageService.saveImage(
+        image: image,
         userId: userId,
       );
     }
@@ -76,7 +67,7 @@ class BookRepository implements BookInterface {
       author: author,
       readPagesAmount: readPagesAmount,
       allPagesAmount: allPagesAmount,
-      imageFileName: imageFileNameWithoutExtension,
+      imageFileName: image?.fileName,
     );
   }
 
@@ -85,7 +76,7 @@ class BookRepository implements BookInterface {
     required String bookId,
     required String userId,
     BookStatus? status,
-    ImageFile? imageFile,
+    Image? image,
     String? title,
     String? author,
     int? readPagesAmount,
@@ -95,14 +86,14 @@ class BookRepository implements BookInterface {
     if (status != null) {
       statusAsStr = BookStatusMapper.mapFromEnumToString(status);
     }
-    if (imageFile != null) {
-      await _updateBookImage(bookId, userId, imageFile);
+    if (image != null) {
+      await _updateBookImage(bookId, userId, image);
     }
     await _firebaseFirestoreBookService.updateBook(
       bookId: bookId,
       userId: userId,
       status: statusAsStr,
-      imageFileName: imageFile?.name,
+      imageFileName: image?.fileName,
       title: title,
       author: author,
       readPagesAmount: readPagesAmount,
@@ -117,7 +108,7 @@ class BookRepository implements BookInterface {
   }) async {
     final String? imageFileName = await _getBookImageFileName(bookId, userId);
     if (imageFileName != null) {
-      await _firebaseStorageService.deleteBookImageData(
+      await _firebaseStorageImageService.deleteImage(
         fileName: imageFileName,
         userId: userId,
       );
@@ -151,20 +142,26 @@ class BookRepository implements BookInterface {
     }
   }
 
-  Stream<Book?> _combineFirebaseBookWithImage(FirebaseBook? firebaseBook) {
+  Stream<Book?> _combineFirebaseBookWithImage(
+    FirebaseBook? firebaseBook,
+  ) async* {
+    Book? book;
     if (firebaseBook != null) {
-      return _getImageDataForFirebaseBook(firebaseBook).map(
-        (Uint8List? imageData) => _createBook(firebaseBook, imageData),
-      );
+      final Image? image = await _loadImageForFirebaseBook(firebaseBook);
+      book = _createBook(firebaseBook, image);
     }
-    return Stream.value(null);
+    yield book;
   }
 
   Stream<List<Book>> _mapFirebaseBooksToBookModels(
     List<FirebaseBook> firebaseBooks,
   ) {
-    final Iterable<Stream<Book?>> books$ =
-        firebaseBooks.map(_combineFirebaseBookWithImage);
+    if (firebaseBooks.isEmpty) {
+      return Stream.value([]);
+    }
+    final Iterable<Stream<Book?>> books$ = firebaseBooks.map(
+      _combineFirebaseBookWithImage,
+    );
     return Rx.combineLatest(
       books$,
       (List<Book?> books) => books.whereType<Book>().toList(),
@@ -174,19 +171,18 @@ class BookRepository implements BookInterface {
   Future<void> _updateBookImage(
     String bookId,
     String userId,
-    ImageFile newImageFile,
+    Image newImage,
   ) async {
     final String? currentImageFileName =
         await _getBookImageFileName(bookId, userId);
     if (currentImageFileName != null) {
-      await _firebaseStorageService.deleteBookImageData(
+      await _firebaseStorageImageService.deleteImage(
         fileName: currentImageFileName,
         userId: userId,
       );
     }
-    await _firebaseStorageService.saveBookImageData(
-      imageData: newImageFile.data,
-      fileName: newImageFile.name,
+    await _firebaseStorageImageService.saveImage(
+      image: newImage,
       userId: userId,
     );
   }
@@ -201,7 +197,7 @@ class BookRepository implements BookInterface {
   Future<void> _deleteFirebaseBook(FirebaseBook firebaseBook) async {
     final String? imageFileName = firebaseBook.imageFileName;
     if (imageFileName != null) {
-      await _firebaseStorageService.deleteBookImageData(
+      await _firebaseStorageImageService.deleteImage(
         fileName: imageFileName,
         userId: firebaseBook.userId,
       );
@@ -212,52 +208,38 @@ class BookRepository implements BookInterface {
     );
   }
 
-  Stream<Uint8List?> _getImageDataForFirebaseBook(FirebaseBook firebaseBook) {
-    return _getInternetConnectionStatus().switchMap(
-      (bool hasDeviceInternetConnection) {
-        final String? imageFileName = firebaseBook.imageFileName;
-        return imageFileName != null && hasDeviceInternetConnection == true
-            ? _getImageData(imageFileName, firebaseBook.userId)
-            : Stream.value(null);
-      },
+  Future<Image?> _loadImageForFirebaseBook(
+    FirebaseBook firebaseBook,
+  ) async {
+    final String? imageFileName = firebaseBook.imageFileName;
+    if (imageFileName == null) {
+      return null;
+    }
+    final Uint8List? imageData = await _firebaseStorageImageService.loadImage(
+      fileName: imageFileName,
+      userId: firebaseBook.userId,
+    );
+    if (imageData == null) {
+      return null;
+    }
+    return Image(
+      fileName: imageFileName,
+      data: imageData,
     );
   }
 
-  Book _createBook(FirebaseBook firebaseBook, Uint8List? imageData) {
+  Book _createBook(FirebaseBook firebaseBook, Image? image) {
     final BookStatus bookStatus =
         BookStatusMapper.mapFromStringToEnum(firebaseBook.status);
-    ImageFile? imageFile =
-        _createImageFile(firebaseBook.imageFileName, imageData);
     return Book(
       id: firebaseBook.id,
       userId: firebaseBook.userId,
       status: bookStatus,
-      imageFile: imageFile,
+      image: image,
       title: firebaseBook.title,
       author: firebaseBook.author,
       readPagesAmount: firebaseBook.readPagesAmount,
       allPagesAmount: firebaseBook.allPagesAmount,
-    );
-  }
-
-  ImageFile? _createImageFile(String? imageFileName, Uint8List? imageData) {
-    ImageFile? imageFile;
-    if (imageData != null && imageFileName != null) {
-      imageFile = ImageFile(name: imageFileName, data: imageData);
-    }
-    return imageFile;
-  }
-
-  Stream<bool> _getInternetConnectionStatus() {
-    return Rx.fromCallable(() async => await _device.hasInternetConnection());
-  }
-
-  Stream<Uint8List?> _getImageData(String fileName, String userId) {
-    return Rx.fromCallable(
-      () async => await _firebaseStorageService.loadBookImageData(
-        fileName: fileName,
-        userId: userId,
-      ),
     );
   }
 }

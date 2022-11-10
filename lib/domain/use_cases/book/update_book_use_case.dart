@@ -1,5 +1,5 @@
 import 'package:app/domain/interfaces/book_interface.dart';
-import 'package:app/models/image_file.dart';
+import 'package:app/models/image.dart';
 
 class UpdateBookUseCase {
   late final BookInterface _bookInterface;
@@ -11,7 +11,7 @@ class UpdateBookUseCase {
   Future<void> execute({
     required String bookId,
     required String userId,
-    ImageFile? imageFile,
+    Image? image,
     bool deleteImage = false,
     String? title,
     String? author,
@@ -27,7 +27,7 @@ class UpdateBookUseCase {
     await _bookInterface.updateBook(
       bookId: bookId,
       userId: userId,
-      imageFile: deleteImage ? null : imageFile,
+      image: deleteImage ? null : image,
       title: title,
       author: author,
       readPagesAmount: readPagesAmount,

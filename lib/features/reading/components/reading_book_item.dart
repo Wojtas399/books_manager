@@ -27,7 +27,7 @@ class ReadingBookItem extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                _BookImage(bookId: book.id, imageData: book.imageFile?.data),
+                _BookImage(bookId: book.id, imageData: book.image?.data),
                 const SizedBox(width: 16),
                 Expanded(
                   child: _BookInfo(
@@ -48,7 +48,7 @@ class ReadingBookItem extends StatelessWidget {
   void _onPressed() {
     Navigation.navigateToBookPreview(
       bookId: book.id,
-      imageData: book.imageFile?.data,
+      imageData: book.image?.data,
     );
   }
 }

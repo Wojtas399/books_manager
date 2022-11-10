@@ -2,7 +2,7 @@ part of 'book_editor_bloc.dart';
 
 class BookEditorState extends BlocState {
   final Book? originalBook;
-  final ImageFile? imageFile;
+  final Image? image;
   final String? title;
   final String? author;
   final int? readPagesAmount;
@@ -11,7 +11,7 @@ class BookEditorState extends BlocState {
   const BookEditorState({
     required super.status,
     required this.originalBook,
-    required this.imageFile,
+    required this.image,
     required this.title,
     required this.author,
     required this.readPagesAmount,
@@ -22,7 +22,7 @@ class BookEditorState extends BlocState {
   List<Object> get props => [
         status,
         originalBook ?? '',
-        imageFile ?? '',
+        image ?? '',
         title ?? '',
         author ?? '',
         readPagesAmount ?? 0,
@@ -33,7 +33,7 @@ class BookEditorState extends BlocState {
   BookEditorState copyWith({
     BlocStatus? status,
     Book? originalBook,
-    ImageFile? imageFile,
+    Image? image,
     String? title,
     String? author,
     int? readPagesAmount,
@@ -43,7 +43,7 @@ class BookEditorState extends BlocState {
     return BookEditorState(
       status: status ?? const BlocStatusInProgress(),
       originalBook: originalBook ?? this.originalBook,
-      imageFile: deletedImage ? null : imageFile ?? this.imageFile,
+      image: deletedImage ? null : image ?? this.image,
       title: title ?? this.title,
       author: author ?? this.author,
       readPagesAmount: readPagesAmount ?? this.readPagesAmount,
@@ -52,7 +52,7 @@ class BookEditorState extends BlocState {
   }
 
   bool get isButtonDisabled =>
-      imageFile == originalBook?.imageFile &&
+      image == originalBook?.image &&
       title == originalBook?.title &&
       author == originalBook?.author &&
       readPagesAmount == originalBook?.readPagesAmount &&

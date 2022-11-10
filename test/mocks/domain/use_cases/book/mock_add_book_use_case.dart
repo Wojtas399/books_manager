@@ -1,19 +1,19 @@
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/use_cases/book/add_book_use_case.dart';
-import 'package:app/models/image_file.dart';
+import 'package:app/models/image.dart';
 import 'package:mocktail/mocktail.dart';
 
-class FakeImageFile extends Fake implements ImageFile {}
+class FakeImage extends Fake implements Image {}
 
 class MockAddBookUseCase extends Mock implements AddBookUseCase {
   void mock() {
     _mockBookStatus();
-    _mockImageFile();
+    _mockImage();
     when(
       () => execute(
         userId: any(named: 'userId'),
         status: any(named: 'status'),
-        imageFile: any(named: 'imageFile'),
+        image: any(named: 'image'),
         title: any(named: 'title'),
         author: any(named: 'author'),
         readPagesAmount: any(named: 'readPagesAmount'),
@@ -26,7 +26,7 @@ class MockAddBookUseCase extends Mock implements AddBookUseCase {
     registerFallbackValue(BookStatus.unread);
   }
 
-  void _mockImageFile() {
-    registerFallbackValue(FakeImageFile());
+  void _mockImage() {
+    registerFallbackValue(FakeImage());
   }
 }

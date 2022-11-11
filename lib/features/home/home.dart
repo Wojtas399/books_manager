@@ -2,6 +2,7 @@ import 'package:app/features/home/components/home_provider.dart';
 import 'package:app/features/home/components/home_router.dart';
 import 'package:app/features/home/components/home_user_settings_listener.dart';
 import 'package:app/features/home/home_cubit.dart';
+import 'package:app/features/internet_connection_checker/internet_connection_checker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -13,7 +14,9 @@ class Home extends StatelessWidget {
     return const HomeProvider(
       child: _HomeBlocProvider(
         child: HomeUserSettingsListener(
-          child: HomeRouter(),
+          child: InternetConnectionChecker(
+            child: HomeRouter(),
+          ),
         ),
       ),
     );

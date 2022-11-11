@@ -1,4 +1,5 @@
 import 'package:app/config/themes/global_material_theme.dart';
+import 'package:app/features/internet_connection_checker/internet_connection_checker.dart';
 import 'package:app/features/sign_in/sign_in_screen.dart';
 import 'package:app/firebase_options.dart';
 import 'package:app/global_provider.dart';
@@ -31,7 +32,9 @@ class MyApp extends StatelessWidget {
               themeMode: themeMode,
               theme: GlobalMaterialTheme.lightTheme,
               darkTheme: GlobalMaterialTheme.darkTheme,
-              home: const SignInScreen(),
+              home: const InternetConnectionChecker(
+                child: SignInScreen(),
+              ),
             ),
           );
         },

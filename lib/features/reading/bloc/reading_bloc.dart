@@ -7,6 +7,7 @@ import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/custom_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rxdart/rxdart.dart';
 
 part 'reading_event.dart';
 part 'reading_state.dart';
@@ -20,7 +21,7 @@ class ReadingBloc extends CustomBloc<ReadingEvent, ReadingState> {
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
     required GetUserBooksInProgressUseCase getUserBooksInProgressUseCase,
     BlocStatus status = const BlocStatusInitial(),
-    List<Book> booksInProgress = const [],
+    List<Book>? booksInProgress,
   }) : super(
           ReadingState(
             status: status,
@@ -44,12 +45,14 @@ class ReadingBloc extends CustomBloc<ReadingEvent, ReadingState> {
     Emitter<ReadingState> emit,
   ) async {
     emitLoadingStatus(emit);
-    final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
-    if (loggedUserId == null) {
-      emitLoggedUserNotFoundStatus(emit);
-      return;
-    }
-    _setBooksInProgressListener(loggedUserId);
+    _booksInProgressListener = _getLoggedUserIdUseCase
+        .execute()
+        .switchMap(_getUserBooksInProgress)
+        .listen(
+          (List<Book>? books) => add(
+            ReadingEventBooksInProgressUpdated(booksInProgress: books),
+          ),
+        );
   }
 
   void _booksInProgressUpdated(
@@ -61,18 +64,10 @@ class ReadingBloc extends CustomBloc<ReadingEvent, ReadingState> {
     ));
   }
 
-  void _setBooksInProgressListener(String loggedUserId) {
-    _booksInProgressListener ??=
-        _getLoggedUserBooksInProgress(loggedUserId).listen(
-      (List<Book> booksInProgress) {
-        add(ReadingEventBooksInProgressUpdated(
-          booksInProgress: booksInProgress,
-        ));
-      },
-    );
-  }
-
-  Stream<List<Book>> _getLoggedUserBooksInProgress(String loggedUserId) {
+  Stream<List<Book>?> _getUserBooksInProgress(String? loggedUserId) {
+    if (loggedUserId == null) {
+      return Stream.value(null);
+    }
     return _getUserBooksInProgressUseCase.execute(userId: loggedUserId);
   }
 }

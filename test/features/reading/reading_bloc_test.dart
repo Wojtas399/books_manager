@@ -20,8 +20,8 @@ void main() {
   }
 
   ReadingState createState({
-    BlocStatus status = const BlocStatusComplete(),
-    List<Book> booksInProgress = const [],
+    BlocStatus status = const BlocStatusInitial(),
+    List<Book>? booksInProgress,
   }) {
     return ReadingState(
       status: status,
@@ -48,7 +48,7 @@ void main() {
       });
 
       blocTest(
-        'logged user does not exist, should emit logged user not found status',
+        'logged user does not exist, should emit books as null',
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock();
@@ -59,7 +59,8 @@ void main() {
             status: const BlocStatusLoading(),
           ),
           createState(
-            status: const BlocStatusLoggedUserNotFound(),
+            status: const BlocStatusComplete(),
+            booksInProgress: null,
           ),
         ],
       );
@@ -77,6 +78,7 @@ void main() {
             status: const BlocStatusLoading(),
           ),
           createState(
+            status: const BlocStatusComplete(),
             booksInProgress: [],
           ),
         ],
@@ -109,6 +111,7 @@ void main() {
         },
         expect: () => [
           createState(
+            status: const BlocStatusComplete(),
             booksInProgress: booksInProgress,
           ),
         ],

@@ -9,7 +9,7 @@ class ReadingEventInitialize extends ReadingEvent {
 }
 
 class ReadingEventBooksInProgressUpdated extends ReadingEvent {
-  final List<Book> booksInProgress;
+  final List<Book>? booksInProgress;
 
   const ReadingEventBooksInProgressUpdated({required this.booksInProgress});
 }

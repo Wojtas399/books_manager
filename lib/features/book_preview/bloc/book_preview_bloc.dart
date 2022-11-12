@@ -13,6 +13,7 @@ import 'package:app/models/bloc_status.dart';
 import 'package:app/models/custom_bloc.dart';
 import 'package:app/models/error.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rxdart/rxdart.dart';
 
 part 'book_preview_event.dart';
 part 'book_preview_state.dart';
@@ -69,12 +70,24 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
     Emitter<BookPreviewState> emit,
   ) async {
     emitLoadingStatus(emit);
-    final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
-    if (loggedUserId == null) {
-      emitLoggedUserNotFoundStatus(emit);
-      return;
-    }
-    _setBookListener(event.bookId, loggedUserId);
+    _bookListener ??= _getLoggedUserIdUseCase
+        .execute()
+        .doOnData(
+          (String? loggedUserId) {
+            if (loggedUserId == null) {
+              emitLoggedUserNotFoundStatus(emit);
+            }
+          },
+        )
+        .whereType<String>()
+        .switchMap(
+          (String loggedUserId) => _getBook(event.bookId, loggedUserId),
+        )
+        .listen(
+          (Book? book) => add(
+            BookPreviewEventBookUpdated(book: book),
+          ),
+        );
   }
 
   void _bookUpdated(
@@ -148,15 +161,11 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
     emitInfo<BookPreviewBlocInfo>(emit, BookPreviewBlocInfo.bookHasBeenDeleted);
   }
 
-  void _setBookListener(String bookId, String userId) {
-    _bookListener ??=
-        _getBookUseCase.execute(bookId: bookId, userId: userId).listen(
-      (Book? book) {
-        if (book != null) {
-          add(BookPreviewEventBookUpdated(book: book));
-        }
-      },
-    );
+  Stream<Book?> _getBook(String bookId, String? userId) {
+    if (userId != null) {
+      return _getBookUseCase.execute(bookId: bookId, userId: userId);
+    }
+    return Stream.value(null);
   }
 
   void _manageBookError(BookError bookError, Emitter<BookPreviewState> emit) {

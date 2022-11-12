@@ -72,16 +72,8 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
     emitLoadingStatus(emit);
     _bookListener ??= _getLoggedUserIdUseCase
         .execute()
-        .doOnData(
-          (String? loggedUserId) {
-            if (loggedUserId == null) {
-              emitLoggedUserNotFoundStatus(emit);
-            }
-          },
-        )
-        .whereType<String>()
         .switchMap(
-          (String loggedUserId) => _getBook(event.bookId, loggedUserId),
+          (String? loggedUserId) => _getBook(event.bookId, loggedUserId),
         )
         .listen(
           (Book? book) => add(
@@ -162,10 +154,10 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
   }
 
   Stream<Book?> _getBook(String bookId, String? userId) {
-    if (userId != null) {
-      return _getBookUseCase.execute(bookId: bookId, userId: userId);
+    if (userId == null) {
+      return Stream.value(null);
     }
-    return Stream.value(null);
+    return _getBookUseCase.execute(bookId: bookId, userId: userId);
   }
 
   void _manageBookError(BookError bookError, Emitter<BookPreviewState> emit) {

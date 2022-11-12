@@ -39,7 +39,7 @@ void main() {
   }
 
   BookPreviewState createState({
-    BlocStatus status = const BlocStatusInProgress(),
+    BlocStatus status = const BlocStatusInitial(),
     Book? book,
   }) {
     return BookPreviewState(
@@ -78,7 +78,7 @@ void main() {
       });
 
       blocTest(
-        'logged user does not exist, should emit logged user not found status',
+        'logged user does not exist, should emit book as null',
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock();
@@ -89,7 +89,8 @@ void main() {
             status: const BlocStatusLoading(),
           ),
           createState(
-            status: const BlocStatusLoggedUserNotFound(),
+            status: const BlocStatusComplete(),
+            book: null,
           ),
         ],
       );

@@ -9,7 +9,7 @@ class SettingsEventInitialize extends SettingsEvent {
 }
 
 class SettingsEventUserUpdated extends SettingsEvent {
-  final User user;
+  final User? user;
 
   const SettingsEventUserUpdated({required this.user});
 }

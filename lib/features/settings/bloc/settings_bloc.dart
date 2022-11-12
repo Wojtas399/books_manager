@@ -13,6 +13,7 @@ import 'package:app/models/bloc_status.dart';
 import 'package:app/models/custom_bloc.dart';
 import 'package:app/models/error.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rxdart/rxdart.dart';
 
 part 'settings_event.dart';
 part 'settings_state.dart';
@@ -24,7 +25,7 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
   late final ChangeLoggedUserPasswordUseCase _changeLoggedUserPasswordUseCase;
   late final SignOutUseCase _signOutUseCase;
   late final DeleteLoggedUserUseCase _deleteLoggedUserUseCase;
-  StreamSubscription<User>? _userListener;
+  StreamSubscription<User?>? _userListener;
 
   SettingsBloc({
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
@@ -72,12 +73,12 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
     Emitter<SettingsState> emit,
   ) async {
     emitLoadingStatus(emit);
-    final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
-    if (loggedUserId == null) {
-      emitLoggedUserNotFoundStatus(emit);
-    } else {
-      _setUserListener(loggedUserId);
-    }
+    _userListener =
+        _getLoggedUserIdUseCase.execute().switchMap(_getUser).listen(
+              (User? user) => add(
+                SettingsEventUserUpdated(user: user),
+              ),
+            );
   }
 
   void _userUpdated(
@@ -86,9 +87,9 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
   ) {
     emit(state.copyWith(
       status: const BlocStatusComplete(),
-      isDarkModeOn: event.user.isDarkModeOn,
+      isDarkModeOn: event.user?.isDarkModeOn,
       isDarkModeCompatibilityWithSystemOn:
-          event.user.isDarkModeCompatibilityWithSystemOn,
+          event.user?.isDarkModeCompatibilityWithSystemOn,
     ));
   }
 
@@ -175,12 +176,11 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
     }
   }
 
-  void _setUserListener(String loggedUserId) {
-    _userListener ??= _getUserUseCase.execute(userId: loggedUserId).listen(
-          (User user) => add(
-            SettingsEventUserUpdated(user: user),
-          ),
-        );
+  Stream<User?> _getUser(String? loggedUserId) {
+    if (loggedUserId == null) {
+      return Stream.value(null);
+    }
+    return _getUserUseCase.execute(userId: loggedUserId);
   }
 
   Future<void> _tryChangeLoggedUserPassword(

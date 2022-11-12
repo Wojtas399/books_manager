@@ -39,7 +39,7 @@ void main() {
   }
 
   SettingsState createState({
-    BlocStatus status = const BlocStatusInProgress(),
+    BlocStatus status = const BlocStatusInitial(),
     bool isDarkModeOn = false,
     bool isDarkModeCompatibilityWithSystemOn = false,
   }) {
@@ -74,7 +74,7 @@ void main() {
           );
 
       blocTest(
-        'logged user does not exist, should emit logged user not found status',
+        'logged user does not exist, should not change state',
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock(loggedUserId: null);
@@ -85,7 +85,7 @@ void main() {
             status: const BlocStatusLoading(),
           ),
           createState(
-            status: const BlocStatusLoggedUserNotFound(),
+            status: const BlocStatusComplete(),
           ),
         ],
         verify: (_) {
@@ -190,7 +190,10 @@ void main() {
         },
         act: (SettingsBloc bloc) => eventCall(bloc),
         expect: () => [
-          createState(isDarkModeOn: true),
+          createState(
+            status: const BlocStatusInProgress(),
+            isDarkModeOn: true,
+          ),
         ],
         verify: (_) {
           verify(
@@ -211,8 +214,14 @@ void main() {
         },
         act: (SettingsBloc bloc) => eventCall(bloc),
         expect: () => [
-          createState(isDarkModeOn: true),
-          createState(isDarkModeOn: false),
+          createState(
+            status: const BlocStatusInProgress(),
+            isDarkModeOn: true,
+          ),
+          createState(
+            status: const BlocStatusInProgress(),
+            isDarkModeOn: false,
+          ),
         ],
         verify: (_) {
           verify(
@@ -271,7 +280,10 @@ void main() {
         },
         act: (SettingsBloc bloc) => eventCall(bloc),
         expect: () => [
-          createState(isDarkModeCompatibilityWithSystemOn: true),
+          createState(
+            status: const BlocStatusInProgress(),
+            isDarkModeCompatibilityWithSystemOn: true,
+          ),
         ],
         verify: (_) {
           verify(
@@ -292,8 +304,14 @@ void main() {
         },
         act: (SettingsBloc bloc) => eventCall(bloc),
         expect: () => [
-          createState(isDarkModeCompatibilityWithSystemOn: true),
-          createState(isDarkModeCompatibilityWithSystemOn: false),
+          createState(
+            status: const BlocStatusInProgress(),
+            isDarkModeCompatibilityWithSystemOn: true,
+          ),
+          createState(
+            status: const BlocStatusInProgress(),
+            isDarkModeCompatibilityWithSystemOn: false,
+          ),
         ],
         verify: (_) {
           verify(

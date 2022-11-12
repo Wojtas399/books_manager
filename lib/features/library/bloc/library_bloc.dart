@@ -48,26 +48,12 @@ class LibraryBloc extends CustomBloc<LibraryEvent, LibraryState> {
     Emitter<LibraryState> emit,
   ) async {
     emitLoadingStatus(emit);
-    _booksListener = _getLoggedUserIdUseCase
-        .execute()
-        .doOnData(
-          (String? loggedUserId) {
-            if (loggedUserId == null) {
-              emitLoggedUserNotFoundStatus(emit);
-            }
-          },
-        )
-        .whereType<String>()
-        .switchMap(
-          (String loggedUserId) => _getAllUserBooksUseCase.execute(
-            userId: loggedUserId,
-          ),
-        )
-        .listen(
-          (List<Book> books) => add(
-            LibraryEventBooksUpdated(books: books),
-          ),
-        );
+    _booksListener =
+        _getLoggedUserIdUseCase.execute().switchMap(_getAllUserBooks).listen(
+              (List<Book>? books) => add(
+                LibraryEventBooksUpdated(books: books),
+              ),
+            );
   }
 
   void _booksUpdated(
@@ -86,5 +72,12 @@ class LibraryBloc extends CustomBloc<LibraryEvent, LibraryState> {
     emit(state.copyWith(
       searchValue: event.searchValue,
     ));
+  }
+
+  Stream<List<Book>?> _getAllUserBooks(String? loggedUserId) {
+    if (loggedUserId == null) {
+      return Stream.value(null);
+    }
+    return _getAllUserBooksUseCase.execute(userId: loggedUserId);
   }
 }

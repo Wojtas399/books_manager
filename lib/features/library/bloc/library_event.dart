@@ -9,7 +9,7 @@ class LibraryEventInitialize extends LibraryEvent {
 }
 
 class LibraryEventBooksUpdated extends LibraryEvent {
-  final List<Book> books;
+  final List<Book>? books;
 
   const LibraryEventBooksUpdated({required this.books});
 }

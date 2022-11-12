@@ -24,7 +24,7 @@ void main() {
   }
 
   LibraryState createState({
-    BlocStatus status = const BlocStatusComplete(),
+    BlocStatus status = const BlocStatusInitial(),
     String searchValue = '',
     List<Book>? books,
   }) {
@@ -56,7 +56,7 @@ void main() {
       });
 
       blocTest(
-        'logged user does not exist, should emit logged user not found status',
+        'logged user does not exist, should emit books as null',
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock();
@@ -67,7 +67,8 @@ void main() {
             status: const BlocStatusLoading(),
           ),
           createState(
-            status: const BlocStatusLoggedUserNotFound(),
+            status: const BlocStatusComplete(),
+            books: null,
           ),
         ],
       );
@@ -85,6 +86,7 @@ void main() {
             status: const BlocStatusLoading(),
           ),
           createState(
+            status: const BlocStatusComplete(),
             books: userBooks,
           ),
         ],
@@ -107,6 +109,7 @@ void main() {
     },
     expect: () => [
       createState(
+        status: const BlocStatusComplete(),
         books: userBooks,
       ),
     ],
@@ -122,6 +125,7 @@ void main() {
     },
     expect: () => [
       createState(
+        status: const BlocStatusComplete(),
         searchValue: 'search',
       ),
     ],

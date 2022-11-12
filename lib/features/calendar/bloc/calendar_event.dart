@@ -9,7 +9,7 @@ class CalendarEventInitialize extends CalendarEvent {
 }
 
 class CalendarEventDaysOfReadingUpdated extends CalendarEvent {
-  final List<Day> daysOfReading;
+  final List<Day>? daysOfReading;
 
   const CalendarEventDaysOfReadingUpdated({required this.daysOfReading});
 }

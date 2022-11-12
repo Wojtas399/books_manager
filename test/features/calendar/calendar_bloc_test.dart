@@ -24,9 +24,9 @@ void main() {
   }
 
   CalendarState createState({
-    BlocStatus status = const BlocStatusComplete(),
+    BlocStatus status = const BlocStatusInitial(),
     DateTime? todayDate,
-    List<Day> daysOfReading = const [],
+    List<Day>? daysOfReading,
   }) {
     return CalendarState(
       status: status,
@@ -78,7 +78,7 @@ void main() {
       });
 
       blocTest(
-        'logged user does not exist, should emit appropriate bloc status',
+        'logged user does not exist, should emit today date and days as null',
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock();
@@ -90,8 +90,9 @@ void main() {
             todayDate: todayDate,
           ),
           createState(
-            status: const BlocStatusLoggedUserNotFound(),
+            status: const BlocStatusComplete(),
             todayDate: todayDate,
+            daysOfReading: null,
           ),
         ],
       );
@@ -130,6 +131,7 @@ void main() {
             todayDate: todayDate,
           ),
           createState(
+            status: const BlocStatusComplete(),
             todayDate: todayDate,
             daysOfReading: [
               ...userDaysFromPreviousMonth,
@@ -173,6 +175,7 @@ void main() {
         },
         expect: () => [
           createState(
+            status: const BlocStatusComplete(),
             daysOfReading: daysOfReading,
           ),
         ],
@@ -212,7 +215,7 @@ void main() {
       }
 
       blocTest(
-        'should emit appropriate info if logged user does not exist',
+        'logged user does not exist, should emit days as null',
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock();
@@ -223,7 +226,8 @@ void main() {
             status: const BlocStatusLoading(),
           ),
           createState(
-            status: const BlocStatusLoggedUserNotFound(),
+            status: const BlocStatusComplete(),
+            daysOfReading: null,
           ),
         ],
       );
@@ -261,6 +265,7 @@ void main() {
             status: const BlocStatusLoading(),
           ),
           createState(
+            status: const BlocStatusComplete(),
             daysOfReading: [
               ...userDaysFromPreviousMonth,
               ...userDaysFromGivenMonth,

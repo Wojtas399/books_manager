@@ -26,7 +26,7 @@ class CalendarBloc extends CustomBloc<CalendarEvent, CalendarState> {
     required GetUserDaysFromMonthUseCase getUserDaysFromMonthUseCase,
     BlocStatus status = const BlocStatusInitial(),
     DateTime? todayDate,
-    List<Day> daysOfReading = const [],
+    List<Day>? daysOfReading,
   }) : super(
           CalendarState(
             status: status,
@@ -82,25 +82,20 @@ class CalendarBloc extends CustomBloc<CalendarEvent, CalendarState> {
   void _setDaysListener(int month, int year, Emitter<CalendarState> emit) {
     _daysListener = _getLoggedUserIdUseCase
         .execute()
-        .doOnData(
-          (String? loggedUserId) {
-            if (loggedUserId == null) {
-              emitLoggedUserNotFoundStatus(emit);
-            }
-          },
-        )
-        .whereType<String>()
         .switchMap(
-          (String loggedUserId) => _getDays(loggedUserId, month, year),
+          (String? loggedUserId) => _getDays(loggedUserId, month, year),
         )
         .listen(
-          (List<Day> days) => add(
+          (List<Day>? days) => add(
             CalendarEventDaysOfReadingUpdated(daysOfReading: days),
           ),
         );
   }
 
-  Stream<List<Day>> _getDays(String loggedUserId, int month, int year) {
+  Stream<List<Day>?> _getDays(String? loggedUserId, int month, int year) {
+    if (loggedUserId == null) {
+      return Stream.value(null);
+    }
     return Rx.combineLatest3(
       _getLoggedUserDaysFromPreviousMonth(loggedUserId, month, year),
       _getLoggedUserDaysFromMonth(loggedUserId, month, year),

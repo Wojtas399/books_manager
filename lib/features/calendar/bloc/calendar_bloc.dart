@@ -52,17 +52,12 @@ class CalendarBloc extends CustomBloc<CalendarEvent, CalendarState> {
     CalendarEventInitialize event,
     Emitter<CalendarState> emit,
   ) async {
-    emitLoadingStatus(emit);
-    final String? loggedUserId = await _getLoggedUserId();
-    if (loggedUserId == null) {
-      emitLoggedUserNotFoundStatus(emit);
-      return;
-    }
     final DateTime todayDate = _dateProvider.getNow();
     emit(state.copyWith(
+      status: const BlocStatusLoading(),
       todayDate: todayDate,
     ));
-    _setDaysListener(loggedUserId, todayDate.month, todayDate.year);
+    _setDaysListener(todayDate.month, todayDate.year, emit);
   }
 
   void _daysOfReadingUpdated(
@@ -79,31 +74,38 @@ class CalendarBloc extends CustomBloc<CalendarEvent, CalendarState> {
     Emitter<CalendarState> emit,
   ) async {
     emitLoadingStatus(emit);
-    final String? loggedUserId = await _getLoggedUserId();
-    if (loggedUserId == null) {
-      emitLoggedUserNotFoundStatus(emit);
-      return;
-    }
-    _setDaysListener(loggedUserId, event.month, event.year);
-  }
-
-  Future<String?> _getLoggedUserId() async {
-    return await _getLoggedUserIdUseCase.execute().first;
-  }
-
-  void _setDaysListener(String loggedUserId, int month, int year) {
     _daysListener?.cancel();
-    _daysListener = Rx.combineLatest3(
+    _daysListener = null;
+    _setDaysListener(event.month, event.year, emit);
+  }
+
+  void _setDaysListener(int month, int year, Emitter<CalendarState> emit) {
+    _daysListener = _getLoggedUserIdUseCase
+        .execute()
+        .doOnData(
+          (String? loggedUserId) {
+            if (loggedUserId == null) {
+              emitLoggedUserNotFoundStatus(emit);
+            }
+          },
+        )
+        .whereType<String>()
+        .switchMap(
+          (String loggedUserId) => _getDays(loggedUserId, month, year),
+        )
+        .listen(
+          (List<Day> days) => add(
+            CalendarEventDaysOfReadingUpdated(daysOfReading: days),
+          ),
+        );
+  }
+
+  Stream<List<Day>> _getDays(String loggedUserId, int month, int year) {
+    return Rx.combineLatest3(
       _getLoggedUserDaysFromPreviousMonth(loggedUserId, month, year),
       _getLoggedUserDaysFromMonth(loggedUserId, month, year),
       _getLoggedUserDaysFromNextMonth(loggedUserId, month, year),
       _combineDaysFrom3Months,
-    ).listen(
-      (List<Day> daysOfReading) {
-        add(
-          CalendarEventDaysOfReadingUpdated(daysOfReading: daysOfReading),
-        );
-      },
     );
   }
 

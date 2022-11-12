@@ -73,6 +73,10 @@ void main() {
         );
       }
 
+      setUp(() {
+        dateProvider.mockGetNow(nowDateTime: todayDate);
+      });
+
       blocTest(
         'logged user does not exist, should emit appropriate bloc status',
         build: () => createBloc(),
@@ -83,9 +87,11 @@ void main() {
         expect: () => [
           createState(
             status: const BlocStatusLoading(),
+            todayDate: todayDate,
           ),
           createState(
             status: const BlocStatusLoggedUserNotFound(),
+            todayDate: todayDate,
           ),
         ],
       );
@@ -95,7 +101,6 @@ void main() {
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
-          dateProvider.mockGetNow(nowDateTime: todayDate);
           when(
             () => getUserDaysFromMonthUseCase.execute(
               userId: loggedUserId,
@@ -122,8 +127,6 @@ void main() {
         expect: () => [
           createState(
             status: const BlocStatusLoading(),
-          ),
-          createState(
             todayDate: todayDate,
           ),
           createState(

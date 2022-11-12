@@ -7,6 +7,7 @@ import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/custom_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rxdart/rxdart.dart';
 
 part 'library_event.dart';
 part 'library_state.dart';
@@ -47,12 +48,26 @@ class LibraryBloc extends CustomBloc<LibraryEvent, LibraryState> {
     Emitter<LibraryState> emit,
   ) async {
     emitLoadingStatus(emit);
-    final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
-    if (loggedUserId == null) {
-      emitLoggedUserNotFoundStatus(emit);
-      return;
-    }
-    _setBooksListener(loggedUserId);
+    _booksListener = _getLoggedUserIdUseCase
+        .execute()
+        .doOnData(
+          (String? loggedUserId) {
+            if (loggedUserId == null) {
+              emitLoggedUserNotFoundStatus(emit);
+            }
+          },
+        )
+        .whereType<String>()
+        .switchMap(
+          (String loggedUserId) => _getAllUserBooksUseCase.execute(
+            userId: loggedUserId,
+          ),
+        )
+        .listen(
+          (List<Book> books) => add(
+            LibraryEventBooksUpdated(books: books),
+          ),
+        );
   }
 
   void _booksUpdated(
@@ -71,19 +86,5 @@ class LibraryBloc extends CustomBloc<LibraryEvent, LibraryState> {
     emit(state.copyWith(
       searchValue: event.searchValue,
     ));
-  }
-
-  void _setBooksListener(String loggedUserId) {
-    _booksListener ??= _getAllLoggedUserBooks(loggedUserId).listen(
-      (List<Book>? books) {
-        if (books != null) {
-          add(LibraryEventBooksUpdated(books: books));
-        }
-      },
-    );
-  }
-
-  Stream<List<Book>?> _getAllLoggedUserBooks(String loggedUserId) {
-    return _getAllUserBooksUseCase.execute(userId: loggedUserId);
   }
 }

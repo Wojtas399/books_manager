@@ -15,7 +15,6 @@ import 'package:app/models/error.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'book_preview_event.dart';
-
 part 'book_preview_state.dart';
 
 class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
@@ -60,9 +59,9 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
   }
 
   @override
-  Future<void> close() async {
+  Future<void> close() {
     _bookListener?.cancel();
-    super.close();
+    return super.close();
   }
 
   Future<void> _initialize(

@@ -34,9 +34,9 @@ class ReadingBloc extends CustomBloc<ReadingEvent, ReadingState> {
   }
 
   @override
-  Future<void> close() async {
-    super.close();
+  Future<void> close() {
     _booksInProgressListener?.cancel();
+    return super.close();
   }
 
   Future<void> _initialize(

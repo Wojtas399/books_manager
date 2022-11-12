@@ -62,9 +62,9 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
   }
 
   @override
-  Future<void> close() async {
-    super.close();
+  Future<void> close() {
     _userListener?.cancel();
+    return super.close();
   }
 
   Future<void> _initialize(

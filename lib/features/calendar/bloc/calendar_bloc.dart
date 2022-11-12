@@ -43,9 +43,9 @@ class CalendarBloc extends CustomBloc<CalendarEvent, CalendarState> {
   }
 
   @override
-  Future<void> close() async {
+  Future<void> close() {
     _daysListener?.cancel();
-    super.close();
+    return super.close();
   }
 
   Future<void> _initialize(

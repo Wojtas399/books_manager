@@ -37,9 +37,9 @@ class LibraryBloc extends CustomBloc<LibraryEvent, LibraryState> {
   }
 
   @override
-  Future<void> close() async {
+  Future<void> close() {
     _booksListener?.cancel();
-    super.close();
+    return super.close();
   }
 
   Future<void> _initialize(

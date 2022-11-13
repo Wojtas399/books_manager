@@ -1,6 +1,6 @@
 import 'package:app/components/custom_button_component.dart';
 import 'package:app/domain/entities/book.dart';
-import 'package:app/domain/interfaces/dialog_interface.dart';
+import 'package:app/extensions/dialogs_build_context_extension.dart';
 import 'package:app/extensions/string_extensions.dart';
 import 'package:app/features/book_preview/bloc/book_preview_bloc.dart';
 import 'package:flutter/widgets.dart';
@@ -78,10 +78,9 @@ class _BookPreviewButtonState extends State<BookPreviewButton> {
   }
 
   Future<int?> _askForNewCurrentPageNumber() async {
-    final DialogInterface dialogInterface = context.read<DialogInterface>();
     final BookPreviewBloc bookPreviewBloc = context.read<BookPreviewBloc>();
     final int? currentPageNumber = bookPreviewBloc.state.readPagesAmount;
-    final String? numberInString = await dialogInterface.askForValue(
+    final String? numberInString = await context.askForValue(
       title: 'Bieżąca strona',
       message: 'Podaj nowy numer bieżącej strony',
       initialValue: '${currentPageNumber ?? 0}',

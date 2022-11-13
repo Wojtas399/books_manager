@@ -1,5 +1,5 @@
 import 'package:app/components/list_tile_component.dart';
-import 'package:app/domain/interfaces/dialog_interface.dart';
+import 'package:app/extensions/dialogs_build_context_extension.dart';
 import 'package:app/features/settings/bloc/settings_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,12 +30,12 @@ class SettingsAccountDeletion extends StatelessWidget {
   }
 
   Future<String?> _askForPassword(BuildContext context) async {
-    return await context.read<DialogInterface>().askForValue(
-          title: 'Usuwanie konta',
-          message:
-              'Operacja ta jest nieodwracalna i spowoduje usunięcie wszystkich zapisanych dotychczas danych. \nPodaj hasło jeśli chcesz kontynuować:',
-          placeholder: 'Hasło',
-          obscureText: true,
-        );
+    return await context.askForValue(
+      title: 'Usuwanie konta',
+      message:
+          'Operacja ta jest nieodwracalna i spowoduje usunięcie wszystkich zapisanych dotychczas danych. \nPodaj hasło jeśli chcesz kontynuować:',
+      placeholder: 'Hasło',
+      obscureText: true,
+    );
   }
 }

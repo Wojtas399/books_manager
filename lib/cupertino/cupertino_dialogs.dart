@@ -5,7 +5,6 @@ import 'package:app/cupertino/components/cupertino_loading_dialog.dart';
 import 'package:app/cupertino/components/cupertino_single_input_dialog.dart';
 import 'package:app/domain/interfaces/dialog_interface.dart';
 import 'package:app/models/action_sheet_action.dart';
-import 'package:app/providers/navigator_key_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -14,25 +13,22 @@ class CupertinoDialogs implements DialogInterface {
 
   @override
   Future<String?> askForAction({
+    required BuildContext context,
     required String title,
     required List<ActionSheetAction> actions,
-    BuildContext? context,
   }) async {
-    final BuildContext? buildContext = context ?? _getNavigatorContext();
-    if (buildContext != null) {
-      return await showCupertinoModalPopup(
-        context: buildContext,
-        builder: (_) => CupertinoCustomActionSheet(
-          title: title,
-          actions: actions,
-        ),
-      );
-    }
-    return null;
+    return await showCupertinoModalPopup(
+      context: context,
+      builder: (_) => CupertinoCustomActionSheet(
+        title: title,
+        actions: actions,
+      ),
+    );
   }
 
   @override
   Future<String?> askForValue({
+    required BuildContext context,
     required String title,
     String? message,
     String? placeholder,
@@ -42,36 +38,29 @@ class CupertinoDialogs implements DialogInterface {
     String? acceptLabel,
     String? cancelLabel,
   }) async {
-    final BuildContext? buildContext = _getNavigatorContext();
-    if (buildContext != null) {
-      return await showCupertinoDialog(
-        context: buildContext,
-        builder: (_) => CupertinoSingleInputDialog(
-          title: title,
-          message: message,
-          placeholder: placeholder,
-          initialValue: initialValue,
-          keyboardType: keyboardType,
-          obscureText: obscureText,
-          acceptLabel: acceptLabel,
-          cancelLabel: cancelLabel,
-        ),
-      );
-    }
-    return null;
+    return await showCupertinoDialog(
+      context: context,
+      builder: (_) => CupertinoSingleInputDialog(
+        title: title,
+        message: message,
+        placeholder: placeholder,
+        initialValue: initialValue,
+        keyboardType: keyboardType,
+        obscureText: obscureText,
+        acceptLabel: acceptLabel,
+        cancelLabel: cancelLabel,
+      ),
+    );
   }
 
   @override
   Future<bool> askForConfirmation({
+    required BuildContext context,
     required String title,
     String? message,
   }) async {
-    final BuildContext? buildContext = _getNavigatorContext();
-    if (buildContext == null) {
-      return false;
-    }
     return await showCupertinoDialog(
-          context: buildContext,
+          context: context,
           builder: (_) => CupertinoConfirmationDialog(
             title: title,
             message: message,
@@ -81,11 +70,10 @@ class CupertinoDialogs implements DialogInterface {
   }
 
   @override
-  void showLoadingDialog({BuildContext? context}) {
-    final BuildContext? buildContext = context ?? _getNavigatorContext();
-    if (!_isLoadingDialogOpened && buildContext != null) {
+  void showLoadingDialog({required BuildContext context}) {
+    if (!_isLoadingDialogOpened) {
       showCupertinoDialog(
-        context: buildContext,
+        context: context,
         barrierDismissible: false,
         builder: (_) => const CupertinoLoadingDialog(),
       );
@@ -94,48 +82,37 @@ class CupertinoDialogs implements DialogInterface {
   }
 
   @override
-  void closeLoadingDialog({BuildContext? context}) {
-    final BuildContext? buildContext = context ?? _getNavigatorContext();
-    if (_isLoadingDialogOpened && buildContext != null) {
-      Navigator.of(buildContext, rootNavigator: true).pop();
+  void closeLoadingDialog({required BuildContext context}) {
+    if (_isLoadingDialogOpened) {
+      Navigator.of(context, rootNavigator: true).pop();
       _isLoadingDialogOpened = false;
     }
   }
 
   @override
   Future<void> showInfoDialog({
+    required BuildContext context,
     required String title,
     required String info,
-    BuildContext? context,
   }) async {
-    final BuildContext? buildContext = context ?? _getNavigatorContext();
-    if (buildContext != null) {
-      await showCupertinoDialog(
-        context: buildContext,
-        builder: (_) => CupertinoInfoDialog(
-          title: title,
-          info: info,
-        ),
-      );
-    }
+    await showCupertinoDialog(
+      context: context,
+      builder: (_) => CupertinoInfoDialog(
+        title: title,
+        info: info,
+      ),
+    );
   }
 
   @override
   void showSnackBar({
+    required BuildContext context,
     required String message,
-    BuildContext? context,
   }) {
-    final BuildContext? buildContext = context ?? _getNavigatorContext();
-    if (buildContext != null) {
-      ScaffoldMessenger.of(buildContext).showSnackBar(
-        SnackBar(
-          content: Text(message),
-        ),
-      );
-    }
-  }
-
-  BuildContext? _getNavigatorContext() {
-    return NavigatorKeyProvider.getContext();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
   }
 }

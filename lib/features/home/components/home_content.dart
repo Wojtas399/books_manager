@@ -1,9 +1,9 @@
+import 'package:app/extensions/navigator_build_context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../../../components/custom_scaffold_component.dart';
-import '../../../config/navigation.dart';
 import '../../calendar/calendar_screen.dart';
 import '../../library/library_screen.dart';
 import '../../reading/reading_screen.dart';
@@ -33,7 +33,7 @@ class HomeContent extends StatelessWidget {
       appBarTitle: pagesTitles[pageIndex],
       trailing: IconButton(
         splashRadius: 24,
-        onPressed: _onSettingsPressed,
+        onPressed: () => _onSettingsPressed(context),
         icon: const Icon(MdiIcons.cog),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -56,7 +56,7 @@ class HomeContent extends StatelessWidget {
             _onBottomNavigationBarItemPressed(pressedItemIndex, context),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _onFloatingActionButtonPressed,
+        onPressed: () => _onFloatingActionButtonPressed(context),
         child: const Icon(
           Icons.add_rounded,
           color: Colors.white,
@@ -66,8 +66,8 @@ class HomeContent extends StatelessWidget {
     );
   }
 
-  void _onSettingsPressed() {
-    Navigation.navigateToSettings();
+  void _onSettingsPressed(BuildContext context) {
+    context.navigateToSettings();
   }
 
   void _onBottomNavigationBarItemPressed(
@@ -77,7 +77,7 @@ class HomeContent extends StatelessWidget {
     context.read<HomeCubit>().changePage(pressedItemIndex);
   }
 
-  void _onFloatingActionButtonPressed() {
-    Navigation.navigateToBookCreator();
+  void _onFloatingActionButtonPressed(BuildContext context) {
+    context.navigateToBookCreator();
   }
 }

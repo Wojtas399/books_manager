@@ -4,7 +4,6 @@ import 'package:app/components/bloc_listener_component.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/interfaces/day_interface.dart';
-import 'package:app/domain/interfaces/dialog_interface.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/book/delete_book_use_case.dart';
 import 'package:app/domain/use_cases/book/get_book_use_case.dart';
@@ -12,6 +11,7 @@ import 'package:app/domain/use_cases/book/start_reading_book_use_case.dart';
 import 'package:app/domain/use_cases/book/update_current_page_number_after_reading_use_case.dart';
 import 'package:app/domain/use_cases/day/add_new_read_book_to_user_days_use_case.dart';
 import 'package:app/domain/use_cases/day/delete_book_from_user_days_use_case.dart';
+import 'package:app/extensions/dialogs_build_context_extension.dart';
 import 'package:app/features/book_preview/bloc/book_preview_bloc.dart';
 import 'package:app/features/book_preview/book_preview_arguments.dart';
 import 'package:app/features/book_preview/components/book_preview_content.dart';
@@ -128,32 +128,32 @@ class _BookPreviewBlocListener extends StatelessWidget {
   }
 
   void _showInfoAboutPageActualisation(BuildContext context) {
-    context.read<DialogInterface>().showSnackBar(
-          message: 'Pomyślnie zaktualizowano numer bieżącej strony',
-        );
+    context.showSnackBar(
+      message: 'Pomyślnie zaktualizowano numer bieżącej strony',
+    );
   }
 
   void _showInfoAboutBookDeletion(BuildContext context) {
     Navigator.pop(context);
-    context.read<DialogInterface>().showSnackBar(
-          message: 'Pomyślnie usunięto książkę',
-        );
+    context.showSnackBar(
+      message: 'Pomyślnie usunięto książkę',
+    );
   }
 
   void _showInfoAboutTooHighNumberOfNewCurrentPage(BuildContext context) {
-    context.read<DialogInterface>().showInfoDialog(
-          title: 'Niepoprawny numer strony',
-          info: 'Podany numer strony jest wyższy od liczby wszystkich stron...',
-        );
+    context.showInfoDialog(
+      title: 'Niepoprawny numer strony',
+      info: 'Podany numer strony jest wyższy od liczby wszystkich stron...',
+    );
   }
 
   void _showInfoAboutNewPageNumberLowerThanCurrentPageNumber(
     BuildContext context,
   ) {
-    context.read<DialogInterface>().showInfoDialog(
-          title: 'Niepoprawny numer strony',
-          info:
-              'Podany numer strony jest niższy od numeru poprzednio skończonej strony',
-        );
+    context.showInfoDialog(
+      title: 'Niepoprawny numer strony',
+      info:
+          'Podany numer strony jest niższy od numeru poprzednio skończonej strony',
+    );
   }
 }

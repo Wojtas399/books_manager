@@ -1,11 +1,10 @@
 import 'dart:typed_data';
 
 import 'package:app/components/book_image_component.dart';
-import 'package:app/domain/interfaces/dialog_interface.dart';
+import 'package:app/extensions/dialogs_build_context_extension.dart';
 import 'package:app/models/action_sheet_action.dart';
 import 'package:app/models/image.dart' as image_entity;
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -49,10 +48,10 @@ class BookImagePickerComponent extends StatelessWidget {
 
   Future<_ImageAction?> _askForAction(BuildContext context) async {
     final List<ActionSheetAction> actions = _createActionsToSelect();
-    final String? actionId = await context.read<DialogInterface>().askForAction(
-          title: image != null ? 'Edytuj zdjęcie' : 'Dodaj zdjęcie',
-          actions: actions,
-        );
+    final String? actionId = await context.askForAction(
+      title: image != null ? 'Edytuj zdjęcie' : 'Dodaj zdjęcie',
+      actions: actions,
+    );
     return actionId.toImageAction();
   }
 

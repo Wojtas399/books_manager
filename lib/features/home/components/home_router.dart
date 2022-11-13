@@ -1,6 +1,8 @@
 import 'package:app/config/animations/fade_route_animation.dart';
+import 'package:app/config/animations/slide_right_route_animation.dart';
 import 'package:app/config/animations/slide_up_route_animation.dart';
 import 'package:app/config/routes.dart';
+import 'package:app/features/auth/auth.dart';
 import 'package:app/features/book_creator/book_creator_screen.dart';
 import 'package:app/features/book_editor/book_editor_screen.dart';
 import 'package:app/features/book_preview/book_preview_arguments.dart';
@@ -8,27 +10,14 @@ import 'package:app/features/book_preview/book_preview_screen.dart';
 import 'package:app/features/day_preview/day_preview_screen.dart';
 import 'package:app/features/home/components/home_content.dart';
 import 'package:app/features/settings/settings_screen.dart';
-import 'package:app/providers/navigator_key_provider.dart';
 import 'package:flutter/material.dart';
 
-class HomeRouter extends StatefulWidget {
+class HomeRouter extends StatelessWidget {
   const HomeRouter({super.key});
-
-  @override
-  State<StatefulWidget> createState() => _HomeRouterState();
-}
-
-class _HomeRouterState extends State<HomeRouter> {
-  @override
-  void initState() {
-    NavigatorKeyProvider.setNewNavigatorKey();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Navigator(
-      key: NavigatorKeyProvider.getKey(),
       initialRoute: Routes.home,
       observers: [
         HeroController(),
@@ -39,6 +28,10 @@ class _HomeRouterState extends State<HomeRouter> {
 
   Route<dynamic> _onGenerateRoute(RouteSettings routeSettings) {
     switch (routeSettings.name) {
+      case Routes.signIn:
+        return SlideRightRouteAnimation(
+          page: const Auth(),
+        );
       case Routes.home:
         return MaterialPageRoute(
           builder: (_) => const HomeContent(),

@@ -1,5 +1,5 @@
-import 'package:app/config/navigation.dart';
-import 'package:app/domain/interfaces/dialog_interface.dart';
+import 'package:app/extensions/dialogs_build_context_extension.dart';
+import 'package:app/extensions/navigator_build_context_extension.dart';
 import 'package:app/features/book_preview/bloc/book_preview_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -57,7 +57,7 @@ class BookPreviewActionsIcon extends StatelessWidget {
 
   void _onEditPressed(BuildContext context) {
     final String bookId = context.read<BookPreviewBloc>().state.bookId;
-    Navigation.navigateToBookEditor(bookId: bookId);
+    context.navigateToBookEditor(bookId: bookId);
   }
 
   Future<void> _onDeletePressed(BuildContext context) async {
@@ -72,9 +72,9 @@ class BookPreviewActionsIcon extends StatelessWidget {
 
   Future<bool> _askForDeletionConfirmation(BuildContext context) async {
     final String? title = context.read<BookPreviewBloc>().state.title;
-    return await context.read<DialogInterface>().askForConfirmation(
-          title: 'Usuwanie książki',
-          message: 'Czy na pewno chcesz usunąć książkę "$title"?',
-        );
+    return await context.askForConfirmation(
+      title: 'Usuwanie książki',
+      message: 'Czy na pewno chcesz usunąć książkę "$title"?',
+    );
   }
 }

@@ -1,8 +1,7 @@
-import 'package:app/domain/interfaces/dialog_interface.dart';
+import 'package:app/extensions/dialogs_build_context_extension.dart';
 import 'package:app/extensions/string_extensions.dart';
 import 'package:app/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BookPagesEditorComponent extends StatelessWidget {
   final int readPagesAmount;
@@ -142,12 +141,12 @@ class _PagesAmount extends StatelessWidget {
   }
 
   Future<int?> _askForNumber(BuildContext context) async {
-    String? numberAsString = await context.read<DialogInterface>().askForValue(
-          title: dialogTitle,
-          initialValue: '$amount',
-          keyboardType: TextInputType.number,
-          acceptLabel: 'Zapisz',
-        );
+    String? numberAsString = await context.askForValue(
+      title: dialogTitle,
+      initialValue: '$amount',
+      keyboardType: TextInputType.number,
+      acceptLabel: 'Zapisz',
+    );
     return numberAsString?.toInt();
   }
 }

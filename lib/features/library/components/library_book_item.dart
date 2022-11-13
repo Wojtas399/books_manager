@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:app/components/book_image_component.dart';
-import 'package:app/config/navigation.dart';
+import 'package:app/extensions/navigator_build_context_extension.dart';
 import 'package:flutter/material.dart';
 
 class LibraryBookItem extends StatelessWidget {
@@ -21,7 +21,7 @@ class LibraryBookItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _onPressed,
+      onTap: () => _onPressed(context),
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
@@ -45,8 +45,8 @@ class LibraryBookItem extends StatelessWidget {
     );
   }
 
-  void _onPressed() {
-    Navigation.navigateToBookPreview(bookId: bookId, imageData: imageData);
+  void _onPressed(BuildContext context) {
+    context.navigateToBookPreview(bookId: bookId, imageData: imageData);
   }
 }
 

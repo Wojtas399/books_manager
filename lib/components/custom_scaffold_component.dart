@@ -1,3 +1,4 @@
+import 'package:app/extensions/navigator_build_context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -125,6 +126,6 @@ class _LeadingIcon extends StatelessWidget {
   }
 
   void _onLeadingIconPressed(BuildContext context) {
-    Navigator.pop(context);
+    context.navigateBack();
   }
 }

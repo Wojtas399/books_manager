@@ -1,5 +1,5 @@
-import 'package:app/config/navigation.dart';
-import 'package:app/domain/interfaces/dialog_interface.dart';
+import 'package:app/extensions/dialogs_build_context_extension.dart';
+import 'package:app/extensions/navigator_build_context_extension.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:flutter/widgets.dart';
@@ -55,7 +55,7 @@ class BlocListenerComponent<Bloc extends StateStreamable<State>,
   }
 
   void _manageLoadingStatus(BuildContext context) {
-    context.read<DialogInterface>().showLoadingDialog(context: context);
+    context.showLoadingDialog();
   }
 
   void _manageCompleteStatus(
@@ -84,33 +84,33 @@ class BlocListenerComponent<Bloc extends StateStreamable<State>,
 
   Future<void> _manageLoggedUserNotFoundStatus(BuildContext context) async {
     _closeLoadingDialog(context);
-    await context.read<DialogInterface>().showInfoDialog(
-          title: 'Brak zalogowanego użytkownika',
-          info:
-              'Wystąpił nieoczekiwany problem ze znalezieniem zalogowanego użytkownika. W związku z tym za chwilę aplikacja przejdzie do ekranu logowania. Zaloguj się ponownie i przeprowadź operację od początku.',
-        );
-    Navigation.navigateToSignInScreen();
+    context.showInfoDialog(
+      title: 'Brak zalogowanego użytkownika',
+      info:
+          'Wystąpił nieoczekiwany problem ze znalezieniem zalogowanego użytkownika. Zaloguj się ponownie i przeprowadź operację od początku.',
+    );
+    context.navigateBackToSignInScreen();
   }
 
   void _manageLossOfInternetConnection(BuildContext context) {
     _closeLoadingDialog(context);
-    context.read<DialogInterface>().showInfoDialog(
-          title: 'Brak połączenia internetowego',
-          info:
-              'Niestety nie można wykonać tej operacji, ponieważ nie wykryto połączenia z internetem...',
-        );
+    context.showInfoDialog(
+      title: 'Brak połączenia internetowego',
+      info:
+          'Niestety nie można wykonać tej operacji, ponieważ nie wykryto połączenia z internetem...',
+    );
   }
 
   void _manageTimeoutException(BuildContext context) {
     _closeLoadingDialog(context);
-    context.read<DialogInterface>().showInfoDialog(
-          title: 'Przekroczony czas wykonania operacji',
-          info:
-              'Operacja ładuje się zbyt długo. Sprawdź połączenie internetowe i spróbuj ponownie...',
-        );
+    context.showInfoDialog(
+      title: 'Przekroczony czas wykonania operacji',
+      info:
+          'Operacja ładuje się zbyt długo. Sprawdź połączenie internetowe i spróbuj ponownie...',
+    );
   }
 
   void _closeLoadingDialog(BuildContext context) {
-    context.read<DialogInterface>().closeLoadingDialog(context: context);
+    context.closeLoadingDialog();
   }
 }

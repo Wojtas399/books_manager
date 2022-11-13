@@ -16,7 +16,7 @@ Using this app you can store all your books in one place, manage currently readi
 - Light/dark mode
 - Easy registration with email and password only
 - Multi-device synchronization
-- Ability to use an app without internet connection
+- Real-time updates
 
 
 ## Screenshots

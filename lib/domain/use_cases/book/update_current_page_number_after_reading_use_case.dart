@@ -22,8 +22,18 @@ class UpdateCurrentPageNumberAfterReadingUseCase {
     required String userId,
     required int newCurrentPageNumber,
   }) async {
-    final int readPagesAmount =
-        await _countReadPagesAmount(bookId, userId, newCurrentPageNumber);
+    final Book book = await _loadBook(bookId, userId);
+    final int readPagesAmount = await _countReadPagesAmount(
+      bookId,
+      userId,
+      book.allPagesAmount,
+      book.readPagesAmount,
+      newCurrentPageNumber,
+    );
+    BookStatus? newBookStatus;
+    if (newCurrentPageNumber == book.allPagesAmount) {
+      newBookStatus = BookStatus.finished;
+    }
     final ReadBook readBook = ReadBook(
       bookId: bookId,
       readPagesAmount: readPagesAmount,
@@ -32,6 +42,7 @@ class UpdateCurrentPageNumberAfterReadingUseCase {
       bookId: bookId,
       userId: userId,
       readPagesAmount: newCurrentPageNumber,
+      status: newBookStatus,
     );
     await _addNewReadBookToUserDaysUseCase.execute(
       userId: userId,
@@ -42,19 +53,20 @@ class UpdateCurrentPageNumberAfterReadingUseCase {
   Future<int> _countReadPagesAmount(
     String bookId,
     String userId,
+    int bookAllPagesAmount,
+    int bookReadPagesAmount,
     int newCurrentPageNumber,
   ) async {
-    final Book book = await _loadBook(bookId, userId);
-    if (newCurrentPageNumber > book.allPagesAmount) {
+    if (newCurrentPageNumber > bookAllPagesAmount) {
       throw const BookError(
         code: BookErrorCode.newCurrentPageIsTooHigh,
       );
-    } else if (newCurrentPageNumber <= book.readPagesAmount) {
+    } else if (newCurrentPageNumber <= bookReadPagesAmount) {
       throw const BookError(
         code: BookErrorCode.newCurrentPageIsLowerThanReadPagesAmount,
       );
     }
-    return newCurrentPageNumber - book.readPagesAmount;
+    return newCurrentPageNumber - bookReadPagesAmount;
   }
 
   Future<Book> _loadBook(String bookId, String userId) async {

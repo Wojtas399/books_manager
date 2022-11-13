@@ -44,7 +44,7 @@ void main() {
   });
 
   test(
-    'should throw book error if new current page is higher than all pages amount from the book',
+    'new current page is higher than all pages amount from the book, should throw book error',
     () async {
       final int newCurrentPageNumber = book.allPagesAmount + 1;
       const BookError expectedBookError = BookError(
@@ -63,7 +63,7 @@ void main() {
   );
 
   test(
-    'should throw book error if new current page number is lower or equal to read pages amount from the book',
+    'new current page number is lower or equal to read pages amount from the book, should throw book error',
     () async {
       final int newCurrentPageNumber = book.readPagesAmount;
       const BookError expectedBookError = BookError(
@@ -103,6 +103,40 @@ void main() {
           bookId: bookId,
           userId: userId,
           readPagesAmount: newCurrentPageNumber,
+        ),
+      ).called(1);
+      verify(
+        () => addNewReadBookToUserDaysUseCase.execute(
+          userId: userId,
+          readBook: readBook,
+        ),
+      ).called(1);
+    },
+  );
+
+  test(
+    'new current page number is equal to all pages amount, should update book with status set as finished',
+    () async {
+      final int newCurrentPageNumber = book.allPagesAmount;
+      final ReadBook readBook = createReadBook(
+        bookId: bookId,
+        readPagesAmount: newCurrentPageNumber - book.readPagesAmount,
+      );
+      bookInterface.mockUpdateBook();
+      addNewReadBookToUserDaysUseCase.mock();
+
+      await useCase.execute(
+        bookId: bookId,
+        userId: userId,
+        newCurrentPageNumber: newCurrentPageNumber,
+      );
+
+      verify(
+        () => bookInterface.updateBook(
+          bookId: bookId,
+          userId: userId,
+          readPagesAmount: newCurrentPageNumber,
+          status: BookStatus.finished,
         ),
       ).called(1);
       verify(

@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:app/components/book_image_component.dart';
 import 'package:app/components/pages_progress_bar_component.dart';
 import 'package:app/domain/entities/book.dart';
-import 'package:app/extensions/book_status_extensions.dart';
+import 'package:app/extensions/book_status_extension.dart';
 import 'package:app/extensions/navigator_build_context_extension.dart';
 import 'package:flutter/material.dart';
 

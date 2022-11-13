@@ -1,4 +1,4 @@
-import 'package:app/extensions/list_extensions.dart';
+import 'package:app/extensions/list_extension.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

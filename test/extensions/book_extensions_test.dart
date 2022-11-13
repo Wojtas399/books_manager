@@ -1,5 +1,5 @@
 import 'package:app/domain/entities/book.dart';
-import 'package:app/extensions/book_extensions.dart';
+import 'package:app/extensions/book_extension.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

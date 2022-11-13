@@ -1,5 +1,5 @@
 import 'package:app/extensions/dialogs_build_context_extension.dart';
-import 'package:app/extensions/string_extensions.dart';
+import 'package:app/extensions/string_extension.dart';
 import 'package:app/utils/utils.dart';
 import 'package:flutter/material.dart';
 

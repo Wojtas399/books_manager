@@ -1,8 +1,8 @@
 import 'package:app/domain/entities/day.dart';
-import 'package:app/extensions/list_of_read_books_extensions.dart';
+import 'package:app/extensions/list_of_read_books_extension.dart';
 import 'package:app/utils/date_utils.dart';
 
-extension ListOfDaysExtensions on List<Day> {
+extension ListOfDaysExtension on List<Day> {
   bool doesNotContainDate(DateTime date) {
     final List<DateTime> dates = map((Day day) => day.date).toList();
     for (int i = 0; i < dates.length; i++) {

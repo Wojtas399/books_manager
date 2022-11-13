@@ -1,7 +1,7 @@
 import 'package:app/domain/entities/day.dart';
 import 'package:app/domain/entities/read_book.dart';
 import 'package:app/domain/interfaces/day_interface.dart';
-import 'package:app/extensions/list_of_days_extensions.dart';
+import 'package:app/extensions/list_of_days_extension.dart';
 
 class DeleteBookFromUserDaysUseCase {
   late final DayInterface _dayInterface;

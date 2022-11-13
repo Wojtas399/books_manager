@@ -1,8 +1,8 @@
 import 'package:app/domain/entities/day.dart';
 import 'package:app/domain/entities/read_book.dart';
 import 'package:app/domain/interfaces/day_interface.dart';
-import 'package:app/extensions/list_of_days_extensions.dart';
-import 'package:app/extensions/list_of_read_books_extensions.dart';
+import 'package:app/extensions/list_of_days_extension.dart';
+import 'package:app/extensions/list_of_read_books_extension.dart';
 import 'package:app/providers/date_provider.dart';
 
 class AddNewReadBookToUserDaysUseCase {

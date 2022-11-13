@@ -1,4 +1,4 @@
-import 'package:app/extensions/string_extensions.dart';
+import 'package:app/extensions/string_extension.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

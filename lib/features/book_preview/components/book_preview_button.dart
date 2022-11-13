@@ -1,7 +1,7 @@
 import 'package:app/components/custom_button_component.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/extensions/dialogs_build_context_extension.dart';
-import 'package:app/extensions/string_extensions.dart';
+import 'package:app/extensions/string_extension.dart';
 import 'package:app/features/book_preview/bloc/book_preview_bloc.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -1,5 +1,5 @@
 import 'package:app/domain/entities/read_book.dart';
-import 'package:app/extensions/list_of_read_books_extensions.dart';
+import 'package:app/extensions/list_of_read_books_extension.dart';
 import 'package:test/test.dart';
 
 void main() {

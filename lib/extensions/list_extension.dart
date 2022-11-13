@@ -1,4 +1,4 @@
-extension ListExtensions<T> on List<T> {
+extension ListExtension<T> on List<T> {
   bool doesNotContain(Object? element) {
     return !contains(element);
   }

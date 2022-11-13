@@ -1,6 +1,6 @@
 import 'package:app/domain/entities/read_book.dart';
 
-extension ListOfReadBooksExtensions on List<ReadBook> {
+extension ListOfReadBooksExtension on List<ReadBook> {
   bool containsBook(String bookId) {
     final List<String> booksIds = _getReadBooksIds();
     return booksIds.contains(bookId);

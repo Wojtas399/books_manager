@@ -2,7 +2,7 @@ import 'package:app/domain/entities/book.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-extension BookStatusExtensions on BookStatus {
+extension BookStatusExtension on BookStatus {
   Color toColor() {
     switch (this) {
       case BookStatus.unread:

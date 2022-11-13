@@ -1,4 +1,4 @@
-extension DateExtensions on DateTime {
+extension DateExtension on DateTime {
   String toUIFormat() {
     return '$day.$month.$year';
   }

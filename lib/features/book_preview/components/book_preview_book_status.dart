@@ -1,5 +1,5 @@
 import 'package:app/domain/entities/book.dart';
-import 'package:app/extensions/book_status_extensions.dart';
+import 'package:app/extensions/book_status_extension.dart';
 import 'package:app/features/book_preview/bloc/book_preview_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

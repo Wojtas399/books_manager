@@ -1,7 +1,7 @@
 import 'package:app/components/on_tap_focus_lose_area_component.dart';
-import 'package:app/config/navigation.dart';
 import 'package:app/config/themes/app_colors.dart';
 import 'package:app/config/themes/global_material_theme.dart';
+import 'package:app/extensions/navigator_build_context_extension.dart';
 import 'package:app/features/sign_in/bloc/sign_in_bloc.dart';
 import 'package:app/features/sign_in/components/sign_in_form_card.dart';
 import 'package:app/features/sign_in/components/sign_in_inputs.dart';
@@ -108,13 +108,13 @@ class _AlternativeOptions extends StatelessWidget {
   }
 
   void _onForgotPasswordPressed(BuildContext context) {
-    Navigation.navigateToResetPasswordScreen(context: context);
+    context.navigateToResetPasswordScreen();
     _cleanForm(context);
     _unfocusInputs();
   }
 
   void _onSignUpPressed(BuildContext context) {
-    Navigation.navigateToSignUpScreen(context: context);
+    context.navigateToSignUpScreen();
     _cleanForm(context);
     _unfocusInputs();
   }

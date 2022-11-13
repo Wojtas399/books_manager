@@ -7,24 +7,21 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../mocks/domain/use_cases/auth/mock_get_logged_user_id_use_case.dart';
 import '../../mocks/domain/use_cases/book/mock_get_user_books_in_progress_use_case.dart';
-import '../../mocks/domain/use_cases/book/mock_load_user_books_in_progress_use_case.dart';
 
 void main() {
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
-  final loadUserBooksInProgressUseCase = MockLoadUserBooksInProgressUseCase();
   final getUserBooksInProgressUseCase = MockGetUserBooksInProgressUseCase();
 
   ReadingBloc createBloc() {
     return ReadingBloc(
       getLoggedUserIdUseCase: getLoggedUserIdUseCase,
-      loadUserBooksInProgressUseCase: loadUserBooksInProgressUseCase,
       getUserBooksInProgressUseCase: getUserBooksInProgressUseCase,
     );
   }
 
   ReadingState createState({
-    BlocStatus status = const BlocStatusComplete(),
-    List<Book> booksInProgress = const [],
+    BlocStatus status = const BlocStatusInitial(),
+    List<Book>? booksInProgress,
   }) {
     return ReadingState(
       status: status,
@@ -34,81 +31,63 @@ void main() {
 
   tearDown(() {
     reset(getLoggedUserIdUseCase);
-    reset(loadUserBooksInProgressUseCase);
     reset(getUserBooksInProgressUseCase);
   });
 
-  blocTest(
-    'initialize, should emit appropriate status if logged user id is null',
-    build: () => createBloc(),
-    setUp: () {
-      getLoggedUserIdUseCase.mock();
-    },
-    act: (ReadingBloc bloc) {
-      bloc.add(
-        const ReadingEventInitialize(),
-      );
-    },
-    expect: () => [
-      createState(
-        status: const BlocStatusLoggedUserNotFound(),
-      ),
-    ],
-  );
+  group(
+    'initialize',
+    () {
+      void eventCall(ReadingBloc bloc) => bloc.add(
+            const ReadingEventInitialize(),
+          );
 
-  blocTest(
-    'initialize should emit loading status if logged user books are not loaded and should call use case responsible for loading logged user books in progress after 300ms delay',
-    build: () => createBloc(),
-    setUp: () {
-      getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
-      loadUserBooksInProgressUseCase.mock();
-      getUserBooksInProgressUseCase.mock();
-    },
-    act: (ReadingBloc bloc) {
-      bloc.add(
-        const ReadingEventInitialize(),
-      );
-    },
-    expect: () => [
-      createState(
-        status: const BlocStatusLoading(),
-      ),
-    ],
-    verify: (_) async {
-      await Future.delayed(
-        const Duration(milliseconds: 300),
-      );
-      verify(
-        () => loadUserBooksInProgressUseCase.execute(userId: 'u1'),
-      ).called(1);
-    },
-  );
+      tearDown(() {
+        verify(
+          () => getLoggedUserIdUseCase.execute(),
+        ).called(1);
+      });
 
-  blocTest(
-    'initialize, should emit logged user books in progress and should call use case responsible for loading logged user books in progress after 300ms delay',
-    build: () => createBloc(),
-    setUp: () {
-      getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
-      loadUserBooksInProgressUseCase.mock();
-      getUserBooksInProgressUseCase.mock(userBooksInProgress: []);
-    },
-    act: (ReadingBloc bloc) {
-      bloc.add(
-        const ReadingEventInitialize(),
+      blocTest(
+        'logged user does not exist, should emit books as null',
+        build: () => createBloc(),
+        setUp: () {
+          getLoggedUserIdUseCase.mock();
+        },
+        act: (ReadingBloc bloc) => eventCall(bloc),
+        expect: () => [
+          createState(
+            status: const BlocStatusLoading(),
+          ),
+          createState(
+            status: const BlocStatusComplete(),
+            booksInProgress: null,
+          ),
+        ],
       );
-    },
-    expect: () => [
-      createState(
-        booksInProgress: [],
-      ),
-    ],
-    verify: (_) async {
-      await Future.delayed(
-        const Duration(milliseconds: 300),
+
+      blocTest(
+        'logged user exists, should set listener for user books in progress',
+        build: () => createBloc(),
+        setUp: () {
+          getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
+          getUserBooksInProgressUseCase.mock(userBooksInProgress: []);
+        },
+        act: (ReadingBloc bloc) => eventCall(bloc),
+        expect: () => [
+          createState(
+            status: const BlocStatusLoading(),
+          ),
+          createState(
+            status: const BlocStatusComplete(),
+            booksInProgress: [],
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => getUserBooksInProgressUseCase.execute(userId: 'u1'),
+          ).called(1);
+        },
       );
-      verify(
-        () => loadUserBooksInProgressUseCase.execute(userId: 'u1'),
-      ).called(1);
     },
   );
 
@@ -132,6 +111,7 @@ void main() {
         },
         expect: () => [
           createState(
+            status: const BlocStatusComplete(),
             booksInProgress: booksInProgress,
           ),
         ],

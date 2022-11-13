@@ -1,6 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:app/domain/interfaces/book_interface.dart';
+import 'package:app/models/image.dart';
 
 class UpdateBookUseCase {
   late final BookInterface _bookInterface;
@@ -11,26 +10,24 @@ class UpdateBookUseCase {
 
   Future<void> execute({
     required String bookId,
-    Uint8List? imageData,
+    required String userId,
+    Image? image,
     bool deleteImage = false,
     String? title,
     String? author,
     int? readPagesAmount,
     int? allPagesAmount,
   }) async {
-    if (imageData != null) {
-      await _bookInterface.updateBookImage(
+    if (deleteImage) {
+      await _bookInterface.deleteBookImage(
         bookId: bookId,
-        imageData: imageData,
-      );
-    } else if (deleteImage) {
-      await _bookInterface.updateBookImage(
-        bookId: bookId,
-        imageData: null,
+        userId: userId,
       );
     }
-    await _bookInterface.updateBookData(
+    await _bookInterface.updateBook(
       bookId: bookId,
+      userId: userId,
+      image: deleteImage ? null : image,
       title: title,
       author: author,
       readPagesAmount: readPagesAmount,

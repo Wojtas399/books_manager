@@ -7,32 +7,30 @@ import 'package:app/domain/use_cases/auth/delete_logged_user_use_case.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/auth/sign_out_use_case.dart';
 import 'package:app/domain/use_cases/user/get_user_use_case.dart';
-import 'package:app/domain/use_cases/user/load_user_use_case.dart';
-import 'package:app/domain/use_cases/user/update_theme_settings_use_case.dart';
+import 'package:app/domain/use_cases/user/update_user_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/custom_bloc.dart';
 import 'package:app/models/error.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rxdart/rxdart.dart';
 
 part 'settings_event.dart';
 part 'settings_state.dart';
 
 class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
-  late final LoadUserUseCase _loadUserUseCase;
   late final GetUserUseCase _getUserUseCase;
-  late final UpdateThemeSettingsUseCase _updateThemeSettingsUseCase;
+  late final UpdateUserUseCase _updateUserUseCase;
   late final ChangeLoggedUserPasswordUseCase _changeLoggedUserPasswordUseCase;
   late final SignOutUseCase _signOutUseCase;
   late final DeleteLoggedUserUseCase _deleteLoggedUserUseCase;
-  StreamSubscription<User>? _userListener;
+  StreamSubscription<User?>? _userListener;
 
   SettingsBloc({
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
-    required LoadUserUseCase loadUserUseCase,
     required GetUserUseCase getUserUseCase,
-    required UpdateThemeSettingsUseCase updateThemeSettingsUseCase,
+    required UpdateUserUseCase updateUserUseCase,
     required ChangeLoggedUserPasswordUseCase changeLoggedUserPasswordUseCase,
     required SignOutUseCase signOutUseCase,
     required DeleteLoggedUserUseCase deleteLoggedUserUseCase,
@@ -48,9 +46,8 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
           ),
         ) {
     _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
-    _loadUserUseCase = loadUserUseCase;
     _getUserUseCase = getUserUseCase;
-    _updateThemeSettingsUseCase = updateThemeSettingsUseCase;
+    _updateUserUseCase = updateUserUseCase;
     _changeLoggedUserPasswordUseCase = changeLoggedUserPasswordUseCase;
     _signOutUseCase = signOutUseCase;
     _deleteLoggedUserUseCase = deleteLoggedUserUseCase;
@@ -66,9 +63,9 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
   }
 
   @override
-  Future<void> close() async {
-    super.close();
+  Future<void> close() {
     _userListener?.cancel();
+    return super.close();
   }
 
   Future<void> _initialize(
@@ -76,13 +73,12 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
     Emitter<SettingsState> emit,
   ) async {
     emitLoadingStatus(emit);
-    final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
-    if (loggedUserId == null) {
-      emitLoggedUserNotFoundStatus(emit);
-    } else {
-      await _loadUserUseCase.execute(userId: loggedUserId);
-      _setUserListener(loggedUserId);
-    }
+    _userListener =
+        _getLoggedUserIdUseCase.execute().switchMap(_getUser).listen(
+              (User? user) => add(
+                SettingsEventUserUpdated(user: user),
+              ),
+            );
   }
 
   void _userUpdated(
@@ -91,9 +87,9 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
   ) {
     emit(state.copyWith(
       status: const BlocStatusComplete(),
-      isDarkModeOn: event.user.isDarkModeOn,
+      isDarkModeOn: event.user?.isDarkModeOn,
       isDarkModeCompatibilityWithSystemOn:
-          event.user.isDarkModeCompatibilityWithSystemOn,
+          event.user?.isDarkModeCompatibilityWithSystemOn,
     ));
   }
 
@@ -105,10 +101,20 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
     if (loggedUserId == null) {
       return;
     }
-    await _updateThemeSettingsUseCase.execute(
-      userId: loggedUserId,
+    final bool previousValue = state.isDarkModeOn;
+    emit(state.copyWith(
       isDarkModeOn: event.isSwitched,
-    );
+    ));
+    try {
+      await _updateUserUseCase.execute(
+        userId: loggedUserId,
+        isDarkModeOn: event.isSwitched,
+      );
+    } catch (_) {
+      emit(state.copyWith(
+        isDarkModeOn: previousValue,
+      ));
+    }
   }
 
   Future<void> _switchDarkModeCompatibilityWithSystem(
@@ -119,10 +125,20 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
     if (loggedUserId == null) {
       return;
     }
-    await _updateThemeSettingsUseCase.execute(
-      userId: loggedUserId,
+    final bool previousValue = state.isDarkModeCompatibilityWithSystemOn;
+    emit(state.copyWith(
       isDarkModeCompatibilityWithSystemOn: event.isSwitched,
-    );
+    ));
+    try {
+      await _updateUserUseCase.execute(
+        userId: loggedUserId,
+        isDarkModeCompatibilityWithSystemOn: event.isSwitched,
+      );
+    } catch (_) {
+      emit(state.copyWith(
+        isDarkModeCompatibilityWithSystemOn: previousValue,
+      ));
+    }
   }
 
   Future<void> _changePassword(
@@ -157,17 +173,14 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
       await _tryDeleteLoggedUserAccount(event.password, emit);
     } on AuthError catch (authError) {
       _manageAuthError(authError, emit);
-    } on NetworkError catch (networkError) {
-      _manageNetworkError(networkError, emit);
     }
   }
 
-  void _setUserListener(String loggedUserId) {
-    _userListener ??= _getUserUseCase.execute(userId: loggedUserId).listen(
-          (User user) => add(
-            SettingsEventUserUpdated(user: user),
-          ),
-        );
+  Stream<User?> _getUser(String? loggedUserId) {
+    if (loggedUserId == null) {
+      return Stream.value(null);
+    }
+    return _getUserUseCase.execute(userId: loggedUserId);
   }
 
   Future<void> _tryChangeLoggedUserPassword(
@@ -203,15 +216,6 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
       emitError(emit, SettingsBlocError.wrongPassword);
     } else if (authError.code == AuthErrorCode.userNotFound) {
       emitLoggedUserNotFoundStatus(emit);
-    }
-  }
-
-  void _manageNetworkError(
-    NetworkError networkError,
-    Emitter<SettingsState> emit,
-  ) {
-    if (networkError.code == NetworkErrorCode.lossOfConnection) {
-      emitLossOfInternetConnectionStatus(emit);
     }
   }
 }

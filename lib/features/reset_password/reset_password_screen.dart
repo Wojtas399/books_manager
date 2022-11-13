@@ -1,7 +1,7 @@
 import 'package:app/components/bloc_listener_component.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
-import 'package:app/domain/interfaces/dialog_interface.dart';
 import 'package:app/domain/use_cases/auth/send_reset_password_email_use_case.dart';
+import 'package:app/extensions/dialogs_build_context_extension.dart';
 import 'package:app/features/reset_password/bloc/reset_password_bloc.dart';
 import 'package:app/features/reset_password/components/reset_password_content.dart';
 import 'package:flutter/widgets.dart';
@@ -85,26 +85,23 @@ class _ResetPasswordBlocListener extends StatelessWidget {
   }
 
   void _emailHasBeenSentInfo(BuildContext context) {
-    context.read<DialogInterface>().showSnackBar(
-          context: context,
-          message: 'Pomyślnie wysłano wiadomość na podany adres email.',
-        );
+    context.showSnackBar(
+      message: 'Pomyślnie wysłano wiadomość na podany adres email.',
+    );
   }
 
   void _userNotFoundInfo(BuildContext context) {
-    context.read<DialogInterface>().showInfoDialog(
-          context: context,
-          title: 'Brak użytkownika',
-          info: 'Nie znaleziono użytkownika o podanym adresie email.',
-        );
+    context.showInfoDialog(
+      title: 'Brak użytkownika',
+      info: 'Nie znaleziono użytkownika o podanym adresie email.',
+    );
   }
 
   void _invalidEmailInfo(BuildContext context) {
-    context.read<DialogInterface>().showInfoDialog(
-          context: context,
-          title: 'Niepoprawny adres email',
-          info:
-              'Nie można wysłać wiadomości, ponieważ podany adres email jest niepoprawny.',
-        );
+    context.showInfoDialog(
+      title: 'Niepoprawny adres email',
+      info:
+          'Nie można wysłać wiadomości, ponieważ podany adres email jest niepoprawny.',
+    );
   }
 }

@@ -3,8 +3,9 @@ import 'dart:typed_data';
 
 import 'package:app/config/errors.dart';
 import 'package:app/domain/entities/book.dart';
+import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/book/delete_book_use_case.dart';
-import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
+import 'package:app/domain/use_cases/book/get_book_use_case.dart';
 import 'package:app/domain/use_cases/book/start_reading_book_use_case.dart';
 import 'package:app/domain/use_cases/book/update_current_page_number_after_reading_use_case.dart';
 import 'package:app/models/bloc_state.dart';
@@ -12,12 +13,14 @@ import 'package:app/models/bloc_status.dart';
 import 'package:app/models/custom_bloc.dart';
 import 'package:app/models/error.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rxdart/rxdart.dart';
 
 part 'book_preview_event.dart';
 part 'book_preview_state.dart';
 
 class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
-  late final GetBookByIdUseCase _getBookByIdUseCase;
+  late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
+  late final GetBookUseCase _getBookUseCase;
   late final StartReadingBookUseCase _startReadingBookUseCase;
   late final UpdateCurrentPageNumberAfterReadingUseCase
       _updateCurrentPageNumberAfterReadingUseCase;
@@ -25,7 +28,8 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
   StreamSubscription<Book?>? _bookListener;
 
   BookPreviewBloc({
-    required GetBookByIdUseCase getBookByIdUseCase,
+    required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
+    required GetBookUseCase getBookUseCase,
     required StartReadingBookUseCase startReadingBookUseCase,
     required UpdateCurrentPageNumberAfterReadingUseCase
         updateCurrentPageNumberAfterReadingUseCase,
@@ -42,7 +46,8 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
             book: book,
           ),
         ) {
-    _getBookByIdUseCase = getBookByIdUseCase;
+    _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
+    _getBookUseCase = getBookUseCase;
     _startReadingBookUseCase = startReadingBookUseCase;
     _updateCurrentPageNumberAfterReadingUseCase =
         updateCurrentPageNumberAfterReadingUseCase;
@@ -55,17 +60,26 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
   }
 
   @override
-  Future<void> close() async {
+  Future<void> close() {
     _bookListener?.cancel();
-    super.close();
+    return super.close();
   }
 
-  void _initialize(
+  Future<void> _initialize(
     BookPreviewEventInitialize event,
     Emitter<BookPreviewState> emit,
-  ) {
+  ) async {
     emitLoadingStatus(emit);
-    _setBookListener(event.bookId);
+    _bookListener ??= _getLoggedUserIdUseCase
+        .execute()
+        .switchMap(
+          (String? loggedUserId) => _getBook(event.bookId, loggedUserId),
+        )
+        .listen(
+          (Book? book) => add(
+            BookPreviewEventBookUpdated(book: book),
+          ),
+        );
   }
 
   void _bookUpdated(
@@ -82,9 +96,14 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
     BookPreviewEventStartReading event,
     Emitter<BookPreviewState> emit,
   ) async {
+    final String? userId = state._book?.userId;
+    if (userId == null) {
+      return;
+    }
     emitLoadingStatus(emit);
     await _startReadingBookUseCase.execute(
       bookId: state.bookId,
+      userId: userId,
       fromBeginning: event.fromBeginning,
     );
     emit(state.copyWith(
@@ -97,8 +116,14 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
     Emitter<BookPreviewState> emit,
   ) async {
     emitLoadingStatus(emit);
+    final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
+    if (loggedUserId == null) {
+      emitLoggedUserNotFoundStatus(emit);
+      return;
+    }
     try {
       await _updateCurrentPageNumberAfterReadingUseCase.execute(
+        userId: loggedUserId,
         bookId: state.bookId,
         newCurrentPageNumber: event.currentPageNumber,
       );
@@ -116,18 +141,23 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
     Emitter<BookPreviewState> emit,
   ) async {
     emitLoadingStatus(emit);
-    await _deleteBookUseCase.execute(bookId: state.bookId);
+    final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
+    if (loggedUserId == null) {
+      emitLoggedUserNotFoundStatus(emit);
+      return;
+    }
+    await _deleteBookUseCase.execute(
+      bookId: state.bookId,
+      userId: loggedUserId,
+    );
     emitInfo<BookPreviewBlocInfo>(emit, BookPreviewBlocInfo.bookHasBeenDeleted);
   }
 
-  void _setBookListener(String bookId) {
-    _bookListener ??= _getBookByIdUseCase.execute(bookId: bookId).listen(
-      (Book? book) {
-        if (book != null) {
-          add(BookPreviewEventBookUpdated(book: book));
-        }
-      },
-    );
+  Stream<Book?> _getBook(String bookId, String? userId) {
+    if (userId == null) {
+      return Stream.value(null);
+    }
+    return _getBookUseCase.execute(bookId: bookId, userId: userId);
   }
 
   void _manageBookError(BookError bookError, Emitter<BookPreviewState> emit) {
@@ -137,10 +167,10 @@ class BookPreviewBloc extends CustomBloc<BookPreviewEvent, BookPreviewState> {
         BookPreviewBlocError.newCurrentPageNumberIsTooHigh,
       );
     } else if (bookError.code ==
-        BookErrorCode.newCurrentPageIsLowerThanCurrentPage) {
+        BookErrorCode.newCurrentPageIsLowerThanReadPagesAmount) {
       emitError<BookPreviewBlocError>(
         emit,
-        BookPreviewBlocError.newCurrentPageIsLowerThanCurrentPage,
+        BookPreviewBlocError.newCurrentPageIsLowerThanReadPagesAmount,
       );
     }
   }

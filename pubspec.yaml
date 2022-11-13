@@ -16,7 +16,7 @@ dependencies:
   flutter_bloc: ^8.1.1
   firebase_core: ^1.3.0
   firebase_auth: ^3.1.1
-  cloud_firestore: ^3.4.6
+  cloud_firestore: ^3.5.1
   provider: ^6.0.0
   bloc_test: ^9.1.0
   image_picker: ^0.8.1+3
@@ -27,11 +27,9 @@ dependencies:
   mocktail: ^0.3.0
   equatable: ^2.0.3
   cupertino_icons: ^1.0.5
-  shared_preferences: ^2.0.15
   material_design_icons_flutter: ^5.0.6996
   sqflite: ^2.0.3+1
   path: ^1.8.1
-  uuid: ^3.0.6
   internet_connection_checker: ^0.0.1+4
   flutter_launcher_icons: ^0.10.0
 

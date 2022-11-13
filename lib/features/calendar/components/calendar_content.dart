@@ -1,7 +1,7 @@
 import 'package:app/components/animated_opacity_and_scale_component.dart';
 import 'package:app/components/calendar_component/calendar_component.dart';
-import 'package:app/config/navigation.dart';
 import 'package:app/domain/entities/read_book.dart';
+import 'package:app/extensions/navigator_build_context_extension.dart';
 import 'package:app/features/calendar/bloc/calendar_bloc.dart';
 import 'package:app/features/day_preview/day_preview_screen.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +54,7 @@ class _CalendarComponent extends StatelessWidget {
   void _onDatePressed(DateTime date, BuildContext context) {
     final List<ReadBook> readBooks =
         context.read<CalendarBloc>().state.getReadBooksFromDay(date);
-    Navigation.navigateToDayPreview(
+    context.navigateToDayPreview(
       dayPreviewScreenArguments: DayPreviewScreenArguments(
         date: date,
         readBooks: readBooks,

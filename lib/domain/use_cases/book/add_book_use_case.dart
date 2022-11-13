@@ -1,7 +1,6 @@
-import 'dart:typed_data';
-
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
+import 'package:app/models/image.dart';
 
 class AddBookUseCase {
   late final BookInterface _bookInterface;
@@ -15,7 +14,7 @@ class AddBookUseCase {
   Future<void> execute({
     required String userId,
     required BookStatus status,
-    required Uint8List? imageData,
+    required Image? image,
     required String title,
     required String author,
     required int readPagesAmount,
@@ -24,7 +23,7 @@ class AddBookUseCase {
     await _bookInterface.addNewBook(
       userId: userId,
       status: status,
-      imageData: imageData,
+      image: image,
       title: title,
       author: author,
       readPagesAmount: readPagesAmount,

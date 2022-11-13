@@ -8,16 +8,16 @@ class BookEditorPages extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final int readPagesAmount = context.select(
+    final int? readPagesAmount = context.select(
       (BookEditorBloc bloc) => bloc.state.readPagesAmount,
     );
-    final int allPagesAmount = context.select(
+    final int? allPagesAmount = context.select(
       (BookEditorBloc bloc) => bloc.state.allPagesAmount,
     );
 
     return BookPagesEditorComponent(
-      readPagesAmount: readPagesAmount,
-      allPagesAmount: allPagesAmount,
+      readPagesAmount: readPagesAmount ?? 0,
+      allPagesAmount: allPagesAmount ?? 0,
       onReadPagesAmountChanged: (int amount) => _onReadPagesAmountChanged(
         amount,
         context,

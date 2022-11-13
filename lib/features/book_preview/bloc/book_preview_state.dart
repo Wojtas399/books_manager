@@ -35,7 +35,7 @@ class BookPreviewState extends BlocState {
     );
   }
 
-  Uint8List? get bookImageData => _book?.imageData;
+  Uint8List? get bookImageData => _book?.image?.data;
 
   BookStatus? get bookStatus => _book?.status;
 
@@ -55,5 +55,5 @@ enum BookPreviewBlocInfo {
 
 enum BookPreviewBlocError {
   newCurrentPageNumberIsTooHigh,
-  newCurrentPageIsLowerThanCurrentPage,
+  newCurrentPageIsLowerThanReadPagesAmount,
 }

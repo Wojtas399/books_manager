@@ -3,30 +3,36 @@ import 'dart:typed_data';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/features/book_editor/bloc/book_editor_bloc.dart';
 import 'package:app/models/bloc_status.dart';
+import 'package:app/models/image.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../mocks/domain/use_cases/book/mock_get_book_by_id_use_case.dart';
+import '../../mocks/domain/use_cases/auth/mock_get_logged_user_id_use_case.dart';
+import '../../mocks/domain/use_cases/book/mock_get_book_use_case.dart';
 import '../../mocks/domain/use_cases/book/mock_update_book_use_case.dart';
 
 void main() {
-  final getBookByIdUseCase = MockGetBookByIdUseCase();
+  final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
+  final getBookUseCase = MockGetBookUseCase();
   final updateBookUseCase = MockUpdateBookUseCase();
+  const String bookId = 'b1';
+  const String userId = 'u1';
 
   BookEditorBloc createBloc({
     Book? originalBook,
-    Uint8List? imageData,
+    Image? image,
     String title = '',
     String author = '',
     int readPagesAmount = 0,
     int allPagesAmount = 0,
   }) {
     return BookEditorBloc(
-      getBookByIdUseCase: getBookByIdUseCase,
+      getLoggedUserIdUseCase: getLoggedUserIdUseCase,
+      getBookUseCase: getBookUseCase,
       updateBookUseCase: updateBookUseCase,
       originalBook: originalBook,
-      imageData: imageData,
+      image: image,
       title: title,
       author: author,
       readPagesAmount: readPagesAmount,
@@ -37,7 +43,7 @@ void main() {
   BookEditorState createState({
     BlocStatus status = const BlocStatusInProgress(),
     Book? originalBook,
-    Uint8List? imageData,
+    Image? image,
     String title = '',
     String author = '',
     int readPagesAmount = 0,
@@ -46,7 +52,7 @@ void main() {
     return BookEditorState(
       status: status,
       originalBook: originalBook,
-      imageData: imageData,
+      image: image,
       title: title,
       author: author,
       readPagesAmount: readPagesAmount,
@@ -55,34 +61,62 @@ void main() {
   }
 
   tearDown(() {
-    reset(getBookByIdUseCase);
+    reset(getLoggedUserIdUseCase);
+    reset(getBookUseCase);
     reset(updateBookUseCase);
   });
 
   group(
     'initialize',
     () {
-      const String bookId = 'b1';
       final Book book = createBook(
         id: bookId,
-        imageData: Uint8List(10),
+        userId: userId,
+        image: createImage(fileName: 'i1.jpg', data: Uint8List(10)),
         title: 'title',
         author: 'author',
         readPagesAmount: 0,
         allPagesAmount: 100,
       );
 
-      blocTest(
-        'should load book and assign its params to state',
-        build: () => createBloc(),
-        setUp: () {
-          getBookByIdUseCase.mock(book: book);
-        },
-        act: (BookEditorBloc bloc) {
-          bloc.add(
+      void eventCall(BookEditorBloc bloc) => bloc.add(
             const BookEditorEventInitialize(bookId: bookId),
           );
+
+      setUp(() {
+        getBookUseCase.mock(book: book);
+      });
+
+      tearDown(() {
+        verify(
+          () => getLoggedUserIdUseCase.execute(),
+        ).called(1);
+      });
+
+      blocTest(
+        'logged user does not exist, should emit logged user not found status',
+        build: () => createBloc(),
+        setUp: () {
+          getLoggedUserIdUseCase.mock();
         },
+        act: (BookEditorBloc bloc) => eventCall(bloc),
+        expect: () => [
+          createState(
+            status: const BlocStatusLoading(),
+          ),
+          createState(
+            status: const BlocStatusLoggedUserNotFound(),
+          ),
+        ],
+      );
+
+      blocTest(
+        'logged user exists, should load book and assign its params to state',
+        build: () => createBloc(),
+        setUp: () {
+          getLoggedUserIdUseCase.mock(loggedUserId: userId);
+        },
+        act: (BookEditorBloc bloc) => eventCall(bloc),
         expect: () => [
           createState(
             status: const BlocStatusLoading(),
@@ -90,57 +124,62 @@ void main() {
           createState(
             status: const BlocStatusComplete(),
             originalBook: book,
-            imageData: book.imageData,
+            image: book.image,
             title: book.title,
             author: book.author,
             readPagesAmount: book.readPagesAmount,
             allPagesAmount: book.allPagesAmount,
           ),
         ],
+        verify: (_) {
+          verify(
+            () => getBookUseCase.execute(
+              bookId: bookId,
+              userId: userId,
+            ),
+          ).called(1);
+        },
       );
     },
   );
 
-  blocTest(
-    'image changed, should update image data in state',
-    build: () => createBloc(),
-    act: (BookEditorBloc bloc) {
-      bloc.add(
-        BookEditorEventImageChanged(imageData: Uint8List(1)),
-      );
-    },
-    expect: () => [
-      createState(
-        imageData: Uint8List(1),
-      ),
-    ],
-  );
+  group(
+    'image changed',
+    () {
+      void eventCall(BookEditorBloc bloc, Image? image) {
+        bloc.add(
+          BookEditorEventImageChanged(image: image),
+        );
+      }
 
-  blocTest(
-    'image changed, should set image data as null if given image data is null',
-    build: () => createBloc(
-      imageData: Uint8List(1),
-    ),
-    act: (BookEditorBloc bloc) {
-      bloc.add(
-        const BookEditorEventImageChanged(imageData: null),
+      blocTest(
+        'should update image file in state',
+        build: () => createBloc(),
+        act: (BookEditorBloc bloc) => eventCall(bloc, createImage()),
+        expect: () => [
+          createState(image: createImage()),
+        ],
+      );
+
+      blocTest(
+        'should set image file as null if given image file is null',
+        build: () => createBloc(image: createImage()),
+        act: (BookEditorBloc bloc) => eventCall(bloc, null),
+        expect: () => [
+          createState(image: null),
+        ],
       );
     },
-    expect: () => [
-      createState(
-        imageData: null,
-      ),
-    ],
   );
 
   group(
     'restore original image',
     () {
-      final Uint8List imageData = Uint8List(1);
-      final Book book = createBook(imageData: imageData);
+      final Image image = createImage();
+      final Book book = createBook(image: image);
 
       blocTest(
-        'should assign image from original book to image',
+        'should assign image file from original book to image file in state',
         build: () => createBloc(originalBook: book),
         act: (BookEditorBloc bloc) {
           bloc.add(
@@ -150,7 +189,7 @@ void main() {
         expect: () => [
           createState(
             originalBook: book,
-            imageData: imageData,
+            image: image,
           ),
         ],
       );
@@ -220,7 +259,8 @@ void main() {
   group(
     'submit',
     () {
-      final Book originalBook = createBook(id: 'b1');
+      final Book originalBook = createBook(id: 'b1', userId: userId);
+      final Image newImage = createImage(fileName: 'i1.jpg');
       const String newTitle = 'new title';
       const String newAuthor = 'new author';
       const int newReadPagesAmount = 20;
@@ -233,42 +273,75 @@ void main() {
         allPagesAmount: newAllPagesAmount,
       );
 
+      BookEditorBloc createUpdatedBloc({
+        Book? originalBook,
+        Image? image,
+      }) {
+        return createBloc(
+          originalBook: originalBook,
+          image: image,
+          title: newTitle,
+          author: newAuthor,
+          readPagesAmount: newReadPagesAmount,
+          allPagesAmount: newAllPagesAmount,
+        );
+      }
+
+      void eventCall(BookEditorBloc bloc) {
+        bloc.add(
+          const BookEditorEventSubmit(),
+        );
+      }
+
       setUp(() {
         updateBookUseCase.mock();
       });
 
       blocTest(
-        'should call use case responsible for updating book',
-        build: () => createBloc(
-          originalBook: originalBook,
-          imageData: Uint8List(1),
-          title: newTitle,
-          author: newAuthor,
-          readPagesAmount: newReadPagesAmount,
-          allPagesAmount: newAllPagesAmount,
-        ),
-        act: (BookEditorBloc bloc) {
-          bloc.add(
-            const BookEditorEventSubmit(),
+        'should do nothing if book is original book is not set',
+        build: () => createUpdatedBloc(image: newImage),
+        act: (BookEditorBloc bloc) => eventCall(bloc),
+        expect: () => [],
+        verify: (_) {
+          verifyNever(
+            () => updateBookUseCase.execute(
+              bookId: any(named: 'bookId'),
+              userId: any(named: 'userId'),
+              image: newImage,
+              title: newTitle,
+              author: newAuthor,
+              readPagesAmount: newReadPagesAmount,
+              allPagesAmount: newAllPagesAmount,
+            ),
           );
         },
+      );
+
+      blocTest(
+        'should call use case responsible for updating book',
+        build: () => createUpdatedBloc(
+          originalBook: originalBook,
+          image: newImage,
+        ),
+        act: (BookEditorBloc bloc) => eventCall(bloc),
         expect: () => [
           state.copyWith(
             status: const BlocStatusLoading(),
-            imageData: Uint8List(1),
+            image: newImage,
           ),
           state.copyWith(
             status: const BlocStatusComplete<BookEditorBlocInfo>(
               info: BookEditorBlocInfo.bookHasBeenUpdated,
             ),
-            imageData: Uint8List(1),
+            image: newImage,
           ),
         ],
         verify: (_) {
           verify(
             () => updateBookUseCase.execute(
               bookId: originalBook.id,
-              imageData: Uint8List(1),
+              userId: userId,
+              image: newImage,
               title: newTitle,
               author: newAuthor,
               readPagesAmount: newReadPagesAmount,
@@ -279,20 +352,9 @@ void main() {
       );
 
       blocTest(
-        'should call use case responsible for updating book with delete image param set as true if image data is null',
-        build: () => createBloc(
-          originalBook: originalBook,
-          imageData: null,
-          title: newTitle,
-          author: newAuthor,
-          readPagesAmount: newReadPagesAmount,
-          allPagesAmount: newAllPagesAmount,
-        ),
-        act: (BookEditorBloc bloc) {
-          bloc.add(
-            const BookEditorEventSubmit(),
-          );
-        },
+        'should call use case responsible for updating book with delete image param set as true if new image file is null',
+        build: () => createUpdatedBloc(originalBook: originalBook),
+        act: (BookEditorBloc bloc) => eventCall(bloc),
         expect: () => [
           state.copyWith(
             status: const BlocStatusLoading(),
@@ -307,6 +369,7 @@ void main() {
           verify(
             () => updateBookUseCase.execute(
               bookId: originalBook.id,
+              userId: userId,
               deleteImage: true,
               title: newTitle,
               author: newAuthor,

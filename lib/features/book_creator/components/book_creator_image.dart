@@ -1,31 +1,27 @@
-import 'dart:typed_data';
-
 import 'package:app/components/book_image_picker_component.dart';
 import 'package:app/features/book_creator/bloc/book_creator_bloc.dart';
-import 'package:flutter/widgets.dart';
+import 'package:app/models/image.dart';
+import 'package:flutter/widgets.dart' as widgets;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class BookCreatorImage extends StatelessWidget {
+class BookCreatorImage extends widgets.StatelessWidget {
   const BookCreatorImage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final Uint8List? imageData = context.select(
-      (BookCreatorBloc bloc) => bloc.state.imageData,
+  widgets.Widget build(widgets.BuildContext context) {
+    final Image? image = context.select(
+      (BookCreatorBloc bloc) => bloc.state.image,
     );
 
     return BookImagePickerComponent(
-      imageData: imageData,
-      onImageDataChanged: (Uint8List? imageData) => _onImageChanged(
-        imageData,
-        context,
-      ),
+      image: image,
+      onImageChanged: (Image? image) => _onImageChanged(image, context),
     );
   }
 
-  void _onImageChanged(Uint8List? imageData, BuildContext context) {
+  void _onImageChanged(Image? image, widgets.BuildContext context) {
     context.read<BookCreatorBloc>().add(
-          BookCreatorEventChangeImage(imageData: imageData),
+          BookCreatorEventChangeImage(image: image),
         );
   }
 }

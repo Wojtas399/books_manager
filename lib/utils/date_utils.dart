@@ -9,14 +9,6 @@ class DateUtils {
     return false;
   }
 
-  static bool isDateFromMonthAndYear({
-    required DateTime date,
-    required int month,
-    required int year,
-  }) {
-    return date.month == month && date.year == year;
-  }
-
   static bool areDatesTheSame({
     required DateTime date1,
     required DateTime date2,

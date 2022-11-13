@@ -6,16 +6,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../mocks/domain/use_cases/auth/mock_get_logged_user_id_use_case.dart';
-import '../../mocks/domain/use_cases/book/mock_load_all_user_books_use_case.dart';
 import '../../mocks/domain/use_cases/day/mock_get_user_days_from_month_use_case.dart';
-import '../../mocks/domain/use_cases/day/mock_load_user_days_from_month_use_case.dart';
 import '../../mocks/providers/mock_date_provider.dart';
 
 void main() {
   final dateProvider = MockDateProvider();
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
-  final loadAllUserBooksUseCase = MockLoadAllUserBooksUseCase();
-  final loadUserDaysFromMonthUseCase = MockLoadUserDaysFromMonthUseCase();
   final getUserDaysFromMonthUseCase = MockGetUserDaysFromMonthUseCase();
   const String loggedUserId = 'u1';
 
@@ -23,16 +19,14 @@ void main() {
     return CalendarBloc(
       dateProvider: dateProvider,
       getLoggedUserIdUseCase: getLoggedUserIdUseCase,
-      loadAllUserBooksUseCase: loadAllUserBooksUseCase,
-      loadUserDaysFromMonthUseCase: loadUserDaysFromMonthUseCase,
       getUserDaysFromMonthUseCase: getUserDaysFromMonthUseCase,
     );
   }
 
   CalendarState createState({
-    BlocStatus status = const BlocStatusComplete(),
+    BlocStatus status = const BlocStatusInitial(),
     DateTime? todayDate,
-    List<Day> daysOfReading = const [],
+    List<Day>? daysOfReading,
   }) {
     return CalendarState(
       status: status,
@@ -41,15 +35,9 @@ void main() {
     );
   }
 
-  setUp(() {
-    loadUserDaysFromMonthUseCase.mock();
-  });
-
   tearDown(() {
     reset(dateProvider);
     reset(getLoggedUserIdUseCase);
-    reset(loadAllUserBooksUseCase);
-    reset(loadUserDaysFromMonthUseCase);
     reset(getUserDaysFromMonthUseCase);
   });
 
@@ -79,84 +67,41 @@ void main() {
         ),
       ];
 
+      void eventCall(CalendarBloc bloc) {
+        bloc.add(
+          const CalendarEventInitialize(),
+        );
+      }
+
+      setUp(() {
+        dateProvider.mockGetNow(nowDateTime: todayDate);
+      });
+
       blocTest(
-        'logged user does not exist, should emit appropriate bloc status',
+        'logged user does not exist, should emit today date and days as null',
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock();
         },
-        act: (CalendarBloc bloc) {
-          bloc.add(
-            const CalendarEventInitialize(),
-          );
-        },
-        expect: () => [
-          createState(
-            status: const BlocStatusLoggedUserNotFound(),
-          ),
-        ],
-      );
-
-      blocTest(
-        'should emit loading status if logged user days of reading have not been loaded yet',
-        build: () => createBloc(),
-        setUp: () {
-          getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
-          loadAllUserBooksUseCase.mock();
-          dateProvider.mockGetNow(nowDateTime: todayDate);
-          getUserDaysFromMonthUseCase.mock();
-        },
-        act: (CalendarBloc bloc) {
-          bloc.add(
-            const CalendarEventInitialize(),
-          );
-        },
+        act: (CalendarBloc bloc) => eventCall(bloc),
         expect: () => [
           createState(
             status: const BlocStatusLoading(),
             todayDate: todayDate,
           ),
+          createState(
+            status: const BlocStatusComplete(),
+            todayDate: todayDate,
+            daysOfReading: null,
+          ),
         ],
-        verify: (_) async {
-          await Future.delayed(
-            const Duration(milliseconds: 300),
-          );
-          verify(
-            () => loadAllUserBooksUseCase.execute(
-              userId: loggedUserId,
-            ),
-          ).called(1);
-          verify(
-            () => loadUserDaysFromMonthUseCase.execute(
-              userId: loggedUserId,
-              month: 1,
-              year: 2022,
-            ),
-          ).called(1);
-          verify(
-            () => loadUserDaysFromMonthUseCase.execute(
-              userId: loggedUserId,
-              month: 12,
-              year: 2021,
-            ),
-          ).called(1);
-          verify(
-            () => loadUserDaysFromMonthUseCase.execute(
-              userId: loggedUserId,
-              month: 2,
-              year: 2022,
-            ),
-          ).called(1);
-        },
       );
 
       blocTest(
-        'should load all logged user books and days from current, previous and next months and then should assign these days to state with today date',
+        'should assign today date to state and should set listener of logged user days from current, previous and next months',
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
-          loadAllUserBooksUseCase.mock();
-          dateProvider.mockGetNow(nowDateTime: todayDate);
           when(
             () => getUserDaysFromMonthUseCase.execute(
               userId: loggedUserId,
@@ -179,13 +124,10 @@ void main() {
             ),
           ).thenAnswer((_) => Stream.value(userDaysFromNextMonth));
         },
-        act: (CalendarBloc bloc) {
-          bloc.add(
-            const CalendarEventInitialize(),
-          );
-        },
+        act: (CalendarBloc bloc) => eventCall(bloc),
         expect: () => [
           createState(
+            status: const BlocStatusLoading(),
             todayDate: todayDate,
           ),
           createState(
@@ -198,36 +140,14 @@ void main() {
             ],
           ),
         ],
-        verify: (_) async {
-          await Future.delayed(
-            const Duration(milliseconds: 300),
-          );
+        verify: (_) {
           verify(
-            () => loadAllUserBooksUseCase.execute(
+            () => getUserDaysFromMonthUseCase.execute(
               userId: loggedUserId,
+              month: any(named: 'month'),
+              year: any(named: 'year'),
             ),
-          ).called(1);
-          verify(
-            () => loadUserDaysFromMonthUseCase.execute(
-              userId: loggedUserId,
-              month: 1,
-              year: 2022,
-            ),
-          ).called(1);
-          verify(
-            () => loadUserDaysFromMonthUseCase.execute(
-              userId: loggedUserId,
-              month: 12,
-              year: 2021,
-            ),
-          ).called(1);
-          verify(
-            () => loadUserDaysFromMonthUseCase.execute(
-              userId: loggedUserId,
-              month: 2,
-              year: 2022,
-            ),
-          ).called(1);
+          ).called(3);
         },
       );
     },
@@ -255,6 +175,7 @@ void main() {
         },
         expect: () => [
           createState(
+            status: const BlocStatusComplete(),
             daysOfReading: daysOfReading,
           ),
         ],
@@ -287,30 +208,35 @@ void main() {
         ),
       ];
 
+      void eventCall(CalendarBloc bloc) {
+        bloc.add(
+          const CalendarEventMonthChanged(month: month, year: year),
+        );
+      }
+
       blocTest(
-        'should emit appropriate info if logged user does not exist',
+        'logged user does not exist, should emit days as null',
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock();
         },
-        act: (CalendarBloc bloc) {
-          bloc.add(
-            const CalendarEventMonthChanged(month: 1, year: 2022),
-          );
-        },
+        act: (CalendarBloc bloc) => eventCall(bloc),
         expect: () => [
           createState(
-            status: const BlocStatusLoggedUserNotFound(),
+            status: const BlocStatusLoading(),
+          ),
+          createState(
+            status: const BlocStatusComplete(),
+            daysOfReading: null,
           ),
         ],
       );
 
       blocTest(
-        'should load logged user days from given, previous and next months and should assign these days to state',
+        'should change listener of logged user days from given, previous and next months and should assign these days to state',
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
-          loadUserDaysFromMonthUseCase.mock();
           when(
             () => getUserDaysFromMonthUseCase.execute(
               userId: loggedUserId,
@@ -333,16 +259,13 @@ void main() {
             ),
           ).thenAnswer((_) => Stream.value(userDaysFromNextMonth));
         },
-        act: (CalendarBloc bloc) {
-          bloc.add(
-            const CalendarEventMonthChanged(month: month, year: year),
-          );
-        },
+        act: (CalendarBloc bloc) => eventCall(bloc),
         expect: () => [
           createState(
             status: const BlocStatusLoading(),
           ),
           createState(
+            status: const BlocStatusComplete(),
             daysOfReading: [
               ...userDaysFromPreviousMonth,
               ...userDaysFromGivenMonth,
@@ -352,7 +275,7 @@ void main() {
         ],
         verify: (_) {
           verify(
-            () => loadUserDaysFromMonthUseCase.execute(
+            () => getUserDaysFromMonthUseCase.execute(
               userId: loggedUserId,
               month: month,
               year: year,

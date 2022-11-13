@@ -4,39 +4,40 @@ import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/entities/read_book.dart';
 import 'package:app/features/day_preview/bloc/day_preview_bloc.dart';
 import 'package:app/models/bloc_status.dart';
+import 'package:app/models/image.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 import '../../mocks/domain/use_cases/auth/mock_get_logged_user_id_use_case.dart';
-import '../../mocks/domain/use_cases/book/mock_get_book_by_id_use_case.dart';
+import '../../mocks/domain/use_cases/book/mock_get_book_use_case.dart';
 
 void main() {
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
-  final getBookByIdUseCase = MockGetBookByIdUseCase();
+  final getBookUseCase = MockGetBookUseCase();
 
   DayPreviewBloc createBloc() {
     return DayPreviewBloc(
       getLoggedUserIdUseCase: getLoggedUserIdUseCase,
-      getBookByIdUseCase: getBookByIdUseCase,
+      getBookUseCase: getBookUseCase,
     );
   }
 
   DayPreviewState createState({
     BlocStatus status = const BlocStatusInitial(),
     DateTime? date,
-    List<DayPreviewReadBook> dayPreviewReadBooks = const [],
+    List<DayPreviewBook> dayPreviewBooks = const [],
   }) {
     return DayPreviewState(
       status: status,
       date: date,
-      dayPreviewReadBooks: dayPreviewReadBooks,
+      dayPreviewBooks: dayPreviewBooks,
     );
   }
 
   tearDown(() {
     reset(getLoggedUserIdUseCase);
-    reset(getBookByIdUseCase);
+    reset(getBookUseCase);
   });
 
   group(
@@ -46,13 +47,13 @@ void main() {
       final DateTime date = DateTime(2022, 9, 20);
       final Book book1 = createBook(
         id: 'b1',
-        imageData: Uint8List(10),
+        image: createImage(fileName: 'i1.jpg', data: Uint8List(10)),
         title: 'title 1',
         author: 'author 1',
       );
       final Book book2 = createBook(
         id: 'b2',
-        imageData: Uint8List(5),
+        image: createImage(fileName: 'i2.jpg', data: Uint8List(20)),
         title: 'title 2',
         author: 'author 2',
       );
@@ -60,22 +61,26 @@ void main() {
         createReadBook(bookId: book1.id, readPagesAmount: 50),
         createReadBook(bookId: book2.id, readPagesAmount: 100),
       ];
-      final List<DayPreviewReadBook> expectedDayPreviewReadBooks = [
-        createDayPreviewReadBook(
-          bookId: book1.id,
-          imageData: book1.imageData,
+      final List<DayPreviewBook> expectedDayPreviewBooks = [
+        createDayPreviewBook(
+          id: book1.id,
+          imageData: book1.image?.data,
           title: book1.title,
           author: book1.author,
           amountOfPagesReadInThisDay: readBooks.first.readPagesAmount,
         ),
-        createDayPreviewReadBook(
-          bookId: book2.id,
-          imageData: book2.imageData,
+        createDayPreviewBook(
+          id: book2.id,
+          imageData: book2.image?.data,
           title: book2.title,
           author: book2.author,
           amountOfPagesReadInThisDay: readBooks.last.readPagesAmount,
         ),
       ];
+
+      void eventCall(DayPreviewBloc bloc) => bloc.add(
+            DayPreviewEventInitialize(date: date, readBooks: readBooks),
+          );
 
       blocTest(
         'logged user does not exist, should emit appropriate status',
@@ -83,11 +88,7 @@ void main() {
         setUp: () {
           getLoggedUserIdUseCase.mock();
         },
-        act: (DayPreviewBloc bloc) {
-          bloc.add(
-            DayPreviewEventInitialize(date: date, readBooks: readBooks),
-          );
-        },
+        act: (DayPreviewBloc bloc) => eventCall(bloc),
         expect: () => [
           createState(
             status: const BlocStatusLoading(),
@@ -104,17 +105,19 @@ void main() {
         setUp: () {
           getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
           when(
-            () => getBookByIdUseCase.execute(bookId: book1.id),
+            () => getBookUseCase.execute(
+              bookId: book1.id,
+              userId: loggedUserId,
+            ),
           ).thenAnswer((_) => Stream.value(book1));
           when(
-            () => getBookByIdUseCase.execute(bookId: book2.id),
+            () => getBookUseCase.execute(
+              bookId: book2.id,
+              userId: loggedUserId,
+            ),
           ).thenAnswer((_) => Stream.value(book2));
         },
-        act: (DayPreviewBloc bloc) {
-          bloc.add(
-            DayPreviewEventInitialize(date: date, readBooks: readBooks),
-          );
-        },
+        act: (DayPreviewBloc bloc) => eventCall(bloc),
         expect: () => [
           createState(
             status: const BlocStatusLoading(),
@@ -122,15 +125,21 @@ void main() {
           createState(
             status: const BlocStatusComplete(),
             date: date,
-            dayPreviewReadBooks: expectedDayPreviewReadBooks,
+            dayPreviewBooks: expectedDayPreviewBooks,
           ),
         ],
         verify: (_) {
           verify(
-            () => getBookByIdUseCase.execute(bookId: book1.id),
+            () => getBookUseCase.execute(
+              bookId: book1.id,
+              userId: loggedUserId,
+            ),
           ).called(1);
           verify(
-            () => getBookByIdUseCase.execute(bookId: book2.id),
+            () => getBookUseCase.execute(
+              bookId: book2.id,
+              userId: loggedUserId,
+            ),
           ).called(1);
         },
       );

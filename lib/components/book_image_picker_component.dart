@@ -1,25 +1,25 @@
 import 'dart:typed_data';
 
 import 'package:app/components/book_image_component.dart';
-import 'package:app/domain/interfaces/dialog_interface.dart';
+import 'package:app/extensions/dialogs_build_context_extension.dart';
 import 'package:app/models/action_sheet_action.dart';
+import 'package:app/models/image.dart' as image_entity;
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class BookImagePickerComponent extends StatelessWidget {
-  final Uint8List? imageData;
-  final Uint8List? originalImageData;
+  final image_entity.Image? image;
+  final image_entity.Image? originalImage;
   final bool canDisplayRestoreImageAction;
-  final Function(Uint8List? imageData)? onImageDataChanged;
+  final Function(image_entity.Image? image)? onImageChanged;
 
   const BookImagePickerComponent({
     super.key,
-    required this.imageData,
-    this.originalImageData,
+    required this.image,
+    this.originalImage,
     this.canDisplayRestoreImageAction = false,
-    this.onImageDataChanged,
+    this.onImageChanged,
   });
 
   @override
@@ -33,7 +33,7 @@ class BookImagePickerComponent extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          child: _Image(imageData: imageData),
+          child: _Image(imageData: image?.data),
         ),
       ),
     );
@@ -48,10 +48,10 @@ class BookImagePickerComponent extends StatelessWidget {
 
   Future<_ImageAction?> _askForAction(BuildContext context) async {
     final List<ActionSheetAction> actions = _createActionsToSelect();
-    final String? actionId = await context.read<DialogInterface>().askForAction(
-          title: imageData != null ? 'Edytuj zdjęcie' : 'Dodaj zdjęcie',
-          actions: actions,
-        );
+    final String? actionId = await context.askForAction(
+      title: image != null ? 'Edytuj zdjęcie' : 'Dodaj zdjęcie',
+      actions: actions,
+    );
     return actionId.toImageAction();
   }
 
@@ -85,7 +85,7 @@ class BookImagePickerComponent extends StatelessWidget {
         iconData: MdiIcons.camera,
       ),
     ];
-    if (imageData != null) {
+    if (image != null) {
       actions.add(
         ActionSheetAction(
           id: _ImageAction.delete.name,
@@ -94,7 +94,7 @@ class BookImagePickerComponent extends StatelessWidget {
         ),
       );
     }
-    if (canDisplayRestoreImageAction && imageData != originalImageData) {
+    if (canDisplayRestoreImageAction && image != originalImage) {
       actions.add(
         ActionSheetAction(
           id: _ImageAction.restoreOriginal.name,
@@ -107,16 +107,16 @@ class BookImagePickerComponent extends StatelessWidget {
   }
 
   Future<void> _setImageFromGallery() async {
-    final Uint8List? imageData = await _getImageFromGallery();
-    if (imageData != null) {
-      _emitNewImage(imageData);
+    final image_entity.Image? newImage = await _getImageFromGallery();
+    if (newImage != null) {
+      _emitNewImage(newImage);
     }
   }
 
   Future<void> _setImageFromCamera() async {
-    final Uint8List? imageData = await _getImageFromCamera();
-    if (imageData != null) {
-      _emitNewImage(imageData);
+    final image_entity.Image? newImage = await _getImageFromCamera();
+    if (newImage != null) {
+      _emitNewImage(newImage);
     }
   }
 
@@ -125,31 +125,39 @@ class BookImagePickerComponent extends StatelessWidget {
   }
 
   void _restoreOriginal() {
-    _emitNewImage(originalImageData);
+    _emitNewImage(originalImage);
   }
 
-  Future<Uint8List?> _getImageFromGallery() async {
+  Future<image_entity.Image?> _getImageFromGallery() async {
     final ImagePicker imagePicker = ImagePicker();
     final XFile? xFile = await imagePicker.pickImage(
       source: ImageSource.gallery,
     );
-    return await xFile?.readAsBytes();
+    return await _mapXFileToImageFile(xFile);
   }
 
-  Future<Uint8List?> _getImageFromCamera() async {
+  Future<image_entity.Image?> _getImageFromCamera() async {
     final ImagePicker imagePicker = ImagePicker();
     final XFile? xFile = await imagePicker.pickImage(
       source: ImageSource.camera,
     );
-    return await xFile?.readAsBytes();
+    return await _mapXFileToImageFile(xFile);
   }
 
-  void _emitNewImage(Uint8List? newImageData) {
-    final Function(Uint8List? imageData)? onImageDataChanged =
-        this.onImageDataChanged;
-    if (onImageDataChanged != null) {
-      onImageDataChanged(newImageData);
+  void _emitNewImage(image_entity.Image? newImage) {
+    final Function(image_entity.Image? image)? onImageChanged =
+        this.onImageChanged;
+    if (onImageChanged != null) {
+      onImageChanged(newImage);
     }
+  }
+
+  Future<image_entity.Image?> _mapXFileToImageFile(XFile? xFile) async {
+    final Uint8List? imageData = await xFile?.readAsBytes();
+    if (imageData == null || xFile == null) {
+      return null;
+    }
+    return image_entity.Image(fileName: xFile.name, data: imageData);
   }
 }
 

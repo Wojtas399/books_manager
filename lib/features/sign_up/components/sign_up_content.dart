@@ -1,11 +1,11 @@
+import 'package:app/components/custom_scaffold_component.dart';
+import 'package:app/components/on_tap_focus_lose_area_component.dart';
+import 'package:app/config/themes/app_colors.dart';
+import 'package:app/extensions/navigator_build_context_extension.dart';
+import 'package:app/features/sign_up/components/sign_up_inputs.dart';
+import 'package:app/features/sign_up/components/sign_up_submit_button.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-
-import '../../../components/custom_scaffold_component.dart';
-import '../../../components/on_tap_focus_lose_area_component.dart';
-import '../../../config/themes/app_colors.dart';
-import 'sign_up_inputs.dart';
-import 'sign_up_submit_button.dart';
 
 class SignUpContent extends StatelessWidget {
   const SignUpContent({super.key});
@@ -80,6 +80,6 @@ class _AlternativeOptions extends StatelessWidget {
   }
 
   void _onSignInPressed(BuildContext context) {
-    Navigator.pop(context);
+    context.navigateBack();
   }
 }

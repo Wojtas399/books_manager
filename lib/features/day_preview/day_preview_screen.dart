@@ -3,7 +3,7 @@ import 'package:app/domain/entities/read_book.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
+import 'package:app/domain/use_cases/book/get_book_use_case.dart';
 import 'package:app/features/day_preview/bloc/day_preview_bloc.dart';
 import 'package:app/features/day_preview/components/day_preview_content.dart';
 import 'package:equatable/equatable.dart';
@@ -64,7 +64,7 @@ class _DayPreviewBlocProvider extends StatelessWidget {
         getLoggedUserIdUseCase: GetLoggedUserIdUseCase(
           authInterface: context.read<AuthInterface>(),
         ),
-        getBookByIdUseCase: GetBookByIdUseCase(
+        getBookUseCase: GetBookUseCase(
           bookInterface: context.read<BookInterface>(),
         ),
       )..add(

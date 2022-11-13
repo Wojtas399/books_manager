@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:app/config/errors.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import 'package:app/domain/use_cases/auth/load_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/auth/sign_in_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
@@ -14,12 +13,10 @@ part 'sign_in_event.dart';
 part 'sign_in_state.dart';
 
 class SignInBloc extends CustomBloc<SignInEvent, SignInState> {
-  late final LoadLoggedUserIdUseCase _loadLoggedUserIdUseCase;
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
   late final SignInUseCase _signInUseCase;
 
   SignInBloc({
-    required LoadLoggedUserIdUseCase loadLoggedUserIdUseCase,
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
     required SignInUseCase signInUseCase,
     BlocStatus status = const BlocStatusInitial(),
@@ -32,7 +29,6 @@ class SignInBloc extends CustomBloc<SignInEvent, SignInState> {
             password: password,
           ),
         ) {
-    _loadLoggedUserIdUseCase = loadLoggedUserIdUseCase;
     _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
     _signInUseCase = signInUseCase;
     on<SignInEventInitialize>(_initialize);
@@ -95,7 +91,6 @@ class SignInBloc extends CustomBloc<SignInEvent, SignInState> {
   }
 
   Future<bool> _isUserSignedIn() async {
-    await _loadLoggedUserIdUseCase.execute();
     final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
     return loggedUserId != null;
   }

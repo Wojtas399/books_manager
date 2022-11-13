@@ -9,10 +9,10 @@ void main() {
   final useCase = GetAllUserBooksUseCase(bookInterface: bookInterface);
 
   test(
-    'should return stream which contains books belonging to user',
+    'should return result of method from book interface responsible for getting user books with book status set as null',
     () async {
       const String userId = 'u1';
-      final List<Book> books = [
+      final List<Book> expectedUserBooks = [
         createBook(
           userId: userId,
           title: 'book1',
@@ -24,11 +24,11 @@ void main() {
           author: 'author2',
         ),
       ];
-      bookInterface.mockGetBooksByUserId(books: books);
+      bookInterface.mockGetUserBooks(userBooks: expectedUserBooks);
 
-      final Stream<List<Book>?> books$ = useCase.execute(userId: userId);
+      final Stream<List<Book>> userBooks$ = useCase.execute(userId: userId);
 
-      expect(await books$.first, books);
+      expect(await userBooks$.first, expectedUserBooks);
     },
   );
 }

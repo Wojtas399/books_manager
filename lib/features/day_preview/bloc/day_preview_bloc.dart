@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/entities/read_book.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
+import 'package:app/domain/use_cases/book/get_book_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/custom_bloc.dart';
@@ -15,23 +15,23 @@ part 'day_preview_state.dart';
 
 class DayPreviewBloc extends CustomBloc<DayPreviewEvent, DayPreviewState> {
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
-  late final GetBookByIdUseCase _getBookByIdUseCase;
+  late final GetBookUseCase _getBookUseCase;
 
   DayPreviewBloc({
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
-    required GetBookByIdUseCase getBookByIdUseCase,
+    required GetBookUseCase getBookUseCase,
     BlocStatus status = const BlocStatusInitial(),
     DateTime? date,
-    List<DayPreviewReadBook> dayPreviewReadBooks = const [],
+    List<DayPreviewBook> dayPreviewBooks = const [],
   }) : super(
           DayPreviewState(
             status: status,
             date: date,
-            dayPreviewReadBooks: dayPreviewReadBooks,
+            dayPreviewBooks: dayPreviewBooks,
           ),
         ) {
     _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
-    _getBookByIdUseCase = getBookByIdUseCase;
+    _getBookUseCase = getBookUseCase;
     on<DayPreviewEventInitialize>(_initialize);
   }
 
@@ -45,42 +45,51 @@ class DayPreviewBloc extends CustomBloc<DayPreviewEvent, DayPreviewState> {
       emitLoggedUserNotFoundStatus(emit);
       return;
     }
-    final List<DayPreviewReadBook> dayPreviewReadBooks =
-        await _convertReadBooksToDayPreviewModels(event.readBooks);
+    final List<DayPreviewBook> dayPreviewBooks = await _createDayPreviewBooks(
+      event.readBooks,
+      loggedUserId,
+    );
     emit(state.copyWith(
       date: event.date,
-      dayPreviewReadBooks: dayPreviewReadBooks,
+      dayPreviewBooks: dayPreviewBooks,
     ));
   }
 
-  Future<List<DayPreviewReadBook>> _convertReadBooksToDayPreviewModels(
+  Future<List<DayPreviewBook>> _createDayPreviewBooks(
     List<ReadBook> readBooks,
+    String userId,
   ) async {
-    final List<DayPreviewReadBook> dayPreviewModels = [];
+    final List<DayPreviewBook> dayPreviewBooks = [];
     for (final ReadBook readBook in readBooks) {
-      final DayPreviewReadBook? newDayPreviewModel =
-          await _createDayPreviewModelFromReadBook(readBook);
-      if (newDayPreviewModel != null) {
-        dayPreviewModels.add(newDayPreviewModel);
+      final DayPreviewBook? dayPreviewBook = await _createDayPreviewBook(
+        readBook,
+        userId,
+      );
+      if (dayPreviewBook != null) {
+        dayPreviewBooks.add(dayPreviewBook);
       }
     }
-    return dayPreviewModels;
+    return dayPreviewBooks;
   }
 
-  Future<DayPreviewReadBook?> _createDayPreviewModelFromReadBook(
+  Future<DayPreviewBook?> _createDayPreviewBook(
     ReadBook readBook,
+    String userId,
   ) async {
-    final Book? book =
-        await _getBookByIdUseCase.execute(bookId: readBook.bookId).first;
+    final Book? book = await _getBook(readBook.bookId, userId);
     if (book == null) {
       return null;
     }
-    return DayPreviewReadBook(
-      bookId: readBook.bookId,
-      imageData: book.imageData,
+    return DayPreviewBook(
+      id: readBook.bookId,
+      imageData: book.image?.data,
       title: book.title,
       author: book.author,
       amountOfPagesReadInThisDay: readBook.readPagesAmount,
     );
+  }
+
+  Future<Book?> _getBook(String bookId, String userId) async {
+    return await _getBookUseCase.execute(bookId: bookId, userId: userId).first;
   }
 }

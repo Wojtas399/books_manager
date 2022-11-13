@@ -6,7 +6,9 @@ import '../../../mocks/domain/interfaces/mock_auth_interface.dart';
 
 void main() {
   final authInterface = MockAuthInterface();
-  final useCase = SignOutUseCase(authInterface: authInterface);
+  final useCase = SignOutUseCase(
+    authInterface: authInterface,
+  );
 
   test(
     'should call method responsible for signing out user',

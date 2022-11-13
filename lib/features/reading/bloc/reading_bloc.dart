@@ -3,27 +3,25 @@ import 'dart:async';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/book/get_user_books_in_progress_use_case.dart';
-import 'package:app/domain/use_cases/book/load_user_books_in_progress_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/custom_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rxdart/rxdart.dart';
 
 part 'reading_event.dart';
 part 'reading_state.dart';
 
 class ReadingBloc extends CustomBloc<ReadingEvent, ReadingState> {
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
-  late final LoadUserBooksInProgressUseCase _loadUserBooksInProgressUseCase;
   late final GetUserBooksInProgressUseCase _getUserBooksInProgressUseCase;
   StreamSubscription<List<Book>?>? _booksInProgressListener;
 
   ReadingBloc({
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
-    required LoadUserBooksInProgressUseCase loadUserBooksInProgressUseCase,
     required GetUserBooksInProgressUseCase getUserBooksInProgressUseCase,
     BlocStatus status = const BlocStatusInitial(),
-    List<Book> booksInProgress = const [],
+    List<Book>? booksInProgress,
   }) : super(
           ReadingState(
             status: status,
@@ -31,35 +29,30 @@ class ReadingBloc extends CustomBloc<ReadingEvent, ReadingState> {
           ),
         ) {
     _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
-    _loadUserBooksInProgressUseCase = loadUserBooksInProgressUseCase;
     _getUserBooksInProgressUseCase = getUserBooksInProgressUseCase;
     on<ReadingEventInitialize>(_initialize);
     on<ReadingEventBooksInProgressUpdated>(_booksInProgressUpdated);
   }
 
   @override
-  Future<void> close() async {
-    super.close();
+  Future<void> close() {
     _booksInProgressListener?.cancel();
+    return super.close();
   }
 
   Future<void> _initialize(
     ReadingEventInitialize event,
     Emitter<ReadingState> emit,
   ) async {
-    final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
-    if (loggedUserId == null) {
-      emitLoggedUserNotFoundStatus(emit);
-      return;
-    }
-    if (await _areLoggedUserBooksInProgressNotLoaded(loggedUserId)) {
-      emitLoadingStatus(emit);
-    }
-    _setBooksInProgressListener(loggedUserId);
-    await Future.delayed(
-      const Duration(milliseconds: 300),
-    );
-    await _loadUserBooksInProgressUseCase.execute(userId: loggedUserId);
+    emitLoadingStatus(emit);
+    _booksInProgressListener = _getLoggedUserIdUseCase
+        .execute()
+        .switchMap(_getUserBooksInProgress)
+        .listen(
+          (List<Book>? books) => add(
+            ReadingEventBooksInProgressUpdated(booksInProgress: books),
+          ),
+        );
   }
 
   void _booksInProgressUpdated(
@@ -71,26 +64,10 @@ class ReadingBloc extends CustomBloc<ReadingEvent, ReadingState> {
     ));
   }
 
-  Future<bool> _areLoggedUserBooksInProgressNotLoaded(
-    String loggedUserId,
-  ) async {
-    return await _getLoggedUserBooksInProgress(loggedUserId).first == null;
-  }
-
-  void _setBooksInProgressListener(String loggedUserId) {
-    _booksInProgressListener ??=
-        _getLoggedUserBooksInProgress(loggedUserId).listen(
-      (List<Book>? booksInProgress) {
-        if (booksInProgress != null) {
-          add(ReadingEventBooksInProgressUpdated(
-            booksInProgress: booksInProgress,
-          ));
-        }
-      },
-    );
-  }
-
-  Stream<List<Book>?> _getLoggedUserBooksInProgress(String loggedUserId) {
+  Stream<List<Book>?> _getUserBooksInProgress(String? loggedUserId) {
+    if (loggedUserId == null) {
+      return Stream.value(null);
+    }
     return _getUserBooksInProgressUseCase.execute(userId: loggedUserId);
   }
 }

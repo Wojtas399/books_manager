@@ -1,248 +1,245 @@
 import 'dart:typed_data';
 
-import 'package:app/data/data_sources/local_db/book_local_db_service.dart';
-import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
-import 'package:app/data/data_sources/remote_db/book_remote_db_service.dart';
-import 'package:app/data/id_generator.dart';
-import 'package:app/data/synchronizers/book_synchronizer.dart';
+import 'package:app/data/firebase/entities/firebase_book.dart';
+import 'package:app/data/firebase/services/firebase_firestore_book_service.dart';
+import 'package:app/data/firebase/services/firebase_storage_image_service.dart';
+import 'package:app/data/mappers/book_status_mapper.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
-import 'package:app/extensions/book_extensions.dart';
-import 'package:app/models/device.dart';
-import 'package:app/models/repository.dart';
+import 'package:app/models/image.dart';
 import 'package:rxdart/rxdart.dart';
 
-class BookRepository extends Repository<Book> implements BookInterface {
-  late final BookSynchronizer _bookSynchronizer;
-  late final BookLocalDbService _bookLocalDbService;
-  late final BookRemoteDbService _bookRemoteDbService;
-  late final Device _device;
-  late final IdGenerator _idGenerator;
+class BookRepository implements BookInterface {
+  late final FirebaseFirestoreBookService _firebaseFirestoreBookService;
+  late final FirebaseStorageImageService _firebaseStorageImageService;
 
   BookRepository({
-    required BookSynchronizer bookSynchronizer,
-    required BookLocalDbService bookLocalDbService,
-    required BookRemoteDbService bookRemoteDbService,
-    required Device device,
-    required IdGenerator idGenerator,
-    final List<Book>? books,
+    required FirebaseFirestoreBookService firebaseFirestoreBookService,
+    required FirebaseStorageImageService firebaseStorageImageService,
   }) {
-    _bookSynchronizer = bookSynchronizer;
-    _bookLocalDbService = bookLocalDbService;
-    _bookRemoteDbService = bookRemoteDbService;
-    _device = device;
-    _idGenerator = idGenerator;
-
-    if (books != null) {
-      addEntities(books);
-    }
+    _firebaseFirestoreBookService = firebaseFirestoreBookService;
+    _firebaseStorageImageService = firebaseStorageImageService;
   }
 
   @override
-  Future<void> initializeForUser({required String userId}) async {
-    if (await _device.hasInternetConnection()) {
-      await _bookSynchronizer.synchronizeUserBooksMarkedAsDeleted(
-        userId: userId,
-      );
-      await _bookSynchronizer.synchronizeUserBooksMarkedAsAdded(userId: userId);
-      await _bookSynchronizer.synchronizeUserBooksMarkedAsUpdated(
-        userId: userId,
-      );
-      await _bookSynchronizer.synchronizeUnmodifiedUserBooks(userId: userId);
-    }
+  Stream<Book?> getBook({required String bookId, required String userId}) {
+    return _firebaseFirestoreBookService
+        .getBook(bookId: bookId, userId: userId)
+        .switchMap(_combineFirebaseBookWithImage);
   }
 
   @override
-  Stream<Book?> getBookById({required String bookId}) {
-    return stream.map(
-      (List<Book>? books) {
-        if (books == null) {
-          return null;
-        }
-        final List<Book?> allBooks = [...books];
-        return allBooks.firstWhere(
-          (Book? book) => book?.id == bookId,
-          orElse: () => null,
-        );
-      },
-    ).whereType<Book>();
-  }
-
-  @override
-  Stream<List<Book>?> getBooksByUserId({required String userId}) {
-    return stream.map(
-      (List<Book>? books) {
-        return books?.where((Book book) => book.belongsTo(userId)).toList();
-      },
-    );
-  }
-
-  @override
-  Future<void> loadUserBooks({
+  Stream<List<Book>> getUserBooks({
     required String userId,
     BookStatus? bookStatus,
-  }) async {
-    final List<Book> books = await _bookLocalDbService.loadUserBooks(
-      userId: userId,
-      bookStatus: bookStatus?.name,
-    );
-    addEntities(books);
+  }) {
+    String? bookStatusAsStr;
+    if (bookStatus != null) {
+      bookStatusAsStr = BookStatusMapper.mapFromEnumToString(bookStatus);
+    }
+    return _firebaseFirestoreBookService
+        .getUserBooks(userId: userId, bookStatus: bookStatusAsStr)
+        .switchMap(_mapFirebaseBooksToBookModels);
   }
 
   @override
   Future<void> addNewBook({
     required String userId,
     required BookStatus status,
-    required Uint8List? imageData,
+    required Image? image,
     required String title,
     required String author,
     required int readPagesAmount,
     required int allPagesAmount,
   }) async {
-    final Book book = Book(
-      id: _idGenerator.generateRandomId(),
-      imageData: imageData,
+    final String mappedBookStatus =
+        BookStatusMapper.mapFromEnumToString(status);
+    if (image != null) {
+      await _firebaseStorageImageService.saveImage(
+        image: image,
+        userId: userId,
+      );
+    }
+    await _firebaseFirestoreBookService.addBook(
       userId: userId,
-      status: status,
+      status: mappedBookStatus,
       title: title,
       author: author,
       readPagesAmount: readPagesAmount,
       allPagesAmount: allPagesAmount,
+      imageFileName: image?.fileName,
     );
-    SyncState syncState = SyncState.added;
-    if (await _device.hasInternetConnection()) {
-      await _bookRemoteDbService.addBook(book: book);
-      syncState = SyncState.none;
-    }
-    await _bookLocalDbService.addBook(book: book, syncState: syncState);
-    addEntity(book);
   }
 
   @override
-  Future<void> updateBookData({
+  Future<void> updateBook({
     required String bookId,
-    BookStatus? bookStatus,
+    required String userId,
+    BookStatus? status,
+    Image? image,
     String? title,
     String? author,
     int? readPagesAmount,
     int? allPagesAmount,
   }) async {
-    final String? userId = _getIdOfUserAssignedToBook(bookId);
-    SyncState syncState = SyncState.updated;
-    if (userId == null) {
-      return;
+    String? statusAsStr;
+    if (status != null) {
+      statusAsStr = BookStatusMapper.mapFromEnumToString(status);
     }
-    if (await _device.hasInternetConnection()) {
-      await _bookRemoteDbService.updateBookData(
-        bookId: bookId,
-        userId: userId,
-        status: bookStatus?.name,
-        title: title,
-        author: author,
-        readPagesAmount: readPagesAmount,
-        allPagesAmount: allPagesAmount,
-      );
-      syncState = SyncState.none;
+    if (image != null) {
+      await _updateBookImage(bookId, userId, image);
     }
-    final Book updatedBook = await _bookLocalDbService.updateBookData(
+    await _firebaseFirestoreBookService.updateBook(
       bookId: bookId,
-      status: bookStatus?.name,
+      userId: userId,
+      status: statusAsStr,
+      imageFileName: image?.fileName,
       title: title,
       author: author,
       readPagesAmount: readPagesAmount,
       allPagesAmount: allPagesAmount,
-      syncState: syncState,
     );
-    updateEntity(updatedBook);
   }
 
   @override
-  Future<void> updateBookImage({
+  Future<void> deleteBookImage({
     required String bookId,
-    required Uint8List? imageData,
+    required String userId,
   }) async {
-    final String? userId = _getIdOfUserAssignedToBook(bookId);
-    SyncState? newSyncState;
-    if (userId == null) {
-      return;
-    }
-    if (await _device.hasInternetConnection()) {
-      await _bookRemoteDbService.updateBookImage(
+    final String? imageFileName = await _getBookImageFileName(bookId, userId);
+    if (imageFileName != null) {
+      await _firebaseStorageImageService.deleteImage(
+        fileName: imageFileName,
+        userId: userId,
+      );
+      await _firebaseFirestoreBookService.updateBook(
         bookId: bookId,
         userId: userId,
-        imageData: imageData,
-      );
-    } else {
-      newSyncState = SyncState.updated;
-    }
-    Book updatedBook = await _bookLocalDbService.updateBookImage(
-      bookId: bookId,
-      userId: userId,
-      imageData: imageData,
-    );
-    if (newSyncState != null) {
-      updatedBook = await _bookLocalDbService.updateBookData(
-        bookId: bookId,
-        syncState: newSyncState,
+        deletedImageFileName: true,
       );
     }
-    updateEntity(updatedBook);
   }
 
   @override
-  Future<void> deleteBook({required String bookId}) async {
-    final String? userId = _getIdOfUserAssignedToBook(bookId);
-    if (userId != null && await _device.hasInternetConnection()) {
-      await _bookRemoteDbService.deleteBook(userId: userId, bookId: bookId);
-      await _bookLocalDbService.deleteBook(userId: userId, bookId: bookId);
-    } else {
-      await _bookLocalDbService.updateBookData(
-        bookId: bookId,
-        syncState: SyncState.deleted,
-      );
+  Future<void> deleteBook({
+    required String bookId,
+    required String userId,
+  }) async {
+    final FirebaseBook? firebaseBook = await _firebaseFirestoreBookService
+        .getBook(bookId: bookId, userId: userId)
+        .first;
+    if (firebaseBook != null) {
+      await _deleteFirebaseBook(firebaseBook);
     }
-    removeEntity(bookId);
   }
 
   @override
   Future<void> deleteAllUserBooks({required String userId}) async {
-    final List<Book> userBooks = await _bookLocalDbService.loadUserBooks(
+    final List<FirebaseBook> allUserFirebaseBooks =
+        await _firebaseFirestoreBookService.getUserBooks(userId: userId).first;
+    for (final FirebaseBook firebaseBook in allUserFirebaseBooks) {
+      await _deleteFirebaseBook(firebaseBook);
+    }
+  }
+
+  Stream<Book?> _combineFirebaseBookWithImage(
+    FirebaseBook? firebaseBook,
+  ) async* {
+    Book? book;
+    if (firebaseBook != null) {
+      final Image? image = await _loadImageForFirebaseBook(firebaseBook);
+      book = _createBook(firebaseBook, image);
+    }
+    yield book;
+  }
+
+  Stream<List<Book>> _mapFirebaseBooksToBookModels(
+    List<FirebaseBook> firebaseBooks,
+  ) {
+    if (firebaseBooks.isEmpty) {
+      return Stream.value([]);
+    }
+    final Iterable<Stream<Book?>> books$ = firebaseBooks.map(
+      _combineFirebaseBookWithImage,
+    );
+    return Rx.combineLatest(
+      books$,
+      (List<Book?> books) => books.whereType<Book>().toList(),
+    );
+  }
+
+  Future<void> _updateBookImage(
+    String bookId,
+    String userId,
+    Image newImage,
+  ) async {
+    final String? currentImageFileName =
+        await _getBookImageFileName(bookId, userId);
+    if (currentImageFileName != null) {
+      await _firebaseStorageImageService.deleteImage(
+        fileName: currentImageFileName,
+        userId: userId,
+      );
+    }
+    await _firebaseStorageImageService.saveImage(
+      image: newImage,
       userId: userId,
     );
-    if (await _device.hasInternetConnection()) {
-      await _deleteEachBookFromBothDatabases(userBooks);
-    } else {
-      await _markEachBookAsDeletedInLocalDb(userBooks);
+  }
+
+  Future<String?> _getBookImageFileName(String bookId, String userId) async {
+    final FirebaseBook? firebaseBook = await _firebaseFirestoreBookService
+        .getBook(bookId: bookId, userId: userId)
+        .first;
+    return firebaseBook?.imageFileName;
+  }
+
+  Future<void> _deleteFirebaseBook(FirebaseBook firebaseBook) async {
+    final String? imageFileName = firebaseBook.imageFileName;
+    if (imageFileName != null) {
+      await _firebaseStorageImageService.deleteImage(
+        fileName: imageFileName,
+        userId: firebaseBook.userId,
+      );
     }
+    await _firebaseFirestoreBookService.deleteBook(
+      userId: firebaseBook.userId,
+      bookId: firebaseBook.id,
+    );
   }
 
-  String? _getIdOfUserAssignedToBook(String bookId) {
-    return value?.firstWhere((Book book) => book.id == bookId).userId;
-  }
-
-  Future<void> _deleteEachBookFromBothDatabases(
-    List<Book> booksToDelete,
+  Future<Image?> _loadImageForFirebaseBook(
+    FirebaseBook firebaseBook,
   ) async {
-    for (final Book book in booksToDelete) {
-      await _bookRemoteDbService.deleteBook(
-        userId: book.userId,
-        bookId: book.id,
-      );
-      await _bookLocalDbService.deleteBook(
-        userId: book.userId,
-        bookId: book.id,
-      );
+    final String? imageFileName = firebaseBook.imageFileName;
+    if (imageFileName == null) {
+      return null;
     }
+    final Uint8List? imageData = await _firebaseStorageImageService.loadImage(
+      fileName: imageFileName,
+      userId: firebaseBook.userId,
+    );
+    if (imageData == null) {
+      return null;
+    }
+    return Image(
+      fileName: imageFileName,
+      data: imageData,
+    );
   }
 
-  Future<void> _markEachBookAsDeletedInLocalDb(
-    List<Book> booksToMark,
-  ) async {
-    for (final Book book in booksToMark) {
-      await _bookLocalDbService.updateBookData(
-        bookId: book.id,
-        syncState: SyncState.deleted,
-      );
-    }
+  Book _createBook(FirebaseBook firebaseBook, Image? image) {
+    final BookStatus bookStatus =
+        BookStatusMapper.mapFromStringToEnum(firebaseBook.status);
+    return Book(
+      id: firebaseBook.id,
+      userId: firebaseBook.userId,
+      status: bookStatus,
+      image: image,
+      title: firebaseBook.title,
+      author: firebaseBook.author,
+      readPagesAmount: firebaseBook.readPagesAmount,
+      allPagesAmount: firebaseBook.allPagesAmount,
+    );
   }
 }

@@ -5,28 +5,12 @@ import 'package:mocktail/mocktail.dart';
 class FakeUser extends Fake implements User {}
 
 class MockUserInterface extends Mock implements UserInterface {
-  void mockInitializeUser() {
-    when(
-      () => initializeUser(
-        userId: any(named: 'userId'),
-      ),
-    ).thenAnswer((_) async => '');
-  }
-
   void mockGetUser({User? user}) {
     when(
       () => getUser(
         userId: any(named: 'userId'),
       ),
     ).thenAnswer((_) => Stream.value(user));
-  }
-
-  void mockLoadUser() {
-    when(
-      () => loadUser(
-        userId: any(named: 'userId'),
-      ),
-    ).thenAnswer((_) async => '');
   }
 
   void mockAddUser() {
@@ -38,9 +22,9 @@ class MockUserInterface extends Mock implements UserInterface {
     ).thenAnswer((_) async => '');
   }
 
-  void mockUpdateUserThemeSettings() {
+  void mockUpdateUser() {
     when(
-      () => updateUserThemeSettings(
+      () => updateUser(
         userId: any(named: 'userId'),
         isDarkModeOn: any(named: 'isDarkModeOn'),
         isDarkModeCompatibilityWithSystemOn: any(

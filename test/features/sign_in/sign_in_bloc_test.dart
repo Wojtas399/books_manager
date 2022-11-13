@@ -7,11 +7,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../mocks/domain/use_cases/auth/mock_get_logged_user_id_use_case.dart';
-import '../../mocks/domain/use_cases/auth/mock_load_logged_user_id_use_case.dart';
 import '../../mocks/domain/use_cases/auth/mock_sign_in_use_case.dart';
 
 void main() {
-  final loadLoggedUserIdUseCase = MockLoadLoggedUserIdUseCase();
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
   final signInUseCase = MockSignInUseCase();
 
@@ -20,7 +18,6 @@ void main() {
     String password = '',
   }) {
     return SignInBloc(
-      loadLoggedUserIdUseCase: loadLoggedUserIdUseCase,
       getLoggedUserIdUseCase: getLoggedUserIdUseCase,
       signInUseCase: signInUseCase,
       email: email,
@@ -41,7 +38,6 @@ void main() {
   }
 
   tearDown(() {
-    reset(loadLoggedUserIdUseCase);
     reset(getLoggedUserIdUseCase);
     reset(signInUseCase);
   });
@@ -50,7 +46,6 @@ void main() {
     'initialize, should emit appropriate info if logged user id is not null',
     build: () => createBloc(),
     setUp: () {
-      loadLoggedUserIdUseCase.mock();
       getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
     },
     act: (SignInBloc bloc) {
@@ -71,7 +66,6 @@ void main() {
     'initialize, should not emit appropriate info if logged user id is null',
     build: () => createBloc(),
     setUp: () {
-      loadLoggedUserIdUseCase.mock();
       getLoggedUserIdUseCase.mock();
     },
     act: (SignInBloc bloc) {

@@ -1,233 +1,193 @@
 import 'dart:typed_data';
 
-import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
+import 'package:app/data/firebase/entities/firebase_book.dart';
+import 'package:app/data/mappers/book_status_mapper.dart';
 import 'package:app/data/repositories/book_repository.dart';
 import 'package:app/domain/entities/book.dart';
+import 'package:app/models/image.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../mocks/data/local_db/mock_book_local_db_service.dart';
-import '../../mocks/data/mock_id_generator.dart';
-import '../../mocks/data/remote_db/mock_book_remote_db_service.dart';
-import '../../mocks/data/synchronizers/mock_book_synchronizer.dart';
-import '../../mocks/mock_device.dart';
+import '../../mocks/firebase/mock_firebase_firestore_book_service.dart';
+import '../../mocks/firebase/mock_firebase_storage_image_service.dart';
+
+class FakeImage extends Fake implements Image {}
 
 void main() {
-  final bookSynchronizer = MockBookSynchronizer();
-  final bookLocalDbService = MockBookLocalDbService();
-  final bookRemoteDbService = MockBookRemoteDbService();
-  final device = MockDevice();
-  final idGenerator = MockIdGenerator();
+  final firebaseFirestoreBookService = MockFirebaseFirestoreBookService();
+  final firebaseStorageImageService = MockFirebaseStorageImageService();
   late BookRepository repository;
   const String userId = 'u1';
 
-  BookRepository createRepository({
-    List<Book> books = const [],
-  }) {
-    return BookRepository(
-      bookSynchronizer: bookSynchronizer,
-      bookLocalDbService: bookLocalDbService,
-      bookRemoteDbService: bookRemoteDbService,
-      device: device,
-      idGenerator: idGenerator,
-      books: books,
-    );
-  }
+  setUpAll(() {
+    registerFallbackValue(FakeImage());
+  });
 
   setUp(() {
-    repository = createRepository();
+    repository = BookRepository(
+      firebaseFirestoreBookService: firebaseFirestoreBookService,
+      firebaseStorageImageService: firebaseStorageImageService,
+    );
   });
 
   tearDown(() {
-    reset(bookSynchronizer);
-    reset(bookLocalDbService);
-    reset(bookRemoteDbService);
-    reset(device);
-    reset(idGenerator);
+    reset(firebaseFirestoreBookService);
+    reset(firebaseStorageImageService);
   });
 
-  group(
-    'initialize for user',
-    () {
-      Future<void> callInitializeForUserMethod() async {
-        await repository.initializeForUser(userId: userId);
-      }
-
-      setUp(() {
-        repository = createRepository();
-        bookSynchronizer.mockSynchronizeUnmodifiedUserBooks();
-        bookSynchronizer.mockSynchronizeUserBooksMarkedAsDeleted();
-        bookSynchronizer.mockSynchronizeUserBooksMarkedAsAdded();
-        bookSynchronizer.mockSynchronizeUserBooksMarkedAsUpdated();
-      });
-
-      test(
-        'device has not internet connection, should not do anything',
-        () async {
-          device.mockHasDeviceInternetConnection(value: false);
-
-          await callInitializeForUserMethod();
-
-          verifyNever(
-            () => bookSynchronizer.synchronizeUnmodifiedUserBooks(
-              userId: userId,
-            ),
-          );
-          verifyNever(
-            () => bookSynchronizer.synchronizeUserBooksMarkedAsDeleted(
-              userId: userId,
-            ),
-          );
-          verifyNever(
-            () => bookSynchronizer.synchronizeUserBooksMarkedAsAdded(
-              userId: userId,
-            ),
-          );
-          verifyNever(
-            () => bookSynchronizer.synchronizeUserBooksMarkedAsUpdated(
-              userId: userId,
-            ),
-          );
-        },
-      );
-
-      test(
-        'device has internet connection, should call methods responsible for synchronization process',
-        () async {
-          device.mockHasDeviceInternetConnection(value: true);
-
-          await callInitializeForUserMethod();
-
-          verify(
-            () => bookSynchronizer.synchronizeUnmodifiedUserBooks(
-              userId: userId,
-            ),
-          ).called(1);
-          verify(
-            () => bookSynchronizer.synchronizeUserBooksMarkedAsDeleted(
-              userId: userId,
-            ),
-          ).called(1);
-          verify(
-            () => bookSynchronizer.synchronizeUserBooksMarkedAsAdded(
-              userId: userId,
-            ),
-          ).called(1);
-          verify(
-            () => bookSynchronizer.synchronizeUserBooksMarkedAsUpdated(
-              userId: userId,
-            ),
-          ).called(1);
-        },
-      );
-    },
-  );
-
   test(
-    'get book by id, should return stream which contains book with given id',
+    'get book, should query for book from firebase firestore and for its image from firebase storage',
     () async {
-      final List<Book> books = [
-        createBook(id: 'b1', status: BookStatus.unread),
-        createBook(id: 'b2', status: BookStatus.inProgress),
-        createBook(id: 'b3', status: BookStatus.finished),
-      ];
+      const String bookId = 'b1';
+      const String imageFileName = 'i1.jpg';
+      final Image image = createImage(
+        fileName: imageFileName,
+        data: Uint8List(2),
+      );
+      final FirebaseBook firebaseBook = createFirebaseBook(
+        id: bookId,
+        userId: userId,
+        imageFileName: imageFileName,
+      );
       final Book expectedBook = createBook(
-        id: 'b3',
-        status: BookStatus.finished,
+        id: firebaseBook.id,
+        userId: firebaseBook.userId,
+        image: image,
       );
-      repository = createRepository(books: books);
+      firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
+      firebaseStorageImageService.mockLoadImage(imageData: image.data);
 
-      final Stream<Book?> book$ = repository.getBookById(bookId: 'b3');
-
-      expect(await book$.first, expectedBook);
-    },
-  );
-
-  test(
-    'get books by user id, should return stream which contains books belonging to user',
-    () async {
-      final List<Book> books = [
-        createBook(id: 'b1', userId: userId, status: BookStatus.unread),
-        createBook(id: 'b2', status: BookStatus.unread),
-        createBook(id: 'b3', userId: userId, status: BookStatus.unread),
-      ];
-      final List<Book> expectedBooks = [books.first, books.last];
-      repository = createRepository(books: books);
-
-      final Stream<List<Book>?> userBooks$ = repository.getBooksByUserId(
+      final Stream<Book?> book$ = repository.getBook(
+        bookId: bookId,
         userId: userId,
       );
 
-      expect(await userBooks$.first, expectedBooks);
-    },
-  );
-
-  test(
-    'load user books, should load user books from local db and assign them to stream',
-    () async {
-      const BookStatus bookStatus = BookStatus.unread;
-      final List<Book> books = [
-        createBook(id: 'b1', userId: userId, status: bookStatus),
-        createBook(id: 'b2', userId: userId, status: bookStatus),
-      ];
-      final List<Book> expectedBooks = [
-        createBook(id: 'b1', userId: userId, status: bookStatus),
-        createBook(id: 'b2', userId: userId, status: bookStatus),
-      ];
-      bookLocalDbService.mockLoadUserBooks(books: books);
-
-      await repository.loadUserBooks(userId: userId, bookStatus: bookStatus);
-
-      expect(
-        await repository.getBooksByUserId(userId: userId).first,
-        expectedBooks,
-      );
+      expect(await book$.first, expectedBook);
       verify(
-        () => bookLocalDbService.loadUserBooks(
+        () => firebaseFirestoreBookService.getBook(
+          bookId: bookId,
           userId: userId,
-          bookStatus: bookStatus.name,
+        ),
+      ).called(1);
+      verify(
+        () => firebaseStorageImageService.loadImage(
+          fileName: imageFileName,
+          userId: userId,
         ),
       ).called(1);
     },
   );
 
   group(
-    'add new book',
+    'get user books',
     () {
-      const String bookId = 'b1';
       const String userId = 'u1';
-      const BookStatus status = BookStatus.unread;
-      final Uint8List imageData = Uint8List(10);
-      const String title = 'title';
-      const String author = 'author';
-      const int readPagesAmount = 0;
-      const int allPagesAmount = 200;
-      final Book book = createBook(
-        id: bookId,
-        imageData: imageData,
-        userId: userId,
-        status: status,
-        title: title,
-        author: author,
-        readPagesAmount: readPagesAmount,
-        allPagesAmount: allPagesAmount,
+      const String book1ImageFileName = 'i1.jpg';
+      final Image book1Image = createImage(
+        fileName: book1ImageFileName,
+        data: Uint8List(2),
       );
-      final Book addedBook = createBook(
-        id: bookId,
-        imageData: imageData,
-        userId: userId,
-        status: status,
-        title: title,
-        author: author,
-        readPagesAmount: readPagesAmount,
-        allPagesAmount: allPagesAmount,
+      final List<FirebaseBook> userFirebaseBooks = [
+        createFirebaseBook(
+          id: 'b1',
+          userId: userId,
+          imageFileName: book1ImageFileName,
+        ),
+        createFirebaseBook(id: 'b2', userId: userId, imageFileName: null),
+      ];
+      final List<Book> expectedUserBooks = [
+        createBook(
+          id: userFirebaseBooks.first.id,
+          userId: userFirebaseBooks.first.userId,
+          image: book1Image,
+        ),
+        createBook(
+          id: userFirebaseBooks.last.id,
+          userId: userFirebaseBooks.last.userId,
+          image: null,
+        ),
+      ];
+
+      Stream<List<Book>> methodCall(BookStatus? bookStatus) {
+        return repository.getUserBooks(userId: userId, bookStatus: bookStatus);
+      }
+
+      setUp(() {
+        firebaseFirestoreBookService.mockGetUserBooks(
+          userFirebaseBooks: userFirebaseBooks,
+        );
+        when(
+          () => firebaseStorageImageService.loadImage(
+            fileName: book1ImageFileName,
+            userId: userId,
+          ),
+        ).thenAnswer((_) async => book1Image.data);
+      });
+
+      tearDown(() {
+        verify(
+          () => firebaseStorageImageService.loadImage(
+            fileName: book1ImageFileName,
+            userId: userId,
+          ),
+        ).called(1);
+      });
+
+      test(
+        'book status is null, should query for user books with book status set as null',
+        () async {
+          const BookStatus? bookStatus = null;
+
+          final Stream<List<Book>> userBooks$ = methodCall(bookStatus);
+
+          expect(await userBooks$.first, expectedUserBooks);
+          verify(
+            () => firebaseFirestoreBookService.getUserBooks(
+              userId: userId,
+              bookStatus: null,
+            ),
+          ).called(1);
+        },
       );
 
-      Future<void> callAddNewBookMethod() async {
+      test(
+        'book status is not null, should query for user books with book status set as mapped given book status',
+        () async {
+          const BookStatus bookStatus = BookStatus.inProgress;
+          final String bookStatusAsStr =
+              BookStatusMapper.mapFromEnumToString(bookStatus);
+
+          final Stream<List<Book>> userBooks$ = methodCall(bookStatus);
+
+          expect(await userBooks$.first, expectedUserBooks);
+          verify(
+            () => firebaseFirestoreBookService.getUserBooks(
+              userId: userId,
+              bookStatus: bookStatusAsStr,
+            ),
+          ).called(1);
+        },
+      );
+    },
+  );
+
+  group(
+    'add new book',
+    () {
+      const String userId = 'u1';
+      const BookStatus bookStatus = BookStatus.inProgress;
+      final String bookStatusAsStr =
+          BookStatusMapper.mapFromEnumToString(bookStatus);
+      const String title = 'title';
+      const String author = 'author';
+      const int readPagesAmount = 20;
+      const int allPagesAmount = 200;
+
+      Future<void> methodCall(Image? image) async {
         await repository.addNewBook(
           userId: userId,
-          status: status,
-          imageData: imageData,
+          status: bookStatus,
+          image: image,
           title: title,
           author: author,
           readPagesAmount: readPagesAmount,
@@ -236,204 +196,276 @@ void main() {
       }
 
       setUp(() {
-        bookLocalDbService.mockAddBook();
-        bookRemoteDbService.mockAddBook();
-        idGenerator.mockGenerateRandomId(id: bookId);
+        firebaseFirestoreBookService.mockAddBook();
+        firebaseStorageImageService.mockSaveImage();
       });
 
       test(
-        'should only call method responsible for adding book to local db with sync state as added if device has not internet connection',
+        'image is null, should only add book to firebase firestore',
         () async {
-          const SyncState syncState = SyncState.added;
-          device.mockHasDeviceInternetConnection(value: false);
+          await methodCall(null);
 
-          await callAddNewBookMethod();
-
-          verify(
-            () => bookLocalDbService.addBook(book: book, syncState: syncState),
-          ).called(1);
-          expect(
-            await repository.getBooksByUserId(userId: userId).first,
-            [addedBook],
+          verifyNever(
+            () => firebaseStorageImageService.saveImage(
+              image: any(named: 'image'),
+              userId: userId,
+            ),
           );
+          verify(
+            () => firebaseFirestoreBookService.addBook(
+              userId: userId,
+              status: bookStatusAsStr,
+              title: title,
+              author: author,
+              readPagesAmount: readPagesAmount,
+              allPagesAmount: allPagesAmount,
+              imageFileName: null,
+            ),
+          ).called(1);
         },
       );
 
       test(
-        'should call methods responsible for adding book to local and remote db if device has internet connection',
+        'image is not null, should add image to firebase storage and should add book to firebase firestore',
         () async {
-          device.mockHasDeviceInternetConnection(value: true);
-
-          await callAddNewBookMethod();
-
-          verify(
-            () => bookLocalDbService.addBook(book: book),
-          ).called(1);
-          verify(
-            () => bookRemoteDbService.addBook(book: book),
-          ).called(1);
-          expect(
-            await repository.getBooksByUserId(userId: userId).first,
-            [addedBook],
+          final Image image = createImage(
+            fileName: 'i1.jpg',
+            data: Uint8List(10),
           );
+
+          await methodCall(image);
+
+          verify(
+            () => firebaseStorageImageService.saveImage(
+              image: image,
+              userId: userId,
+            ),
+          ).called(1);
+          verify(
+            () => firebaseFirestoreBookService.addBook(
+              userId: userId,
+              status: bookStatusAsStr,
+              title: title,
+              author: author,
+              readPagesAmount: readPagesAmount,
+              allPagesAmount: allPagesAmount,
+              imageFileName: image.fileName,
+            ),
+          ).called(1);
         },
       );
     },
   );
 
   group(
-    'update book data',
+    'update book',
     () {
       const String bookId = 'b1';
-      const String userId = 'u1';
-      final Book currentBook = createBook(id: bookId, userId: userId);
-      const String newTitle = 'newTitle';
-      final Book updatedBook = currentBook.copyWith(title: newTitle);
+      const BookStatus bookStatus = BookStatus.inProgress;
+      final String bookStatusAsStr =
+          BookStatusMapper.mapFromEnumToString(bookStatus);
+      const String title = 'title';
+      const String author = 'author';
+      const int readPagesAmount = 40;
+      const int allPagesAmount = 100;
 
-      Future<void> callUpdateBookDataMethod() async {
-        await repository.updateBookData(
+      Future<void> methodCall(Image? image) async {
+        await repository.updateBook(
           bookId: bookId,
-          title: newTitle,
+          userId: userId,
+          status: bookStatus,
+          image: image,
+          title: title,
+          author: author,
+          readPagesAmount: readPagesAmount,
+          allPagesAmount: allPagesAmount,
         );
       }
 
       setUp(() {
-        bookLocalDbService.mockUpdateBookData(updatedBook: updatedBook);
-        bookRemoteDbService.mockUpdateBookData();
-        repository = createRepository(books: [currentBook]);
+        firebaseFirestoreBookService.mockUpdateBook();
       });
 
       test(
-        'device has not internet connection, should only call method responsible for updating book data in local db with sync state set to updated and should update book in list',
+        'image file is null, should only update book in firebase firestore',
         () async {
-          const SyncState syncState = SyncState.updated;
-          device.mockHasDeviceInternetConnection(value: false);
-
-          await callUpdateBookDataMethod();
+          await methodCall(null);
 
           verify(
-            () => bookLocalDbService.updateBookData(
+            () => firebaseFirestoreBookService.updateBook(
               bookId: bookId,
-              title: newTitle,
-              syncState: syncState,
+              userId: userId,
+              status: bookStatusAsStr,
+              imageFileName: null,
+              title: title,
+              author: author,
+              readPagesAmount: readPagesAmount,
+              allPagesAmount: allPagesAmount,
             ),
           ).called(1);
-          expect(
-            await repository.getBookById(bookId: bookId).first,
-            updatedBook,
-          );
         },
       );
 
       test(
-        'device has internet connection, should call methods responsible for updating book data in local and remote db and should update book in list',
+        'image file is not null, book does not have image currently, should save new image in firebase storage and should update book in firebase firestore',
         () async {
-          device.mockHasDeviceInternetConnection(value: true);
+          final Image image = createImage(
+            fileName: 'i1.jpg',
+            data: Uint8List(2),
+          );
+          final FirebaseBook firebaseBook = createFirebaseBook(
+            id: bookId,
+            imageFileName: null,
+          );
+          firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
+          firebaseStorageImageService.mockSaveImage();
 
-          await callUpdateBookDataMethod();
+          await methodCall(image);
 
           verify(
-            () => bookRemoteDbService.updateBookData(
+            () => firebaseStorageImageService.saveImage(
+              image: image,
+              userId: userId,
+            ),
+          ).called(1);
+          verify(
+            () => firebaseFirestoreBookService.updateBook(
               bookId: bookId,
               userId: userId,
-              title: newTitle,
+              status: bookStatusAsStr,
+              imageFileName: image.fileName,
+              title: title,
+              author: author,
+              readPagesAmount: readPagesAmount,
+              allPagesAmount: allPagesAmount,
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'image file is not null, book has image currently, should delete current image from firebase storage, should save new image in firebase storage and should update book in firebase firestore',
+        () async {
+          final Image image = createImage(
+            fileName: 'i1.jpg',
+            data: Uint8List(2),
+          );
+          final FirebaseBook firebaseBook = createFirebaseBook(
+            id: bookId,
+            imageFileName: 'i123.jpg',
+          );
+          firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
+          firebaseStorageImageService.mockDeleteImage();
+          firebaseStorageImageService.mockSaveImage();
+
+          await methodCall(image);
+
+          verify(
+            () => firebaseStorageImageService.deleteImage(
+              fileName: 'i123.jpg',
+              userId: userId,
             ),
           ).called(1);
           verify(
-            () => bookLocalDbService.updateBookData(
-              bookId: bookId,
-              title: newTitle,
-              syncState: SyncState.none,
+            () => firebaseStorageImageService.saveImage(
+              image: image,
+              userId: userId,
             ),
           ).called(1);
-          expect(
-            await repository.getBookById(bookId: bookId).first,
-            updatedBook,
-          );
+          verify(
+            () => firebaseFirestoreBookService.updateBook(
+              bookId: bookId,
+              userId: userId,
+              status: bookStatusAsStr,
+              imageFileName: image.fileName,
+              title: title,
+              author: author,
+              readPagesAmount: readPagesAmount,
+              allPagesAmount: allPagesAmount,
+            ),
+          ).called(1);
         },
       );
     },
   );
 
   group(
-    'update book image',
+    'delete book image',
     () {
       const String bookId = 'b1';
       const String userId = 'u1';
-      final Uint8List imageData = Uint8List(1);
-      final Book originalBook = createBook(
-        id: bookId,
-        userId: userId,
-        imageData: Uint8List(10),
-      );
-      final Book updatedBook = originalBook.copyWith(imageData: imageData);
 
-      Future<void> callUpdateBookImageMethod() async {
-        await repository.updateBookImage(
-          bookId: bookId,
-          imageData: imageData,
-        );
+      Future<void> methodCall() async {
+        await repository.deleteBookImage(bookId: bookId, userId: userId);
       }
 
       setUp(() {
-        bookLocalDbService.mockUpdateBookImage(updatedBook: updatedBook);
-        bookRemoteDbService.mockUpdateBookImage();
-        repository = createRepository(books: [originalBook]);
+        firebaseStorageImageService.mockDeleteImage();
+      });
+
+      tearDown(() {
+        verify(
+          () => firebaseFirestoreBookService.getBook(
+            bookId: bookId,
+            userId: userId,
+          ),
+        ).called(1);
       });
 
       test(
-        'device has internet connection, should update image in remote and local db and should update book in list',
+        'book does not have image, should do nothing',
         () async {
-          device.mockHasDeviceInternetConnection(value: true);
+          final FirebaseBook firebaseBook = createFirebaseBook(
+            id: bookId,
+            userId: userId,
+            imageFileName: null,
+          );
+          firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
 
-          await callUpdateBookImageMethod();
+          await methodCall();
 
-          verify(
-            () => bookRemoteDbService.updateBookImage(
+          verifyNever(
+            () => firebaseStorageImageService.deleteImage(
+              fileName: any(named: 'fileName'),
+              userId: userId,
+            ),
+          );
+          verifyNever(
+            () => firebaseFirestoreBookService.updateBook(
               bookId: bookId,
               userId: userId,
-              imageData: imageData,
+              deletedImageFileName: true,
             ),
-          ).called(1);
-          verify(
-            () => bookLocalDbService.updateBookImage(
-              bookId: bookId,
-              userId: userId,
-              imageData: imageData,
-            ),
-          ).called(1);
-          expect(
-            await repository.getBookById(bookId: bookId).first,
-            updatedBook,
           );
         },
       );
 
       test(
-        'device has not internet connection, should update image in local db, should set book sync state to updated in local db and should update book in list',
+        'book has image, should delete book image from image data source and should update book in firebase firestore with deleted image file name set as null',
         () async {
-          device.mockHasDeviceInternetConnection(value: false);
-          bookLocalDbService.mockUpdateBookData(updatedBook: updatedBook);
+          final FirebaseBook firebaseBook = createFirebaseBook(
+            id: bookId,
+            userId: userId,
+            imageFileName: 'i1.jpg',
+          );
+          firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
+          firebaseFirestoreBookService.mockUpdateBook();
 
-          await callUpdateBookImageMethod();
+          await methodCall();
 
           verify(
-            () => bookLocalDbService.updateBookImage(
+            () => firebaseStorageImageService.deleteImage(
+              fileName: 'i1.jpg',
+              userId: userId,
+            ),
+          ).called(1);
+          verify(
+            () => firebaseFirestoreBookService.updateBook(
               bookId: bookId,
               userId: userId,
-              imageData: imageData,
+              deletedImageFileName: true,
             ),
           ).called(1);
-          verify(
-            () => bookLocalDbService.updateBookData(
-              bookId: bookId,
-              syncState: SyncState.updated,
-            ),
-          ).called(1);
-          expect(
-            await repository.getBookById(bookId: bookId).first,
-            updatedBook,
-          );
         },
       );
     },
@@ -443,43 +475,97 @@ void main() {
     'delete book',
     () {
       const String bookId = 'b1';
-      final Book book = createBook(id: bookId, userId: userId);
+      const String userId = 'u1';
+
+      Future<void> methodCall() async {
+        await repository.deleteBook(bookId: bookId, userId: userId);
+      }
 
       setUp(() {
-        repository = createRepository(books: [book]);
+        firebaseStorageImageService.mockDeleteImage();
+        firebaseFirestoreBookService.mockDeleteBook();
+      });
+
+      tearDown(() {
+        verify(
+          () => firebaseFirestoreBookService.getBook(
+            bookId: bookId,
+            userId: userId,
+          ),
+        ).called(1);
       });
 
       test(
-        'should call methods responsible for deleting book from remote and local db if device has internet connection',
+        'book does not exist, should do nothing',
         () async {
-          device.mockHasDeviceInternetConnection(value: true);
-          bookLocalDbService.mockDeleteBook();
-          bookRemoteDbService.mockDeleteBook();
+          firebaseFirestoreBookService.mockGetBook();
 
-          await repository.deleteBook(bookId: bookId);
+          await methodCall();
 
+          verifyNever(
+            () => firebaseStorageImageService.deleteImage(
+              fileName: any(named: 'fileName'),
+              userId: userId,
+            ),
+          );
+          verifyNever(
+            () => firebaseFirestoreBookService.deleteBook(
+              userId: userId,
+              bookId: bookId,
+            ),
+          );
+        },
+      );
+
+      test(
+        'book does not have image, should only delete book from firebase firestore',
+        () async {
+          final FirebaseBook firebaseBook = createFirebaseBook(
+            id: bookId,
+            userId: userId,
+            imageFileName: null,
+          );
+          firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
+
+          await methodCall();
+
+          verifyNever(
+            () => firebaseStorageImageService.deleteImage(
+              fileName: any(named: 'fileName'),
+              userId: userId,
+            ),
+          );
           verify(
-            () =>
-                bookRemoteDbService.deleteBook(userId: userId, bookId: bookId),
-          ).called(1);
-          verify(
-            () => bookLocalDbService.deleteBook(userId: userId, bookId: bookId),
+            () => firebaseFirestoreBookService.deleteBook(
+              userId: userId,
+              bookId: bookId,
+            ),
           ).called(1);
         },
       );
 
       test(
-        'should call method responsible for updating book with sync state as deleted if device has not internet connection',
+        'book has image, should delete book image from firebase storage and should delete book from firebase firestore',
         () async {
-          device.mockHasDeviceInternetConnection(value: false);
-          bookLocalDbService.mockUpdateBookData(updatedBook: createBook());
+          final FirebaseBook firebaseBook = createFirebaseBook(
+            id: bookId,
+            userId: userId,
+            imageFileName: 'i1.jpg',
+          );
+          firebaseFirestoreBookService.mockGetBook(firebaseBook: firebaseBook);
 
-          await repository.deleteBook(bookId: bookId);
+          await methodCall();
 
           verify(
-            () => bookLocalDbService.updateBookData(
+            () => firebaseStorageImageService.deleteImage(
+              fileName: 'i1.jpg',
+              userId: userId,
+            ),
+          ).called(1);
+          verify(
+            () => firebaseFirestoreBookService.deleteBook(
+              userId: userId,
               bookId: bookId,
-              syncState: SyncState.deleted,
             ),
           ).called(1);
         },
@@ -487,77 +573,43 @@ void main() {
     },
   );
 
-  group(
-    'delete all user books',
-    () {
+  test(
+    'delete all user books, should delete all user books and their images',
+    () async {
       const String userId = 'u1';
-      final List<Book> userBooks = [
-        createBook(id: 'b1', userId: userId),
-        createBook(id: 'b2', userId: userId),
+      final List<FirebaseBook> userFirebaseBooks = [
+        createFirebaseBook(id: 'b1', userId: userId, imageFileName: 'i1.jpg'),
+        createFirebaseBook(id: 'b2', userId: userId, imageFileName: null),
       ];
-
-      setUp(() {
-        bookLocalDbService.mockLoadUserBooks(books: userBooks);
-        bookLocalDbService.mockDeleteBook();
-        bookLocalDbService.mockUpdateBookData(updatedBook: createBook());
-        bookRemoteDbService.mockDeleteBook();
-      });
-
-      test(
-        'device has internet connection, should delete each book and its image from remote and local db',
-        () async {
-          device.mockHasDeviceInternetConnection(value: true);
-
-          await repository.deleteAllUserBooks(userId: userId);
-
-          verify(
-            () => bookLocalDbService.deleteBook(
-              userId: userId,
-              bookId: userBooks.first.id,
-            ),
-          ).called(1);
-          verify(
-            () => bookRemoteDbService.deleteBook(
-              userId: userId,
-              bookId: userBooks.first.id,
-            ),
-          ).called(1);
-          verify(
-            () => bookLocalDbService.deleteBook(
-              userId: userId,
-              bookId: userBooks.last.id,
-            ),
-          ).called(1);
-          verify(
-            () => bookRemoteDbService.deleteBook(
-              userId: userId,
-              bookId: userBooks.last.id,
-            ),
-          ).called(1);
-        },
+      firebaseFirestoreBookService.mockGetUserBooks(
+        userFirebaseBooks: userFirebaseBooks,
       );
+      firebaseStorageImageService.mockDeleteImage();
+      firebaseFirestoreBookService.mockDeleteBook();
 
-      test(
-        'device has not internet connection, should update each book in local db with sync state set as deleted',
-        () async {
-          device.mockHasDeviceInternetConnection(value: false);
+      await repository.deleteAllUserBooks(userId: userId);
 
-          await repository.deleteAllUserBooks(userId: userId);
-
-          verify(
-            () => bookLocalDbService.updateBookData(
-              bookId: userBooks.first.id,
-              syncState: SyncState.deleted,
-            ),
-          ).called(1);
-          verify(
-            () => bookLocalDbService.updateBookData(
-              bookId: userBooks.last.id,
-              syncState: SyncState.deleted,
-            ),
-          ).called(1);
-        },
-      );
+      verify(
+        () => firebaseFirestoreBookService.getUserBooks(userId: userId),
+      ).called(1);
+      verify(
+        () => firebaseStorageImageService.deleteImage(
+          fileName: 'i1.jpg',
+          userId: userId,
+        ),
+      ).called(1);
+      verify(
+        () => firebaseFirestoreBookService.deleteBook(
+          userId: userId,
+          bookId: userFirebaseBooks.first.id,
+        ),
+      ).called(1);
+      verify(
+        () => firebaseFirestoreBookService.deleteBook(
+          userId: userId,
+          bookId: userFirebaseBooks.last.id,
+        ),
+      ).called(1);
     },
   );
 }

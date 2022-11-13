@@ -1,132 +1,66 @@
-import 'package:app/data/data_sources/local_db/sqlite/sqlite_sync_state.dart';
-import 'package:app/data/data_sources/local_db/user_local_db_service.dart';
-import 'package:app/data/data_sources/remote_db/user_remote_db_service.dart';
-import 'package:app/data/synchronizers/user_synchronizer.dart';
+import 'package:app/data/firebase/entities/firebase_user.dart';
+import 'package:app/data/firebase/services/firebase_firestore_user_service.dart';
 import 'package:app/domain/entities/user.dart';
 import 'package:app/domain/interfaces/user_interface.dart';
-import 'package:app/models/device.dart';
-import 'package:app/models/repository.dart';
 
-class UserRepository extends Repository<User> implements UserInterface {
-  late final UserSynchronizer _userSynchronizer;
-  late final UserLocalDbService _userLocalDbService;
-  late final UserRemoteDbService _userRemoteDbService;
-  late final Device _device;
+class UserRepository implements UserInterface {
+  late final FirebaseFirestoreUserService _firebaseFirestoreUserService;
 
   UserRepository({
-    required UserSynchronizer userSynchronizer,
-    required UserLocalDbService userLocalDbService,
-    required UserRemoteDbService userRemoteDbService,
-    required Device device,
-    List<User>? users,
+    required FirebaseFirestoreUserService firebaseFirestoreUserService,
   }) {
-    _userSynchronizer = userSynchronizer;
-    _userLocalDbService = userLocalDbService;
-    _userRemoteDbService = userRemoteDbService;
-    _device = device;
-
-    if (users != null) {
-      addEntities(users);
-    }
-  }
-
-  @override
-  Future<void> initializeUser({required String userId}) async {
-    if (await _device.hasInternetConnection()) {
-      await _userSynchronizer.synchronizeUser(userId: userId);
-    }
+    _firebaseFirestoreUserService = firebaseFirestoreUserService;
   }
 
   @override
   Stream<User?> getUser({required String userId}) {
-    return stream.map(
-      (List<User>? users) {
-        final List<User?> allUsers = [...?users];
-        return allUsers.firstWhere(
-          (User? user) => user?.id == userId,
-          orElse: () => null,
-        );
+    return _firebaseFirestoreUserService.getUser(userId: userId).map(
+      (FirebaseUser? firebaseUser) {
+        return firebaseUser == null ? null : _createUser(firebaseUser);
       },
     );
   }
 
   @override
-  Future<void> loadUser({required String userId}) async {
-    final User user = await _userLocalDbService.loadUser(userId: userId);
-    addEntity(user);
-  }
-
-  @override
   Future<void> addUser({required User user}) async {
-    SyncState syncState = SyncState.added;
-    if (await _device.hasInternetConnection()) {
-      await _userRemoteDbService.addUser(user: user);
-      syncState = SyncState.none;
-    }
-    await _userLocalDbService.addUser(user: user, syncState: syncState);
-    addEntity(user);
+    final FirebaseUser firebaseUser = _createFirebaseUser(user);
+    await _firebaseFirestoreUserService.addUser(firebaseUser: firebaseUser);
   }
 
   @override
-  Future<void> updateUserThemeSettings({
+  Future<void> updateUser({
     required String userId,
     bool? isDarkModeOn,
     bool? isDarkModeCompatibilityWithSystemOn,
   }) async {
-    final User? originalUser = await getUser(userId: userId).first;
-    if (originalUser == null) {
-      return;
-    }
-    final User updatedUser = originalUser.copyWith(
+    await _firebaseFirestoreUserService.updateUser(
+      userId: userId,
       isDarkModeOn: isDarkModeOn,
       isDarkModeCompatibilityWithSystemOn: isDarkModeCompatibilityWithSystemOn,
     );
-    updateEntity(updatedUser);
-    try {
-      await _tryUpdateUserThemeSettings(
-        userId,
-        isDarkModeOn,
-        isDarkModeCompatibilityWithSystemOn,
-      );
-    } catch (_) {
-      updateEntity(originalUser);
-    }
   }
 
   @override
   Future<void> deleteUser({required String userId}) async {
-    if (await _device.hasInternetConnection()) {
-      await _userRemoteDbService.deleteUser(userId: userId);
-      await _userLocalDbService.deleteUser(userId: userId);
-    } else {
-      await _userLocalDbService.updateUser(
-        userId: userId,
-        syncState: SyncState.deleted,
-      );
-    }
-    removeEntity(userId);
+    await _firebaseFirestoreUserService.deleteUser(userId: userId);
   }
 
-  Future<void> _tryUpdateUserThemeSettings(
-    String userId,
-    bool? isDarkModeOn,
-    bool? isDarkModeCompatibilityWithSystemOn,
-  ) async {
-    SyncState? syncState = SyncState.updated;
-    if (await _device.hasInternetConnection()) {
-      await _userRemoteDbService.updateUser(
-        userId: userId,
-        isDarkModeOn: isDarkModeOn,
-        isDarkModeCompatibilityWithSystemOn:
-            isDarkModeCompatibilityWithSystemOn,
-      );
-      syncState = SyncState.none;
-    }
-    await _userLocalDbService.updateUser(
-      userId: userId,
-      isDarkModeOn: isDarkModeOn,
-      isDarkModeCompatibilityWithSystemOn: isDarkModeCompatibilityWithSystemOn,
-      syncState: syncState,
+  User _createUser(FirebaseUser firebaseUser) {
+    return User(
+      id: firebaseUser.id,
+      isDarkModeOn: firebaseUser.isDarkModeOn,
+      isDarkModeCompatibilityWithSystemOn:
+          firebaseUser.isDarkModeCompatibilityWithSystemOn,
+    );
+  }
+
+  FirebaseUser _createFirebaseUser(User user) {
+    return FirebaseUser(
+      id: user.id,
+      isDarkModeOn: user.isDarkModeOn,
+      isDarkModeCompatibilityWithSystemOn:
+          user.isDarkModeCompatibilityWithSystemOn,
+      daysOfReading: const [],
     );
   }
 }

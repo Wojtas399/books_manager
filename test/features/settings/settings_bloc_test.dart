@@ -12,14 +12,12 @@ import '../../mocks/domain/use_cases/auth/mock_delete_logged_user_use_case.dart'
 import '../../mocks/domain/use_cases/auth/mock_get_logged_user_id_use_case.dart';
 import '../../mocks/domain/use_cases/auth/mock_sign_out_use_case.dart';
 import '../../mocks/domain/use_cases/user/mock_get_user_use_case.dart';
-import '../../mocks/domain/use_cases/user/mock_load_user_use_case.dart';
-import '../../mocks/domain/use_cases/user/mock_update_theme_settings_use_case.dart';
+import '../../mocks/domain/use_cases/user/mock_update_user_use_case.dart';
 
 void main() {
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
-  final loadUserUseCase = MockLoadUserUseCase();
   final getUserUseCase = MockGetUserUseCase();
-  final updateThemeSettingsUseCase = MockUpdateThemeSettingsUseCase();
+  final updateUserUseCase = MockUpdateUserUseCase();
   final changeLoggedUserPasswordUseCase = MockChangeLoggedUserPasswordUseCase();
   final signOutUseCase = MockSignOutUseCase();
   final deleteLoggedUserUseCase = MockDeleteLoggedUserUseCase();
@@ -30,9 +28,8 @@ void main() {
   }) {
     return SettingsBloc(
       getLoggedUserIdUseCase: getLoggedUserIdUseCase,
-      loadUserUseCase: loadUserUseCase,
       getUserUseCase: getUserUseCase,
-      updateThemeSettingsUseCase: updateThemeSettingsUseCase,
+      updateUserUseCase: updateUserUseCase,
       changeLoggedUserPasswordUseCase: changeLoggedUserPasswordUseCase,
       signOutUseCase: signOutUseCase,
       deleteLoggedUserUseCase: deleteLoggedUserUseCase,
@@ -42,7 +39,7 @@ void main() {
   }
 
   SettingsState createState({
-    BlocStatus status = const BlocStatusInProgress(),
+    BlocStatus status = const BlocStatusInitial(),
     bool isDarkModeOn = false,
     bool isDarkModeCompatibilityWithSystemOn = false,
   }) {
@@ -55,9 +52,8 @@ void main() {
 
   tearDown(() {
     reset(getLoggedUserIdUseCase);
-    reset(loadUserUseCase);
     reset(getUserUseCase);
-    reset(updateThemeSettingsUseCase);
+    reset(updateUserUseCase);
     reset(changeLoggedUserPasswordUseCase);
     reset(signOutUseCase);
     reset(deleteLoggedUserUseCase);
@@ -73,23 +69,23 @@ void main() {
         isDarkModeCompatibilityWithSystemOn: true,
       );
 
+      void eventCall(SettingsBloc bloc) => bloc.add(
+            const SettingsEventInitialize(),
+          );
+
       blocTest(
-        'logged user does not exist, should emit logged user not found status',
+        'logged user does not exist, should not change state',
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock(loggedUserId: null);
         },
-        act: (SettingsBloc bloc) {
-          bloc.add(
-            const SettingsEventInitialize(),
-          );
-        },
+        act: (SettingsBloc bloc) => eventCall(bloc),
         expect: () => [
           createState(
             status: const BlocStatusLoading(),
           ),
           createState(
-            status: const BlocStatusLoggedUserNotFound(),
+            status: const BlocStatusComplete(),
           ),
         ],
         verify: (_) {
@@ -100,18 +96,13 @@ void main() {
       );
 
       blocTest(
-        'logged user exists, should call use case responsible for loading logged user, should get logged user data and assign them to state',
+        'logged user exists, should get logged user data and assign them to state',
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
-          loadUserUseCase.mock();
           getUserUseCase.mock(user: user);
         },
-        act: (SettingsBloc bloc) {
-          bloc.add(
-            const SettingsEventInitialize(),
-          );
-        },
+        act: (SettingsBloc bloc) => eventCall(bloc),
         expect: () => [
           createState(
             status: const BlocStatusLoading(),
@@ -124,7 +115,7 @@ void main() {
         ],
         verify: (_) {
           verify(
-            () => loadUserUseCase.execute(userId: loggedUserId),
+            () => getLoggedUserIdUseCase.execute(),
           ).called(1);
           verify(
             () => getUserUseCase.execute(userId: loggedUserId),
@@ -156,105 +147,181 @@ void main() {
     ],
   );
 
-  blocTest(
-    'switch dark mode, should do nothing if logged user id is null',
-    build: () => createBloc(),
-    setUp: () {
-      getLoggedUserIdUseCase.mock(loggedUserId: null);
-      updateThemeSettingsUseCase.mock();
-    },
-    act: (SettingsBloc bloc) {
-      bloc.add(
-        const SettingsEventSwitchDarkMode(isSwitched: true),
+  group(
+    'switch dark mode',
+    () {
+      void eventCall(SettingsBloc bloc) => bloc.add(
+            const SettingsEventSwitchDarkMode(isSwitched: true),
+          );
+
+      setUp(() {
+        updateUserUseCase.mock();
+      });
+
+      tearDown(() {
+        verify(
+          () => getLoggedUserIdUseCase.execute(),
+        ).called(1);
+      });
+
+      blocTest(
+        'should do nothing if logged user id is null',
+        build: () => createBloc(),
+        setUp: () {
+          getLoggedUserIdUseCase.mock(loggedUserId: null);
+        },
+        act: (SettingsBloc bloc) => eventCall(bloc),
+        expect: () => [],
+        verify: (_) {
+          verifyNever(
+            () => updateUserUseCase.execute(
+              userId: any(named: 'userId'),
+              isDarkModeOn: true,
+            ),
+          );
+        },
       );
-    },
-    expect: () => [],
-    verify: (_) {
-      verify(
-        () => getLoggedUserIdUseCase.execute(),
-      ).called(1);
-      verifyNever(
-        () => updateThemeSettingsUseCase.execute(
-          userId: any(named: 'userId'),
-          isDarkModeOn: true,
-        ),
+
+      blocTest(
+        'should update state and then should call use case responsible for updating theme settings',
+        build: () => createBloc(),
+        setUp: () {
+          getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
+        },
+        act: (SettingsBloc bloc) => eventCall(bloc),
+        expect: () => [
+          createState(
+            status: const BlocStatusInProgress(),
+            isDarkModeOn: true,
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => updateUserUseCase.execute(
+              userId: 'u1',
+              isDarkModeOn: true,
+            ),
+          ).called(1);
+        },
+      );
+
+      blocTest(
+        'should set previous value if use case throws error',
+        build: () => createBloc(),
+        setUp: () {
+          getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
+          updateUserUseCase.mock(throwable: 'Error...');
+        },
+        act: (SettingsBloc bloc) => eventCall(bloc),
+        expect: () => [
+          createState(
+            status: const BlocStatusInProgress(),
+            isDarkModeOn: true,
+          ),
+          createState(
+            status: const BlocStatusInProgress(),
+            isDarkModeOn: false,
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => updateUserUseCase.execute(
+              userId: 'u1',
+              isDarkModeOn: true,
+            ),
+          ).called(1);
+        },
       );
     },
   );
 
-  blocTest(
-    'switch dark mode, should call use case responsible for updating theme settings',
-    build: () => createBloc(),
-    setUp: () {
-      getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
-      updateThemeSettingsUseCase.mock();
-    },
-    act: (SettingsBloc bloc) {
-      bloc.add(
-        const SettingsEventSwitchDarkMode(isSwitched: true),
-      );
-    },
-    expect: () => [],
-    verify: (_) {
-      verify(
-        () => updateThemeSettingsUseCase.execute(
-          userId: 'u1',
-          isDarkModeOn: true,
-        ),
-      ).called(1);
-    },
-  );
+  group(
+    'switch dark mode compatibility with system',
+    () {
+      void eventCall(SettingsBloc bloc) => bloc.add(
+            const SettingsEventSwitchDarkModeCompatibilityWithSystem(
+              isSwitched: true,
+            ),
+          );
 
-  blocTest(
-    'switch dark mode compatibility with system, should do nothing if logged user id is null',
-    build: () => createBloc(),
-    setUp: () {
-      getLoggedUserIdUseCase.mock(loggedUserId: null);
-      updateThemeSettingsUseCase.mock();
-    },
-    act: (SettingsBloc bloc) {
-      bloc.add(
-        const SettingsEventSwitchDarkModeCompatibilityWithSystem(
-          isSwitched: true,
-        ),
-      );
-    },
-    expect: () => [],
-    verify: (_) {
-      verify(
-        () => getLoggedUserIdUseCase.execute(),
-      ).called(1);
-      verifyNever(
-        () => updateThemeSettingsUseCase.execute(
-          userId: any(named: 'userId'),
-          isDarkModeCompatibilityWithSystemOn: true,
-        ),
-      );
-    },
-  );
+      setUp(() {
+        updateUserUseCase.mock();
+      });
 
-  blocTest(
-    'switch dark mode compatibility with system, should call use case responsible for updating theme settings',
-    build: () => createBloc(),
-    setUp: () {
-      getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
-      updateThemeSettingsUseCase.mock();
-    },
-    act: (SettingsBloc bloc) {
-      bloc.add(
-        const SettingsEventSwitchDarkModeCompatibilityWithSystem(
-          isSwitched: true,
-        ),
+      tearDown(() {
+        verify(
+          () => getLoggedUserIdUseCase.execute(),
+        ).called(1);
+      });
+
+      blocTest(
+        'should do nothing if logged user id is null',
+        build: () => createBloc(),
+        setUp: () {
+          getLoggedUserIdUseCase.mock(loggedUserId: null);
+        },
+        act: (SettingsBloc bloc) => eventCall(bloc),
+        expect: () => [],
+        verify: (_) {
+          verifyNever(
+            () => updateUserUseCase.execute(
+              userId: any(named: 'userId'),
+              isDarkModeCompatibilityWithSystemOn: true,
+            ),
+          );
+        },
       );
-    },
-    expect: () => [],
-    verify: (_) {
-      verify(
-        () => updateThemeSettingsUseCase.execute(
-          userId: 'u1',
-          isDarkModeCompatibilityWithSystemOn: true,
-        ),
-      ).called(1);
+
+      blocTest(
+        'should update state and then should call use case responsible for updating theme settings',
+        build: () => createBloc(),
+        setUp: () {
+          getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
+        },
+        act: (SettingsBloc bloc) => eventCall(bloc),
+        expect: () => [
+          createState(
+            status: const BlocStatusInProgress(),
+            isDarkModeCompatibilityWithSystemOn: true,
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => updateUserUseCase.execute(
+              userId: 'u1',
+              isDarkModeCompatibilityWithSystemOn: true,
+            ),
+          ).called(1);
+        },
+      );
+
+      blocTest(
+        'should set previous value if use case throws error',
+        build: () => createBloc(),
+        setUp: () {
+          getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
+          updateUserUseCase.mock(throwable: 'Error...');
+        },
+        act: (SettingsBloc bloc) => eventCall(bloc),
+        expect: () => [
+          createState(
+            status: const BlocStatusInProgress(),
+            isDarkModeCompatibilityWithSystemOn: true,
+          ),
+          createState(
+            status: const BlocStatusInProgress(),
+            isDarkModeCompatibilityWithSystemOn: false,
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => updateUserUseCase.execute(
+              userId: 'u1',
+              isDarkModeCompatibilityWithSystemOn: true,
+            ),
+          ).called(1);
+        },
+      );
     },
   );
 
@@ -264,20 +331,29 @@ void main() {
       const String currentPassword = 'currentPassword';
       const String newPassword = 'newPassword';
 
+      void eventCall(SettingsBloc bloc) => bloc.add(
+            const SettingsEventChangePassword(
+              currentPassword: currentPassword,
+              newPassword: newPassword,
+            ),
+          );
+
+      tearDown(() {
+        verify(
+          () => changeLoggedUserPasswordUseCase.execute(
+            currentPassword: currentPassword,
+            newPassword: newPassword,
+          ),
+        ).called(1);
+      });
+
       blocTest(
         'should call use case responsible for changing logged user password',
         build: () => createBloc(),
         setUp: () {
           changeLoggedUserPasswordUseCase.mock();
         },
-        act: (SettingsBloc bloc) {
-          bloc.add(
-            const SettingsEventChangePassword(
-              currentPassword: currentPassword,
-              newPassword: newPassword,
-            ),
-          );
-        },
+        act: (SettingsBloc bloc) => eventCall(bloc),
         expect: () => [
           createState(
             status: const BlocStatusLoading(),
@@ -288,14 +364,6 @@ void main() {
             ),
           ),
         ],
-        verify: (_) {
-          verify(
-            () => changeLoggedUserPasswordUseCase.execute(
-              currentPassword: currentPassword,
-              newPassword: newPassword,
-            ),
-          ).called(1);
-        },
       );
 
       blocTest(
@@ -306,14 +374,7 @@ void main() {
             throwable: const AuthError(code: AuthErrorCode.wrongPassword),
           );
         },
-        act: (SettingsBloc bloc) {
-          bloc.add(
-            const SettingsEventChangePassword(
-              currentPassword: currentPassword,
-              newPassword: newPassword,
-            ),
-          );
-        },
+        act: (SettingsBloc bloc) => eventCall(bloc),
         expect: () => [
           createState(
             status: const BlocStatusLoading(),
@@ -324,14 +385,6 @@ void main() {
             ),
           ),
         ],
-        verify: (_) {
-          verify(
-            () => changeLoggedUserPasswordUseCase.execute(
-              currentPassword: currentPassword,
-              newPassword: newPassword,
-            ),
-          ).called(1);
-        },
       );
     },
   );
@@ -369,17 +422,17 @@ void main() {
     () {
       const String password = 'password';
 
+      void eventCall(SettingsBloc bloc) => bloc.add(
+            const SettingsEventDeleteAccount(password: password),
+          );
+
       blocTest(
         'should call use case responsible for deleting logged user',
         build: () => createBloc(),
         setUp: () {
           deleteLoggedUserUseCase.mock();
         },
-        act: (SettingsBloc bloc) {
-          bloc.add(
-            const SettingsEventDeleteAccount(password: password),
-          );
-        },
+        act: (SettingsBloc bloc) => eventCall(bloc),
         expect: () => [
           createState(
             status: const BlocStatusLoading(),
@@ -405,11 +458,7 @@ void main() {
             throwable: const AuthError(code: AuthErrorCode.wrongPassword),
           );
         },
-        act: (SettingsBloc bloc) {
-          bloc.add(
-            const SettingsEventDeleteAccount(password: password),
-          );
-        },
+        act: (SettingsBloc bloc) => eventCall(bloc),
         expect: () => [
           createState(
             status: const BlocStatusLoading(),
@@ -430,42 +479,13 @@ void main() {
             throwable: const AuthError(code: AuthErrorCode.userNotFound),
           );
         },
-        act: (SettingsBloc bloc) {
-          bloc.add(
-            const SettingsEventDeleteAccount(password: password),
-          );
-        },
+        act: (SettingsBloc bloc) => eventCall(bloc),
         expect: () => [
           createState(
             status: const BlocStatusLoading(),
           ),
           createState(
             status: const BlocStatusLoggedUserNotFound(),
-          ),
-        ],
-      );
-
-      blocTest(
-        'should emit appropriate state if device has not internet connection',
-        build: () => createBloc(),
-        setUp: () {
-          deleteLoggedUserUseCase.mock(
-            throwable: const NetworkError(
-              code: NetworkErrorCode.lossOfConnection,
-            ),
-          );
-        },
-        act: (SettingsBloc bloc) {
-          bloc.add(
-            const SettingsEventDeleteAccount(password: password),
-          );
-        },
-        expect: () => [
-          createState(
-            status: const BlocStatusLoading(),
-          ),
-          createState(
-            status: const BlocStatusLossOfInternetConnection(),
           ),
         ],
       );

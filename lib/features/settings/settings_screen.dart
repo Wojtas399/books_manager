@@ -1,19 +1,17 @@
 import 'package:app/components/bloc_listener_component.dart';
-import 'package:app/config/navigation.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
-import 'package:app/domain/interfaces/dialog_interface.dart';
 import 'package:app/domain/interfaces/user_interface.dart';
 import 'package:app/domain/use_cases/auth/change_logged_user_password_use_case.dart';
 import 'package:app/domain/use_cases/auth/delete_logged_user_use_case.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/auth/sign_out_use_case.dart';
 import 'package:app/domain/use_cases/user/get_user_use_case.dart';
-import 'package:app/domain/use_cases/user/load_user_use_case.dart';
-import 'package:app/domain/use_cases/user/update_theme_settings_use_case.dart';
+import 'package:app/domain/use_cases/user/update_user_use_case.dart';
+import 'package:app/extensions/dialogs_build_context_extension.dart';
+import 'package:app/extensions/navigator_build_context_extension.dart';
 import 'package:app/features/settings/bloc/settings_bloc.dart';
 import 'package:app/features/settings/components/settings_content.dart';
-import 'package:app/providers/device_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -42,13 +40,10 @@ class _SettingsBlocProvider extends StatelessWidget {
         getLoggedUserIdUseCase: GetLoggedUserIdUseCase(
           authInterface: context.read<AuthInterface>(),
         ),
-        loadUserUseCase: LoadUserUseCase(
-          userInterface: context.read<UserInterface>(),
-        ),
         getUserUseCase: GetUserUseCase(
           userInterface: context.read<UserInterface>(),
         ),
-        updateThemeSettingsUseCase: UpdateThemeSettingsUseCase(
+        updateUserUseCase: UpdateUserUseCase(
           userInterface: context.read<UserInterface>(),
         ),
         changeLoggedUserPasswordUseCase: ChangeLoggedUserPasswordUseCase(
@@ -58,7 +53,6 @@ class _SettingsBlocProvider extends StatelessWidget {
           authInterface: context.read<AuthInterface>(),
         ),
         deleteLoggedUserUseCase: DeleteLoggedUserUseCase(
-          device: DeviceProvider.provide(),
           bookInterface: context.read<BookInterface>(),
           userInterface: context.read<UserInterface>(),
           authInterface: context.read<AuthInterface>(),
@@ -98,7 +92,7 @@ class _SettingsBlocListener extends StatelessWidget {
   ) {
     switch (blocInfo) {
       case SettingsBlocInfo.userHasBeenSignedOut:
-        _onUserSigningOut();
+        _onUserSigningOut(context);
         break;
       case SettingsBlocInfo.userAccountHasBeenDeleted:
         _onUserAccountDeletion(context);
@@ -120,36 +114,34 @@ class _SettingsBlocListener extends StatelessWidget {
     }
   }
 
-  void _onUserSigningOut() {
-    Navigation.navigateToSignInScreen();
+  void _onUserSigningOut(BuildContext context) {
+    context.navigateBackToSignInScreen();
   }
 
   void _onUserAccountDeletion(BuildContext context) {
-    Navigation.navigateToSignInScreen();
+    context.navigateBackToSignInScreen();
     _accountDeletionInfo(context);
   }
 
   void _onPasswordChange(BuildContext context) {
-    context.read<DialogInterface>().showSnackBar(
-          message: 'Pomyślnie zmieniono hasło',
-        );
+    context.showSnackBar(
+      message: 'Pomyślnie zmieniono hasło',
+    );
   }
 
   void _accountDeletionInfo(BuildContext context) {
-    context.read<DialogInterface>().showInfoDialog(
-          context: context,
-          title: 'Pomyślne usunięcie konta',
-          info:
-              'Twoje konto zostało pomyślnie usunięte. Aby skorzystać ponownie z aplikacji załóż nowe konto.',
-        );
+    context.showInfoDialog(
+      title: 'Pomyślne usunięcie konta',
+      info:
+          'Twoje konto zostało pomyślnie usunięte. Aby skorzystać ponownie z aplikacji załóż nowe konto.',
+    );
   }
 
   void _wrongPasswordInfo(BuildContext context) {
-    context.read<DialogInterface>().showInfoDialog(
-          context: context,
-          title: 'Błędne hasło',
-          info:
-              'Nie można przeprowadzić tej operacji, ponieważ podano błędne hasło',
-        );
+    context.showInfoDialog(
+      title: 'Błędne hasło',
+      info:
+          'Nie można przeprowadzić tej operacji, ponieważ podano błędne hasło',
+    );
   }
 }

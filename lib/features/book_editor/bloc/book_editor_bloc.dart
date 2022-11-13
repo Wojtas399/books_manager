@@ -1,26 +1,28 @@
-import 'dart:typed_data';
-
 import 'package:app/domain/entities/book.dart';
-import 'package:app/domain/use_cases/book/get_book_by_id_use_case.dart';
+import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
+import 'package:app/domain/use_cases/book/get_book_use_case.dart';
 import 'package:app/domain/use_cases/book/update_book_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/custom_bloc.dart';
+import 'package:app/models/image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'book_editor_event.dart';
 part 'book_editor_state.dart';
 
 class BookEditorBloc extends CustomBloc<BookEditorEvent, BookEditorState> {
-  late final GetBookByIdUseCase _getBookByIdUseCase;
+  late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
+  late final GetBookUseCase _getBookUseCase;
   late final UpdateBookUseCase _updateBookUseCase;
 
   BookEditorBloc({
-    required GetBookByIdUseCase getBookByIdUseCase,
+    required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
+    required GetBookUseCase getBookUseCase,
     required UpdateBookUseCase updateBookUseCase,
     BlocStatus status = const BlocStatusInitial(),
     Book? originalBook,
-    Uint8List? imageData,
+    Image? image,
     String title = '',
     String author = '',
     int readPagesAmount = 0,
@@ -29,14 +31,15 @@ class BookEditorBloc extends CustomBloc<BookEditorEvent, BookEditorState> {
           BookEditorState(
             status: status,
             originalBook: originalBook,
-            imageData: imageData,
+            image: image,
             title: title,
             author: author,
             readPagesAmount: readPagesAmount,
             allPagesAmount: allPagesAmount,
           ),
         ) {
-    _getBookByIdUseCase = getBookByIdUseCase;
+    _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
+    _getBookUseCase = getBookUseCase;
     _updateBookUseCase = updateBookUseCase;
     on<BookEditorEventInitialize>(_initialize);
     on<BookEditorEventImageChanged>(_imageChanged);
@@ -53,19 +56,22 @@ class BookEditorBloc extends CustomBloc<BookEditorEvent, BookEditorState> {
     Emitter<BookEditorState> emit,
   ) async {
     emitLoadingStatus(emit);
-    final Book? book =
-        await _getBookByIdUseCase.execute(bookId: event.bookId).first;
-    if (book == null) {
+    final String? loggedUserId = await _getLoggedUserIdUseCase.execute().first;
+    if (loggedUserId == null) {
+      emitLoggedUserNotFoundStatus(emit);
       return;
     }
+    final Book? book = await _getBookUseCase
+        .execute(bookId: event.bookId, userId: loggedUserId)
+        .first;
     emit(state.copyWith(
       status: const BlocStatusComplete(),
       originalBook: book,
-      imageData: book.imageData,
-      title: book.title,
-      author: book.author,
-      readPagesAmount: book.readPagesAmount,
-      allPagesAmount: book.allPagesAmount,
+      image: book?.image,
+      title: book?.title,
+      author: book?.author,
+      readPagesAmount: book?.readPagesAmount,
+      allPagesAmount: book?.allPagesAmount,
     ));
   }
 
@@ -74,8 +80,8 @@ class BookEditorBloc extends CustomBloc<BookEditorEvent, BookEditorState> {
     Emitter<BookEditorState> emit,
   ) {
     emit(state.copyWith(
-      imageData: event.imageData,
-      deletedImage: event.imageData == null,
+      image: event.image,
+      deletedImage: event.image == null,
     ));
   }
 
@@ -84,7 +90,7 @@ class BookEditorBloc extends CustomBloc<BookEditorEvent, BookEditorState> {
     Emitter<BookEditorState> emit,
   ) {
     emit(state.copyWith(
-      imageData: state.originalBook?.imageData,
+      image: state.originalBook?.image,
     ));
   }
 
@@ -129,12 +135,14 @@ class BookEditorBloc extends CustomBloc<BookEditorEvent, BookEditorState> {
     Emitter<BookEditorState> emit,
   ) async {
     final String? bookId = state.originalBook?.id;
-    if (bookId != null) {
+    final String? userId = state.originalBook?.userId;
+    if (bookId != null && userId != null) {
       emitLoadingStatus(emit);
       await _updateBookUseCase.execute(
         bookId: bookId,
-        imageData: state.imageData,
-        deleteImage: state.imageData == null,
+        userId: userId,
+        image: state.image,
+        deleteImage: state.image == null,
         title: state.title,
         author: state.author,
         readPagesAmount: state.readPagesAmount,

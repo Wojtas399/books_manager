@@ -2,31 +2,24 @@ import 'package:app/config/errors.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/interfaces/user_interface.dart';
-import 'package:app/models/device.dart';
 import 'package:app/models/error.dart';
 
 class DeleteLoggedUserUseCase {
-  late final Device _device;
   late final BookInterface _bookInterface;
   late final UserInterface _userInterface;
   late final AuthInterface _authInterface;
 
   DeleteLoggedUserUseCase({
-    required Device device,
     required BookInterface bookInterface,
     required UserInterface userInterface,
     required AuthInterface authInterface,
   }) {
-    _device = device;
     _bookInterface = bookInterface;
     _userInterface = userInterface;
     _authInterface = authInterface;
   }
 
   Future<void> execute({required String password}) async {
-    if (!(await _device.hasInternetConnection())) {
-      throw const NetworkError(code: NetworkErrorCode.lossOfConnection);
-    }
     final String? loggedUserId = await _authInterface.loggedUserId$.first;
     if (loggedUserId == null) {
       throw const AuthError(code: AuthErrorCode.userNotFound);

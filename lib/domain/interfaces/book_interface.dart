@@ -1,15 +1,13 @@
-import 'dart:typed_data';
-
 import 'package:app/domain/entities/book.dart';
+import 'package:app/models/image.dart';
 
 abstract class BookInterface {
-  Future<void> initializeForUser({required String userId});
+  Stream<Book?> getBook({
+    required String bookId,
+    required String userId,
+  });
 
-  Stream<Book?> getBookById({required String bookId});
-
-  Stream<List<Book>?> getBooksByUserId({required String userId});
-
-  Future<void> loadUserBooks({
+  Stream<List<Book>> getUserBooks({
     required String userId,
     BookStatus? bookStatus,
   });
@@ -17,28 +15,33 @@ abstract class BookInterface {
   Future<void> addNewBook({
     required String userId,
     required BookStatus status,
-    required Uint8List? imageData,
+    required Image? image,
     required String title,
     required String author,
     required int readPagesAmount,
     required int allPagesAmount,
   });
 
-  Future<void> updateBookData({
+  Future<void> updateBook({
     required String bookId,
-    BookStatus? bookStatus,
+    required String userId,
+    BookStatus? status,
+    Image? image,
     String? title,
     String? author,
     int? readPagesAmount,
     int? allPagesAmount,
   });
 
-  Future<void> updateBookImage({
+  Future<void> deleteBookImage({
     required String bookId,
-    required Uint8List? imageData,
+    required String userId,
   });
 
-  Future<void> deleteBook({required String bookId});
+  Future<void> deleteBook({
+    required String bookId,
+    required String userId,
+  });
 
   Future<void> deleteAllUserBooks({required String userId});
 }

@@ -1,8 +1,8 @@
 import 'package:app/components/custom_scaffold_component.dart';
 import 'package:app/components/empty_content_info_component.dart';
-import 'package:app/extensions/date_extensions.dart';
+import 'package:app/extensions/date_extension.dart';
 import 'package:app/features/day_preview/bloc/day_preview_bloc.dart';
-import 'package:app/features/day_preview/components/day_preview_read_book_item.dart';
+import 'package:app/features/day_preview/components/day_preview_book_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -31,16 +31,16 @@ class _ReadBooksList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<DayPreviewReadBook> readBooks = context.select(
-      (DayPreviewBloc bloc) => bloc.state.dayPreviewReadBooks,
+    final List<DayPreviewBook> dayPreviewBooks = context.select(
+      (DayPreviewBloc bloc) => bloc.state.dayPreviewBooks,
     );
 
-    return readBooks.isNotEmpty
+    return dayPreviewBooks.isNotEmpty
         ? ListView.builder(
-            itemCount: readBooks.length,
+            itemCount: dayPreviewBooks.length,
             itemBuilder: (_, int index) {
-              return DayPreviewReadBookItem(
-                readBook: readBooks[index],
+              return DayPreviewBookItem(
+                dayPreviewBook: dayPreviewBooks[index],
               );
             },
           )

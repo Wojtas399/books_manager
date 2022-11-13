@@ -7,6 +7,7 @@ class MockStartReadingBookUseCase extends Mock
     when(
       () => execute(
         bookId: any(named: 'bookId'),
+        userId: any(named: 'userId'),
         fromBeginning: any(named: 'fromBeginning'),
       ),
     ).thenAnswer((_) async => '');

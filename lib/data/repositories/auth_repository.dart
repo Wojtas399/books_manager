@@ -1,50 +1,31 @@
 import 'package:app/config/errors.dart';
-import 'package:app/data/data_sources/local_db/auth_local_db_service.dart';
-import 'package:app/data/data_sources/remote_db/auth_remote_db_service.dart';
+import 'package:app/data/firebase/services/firebase_auth_service.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/models/error.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:rxdart/rxdart.dart';
 
 class AuthRepository implements AuthInterface {
-  late final AuthLocalDbService _authLocalDbService;
-  late final AuthRemoteDbService _authRemoteDbService;
-  final BehaviorSubject<String?> _loggedUserId$ =
-      BehaviorSubject<String?>.seeded(null);
+  late final FirebaseAuthService _firebaseAuthService;
 
-  AuthRepository({
-    required AuthLocalDbService authLocalDbService,
-    required AuthRemoteDbService authRemoteDbService,
-  }) {
-    _authLocalDbService = authLocalDbService;
-    _authRemoteDbService = authRemoteDbService;
+  AuthRepository({required FirebaseAuthService firebaseAuthService}) {
+    _firebaseAuthService = firebaseAuthService;
   }
 
   @override
-  Stream<String?> get loggedUserId$ => _loggedUserId$.stream;
+  Stream<String?> get loggedUserId$ => _firebaseAuthService.getLoggedUserId();
 
   @override
-  Future<void> loadLoggedUserId() async {
-    _loggedUserId$.add(
-      await _authLocalDbService.loadLoggedUserId(),
-    );
-  }
-
-  @override
-  Future<String> signIn({
+  Future<void> signIn({
     required String email,
     required String password,
   }) async {
     try {
-      final String loggedUserId = await _authRemoteDbService.signIn(
+      await _firebaseAuthService.signIn(
         email: email,
         password: password,
       );
-      await _authLocalDbService.saveLoggedUserId(loggedUserId: loggedUserId);
-      _loggedUserId$.add(loggedUserId);
-      return loggedUserId;
     } on FirebaseAuthException catch (exception) {
-      throw _convertFirebaseAuthExceptionToCustomError(exception.code);
+      throw _mapFirebaseAuthExceptionToCustomError(exception.code);
     }
   }
 
@@ -54,24 +35,21 @@ class AuthRepository implements AuthInterface {
     required String password,
   }) async {
     try {
-      final String loggedUserId = await _authRemoteDbService.signUp(
+      return await _firebaseAuthService.signUp(
         email: email,
         password: password,
       );
-      await _authLocalDbService.saveLoggedUserId(loggedUserId: loggedUserId);
-      _loggedUserId$.add(loggedUserId);
-      return loggedUserId;
     } on FirebaseAuthException catch (exception) {
-      throw _convertFirebaseAuthExceptionToCustomError(exception.code);
+      throw _mapFirebaseAuthExceptionToCustomError(exception.code);
     }
   }
 
   @override
   Future<void> sendPasswordResetEmail({required String email}) async {
     try {
-      await _authRemoteDbService.sendPasswordResetEmail(email: email);
+      await _firebaseAuthService.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (exception) {
-      throw _convertFirebaseAuthExceptionToCustomError(exception.code);
+      throw _mapFirebaseAuthExceptionToCustomError(exception.code);
     }
   }
 
@@ -79,9 +57,18 @@ class AuthRepository implements AuthInterface {
   Future<bool> checkLoggedUserPasswordCorrectness({
     required String password,
   }) async {
-    return await _authRemoteDbService.checkLoggedUserPasswordCorrectness(
-      password: password,
-    );
+    try {
+      await _firebaseAuthService.reauthenticateLoggedUserWithPassword(
+        password: password,
+      );
+      return true;
+    } on FirebaseAuthException catch (authException) {
+      if (authException.code == 'wrong-password') {
+        return false;
+      } else {
+        rethrow;
+      }
+    }
   }
 
   @override
@@ -90,33 +77,30 @@ class AuthRepository implements AuthInterface {
     required String newPassword,
   }) async {
     try {
-      await _authRemoteDbService.changeLoggedUserPassword(
+      await _firebaseAuthService.changeLoggedUserPassword(
         currentPassword: currentPassword,
         newPassword: newPassword,
       );
     } on FirebaseAuthException catch (exception) {
-      throw _convertFirebaseAuthExceptionToCustomError(exception.code);
+      throw _mapFirebaseAuthExceptionToCustomError(exception.code);
     }
   }
 
   @override
   Future<void> signOut() async {
-    await _authRemoteDbService.signOut();
-    await _authLocalDbService.removeLoggedUserId();
-    _loggedUserId$.add(null);
+    await _firebaseAuthService.signOut();
   }
 
   @override
   Future<void> deleteLoggedUser({required String password}) async {
     try {
-      await _authRemoteDbService.deleteLoggedUser(password: password);
-      await _authLocalDbService.removeLoggedUserId();
+      await _firebaseAuthService.deleteLoggedUser(password: password);
     } on FirebaseAuthException catch (exception) {
-      throw _convertFirebaseAuthExceptionToCustomError(exception.code);
+      throw _mapFirebaseAuthExceptionToCustomError(exception.code);
     }
   }
 
-  CustomError _convertFirebaseAuthExceptionToCustomError(String code) {
+  CustomError _mapFirebaseAuthExceptionToCustomError(String code) {
     switch (code) {
       case 'invalid-email':
         return const AuthError(code: AuthErrorCode.invalidEmail);

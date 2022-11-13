@@ -1,6 +1,7 @@
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/use_cases/book/get_user_books_in_progress_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 import '../../../mocks/domain/interfaces/mock_book_interface.dart';
 
@@ -9,21 +10,24 @@ void main() {
   final useCase = GetUserBooksInProgressUseCase(bookInterface: bookInterface);
 
   test(
-    'should return stream which contains books in progress',
+    'should return result of method from book interface responsible for getting user books with book status set as in progress',
     () async {
       const String userId = 'u1';
-      final List<Book> userBooks = [
-        createBook(id: 'b1', status: BookStatus.unread),
+      final List<Book> expectedUserBooks = [
         createBook(id: 'b2', status: BookStatus.inProgress),
-        createBook(id: 'b3', status: BookStatus.finished),
         createBook(id: 'b4', status: BookStatus.inProgress),
       ];
-      final List<Book> expectedBooks = [userBooks[1], userBooks[3]];
-      bookInterface.mockGetBooksByUserId(books: userBooks);
+      bookInterface.mockGetUserBooks(userBooks: expectedUserBooks);
 
-      final Stream<List<Book>?> books$ = useCase.execute(userId: userId);
+      final Stream<List<Book>?> userBooks$ = useCase.execute(userId: userId);
 
-      expect(await books$.first, expectedBooks);
+      expect(await userBooks$.first, expectedUserBooks);
+      verify(
+        () => bookInterface.getUserBooks(
+          userId: userId,
+          bookStatus: BookStatus.inProgress,
+        ),
+      ).called(1);
     },
   );
 }

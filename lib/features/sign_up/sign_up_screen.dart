@@ -1,9 +1,9 @@
 import 'package:app/components/bloc_listener_component.dart';
-import 'package:app/config/navigation.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
-import 'package:app/domain/interfaces/dialog_interface.dart';
 import 'package:app/domain/interfaces/user_interface.dart';
 import 'package:app/domain/use_cases/auth/sign_up_use_case.dart';
+import 'package:app/extensions/dialogs_build_context_extension.dart';
+import 'package:app/extensions/navigator_build_context_extension.dart';
 import 'package:app/features/sign_up/bloc/sign_up_bloc.dart';
 import 'package:app/features/sign_up/components/sign_up_content.dart';
 import 'package:app/validators/email_validator.dart';
@@ -77,14 +77,13 @@ class _SignUpBlocListener extends StatelessWidget {
   }
 
   void _onUserSigningUp(BuildContext context) {
-    Navigation.navigateToHome(context: context);
+    context.navigateToHome();
   }
 
   void _emailIsAlreadyTakenInfo(BuildContext context) {
-    context.read<DialogInterface>().showInfoDialog(
-          context: context,
-          title: 'Zajęty email',
-          info: 'Ten adres email jest już zajęty przez innego użytkownika.',
-        );
+    context.showInfoDialog(
+      title: 'Zajęty email',
+      info: 'Ten adres email jest już zajęty przez innego użytkownika.',
+    );
   }
 }

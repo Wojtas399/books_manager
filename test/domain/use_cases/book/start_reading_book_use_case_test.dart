@@ -9,10 +9,11 @@ void main() {
   final bookInterface = MockBookInterface();
   late StartReadingBookUseCase useCase;
   const String bookId = 'b1';
+  const String userId = 'u1';
 
   setUp(() {
     useCase = StartReadingBookUseCase(bookInterface: bookInterface);
-    bookInterface.mockUpdateBookData();
+    bookInterface.mockUpdateBook();
   });
 
   tearDown(() {
@@ -22,12 +23,13 @@ void main() {
   test(
     'should call method responsible for updating book with book status set as in progress',
     () async {
-      await useCase.execute(bookId: bookId);
+      await useCase.execute(bookId: bookId, userId: userId);
 
       verify(
-        () => bookInterface.updateBookData(
+        () => bookInterface.updateBook(
           bookId: bookId,
-          bookStatus: BookStatus.inProgress,
+          userId: userId,
+          status: BookStatus.inProgress,
         ),
       ).called(1);
     },
@@ -36,12 +38,17 @@ void main() {
   test(
     'from beginning, should call method responsible for updating book with book status set as in progress and read pages amount set as 0',
     () async {
-      await useCase.execute(bookId: bookId, fromBeginning: true);
+      await useCase.execute(
+        bookId: bookId,
+        userId: userId,
+        fromBeginning: true,
+      );
 
       verify(
-        () => bookInterface.updateBookData(
+        () => bookInterface.updateBook(
           bookId: bookId,
-          bookStatus: BookStatus.inProgress,
+          userId: userId,
+          status: BookStatus.inProgress,
           readPagesAmount: 0,
         ),
       ).called(1);

@@ -1,6 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:app/domain/use_cases/book/update_book_use_case.dart';
+import 'package:app/models/image.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -10,11 +9,17 @@ void main() {
   final bookInterface = MockBookInterface();
   late UpdateBookUseCase useCase;
   const String bookId = 'b1';
+  const String userId = 'u1';
+  final Image newImage = createImage(fileName: 'i1');
+  const String newTitle = 'title';
+  const String newAuthor = 'author';
+  const int newReadPagesAmount = 20;
+  const int newAllPagesAmount = 200;
 
   setUp(() {
     useCase = UpdateBookUseCase(bookInterface: bookInterface);
-    bookInterface.mockUpdateBookData();
-    bookInterface.mockUpdateBookImage();
+    bookInterface.mockUpdateBook();
+    bookInterface.mockDeleteBookImage();
   });
 
   tearDown(() {
@@ -22,15 +27,12 @@ void main() {
   });
 
   test(
-    'should call method responsible for updating book data',
+    'should call method responsible for updating book',
     () async {
-      const String newTitle = 'title';
-      const String newAuthor = 'author';
-      const int newReadPagesAmount = 20;
-      const int newAllPagesAmount = 200;
-
       await useCase.execute(
         bookId: bookId,
+        userId: userId,
+        image: newImage,
         title: newTitle,
         author: newAuthor,
         readPagesAmount: newReadPagesAmount,
@@ -38,8 +40,10 @@ void main() {
       );
 
       verify(
-        () => bookInterface.updateBookData(
+        () => bookInterface.updateBook(
           bookId: bookId,
+          userId: userId,
+          image: newImage,
           title: newTitle,
           author: newAuthor,
           readPagesAmount: newReadPagesAmount,
@@ -47,45 +51,43 @@ void main() {
         ),
       );
       verifyNever(
-        () => bookInterface.updateBookImage(
+        () => bookInterface.deleteBookImage(
           bookId: bookId,
-          imageData: null,
+          userId: userId,
         ),
       );
     },
   );
 
   test(
-    'should call method responsible for updating book image if new image data is not null',
-    () async {
-      final Uint8List newImageData = Uint8List(10);
-
-      await useCase.execute(
-        bookId: bookId,
-        imageData: newImageData,
-      );
-
-      verify(
-        () => bookInterface.updateBookImage(
-          bookId: bookId,
-          imageData: newImageData,
-        ),
-      ).called(1);
-    },
-  );
-
-  test(
-    'should call method responsible for updating book image with null if delete image param is true',
+    'delete image param is true, should call methods responsible for deleting book image and for updating book with image file set as null',
     () async {
       await useCase.execute(
         bookId: bookId,
+        userId: userId,
+        image: newImage,
         deleteImage: true,
+        title: newTitle,
+        author: newAuthor,
+        readPagesAmount: newReadPagesAmount,
+        allPagesAmount: newAllPagesAmount,
       );
 
       verify(
-        () => bookInterface.updateBookImage(
+        () => bookInterface.updateBook(
           bookId: bookId,
-          imageData: null,
+          userId: userId,
+          image: null,
+          title: newTitle,
+          author: newAuthor,
+          readPagesAmount: newReadPagesAmount,
+          allPagesAmount: newAllPagesAmount,
+        ),
+      );
+      verify(
+        () => bookInterface.deleteBookImage(
+          bookId: bookId,
+          userId: userId,
         ),
       ).called(1);
     },

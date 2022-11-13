@@ -13,6 +13,7 @@ class MockUpdateCurrentPageNumberAfterReadingUseCase extends Mock
 
   Future<void> _useCaseCall() {
     return execute(
+      userId: any(named: 'userId'),
       bookId: any(named: 'bookId'),
       newCurrentPageNumber: any(named: 'newCurrentPageNumber'),
     );

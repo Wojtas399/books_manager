@@ -27,11 +27,11 @@ class _TitleTextField extends StatelessWidget {
     final BlocStatus blocStatus = context.select(
       (BookEditorBloc bloc) => bloc.state.status,
     );
-    final String title = context.select(
+    final String? title = context.select(
       (BookEditorBloc bloc) => bloc.state.title,
     );
     if (blocStatus is BlocStatusComplete) {
-      _controller.text = title;
+      _controller.text = title ?? '';
     }
 
     return CustomTextField(
@@ -56,11 +56,11 @@ class _AuthorTextField extends StatelessWidget {
     final BlocStatus blocStatus = context.select(
       (BookEditorBloc bloc) => bloc.state.status,
     );
-    final String author = context.select(
+    final String? author = context.select(
       (BookEditorBloc bloc) => bloc.state.author,
     );
     if (blocStatus is BlocStatusComplete) {
-      _controller.text = author;
+      _controller.text = author ?? '';
     }
 
     return CustomTextField(

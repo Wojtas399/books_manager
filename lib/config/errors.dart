@@ -12,5 +12,5 @@ enum UserErrorCode { userNotFound, updateFailure }
 
 enum BookErrorCode {
   newCurrentPageIsTooHigh,
-  newCurrentPageIsLowerThanCurrentPage,
+  newCurrentPageIsLowerThanReadPagesAmount,
 }

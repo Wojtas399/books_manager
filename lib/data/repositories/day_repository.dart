@@ -1,111 +1,158 @@
-import 'package:app/data/data_sources/local_db/day_local_db_service.dart';
-import 'package:app/data/data_sources/remote_db/day_remote_db_service.dart';
+import 'package:app/data/firebase/entities/firebase_day.dart';
+import 'package:app/data/firebase/entities/firebase_read_book.dart';
+import 'package:app/data/firebase/entities/firebase_user.dart';
+import 'package:app/data/firebase/services/firebase_firestore_user_service.dart';
 import 'package:app/data/mappers/date_mapper.dart';
-import 'package:app/data/synchronizers/day_synchronizer.dart';
 import 'package:app/domain/entities/day.dart';
+import 'package:app/domain/entities/read_book.dart';
 import 'package:app/domain/interfaces/day_interface.dart';
-import 'package:app/models/device.dart';
-import 'package:app/models/repository.dart';
 
-class DayRepository extends Repository<Day> implements DayInterface {
-  late final DaySynchronizer _daySynchronizer;
-  late final DayLocalDbService _dayLocalDbService;
-  late final DayRemoteDbService _dayRemoteDbService;
-  late final Device _device;
+class DayRepository implements DayInterface {
+  late final FirebaseFirestoreUserService _firebaseFirestoreUserService;
 
   DayRepository({
-    required DaySynchronizer daySynchronizer,
-    required DayLocalDbService dayLocalDbService,
-    required DayRemoteDbService dayRemoteDbService,
-    required Device device,
-    List<Day>? days,
+    required FirebaseFirestoreUserService firebaseFirestoreUserService,
   }) {
-    _daySynchronizer = daySynchronizer;
-    _dayLocalDbService = dayLocalDbService;
-    _dayRemoteDbService = dayRemoteDbService;
-    _device = device;
-
-    if (days != null) {
-      addEntities(days);
-    }
+    _firebaseFirestoreUserService = firebaseFirestoreUserService;
   }
 
   @override
-  Stream<List<Day>?> getUserDays({required String userId}) {
-    return stream.map(
-      (List<Day>? days) => days
-          ?.where(
-            (Day day) => day.userId == userId,
-          )
-          .toList(),
-    );
+  Stream<List<Day>> getUserDays({required String userId}) {
+    return _getUserFirebaseDays(userId).map((List<FirebaseDay>? firebaseDays) {
+      if (firebaseDays == null) {
+        return [];
+      }
+      return firebaseDays.map(_createDay).toList();
+    });
   }
 
   @override
-  Future<void> initializeForUser({required String userId}) async {
-    if (await _device.hasInternetConnection()) {
-      await _daySynchronizer.synchronizeUserDaysMarkedAsAdded(userId: userId);
-      await _daySynchronizer.synchronizeUserDaysMarkedAsUpdated(userId: userId);
-      await _daySynchronizer.synchronizeUserUnmodifiedDays(userId: userId);
-    }
-  }
-
-  @override
-  Future<void> loadUserDaysFromMonth({
+  Stream<List<Day>> getUserDaysFromMonth({
     required String userId,
     required int month,
     required int year,
-  }) async {
-    final List<Day> userDays = await _dayLocalDbService.loadUserDaysFromMonth(
-      userId: userId,
-      month: month,
-      year: year,
+  }) {
+    return getUserDays(userId: userId).map(
+      (List<Day> userDays) {
+        return userDays
+            .where(
+              (Day day) => month == day.date.month && year == day.date.year,
+            )
+            .toList();
+      },
     );
-    addEntities(userDays);
   }
 
   @override
-  Future<void> addNewReadPages({
+  Future<void> addNewDay({required Day day}) async {
+    final String userId = day.userId;
+    final FirebaseDay firebaseDayToAdd = _createFirebaseDay(day);
+    final List<FirebaseDay> days = await _loadUserFirebaseDays(userId);
+    final List<FirebaseDay> updatedDays = _addDayToList(days, firebaseDayToAdd);
+    await _firebaseFirestoreUserService.updateUser(
+      userId: userId,
+      daysOfReading: updatedDays,
+    );
+  }
+
+  @override
+  Future<void> updateDay({required Day updatedDay}) async {
+    final String userId = updatedDay.userId;
+    final FirebaseDay updatedFirebaseDay = _createFirebaseDay(updatedDay);
+    final List<FirebaseDay> days = await _loadUserFirebaseDays(userId);
+    final List<FirebaseDay> updatedDays =
+        _updateDayInList(days, updatedFirebaseDay);
+    await _firebaseFirestoreUserService.updateUser(
+      userId: userId,
+      daysOfReading: updatedDays,
+    );
+  }
+
+  @override
+  Future<void> deleteDay({
     required String userId,
     required DateTime date,
-    required String bookId,
-    required int amountOfReadPagesToAdd,
   }) async {
-    final String dateInString = DateMapper.mapFromDateTimeToString(date);
-    bool shouldModifySyncStateInLocalDb = true;
-    if (await _device.hasInternetConnection()) {
-      await _dayRemoteDbService.addNewReadPages(
-        userId: userId,
-        date: dateInString,
-        bookId: bookId,
-        amountOfReadPagesToAdd: amountOfReadPagesToAdd,
-      );
-      shouldModifySyncStateInLocalDb = false;
-    }
-    final Day updatedDay = await _dayLocalDbService.addNewReadPages(
+    final List<FirebaseDay> days = await _loadUserFirebaseDays(userId);
+    final List<FirebaseDay> updatedDays = _removeDayFromList(
+      days,
+      DateMapper.mapFromDateTimeToString(date),
+    );
+    await _firebaseFirestoreUserService.updateUser(
       userId: userId,
-      date: dateInString,
-      bookId: bookId,
-      amountOfReadPagesToAdd: amountOfReadPagesToAdd,
-      withModifiedSyncState: shouldModifySyncStateInLocalDb,
+      daysOfReading: updatedDays,
     );
-    if (value?.containsUserDay(userId: userId, date: date) == true) {
-      updateEntity(updatedDay);
-    } else {
-      addEntity(updatedDay);
-    }
-  }
-}
-
-extension _DaysExtensions on List<Day> {
-  bool containsUserDay({required String userId, required DateTime date}) {
-    final int dayIndex = indexOfUserDay(userId: userId, date: date);
-    return dayIndex >= 0;
   }
 
-  int indexOfUserDay({required String userId, required DateTime date}) {
-    return indexWhere(
-      (Day day) => day.userId == userId && day.date == date,
+  Stream<List<FirebaseDay>?> _getUserFirebaseDays(String userId) {
+    return _firebaseFirestoreUserService
+        .getUser(userId: userId)
+        .map((FirebaseUser? firebaseUser) => firebaseUser?.daysOfReading);
+  }
+
+  Future<List<FirebaseDay>> _loadUserFirebaseDays(String userId) async {
+    return await _getUserFirebaseDays(userId).first ?? [];
+  }
+
+  Day _createDay(FirebaseDay firebaseDay) {
+    return Day(
+      userId: firebaseDay.userId,
+      date: DateMapper.mapFromStringToDateTime(firebaseDay.date),
+      readBooks: firebaseDay.readBooks.map(_createReadBook).toList(),
     );
+  }
+
+  FirebaseDay _createFirebaseDay(Day day) {
+    return FirebaseDay(
+      userId: day.userId,
+      date: DateMapper.mapFromDateTimeToString(day.date),
+      readBooks: day.readBooks.map(_createFirebaseReadBook).toList(),
+    );
+  }
+
+  ReadBook _createReadBook(FirebaseReadBook firebaseReadBook) {
+    return ReadBook(
+      bookId: firebaseReadBook.bookId,
+      readPagesAmount: firebaseReadBook.readPagesAmount,
+    );
+  }
+
+  FirebaseReadBook _createFirebaseReadBook(ReadBook readBook) {
+    return FirebaseReadBook(
+      bookId: readBook.bookId,
+      readPagesAmount: readBook.readPagesAmount,
+    );
+  }
+
+  List<FirebaseDay> _addDayToList(
+    List<FirebaseDay> days,
+    FirebaseDay dayToAdd,
+  ) {
+    final List<FirebaseDay> updatedDays = [...days];
+    updatedDays.add(dayToAdd);
+    return updatedDays;
+  }
+
+  List<FirebaseDay> _updateDayInList(
+    List<FirebaseDay> days,
+    FirebaseDay updatedDay,
+  ) {
+    final List<FirebaseDay> updatedDays = [...days];
+    final int dayIndex = updatedDays.indexWhere(
+      (FirebaseDay day) => day.date == updatedDay.date,
+    );
+    updatedDays[dayIndex] = updatedDay;
+    return updatedDays;
+  }
+
+  List<FirebaseDay> _removeDayFromList(
+    List<FirebaseDay> days,
+    String date,
+  ) {
+    final List<FirebaseDay> updatedDays = [...days];
+    updatedDays.removeWhere(
+      (FirebaseDay firebaseDay) => firebaseDay.date == date,
+    );
+    return updatedDays;
   }
 }

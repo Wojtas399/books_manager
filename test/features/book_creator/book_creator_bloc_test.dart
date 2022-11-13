@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/features/book_creator/bloc/book_creator_bloc.dart';
 import 'package:app/models/bloc_status.dart';
+import 'package:app/models/image.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -15,7 +16,7 @@ void main() {
   final addBookUseCase = MockAddBookUseCase();
 
   BookCreatorBloc createBloc({
-    Uint8List? imageData,
+    Image? image,
     String title = '',
     String author = '',
     int readPagesAmount = 0,
@@ -24,7 +25,7 @@ void main() {
     return BookCreatorBloc(
       getLoggedUserIdUseCase: getLoggedUserIdUseCase,
       addBookUseCase: addBookUseCase,
-      imageData: imageData,
+      image: image,
       title: title,
       author: author,
       readPagesAmount: readPagesAmount,
@@ -34,7 +35,7 @@ void main() {
 
   BookCreatorState createState({
     BlocStatus status = const BlocStatusInProgress(),
-    Uint8List? imageData,
+    Image? image,
     String title = '',
     String author = '',
     int allPagesAmount = 0,
@@ -42,7 +43,7 @@ void main() {
   }) {
     return BookCreatorState(
       status: status,
-      imageData: imageData,
+      image: image,
       title: title,
       author: author,
       allPagesAmount: allPagesAmount,
@@ -55,34 +56,33 @@ void main() {
     reset(addBookUseCase);
   });
 
-  blocTest(
-    'change image, should update image data',
-    build: () => createBloc(),
-    act: (BookCreatorBloc bloc) {
-      bloc.add(
-        BookCreatorEventChangeImage(imageData: Uint8List(1)),
-      );
-    },
-    expect: () => [
-      createState(imageData: Uint8List(1)),
-    ],
-  );
+  group(
+    'change image',
+    () {
+      void eventCall(BookCreatorBloc bloc, Image? image) => bloc.add(
+            BookCreatorEventChangeImage(image: image),
+          );
 
-  blocTest(
-    'change image, should set image data as null if given image data is null',
-    build: () => createBloc(
-      imageData: Uint8List(1),
-    ),
-    act: (BookCreatorBloc bloc) {
-      bloc.add(
-        const BookCreatorEventChangeImage(imageData: null),
+      blocTest(
+        'should update image file',
+        build: () => createBloc(),
+        act: (BookCreatorBloc bloc) => eventCall(bloc, createImage()),
+        expect: () => [
+          createState(image: createImage()),
+        ],
+      );
+
+      blocTest(
+        'should set image file as null if given image file is null',
+        build: () => createBloc(
+          image: createImage(),
+        ),
+        act: (BookCreatorBloc bloc) => eventCall(bloc, null),
+        expect: () => [
+          createState(image: null),
+        ],
       );
     },
-    expect: () => [
-      createState(
-        imageData: null,
-      ),
-    ],
   );
 
   blocTest(
@@ -141,18 +141,25 @@ void main() {
     'submit',
     () {
       const String loggedUserId = 'loggedUserId';
-      final Uint8List imageData = Uint8List(1);
+      final Image image = createImage(
+        fileName: 'i1.jpg',
+        data: Uint8List(1),
+      );
       const String title = 'title';
       const String author = 'author';
       const int readPagesAmount = 20;
       const int allPagesAmount = 200;
       final BookCreatorState state = createState(
-        imageData: imageData,
+        image: image,
         title: title,
         author: author,
         readPagesAmount: readPagesAmount,
         allPagesAmount: allPagesAmount,
       );
+
+      void eventCall(BookCreatorBloc bloc) => bloc.add(
+            const BookCreatorEventSubmit(),
+          );
 
       setUp(() {
         addBookUseCase.mock();
@@ -161,7 +168,7 @@ void main() {
       blocTest(
         'should call use case responsible for adding new book',
         build: () => createBloc(
-          imageData: imageData,
+          image: image,
           title: title,
           author: author,
           readPagesAmount: readPagesAmount,
@@ -170,11 +177,7 @@ void main() {
         setUp: () {
           getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
         },
-        act: (BookCreatorBloc bloc) {
-          bloc.add(
-            const BookCreatorEventSubmit(),
-          );
-        },
+        act: (BookCreatorBloc bloc) => eventCall(bloc),
         expect: () => [
           state.copyWith(
             status: const BlocStatusLoading(),
@@ -190,7 +193,7 @@ void main() {
             () => addBookUseCase.execute(
               userId: loggedUserId,
               status: BookStatus.unread,
-              imageData: imageData,
+              image: image,
               title: title,
               author: author,
               readPagesAmount: readPagesAmount,
@@ -206,11 +209,7 @@ void main() {
         setUp: () {
           getLoggedUserIdUseCase.mock();
         },
-        act: (BookCreatorBloc bloc) {
-          bloc.add(
-            const BookCreatorEventSubmit(),
-          );
-        },
+        act: (BookCreatorBloc bloc) => eventCall(bloc),
         expect: () => [
           createState(
             status: const BlocStatusLoading(),
@@ -222,13 +221,13 @@ void main() {
         verify: (_) {
           verifyNever(
             () => addBookUseCase.execute(
-              userId: any(named: 'userId'),
+              userId: loggedUserId,
               status: BookStatus.unread,
-              imageData: any(named: 'imageData'),
-              title: any(named: 'title'),
-              author: any(named: 'author'),
-              readPagesAmount: any(named: 'readPagesAmount'),
-              allPagesAmount: any(named: 'allPagesAmount'),
+              image: image,
+              title: title,
+              author: author,
+              readPagesAmount: readPagesAmount,
+              allPagesAmount: allPagesAmount,
             ),
           );
         },

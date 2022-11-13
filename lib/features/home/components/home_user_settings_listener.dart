@@ -8,6 +8,7 @@ import 'package:app/domain/use_cases/user/get_user_use_case.dart';
 import 'package:app/providers/theme_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rxdart/rxdart.dart';
 
 class HomeUserSettingsListener extends StatefulWidget {
   final Widget child;
@@ -20,24 +21,23 @@ class HomeUserSettingsListener extends StatefulWidget {
 }
 
 class _HomeUserSettingsListenerState extends State<HomeUserSettingsListener> {
-  StreamSubscription<String?>? _loggedUserIdListener;
-  StreamSubscription<User>? _userListener;
+  StreamSubscription<User?>? _userListener;
 
   @override
   void initState() {
     super.initState();
 
-    _loggedUserIdListener ??=
+    _userListener =
         GetLoggedUserIdUseCase(authInterface: context.read<AuthInterface>())
             .execute()
-            .listen(_manageLoggedUserId);
+            .switchMap(_getUser)
+            .listen(_manageUserThemeSettings);
   }
 
   @override
   void dispose() {
-    super.dispose();
-    _loggedUserIdListener?.cancel();
     _userListener?.cancel();
+    return super.dispose();
   }
 
   @override
@@ -45,19 +45,19 @@ class _HomeUserSettingsListenerState extends State<HomeUserSettingsListener> {
     return widget.child;
   }
 
-  void _manageLoggedUserId(String? loggedUserId) {
-    if (loggedUserId != null) {
-      _setUserListener(loggedUserId);
+  Stream<User?> _getUser(String? loggedUserId) {
+    if (loggedUserId == null) {
+      return Stream.value(null);
     }
+    return GetUserUseCase(
+      userInterface: context.read<UserInterface>(),
+    ).execute(userId: loggedUserId);
   }
 
-  void _setUserListener(String userId) {
-    _userListener = GetUserUseCase(userInterface: context.read<UserInterface>())
-        .execute(userId: userId)
-        .listen(_manageUserThemeSettings);
-  }
-
-  void _manageUserThemeSettings(User user) {
+  void _manageUserThemeSettings(User? user) {
+    if (user == null) {
+      return;
+    }
     final ThemeProvider themeProvider = context.read<ThemeProvider>();
     if (user.isDarkModeCompatibilityWithSystemOn) {
       themeProvider.turnOnSystemTheme();

@@ -1,8 +1,8 @@
 import 'package:app/components/custom_button_component.dart';
-import 'package:app/config/navigation.dart';
 import 'package:app/config/themes/app_colors.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/use_cases/auth/sign_out_use_case.dart';
+import 'package:app/extensions/navigator_build_context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -57,21 +57,28 @@ class _Message extends StatelessWidget {
   }
 }
 
-class _ExitButton extends StatelessWidget {
+class _ExitButton extends StatefulWidget {
   const _ExitButton();
 
+  @override
+  State<_ExitButton> createState() => _ExitButtonState();
+}
+
+class _ExitButtonState extends State<_ExitButton> {
   @override
   Widget build(BuildContext context) {
     return CustomButton(
       label: 'Wróć do ekranu logowania',
-      onPressed: () => _onButtonPressed(context),
+      onPressed: () => _onButtonPressed(),
     );
   }
 
-  Future<void> _onButtonPressed(BuildContext context) async {
+  Future<void> _onButtonPressed() async {
     await SignOutUseCase(
       authInterface: context.read<AuthInterface>(),
     ).execute();
-    Navigation.navigateToSignInScreen(context: context);
+    if (mounted) {
+      context.navigateBackToSignInScreen();
+    }
   }
 }

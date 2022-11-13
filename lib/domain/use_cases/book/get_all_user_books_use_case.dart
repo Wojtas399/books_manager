@@ -10,7 +10,7 @@ class GetAllUserBooksUseCase {
     _bookInterface = bookInterface;
   }
 
-  Stream<List<Book>?> execute({required String userId}) {
-    return _bookInterface.getBooksByUserId(userId: userId);
+  Stream<List<Book>> execute({required String userId}) {
+    return _bookInterface.getUserBooks(userId: userId);
   }
 }

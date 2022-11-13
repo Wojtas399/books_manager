@@ -1,13 +1,13 @@
+import 'package:app/extensions/navigator_build_context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../../../components/custom_scaffold_component.dart';
-import '../../../config/navigation.dart';
 import '../../calendar/calendar_screen.dart';
 import '../../library/library_screen.dart';
 import '../../reading/reading_screen.dart';
-import '../bloc/home_bloc.dart';
+import '../home_cubit.dart';
 
 class HomeContent extends StatelessWidget {
   const HomeContent({super.key});
@@ -15,7 +15,7 @@ class HomeContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int pageIndex = context.select(
-      (HomeBloc bloc) => bloc.state.currentPageIndex,
+      (HomeCubit cubit) => cubit.state,
     );
     const List<String> pagesTitles = [
       'Czytanie',
@@ -33,7 +33,7 @@ class HomeContent extends StatelessWidget {
       appBarTitle: pagesTitles[pageIndex],
       trailing: IconButton(
         splashRadius: 24,
-        onPressed: _onSettingsPressed,
+        onPressed: () => _onSettingsPressed(context),
         icon: const Icon(MdiIcons.cog),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -56,7 +56,7 @@ class HomeContent extends StatelessWidget {
             _onBottomNavigationBarItemPressed(pressedItemIndex, context),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _onFloatingActionButtonPressed,
+        onPressed: () => _onFloatingActionButtonPressed(context),
         child: const Icon(
           Icons.add_rounded,
           color: Colors.white,
@@ -66,20 +66,18 @@ class HomeContent extends StatelessWidget {
     );
   }
 
-  void _onSettingsPressed() {
-    Navigation.navigateToSettings();
+  void _onSettingsPressed(BuildContext context) {
+    context.navigateToSettings();
   }
 
   void _onBottomNavigationBarItemPressed(
     int pressedItemIndex,
     BuildContext context,
   ) {
-    context.read<HomeBloc>().add(
-          HomeEventChangePage(pageIndex: pressedItemIndex),
-        );
+    context.read<HomeCubit>().changePage(pressedItemIndex);
   }
 
-  void _onFloatingActionButtonPressed() {
-    Navigation.navigateToBookCreator();
+  void _onFloatingActionButtonPressed(BuildContext context) {
+    context.navigateToBookCreator();
   }
 }

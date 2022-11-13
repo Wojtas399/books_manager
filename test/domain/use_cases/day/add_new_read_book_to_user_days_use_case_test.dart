@@ -91,10 +91,12 @@ void main() {
           createReadBook(bookId: readBook.bookId, readPagesAmount: 20),
         ],
       );
+      final ReadBook updatedReadBook = readBook.copyWith(
+        readPagesAmount: readBook.readPagesAmount +
+            existingDay.readBooks.first.readPagesAmount,
+      );
       final Day updatedDay = existingDay.copyWith(
-        readBooks: [
-          readBook,
-        ],
+        readBooks: [updatedReadBook],
       );
       final List<Day> userDays = [
         createDay(date: DateTime(2022, 10, 10)),

@@ -60,7 +60,10 @@ class AddNewReadBookToUserDaysUseCase {
     } else {
       final int readBookIndex =
           updatedReadBooks.selectReadBookIndexByBookId(readBook.bookId);
-      updatedReadBooks[readBookIndex] = readBook;
+      updatedReadBooks[readBookIndex] = readBook.copyWith(
+        readPagesAmount: readBook.readPagesAmount +
+            updatedReadBooks[readBookIndex].readPagesAmount,
+      );
     }
     return day.copyWith(
       readBooks: updatedReadBooks,

@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:app/data/data_sources/firebase/services/firebase_storage_image_service.dart';
+import 'package:app/data/firebase/services/firebase_storage_image_service.dart';
 import 'package:app/models/image.dart';
 import 'package:mocktail/mocktail.dart';
 

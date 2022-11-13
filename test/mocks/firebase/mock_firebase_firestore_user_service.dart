@@ -1,5 +1,5 @@
-import 'package:app/data/data_sources/firebase/entities/firebase_user.dart';
-import 'package:app/data/data_sources/firebase/services/firebase_firestore_user_service.dart';
+import 'package:app/data/firebase/entities/firebase_user.dart';
+import 'package:app/data/firebase/services/firebase_firestore_user_service.dart';
 import 'package:mocktail/mocktail.dart';
 
 class FakeFirebaseUser extends Fake implements FirebaseUser {}

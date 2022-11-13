@@ -1,5 +1,5 @@
 import 'package:app/config/errors.dart';
-import 'package:app/data/data_sources/firebase/services/firebase_auth_service.dart';
+import 'package:app/data/firebase/services/firebase_auth_service.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/models/error.dart';
 import 'package:firebase_auth/firebase_auth.dart';

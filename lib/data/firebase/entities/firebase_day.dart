@@ -1,4 +1,4 @@
-import 'package:app/data/data_sources/firebase/entities/firebase_read_book.dart';
+import 'package:app/data/firebase/entities/firebase_read_book.dart';
 import 'package:equatable/equatable.dart';
 
 class FirebaseDay extends Equatable {

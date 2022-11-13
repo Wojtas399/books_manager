@@ -1,7 +1,7 @@
-import 'package:app/data/data_sources/firebase/services/firebase_auth_service.dart';
-import 'package:app/data/data_sources/firebase/services/firebase_firestore_book_service.dart';
-import 'package:app/data/data_sources/firebase/services/firebase_firestore_user_service.dart';
-import 'package:app/data/data_sources/firebase/services/firebase_storage_image_service.dart';
+import 'package:app/data/firebase/services/firebase_auth_service.dart';
+import 'package:app/data/firebase/services/firebase_firestore_book_service.dart';
+import 'package:app/data/firebase/services/firebase_firestore_user_service.dart';
+import 'package:app/data/firebase/services/firebase_storage_image_service.dart';
 import 'package:app/data/repositories/auth_repository.dart';
 import 'package:app/data/repositories/book_repository.dart';
 import 'package:app/data/repositories/day_repository.dart';

@@ -1,4 +1,4 @@
-import 'package:app/data/data_sources/firebase/firebase_instances.dart';
+import 'package:app/data/firebase/firebase_instances.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class FirebaseAuthService {

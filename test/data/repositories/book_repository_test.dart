@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:app/data/data_sources/firebase/entities/firebase_book.dart';
+import 'package:app/data/firebase/entities/firebase_book.dart';
 import 'package:app/data/mappers/book_status_mapper.dart';
 import 'package:app/data/repositories/book_repository.dart';
 import 'package:app/domain/entities/book.dart';

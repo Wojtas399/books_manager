@@ -1,6 +1,6 @@
-import 'package:app/data/data_sources/firebase/entities/firebase_day.dart';
-import 'package:app/data/data_sources/firebase/entities/firebase_read_book.dart';
-import 'package:app/data/data_sources/firebase/entities/firebase_user.dart';
+import 'package:app/data/firebase/entities/firebase_day.dart';
+import 'package:app/data/firebase/entities/firebase_read_book.dart';
+import 'package:app/data/firebase/entities/firebase_user.dart';
 import 'package:app/data/mappers/date_mapper.dart';
 import 'package:app/data/repositories/day_repository.dart';
 import 'package:app/domain/entities/day.dart';

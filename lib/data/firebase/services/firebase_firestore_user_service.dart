@@ -1,6 +1,6 @@
-import 'package:app/data/data_sources/firebase/entities/firebase_user.dart';
-import 'package:app/data/data_sources/firebase/firebase_references.dart';
-import 'package:app/data/data_sources/firebase/entities/firebase_day.dart';
+import 'package:app/data/firebase/entities/firebase_day.dart';
+import 'package:app/data/firebase/entities/firebase_user.dart';
+import 'package:app/data/firebase/firebase_references.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirebaseFirestoreUserService {

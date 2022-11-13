@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:app/data/data_sources/firebase/firebase_instances.dart';
+import 'package:app/data/firebase/firebase_instances.dart';
 import 'package:app/models/image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 

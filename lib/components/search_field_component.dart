@@ -1,4 +1,3 @@
-import 'package:app/config/themes/material_text_field_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -16,28 +15,23 @@ class _SearchFieldComponentState extends State<SearchFieldComponent> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            offset: const Offset(0, 2),
-            blurRadius: 4,
-            spreadRadius: 0,
-            color: Colors.grey.withOpacity(0.3),
-          ),
-        ],
-        borderRadius: BorderRadius.circular(10),
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
       ),
       child: TextField(
         controller: _controller,
-        decoration: MaterialTextFieldTheme.filled(
-          iconData: MdiIcons.magnify,
+        decoration: InputDecoration(
           suffixIcon: _CleanIcon(
             isShowed: _controller.text.isNotEmpty,
             onPressed: _onCleanIconPressed,
           ),
-          placeholder: 'Szukaj...',
-          onSuffixIconPressed: _onCleanIconPressed,
+          prefixIcon: const Icon(MdiIcons.magnify),
+          hintText: 'Szukaj...',
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          contentPadding: const EdgeInsets.all(4),
         ),
         onChanged: (_) => _onChanged(),
       ),

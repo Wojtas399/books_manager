@@ -1,4 +1,5 @@
 import 'package:app/components/empty_content_info_component.dart';
+import 'package:app/components/on_tap_focus_lose_area_component.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/features/library/bloc/library_bloc.dart';
 import 'package:app/features/library/components/library_books_list.dart';
@@ -24,11 +25,13 @@ class LibraryContent extends StatelessWidget {
     } else if (books.isEmpty && searchValue == '') {
       return const _EmptyContentInfo();
     }
-    return Stack(
-      children: [
-        LibraryBooksList(books: books),
-        const LibrarySearchField(),
-      ],
+    return OnTapFocusLoseAreaComponent(
+      child: Stack(
+        children: [
+          LibraryBooksList(books: books),
+          const LibrarySearchField(),
+        ],
+      ),
     );
   }
 }

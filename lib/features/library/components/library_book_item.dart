@@ -20,26 +20,20 @@ class LibraryBookItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _onPressed(context),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              SizedBox(
-                height: 180,
-                child: _Image(bookId: bookId, imageData: imageData),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: _Description(title: title, author: author),
-              ),
-            ],
-          ),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: GestureDetector(
+        onTap: () => _onPressed(context),
+        child: Column(
+          children: [
+            Expanded(
+              flex: 4,
+              child: _Image(bookId: bookId, imageData: imageData),
+            ),
+            Expanded(
+              child: _Description(title: title, author: author),
+            ),
+          ],
         ),
       ),
     );
@@ -61,14 +55,26 @@ class _Image extends StatelessWidget {
     final Uint8List? imageData = this.imageData;
     Image? image;
     if (imageData != null) {
-      image = Image.memory(imageData);
+      image = Image.memory(
+        imageData,
+        fit: BoxFit.fill,
+      );
     }
 
-    return Hero(
-      tag: bookId,
-      child: BookImageComponent(
-        image: image,
-        bookIconSize: 100,
+    return SizedBox(
+      width: double.infinity,
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        clipBehavior: Clip.hardEdge,
+        child: Hero(
+          tag: bookId,
+          child: BookImageComponent(
+            image: image,
+            bookIconSize: 100,
+          ),
+        ),
       ),
     );
   }
@@ -85,11 +91,11 @@ class _Description extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
+      padding: const EdgeInsets.only(left: 8, top: 4, right: 8),
       width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             title,

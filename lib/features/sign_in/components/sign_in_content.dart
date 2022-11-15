@@ -8,6 +8,7 @@ import 'package:app/features/sign_in/components/sign_in_inputs.dart';
 import 'package:app/features/sign_in/components/sign_in_submit_button.dart';
 import 'package:app/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SignInContent extends StatelessWidget {
@@ -17,29 +18,32 @@ class SignInContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Theme(
       data: GlobalMaterialTheme.lightTheme,
-      child: Scaffold(
-        body: SafeArea(
-          child: OnTapFocusLoseAreaComponent(
-            child: Center(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const _Logo(),
-                    const SizedBox(height: 32),
-                    SignInFormCard(
-                      child: Column(
-                        children: const [
-                          _Title(),
-                          SizedBox(height: 32),
-                          SignInInputs(),
-                          SizedBox(height: 32),
-                          SignInSubmitButton(),
-                          SizedBox(height: 16),
-                          _AlternativeOptions(),
-                        ],
-                      ),
-                    )
-                  ],
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.dark,
+        child: Scaffold(
+          body: SafeArea(
+            child: OnTapFocusLoseAreaComponent(
+              child: Center(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const _Logo(),
+                      const SizedBox(height: 32),
+                      SignInFormCard(
+                        child: Column(
+                          children: const [
+                            _Title(),
+                            SizedBox(height: 32),
+                            SignInInputs(),
+                            SizedBox(height: 32),
+                            SignInSubmitButton(),
+                            SizedBox(height: 16),
+                            _AlternativeOptions(),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),

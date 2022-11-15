@@ -8,6 +8,12 @@ class MockAuthInterface extends Mock implements AuthInterface {
     ).thenAnswer((_) => Stream.value(loggedUserId));
   }
 
+  void mockGetLoggedUserEmail({String? loggedUserEmail}) {
+    when(
+      () => loggedUserEmail$,
+    ).thenAnswer((_) => Stream.value(loggedUserEmail));
+  }
+
   void mockSignIn({required String signedInUserId}) {
     when(
       () => signIn(

@@ -67,9 +67,15 @@ class _BookImage extends StatelessWidget {
       image = Image.memory(imageData);
     }
 
-    return Hero(
-      tag: bookId,
-      child: BookImageComponent(image: image),
+    return SizedBox(
+      width: 80,
+      child: Hero(
+        tag: bookId,
+        child: BookImageComponent(
+          image: image,
+          bookIconSize: 48,
+        ),
+      ),
     );
   }
 }

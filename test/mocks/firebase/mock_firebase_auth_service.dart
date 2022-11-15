@@ -8,6 +8,12 @@ class MockFirebaseAuthService extends Mock implements FirebaseAuthService {
     ).thenAnswer((_) => Stream.value(loggedUserId));
   }
 
+  void mockGetLoggedUserEmail({String? loggedUserEmail}) {
+    when(
+      () => getLoggedUserEmail(),
+    ).thenAnswer((_) => Stream.value(loggedUserEmail));
+  }
+
   void mockSignIn({Object? throwable}) {
     if (throwable != null) {
       when(_signInMethodCall).thenThrow(throwable);

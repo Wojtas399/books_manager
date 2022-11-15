@@ -33,6 +33,20 @@ void main() {
     },
   );
 
+  test(
+    'get logged user email, should return result of method responsible for getting logged user email from firebase auth',
+    () async {
+      const String expectedLoggedUserEmail = 'email@example.com';
+      firebaseAuthService.mockGetLoggedUserEmail(
+        loggedUserEmail: expectedLoggedUserEmail,
+      );
+
+      final Stream<String?> loggedUserEmail$ = repository.loggedUserEmail$;
+
+      expect(await loggedUserEmail$.first, expectedLoggedUserEmail);
+    },
+  );
+
   group(
     'sign in',
     () {

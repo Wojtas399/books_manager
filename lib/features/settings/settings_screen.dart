@@ -4,6 +4,7 @@ import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/interfaces/user_interface.dart';
 import 'package:app/domain/use_cases/auth/change_logged_user_password_use_case.dart';
 import 'package:app/domain/use_cases/auth/delete_logged_user_use_case.dart';
+import 'package:app/domain/use_cases/auth/get_logged_user_email_use_case.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/auth/sign_out_use_case.dart';
 import 'package:app/domain/use_cases/user/get_user_use_case.dart';
@@ -38,6 +39,9 @@ class _SettingsBlocProvider extends StatelessWidget {
     return BlocProvider(
       create: (BuildContext context) => SettingsBloc(
         getLoggedUserIdUseCase: GetLoggedUserIdUseCase(
+          authInterface: context.read<AuthInterface>(),
+        ),
+        getLoggedUserEmailUseCase: GetLoggedUserEmailUseCase(
           authInterface: context.read<AuthInterface>(),
         ),
         getUserUseCase: GetUserUseCase(

@@ -8,6 +8,7 @@ void main() {
   setUp(() {
     state = const SettingsState(
       status: BlocStatusInitial(),
+      loggedUserEmail: null,
       isDarkModeOn: false,
       isDarkModeCompatibilityWithSystemOn: false,
     );
@@ -22,7 +23,20 @@ void main() {
       final state2 = state.copyWith();
 
       expect(state.status, expectedStatus);
-      expect(state2.status, const BlocStatusInProgress());
+      expect(state2.status, const BlocStatusComplete());
+    },
+  );
+
+  test(
+    'copy with logged user email',
+    () {
+      const String expectedLoggedUserEmail = 'email@example.com';
+
+      state = state.copyWith(loggedUserEmail: expectedLoggedUserEmail);
+      final state2 = state.copyWith();
+
+      expect(state.loggedUserEmail, expectedLoggedUserEmail);
+      expect(state2.loggedUserEmail, expectedLoggedUserEmail);
     },
   );
 

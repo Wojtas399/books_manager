@@ -15,6 +15,10 @@ class AuthRepository implements AuthInterface {
   Stream<String?> get loggedUserId$ => _firebaseAuthService.getLoggedUserId();
 
   @override
+  Stream<String?> get loggedUserEmail$ =>
+      _firebaseAuthService.getLoggedUserEmail();
+
+  @override
   Future<void> signIn({
     required String email,
     required String password,

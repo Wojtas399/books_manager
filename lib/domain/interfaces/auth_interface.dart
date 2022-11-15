@@ -1,6 +1,8 @@
 abstract class AuthInterface {
   Stream<String?> get loggedUserId$;
 
+  Stream<String?> get loggedUserEmail$;
+
   Future<void> signIn({
     required String email,
     required String password,

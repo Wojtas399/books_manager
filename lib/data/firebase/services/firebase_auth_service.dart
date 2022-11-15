@@ -6,6 +6,12 @@ class FirebaseAuthService {
     return FireInstances.auth.authStateChanges().map((User? user) => user?.uid);
   }
 
+  Stream<String?> getLoggedUserEmail() {
+    return FireInstances.auth
+        .authStateChanges()
+        .map((User? user) => user?.email);
+  }
+
   Future<void> signIn({
     required String email,
     required String password,

@@ -9,6 +9,7 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../mocks/domain/use_cases/auth/mock_change_logged_user_password_use_case.dart';
 import '../../mocks/domain/use_cases/auth/mock_delete_logged_user_use_case.dart';
+import '../../mocks/domain/use_cases/auth/mock_get_logged_user_email_use_case.dart';
 import '../../mocks/domain/use_cases/auth/mock_get_logged_user_id_use_case.dart';
 import '../../mocks/domain/use_cases/auth/mock_sign_out_use_case.dart';
 import '../../mocks/domain/use_cases/user/mock_get_user_use_case.dart';
@@ -16,6 +17,7 @@ import '../../mocks/domain/use_cases/user/mock_update_user_use_case.dart';
 
 void main() {
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
+  final getLoggedUserEmailUseCase = MockGetLoggedUserEmailUseCase();
   final getUserUseCase = MockGetUserUseCase();
   final updateUserUseCase = MockUpdateUserUseCase();
   final changeLoggedUserPasswordUseCase = MockChangeLoggedUserPasswordUseCase();
@@ -28,6 +30,7 @@ void main() {
   }) {
     return SettingsBloc(
       getLoggedUserIdUseCase: getLoggedUserIdUseCase,
+      getLoggedUserEmailUseCase: getLoggedUserEmailUseCase,
       getUserUseCase: getUserUseCase,
       updateUserUseCase: updateUserUseCase,
       changeLoggedUserPasswordUseCase: changeLoggedUserPasswordUseCase,
@@ -40,11 +43,13 @@ void main() {
 
   SettingsState createState({
     BlocStatus status = const BlocStatusInitial(),
+    String? loggedUserEmail,
     bool isDarkModeOn = false,
     bool isDarkModeCompatibilityWithSystemOn = false,
   }) {
     return SettingsState(
       status: status,
+      loggedUserEmail: loggedUserEmail,
       isDarkModeOn: isDarkModeOn,
       isDarkModeCompatibilityWithSystemOn: isDarkModeCompatibilityWithSystemOn,
     );
@@ -52,6 +57,7 @@ void main() {
 
   tearDown(() {
     reset(getLoggedUserIdUseCase);
+    reset(getLoggedUserEmailUseCase);
     reset(getUserUseCase);
     reset(updateUserUseCase);
     reset(changeLoggedUserPasswordUseCase);
@@ -63,6 +69,7 @@ void main() {
     'initialize',
     () {
       const String loggedUserId = 'u1';
+      const String loggedUserEmail = 'email@example.com';
       final User user = createUser(
         id: loggedUserId,
         isDarkModeOn: true,
@@ -73,11 +80,21 @@ void main() {
             const SettingsEventInitialize(),
           );
 
+      tearDown(() {
+        verify(
+          () => getLoggedUserIdUseCase.execute(),
+        ).called(1);
+        verify(
+          () => getLoggedUserEmailUseCase.execute(),
+        ).called(1);
+      });
+
       blocTest(
         'logged user does not exist, should not change state',
         build: () => createBloc(),
         setUp: () {
-          getLoggedUserIdUseCase.mock(loggedUserId: null);
+          getLoggedUserIdUseCase.mock();
+          getLoggedUserEmailUseCase.mock();
         },
         act: (SettingsBloc bloc) => eventCall(bloc),
         expect: () => [
@@ -88,11 +105,6 @@ void main() {
             status: const BlocStatusComplete(),
           ),
         ],
-        verify: (_) {
-          verify(
-            () => getLoggedUserIdUseCase.execute(),
-          ).called(1);
-        },
       );
 
       blocTest(
@@ -100,6 +112,7 @@ void main() {
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock(loggedUserId: loggedUserId);
+          getLoggedUserEmailUseCase.mock(loggedUserEmail: loggedUserEmail);
           getUserUseCase.mock(user: user);
         },
         act: (SettingsBloc bloc) => eventCall(bloc),
@@ -108,15 +121,17 @@ void main() {
             status: const BlocStatusLoading(),
           ),
           createState(
+            status: const BlocStatusLoading(),
+            loggedUserEmail: loggedUserEmail,
+          ),
+          createState(
             status: const BlocStatusComplete(),
+            loggedUserEmail: loggedUserEmail,
             isDarkModeOn: true,
             isDarkModeCompatibilityWithSystemOn: true,
           ),
         ],
         verify: (_) {
-          verify(
-            () => getLoggedUserIdUseCase.execute(),
-          ).called(1);
           verify(
             () => getUserUseCase.execute(userId: loggedUserId),
           ).called(1);
@@ -191,7 +206,7 @@ void main() {
         act: (SettingsBloc bloc) => eventCall(bloc),
         expect: () => [
           createState(
-            status: const BlocStatusInProgress(),
+            status: const BlocStatusComplete(),
             isDarkModeOn: true,
           ),
         ],
@@ -215,11 +230,11 @@ void main() {
         act: (SettingsBloc bloc) => eventCall(bloc),
         expect: () => [
           createState(
-            status: const BlocStatusInProgress(),
+            status: const BlocStatusComplete(),
             isDarkModeOn: true,
           ),
           createState(
-            status: const BlocStatusInProgress(),
+            status: const BlocStatusComplete(),
             isDarkModeOn: false,
           ),
         ],
@@ -281,7 +296,7 @@ void main() {
         act: (SettingsBloc bloc) => eventCall(bloc),
         expect: () => [
           createState(
-            status: const BlocStatusInProgress(),
+            status: const BlocStatusComplete(),
             isDarkModeCompatibilityWithSystemOn: true,
           ),
         ],
@@ -305,11 +320,11 @@ void main() {
         act: (SettingsBloc bloc) => eventCall(bloc),
         expect: () => [
           createState(
-            status: const BlocStatusInProgress(),
+            status: const BlocStatusComplete(),
             isDarkModeCompatibilityWithSystemOn: true,
           ),
           createState(
-            status: const BlocStatusInProgress(),
+            status: const BlocStatusComplete(),
             isDarkModeCompatibilityWithSystemOn: false,
           ),
         ],

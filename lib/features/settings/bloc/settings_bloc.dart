@@ -4,6 +4,7 @@ import 'package:app/config/errors.dart';
 import 'package:app/domain/entities/user.dart';
 import 'package:app/domain/use_cases/auth/change_logged_user_password_use_case.dart';
 import 'package:app/domain/use_cases/auth/delete_logged_user_use_case.dart';
+import 'package:app/domain/use_cases/auth/get_logged_user_email_use_case.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
 import 'package:app/domain/use_cases/auth/sign_out_use_case.dart';
 import 'package:app/domain/use_cases/user/get_user_use_case.dart';
@@ -20,6 +21,7 @@ part 'settings_state.dart';
 
 class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
+  late final GetLoggedUserEmailUseCase _getLoggedUserEmailUseCase;
   late final GetUserUseCase _getUserUseCase;
   late final UpdateUserUseCase _updateUserUseCase;
   late final ChangeLoggedUserPasswordUseCase _changeLoggedUserPasswordUseCase;
@@ -29,23 +31,27 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
 
   SettingsBloc({
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
+    required GetLoggedUserEmailUseCase getLoggedUserEmailUseCase,
     required GetUserUseCase getUserUseCase,
     required UpdateUserUseCase updateUserUseCase,
     required ChangeLoggedUserPasswordUseCase changeLoggedUserPasswordUseCase,
     required SignOutUseCase signOutUseCase,
     required DeleteLoggedUserUseCase deleteLoggedUserUseCase,
     BlocStatus status = const BlocStatusInitial(),
+    String? loggedUserEmail,
     bool isDarkModeOn = false,
     bool isDarkModeCompatibilityWithSystemOn = false,
   }) : super(
           SettingsState(
             status: status,
+            loggedUserEmail: loggedUserEmail,
             isDarkModeOn: isDarkModeOn,
             isDarkModeCompatibilityWithSystemOn:
                 isDarkModeCompatibilityWithSystemOn,
           ),
         ) {
     _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
+    _getLoggedUserEmailUseCase = getLoggedUserEmailUseCase;
     _getUserUseCase = getUserUseCase;
     _updateUserUseCase = updateUserUseCase;
     _changeLoggedUserPasswordUseCase = changeLoggedUserPasswordUseCase;
@@ -73,12 +79,13 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
     Emitter<SettingsState> emit,
   ) async {
     emitLoadingStatus(emit);
-    _userListener =
-        _getLoggedUserIdUseCase.execute().switchMap(_getUser).listen(
-              (User? user) => add(
-                SettingsEventUserUpdated(user: user),
-              ),
-            );
+    final String? loggedUserEmail =
+        await _getLoggedUserEmailUseCase.execute().first;
+    emit(state.copyWith(
+      status: const BlocStatusLoading(),
+      loggedUserEmail: loggedUserEmail,
+    ));
+    _setUserListener();
   }
 
   void _userUpdated(
@@ -86,7 +93,6 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
     Emitter<SettingsState> emit,
   ) {
     emit(state.copyWith(
-      status: const BlocStatusComplete(),
       isDarkModeOn: event.user?.isDarkModeOn,
       isDarkModeCompatibilityWithSystemOn:
           event.user?.isDarkModeCompatibilityWithSystemOn,
@@ -174,6 +180,15 @@ class SettingsBloc extends CustomBloc<SettingsEvent, SettingsState> {
     } on AuthError catch (authError) {
       _manageAuthError(authError, emit);
     }
+  }
+
+  void _setUserListener() {
+    _userListener =
+        _getLoggedUserIdUseCase.execute().switchMap(_getUser).listen(
+              (User? user) => add(
+                SettingsEventUserUpdated(user: user),
+              ),
+            );
   }
 
   Stream<User?> _getUser(String? loggedUserId) {

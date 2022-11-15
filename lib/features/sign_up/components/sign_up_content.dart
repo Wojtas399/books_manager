@@ -5,6 +5,7 @@ import 'package:app/extensions/navigator_build_context_extension.dart';
 import 'package:app/features/sign_up/components/sign_up_inputs.dart';
 import 'package:app/features/sign_up/components/sign_up_submit_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class SignUpContent extends StatelessWidget {
@@ -17,6 +18,10 @@ class SignUpContent extends StatelessWidget {
       appBarWithElevation: false,
       appBarColor: AppColors.lightBackground,
       foregroundColor: Colors.black,
+      systemUiOverlayStyle: const SystemUiOverlayStyle(
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+      ),
       body: SafeArea(
         child: OnTapFocusLoseAreaComponent(
           child: Center(

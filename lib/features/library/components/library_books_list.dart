@@ -11,7 +11,7 @@ class LibraryBooksList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const int itemsWidth = 200;
-    const int itemsHeight = 330;
+    const int itemsHeight = 360;
     final List<Book> sortedBooks = [...books];
     sortedBooks.sort(_compareTitlesAlphabetically);
 
@@ -26,7 +26,7 @@ class LibraryBooksList extends StatelessWidget {
         childAspectRatio: (itemsWidth / itemsHeight),
       ),
       cacheExtent: 0,
-      padding: const EdgeInsets.only(top: 60, left: 12, right: 12, bottom: 12),
+      padding: const EdgeInsets.only(top: 78, left: 12, right: 12, bottom: 12),
       itemCount: sortedBooks.length,
       itemBuilder: (_, int index) {
         final Book book = sortedBooks[index];

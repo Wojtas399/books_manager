@@ -83,6 +83,7 @@ class _InternetConnectionCheckerBlocListenerState
         isNoInternetConnectionScreenOpened = false;
       });
     } else if (!hasInternetConnection && !isNoInternetConnectionScreenOpened) {
+      context.closeLoadingDialog();
       _navigateToNoInternetConnectionScreen(context);
       setState(() {
         isNoInternetConnectionScreenOpened = true;

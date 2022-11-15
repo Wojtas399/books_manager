@@ -1,5 +1,6 @@
 import 'package:app/extensions/navigator_build_context_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class CustomScaffold extends StatelessWidget {
@@ -14,6 +15,7 @@ class CustomScaffold extends StatelessWidget {
   final double? trailingRightPadding;
   final Widget? bottomNavigationBar;
   final FloatingActionButton? floatingActionButton;
+  final SystemUiOverlayStyle? systemUiOverlayStyle;
   final bool resizeToAvoidBottomInset;
 
   const CustomScaffold({
@@ -29,6 +31,7 @@ class CustomScaffold extends StatelessWidget {
     this.trailingRightPadding,
     this.bottomNavigationBar,
     this.floatingActionButton,
+    this.systemUiOverlayStyle,
     this.resizeToAvoidBottomInset = true,
   });
 
@@ -47,6 +50,7 @@ class CustomScaffold extends StatelessWidget {
         leadingIcon: leadingIcon,
         trailing: trailing,
         trailingRightPadding: trailingRightPadding,
+        systemUiOverlayStyle: systemUiOverlayStyle,
       ),
       bottomNavigationBar: bottomNavigationBar,
       floatingActionButton: floatingActionButton,
@@ -64,6 +68,7 @@ class _AppBar extends StatelessWidget with PreferredSizeWidget {
   final IconData? leadingIcon;
   final Widget? trailing;
   final double? trailingRightPadding;
+  final SystemUiOverlayStyle? systemUiOverlayStyle;
 
   const _AppBar({
     this.appBarTitle,
@@ -74,6 +79,7 @@ class _AppBar extends StatelessWidget with PreferredSizeWidget {
     this.leadingIcon,
     this.trailing,
     this.trailingRightPadding,
+    this.systemUiOverlayStyle,
   });
 
   @override
@@ -97,6 +103,7 @@ class _AppBar extends StatelessWidget with PreferredSizeWidget {
       elevation: appBarWithElevation ? 2 : 0,
       backgroundColor: appBarColor,
       foregroundColor: foregroundColor,
+      systemOverlayStyle: systemUiOverlayStyle,
     );
   }
 }

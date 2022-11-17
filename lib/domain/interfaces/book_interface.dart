@@ -2,12 +2,14 @@ import 'package:app/domain/entities/book.dart';
 import 'package:app/models/image.dart';
 
 abstract class BookInterface {
+  void initializeForUser({required String userId});
+
   Stream<Book?> getBook({
     required String bookId,
     required String userId,
   });
 
-  Stream<List<Book>> getUserBooks({
+  Stream<List<Book>?> getUserBooks({
     required String userId,
     BookStatus? bookStatus,
   });
@@ -44,4 +46,6 @@ abstract class BookInterface {
   });
 
   Future<void> deleteAllUserBooks({required String userId});
+
+  void dispose();
 }

@@ -36,8 +36,20 @@ class FirebaseStorageImageService {
     } catch (_) {}
   }
 
+  Future<void> deleteAllUserImages({required String userId}) async {
+    final Reference userDirectoryRef = _getUserDirectoryReference(userId);
+    final ListResult files = await userDirectoryRef.listAll();
+    for (final Reference fileRef in files.items) {
+      await fileRef.delete();
+    }
+  }
+
   Reference _getBookImageReference(String userId, String fileName) {
     return FireInstances.storage.ref('$userId/$fileName');
+  }
+
+  Reference _getUserDirectoryReference(String userId) {
+    return FireInstances.storage.ref(userId);
   }
 
   void _setMaximumDownloadingTime() {

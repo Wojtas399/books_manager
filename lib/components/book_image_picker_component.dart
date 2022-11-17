@@ -129,18 +129,12 @@ class BookImagePickerComponent extends StatelessWidget {
   }
 
   Future<image_entity.Image?> _getImageFromGallery() async {
-    final ImagePicker imagePicker = ImagePicker();
-    final XFile? xFile = await imagePicker.pickImage(
-      source: ImageSource.gallery,
-    );
+    final XFile? xFile = await _pickImage(ImageSource.gallery);
     return await _mapXFileToImageFile(xFile);
   }
 
   Future<image_entity.Image?> _getImageFromCamera() async {
-    final ImagePicker imagePicker = ImagePicker();
-    final XFile? xFile = await imagePicker.pickImage(
-      source: ImageSource.camera,
-    );
+    final XFile? xFile = await _pickImage(ImageSource.camera);
     return await _mapXFileToImageFile(xFile);
   }
 
@@ -150,6 +144,16 @@ class BookImagePickerComponent extends StatelessWidget {
     if (onImageChanged != null) {
       onImageChanged(newImage);
     }
+  }
+
+  Future<XFile?> _pickImage(ImageSource imageSource) async {
+    final ImagePicker imagePicker = ImagePicker();
+    return await imagePicker.pickImage(
+      source: imageSource,
+      maxWidth: 480,
+      maxHeight: 640,
+      imageQuality: 50,
+    );
   }
 
   Future<image_entity.Image?> _mapXFileToImageFile(XFile? xFile) async {

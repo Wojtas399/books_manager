@@ -1,30 +1,27 @@
 import 'package:app/data/firebase/entities/firebase_book.dart';
+import 'package:app/data/firebase/entities/firebase_doc_change.dart';
+import 'package:app/data/firebase/firebase_instances.dart';
 import 'package:app/data/firebase/firebase_references.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirebaseFirestoreBookService {
-  Stream<FirebaseBook?> getBook({
-    required String bookId,
+  Stream<List<FirebaseDocChange<FirebaseBook>>> getDocChangesOfAllUserBooks({
     required String userId,
-  }) {
-    final DocumentReference<FirebaseBook> bookRef = _getBookRef(bookId, userId);
-    return bookRef
-        .snapshots()
-        .map((DocumentSnapshot<FirebaseBook> snapshot) => snapshot.data());
-  }
-
-  Stream<List<FirebaseBook>> getUserBooks({
-    required String userId,
-    String? bookStatus,
   }) {
     final CollectionReference<FirebaseBook> booksRef = _getUserBooksRef(userId);
-    Stream<QuerySnapshot<FirebaseBook>> snapshots = booksRef.snapshots();
-    if (bookStatus != null) {
-      snapshots = booksRef
-          .where(FirebaseBookFields.status, isEqualTo: bookStatus)
-          .snapshots();
-    }
-    return snapshots.map(_getBooksFromSnapshot);
+    return booksRef.snapshots().map((snapshots) => snapshots.docChanges).map(
+          (docChanges) => docChanges.map(_createFirebaseDocChange).toList(),
+        );
+  }
+
+  Future<String?> loadBookImageFileName({
+    required String bookId,
+    required String userId,
+  }) async {
+    final DocumentReference<FirebaseBook> docRef = _getBookRef(bookId, userId);
+    final DocumentSnapshot<FirebaseBook> snapshot = await docRef.get();
+    final FirebaseBook? firebaseBook = snapshot.data();
+    return firebaseBook?.imageFileName;
   }
 
   Future<void> addBook({
@@ -90,6 +87,16 @@ class FirebaseFirestoreBookService {
     await bookRef.delete();
   }
 
+  Future<void> deleteAllUserBooks({required String userId}) async {
+    final CollectionReference<FirebaseBook> booksRef = _getUserBooksRef(userId);
+    final WriteBatch batch = FireInstances.firestore.batch();
+    final snapshots = await booksRef.get();
+    for (final docSnapshot in snapshots.docs) {
+      batch.delete(docSnapshot.reference);
+    }
+    await batch.commit();
+  }
+
   DocumentReference<FirebaseBook> _getBookRef(String? bookId, String userId) {
     final CollectionReference<FirebaseBook> booksRef = _getUserBooksRef(userId);
     return booksRef.doc(bookId);
@@ -99,14 +106,12 @@ class FirebaseFirestoreBookService {
     return FireReferences.getBooksRefWithConverter(userId: userId);
   }
 
-  List<FirebaseBook> _getBooksFromSnapshot(
-    QuerySnapshot<FirebaseBook> snapshot,
+  FirebaseDocChange<FirebaseBook> _createFirebaseDocChange(
+    DocumentChange<FirebaseBook> docChange,
   ) {
-    final List<QueryDocumentSnapshot<FirebaseBook>> docs = snapshot.docs;
-    return docs.map(
-      (QueryDocumentSnapshot<FirebaseBook> docSnapshot) {
-        return docSnapshot.data();
-      },
-    ).toList();
+    return FirebaseDocChange<FirebaseBook>(
+      docChangeType: docChange.type,
+      doc: docChange.doc.data(),
+    );
   }
 }

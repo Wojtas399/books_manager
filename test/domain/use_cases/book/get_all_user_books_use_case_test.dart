@@ -26,7 +26,7 @@ void main() {
       ];
       bookInterface.mockGetUserBooks(userBooks: expectedUserBooks);
 
-      final Stream<List<Book>> userBooks$ = useCase.execute(userId: userId);
+      final Stream<List<Book>?> userBooks$ = useCase.execute(userId: userId);
 
       expect(await userBooks$.first, expectedUserBooks);
     },

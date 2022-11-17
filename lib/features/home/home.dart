@@ -1,3 +1,7 @@
+import 'package:app/domain/interfaces/auth_interface.dart';
+import 'package:app/domain/interfaces/book_interface.dart';
+import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
+import 'package:app/domain/use_cases/book/initialize_user_books_use_case.dart';
 import 'package:app/features/home/components/home_provider.dart';
 import 'package:app/features/home/components/home_router.dart';
 import 'package:app/features/home/components/home_user_settings_listener.dart';
@@ -31,7 +35,14 @@ class _HomeBlocProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (BuildContext context) => HomeCubit(),
+      create: (BuildContext context) => HomeCubit(
+        getLoggedUserIdUseCase: GetLoggedUserIdUseCase(
+          authInterface: context.read<AuthInterface>(),
+        ),
+        initializeUserBooksUseCase: InitializeUserBooksUseCase(
+          bookInterface: context.read<BookInterface>(),
+        ),
+      )..initialize(),
       child: child,
     );
   }

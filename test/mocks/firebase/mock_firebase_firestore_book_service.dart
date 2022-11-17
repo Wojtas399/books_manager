@@ -1,4 +1,5 @@
 import 'package:app/data/firebase/entities/firebase_book.dart';
+import 'package:app/data/firebase/entities/firebase_doc_change.dart';
 import 'package:app/data/firebase/services/firebase_firestore_book_service.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -6,22 +7,23 @@ class FakeFirebaseBook extends Fake implements FirebaseBook {}
 
 class MockFirebaseFirestoreBookService extends Mock
     implements FirebaseFirestoreBookService {
-  void mockGetBook({FirebaseBook? firebaseBook}) {
+  void mockGetDocChangesOfAllUserBooks({
+    required List<FirebaseDocChange<FirebaseBook>> docChanges,
+  }) {
     when(
-      () => getBook(
+      () => getDocChangesOfAllUserBooks(
+        userId: any(named: 'userId'),
+      ),
+    ).thenAnswer((_) => Stream.value(docChanges));
+  }
+
+  void mockLoadBookImageFileName({String? bookImageFileName}) {
+    when(
+      () => loadBookImageFileName(
         bookId: any(named: 'bookId'),
         userId: any(named: 'userId'),
       ),
-    ).thenAnswer((_) => Stream.value(firebaseBook));
-  }
-
-  void mockGetUserBooks({required List<FirebaseBook> userFirebaseBooks}) {
-    when(
-      () => getUserBooks(
-        userId: any(named: 'userId'),
-        bookStatus: any(named: 'bookStatus'),
-      ),
-    ).thenAnswer((_) => Stream.value(userFirebaseBooks));
+    ).thenAnswer((_) async => bookImageFileName);
   }
 
   void mockAddBook() {
@@ -59,6 +61,14 @@ class MockFirebaseFirestoreBookService extends Mock
       () => deleteBook(
         userId: any(named: 'userId'),
         bookId: any(named: 'bookId'),
+      ),
+    ).thenAnswer((_) async => '');
+  }
+
+  void mockDeleteAllUserBooks() {
+    when(
+      () => deleteAllUserBooks(
+        userId: any(named: 'userId'),
       ),
     ).thenAnswer((_) async => '');
   }

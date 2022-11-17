@@ -36,6 +36,14 @@ class MockFirebaseStorageImageService extends Mock
     ).thenAnswer((_) async => '');
   }
 
+  void mockDeleteAllUserImages() {
+    when(
+      () => deleteAllUserImages(
+        userId: any(named: 'userId'),
+      ),
+    ).thenAnswer((_) async => '');
+  }
+
   void _mockImage() {
     registerFallbackValue(FakeImage());
   }

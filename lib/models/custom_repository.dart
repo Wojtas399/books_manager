@@ -32,9 +32,9 @@ class CustomRepository<T extends Entity> {
     }
   }
 
-  void removeEntity(String entityId) {
+  void removeEntity(String removedEntityId) {
     final List<T> updatedData = [...?_dataStream.value];
-    updatedData.removeWhere((T entity) => entityId == entityId);
+    updatedData.removeWhere((T entity) => entity.id == removedEntityId);
     _dataStream.add(updatedData);
   }
 }

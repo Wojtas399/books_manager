@@ -20,6 +20,7 @@ class TestRepository extends CustomRepository<TestEntity> {
 
 void main() {
   late TestRepository repository;
+  const TestEntity entity2 = TestEntity(id: 'e2', name: 'name');
 
   TestRepository createRepository({
     List<TestEntity>? initialState,
@@ -37,11 +38,17 @@ void main() {
     'add entity, should add entity to data stream',
     () async {
       const TestEntity entity = TestEntity(id: 'e1', name: 'name');
+      repository = createRepository(
+        initialState: [entity2],
+      );
 
       repository.addEntity(entity);
       final Stream<List<TestEntity>?> entities$ = repository.dataStream$;
 
-      expect(await entities$.first, [entity]);
+      expect(
+        await entities$.first,
+        [entity2, entity],
+      );
     },
   );
 
@@ -57,10 +64,17 @@ void main() {
       test(
         'entity does not exist in data stream, should do nothing',
         () async {
+          repository = createRepository(
+            initialState: [entity2],
+          );
+
           methodCall();
           final Stream<List<TestEntity>?> entities$ = repository.dataStream$;
 
-          expect(await entities$.first, null);
+          expect(
+            await entities$.first,
+            [entity2],
+          );
         },
       );
 
@@ -68,12 +82,17 @@ void main() {
         'entity exists in data stream, should update entity in data stream',
         () async {
           const TestEntity entity = TestEntity(id: 'e1', name: 'name');
-          repository = createRepository(initialState: [entity]);
+          repository = createRepository(
+            initialState: [entity, entity2],
+          );
 
           methodCall();
           final Stream<List<TestEntity>?> entities$ = repository.dataStream$;
 
-          expect(await entities$.first, [updatedEntity]);
+          expect(
+            await entities$.first,
+            [updatedEntity, entity2],
+          );
         },
       );
     },
@@ -84,12 +103,14 @@ void main() {
     () async {
       const String entityId = 'e1';
       const TestEntity entity = TestEntity(id: entityId, name: 'name');
-      repository = createRepository(initialState: [entity]);
+      repository = createRepository(
+        initialState: [entity, entity2],
+      );
 
       repository.removeEntity(entityId);
       final Stream<List<TestEntity>?> entities$ = repository.dataStream$;
 
-      expect(await entities$.first, []);
+      expect(await entities$.first, [entity2]);
     },
   );
 }

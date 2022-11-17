@@ -61,18 +61,23 @@ class _Image extends StatelessWidget {
       );
     }
 
-    return SizedBox(
+    return Container(
       width: double.infinity,
-      child: Card(
+      padding: const EdgeInsets.all(4),
+      child: Material(
+        shadowColor: Theme.of(context).shadowColor,
+        elevation: 1,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
+          borderRadius: BorderRadius.circular(10),
         ),
-        clipBehavior: Clip.hardEdge,
         child: Hero(
           tag: bookId,
-          child: BookImageComponent(
-            image: image,
-            bookIconSize: 100,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: BookImageComponent(
+              image: image,
+              bookIconSize: 100,
+            ),
           ),
         ),
       ),

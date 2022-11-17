@@ -26,7 +26,7 @@ class LibraryBooksList extends StatelessWidget {
         childAspectRatio: (itemsWidth / itemsHeight),
       ),
       cacheExtent: 0,
-      padding: const EdgeInsets.only(top: 78, left: 12, right: 12, bottom: 12),
+      padding: const EdgeInsets.only(top: 76, left: 12, right: 12, bottom: 12),
       itemCount: sortedBooks.length,
       itemBuilder: (_, int index) {
         final Book book = sortedBooks[index];

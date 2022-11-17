@@ -70,10 +70,10 @@ class _Image extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Hero(
-            tag: bookId,
+        child: Hero(
+          tag: bookId,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
             child: BookImageComponent(
               image: image,
               bookIconSize: 100,

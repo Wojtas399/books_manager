@@ -8,18 +8,21 @@ import 'package:app/data/firebase/services/firebase_storage_image_service.dart';
 import 'package:app/data/mappers/book_status_mapper.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
-import 'package:app/models/custom_repository.dart';
 import 'package:app/models/image.dart';
+import 'package:app/models/state_repository.dart';
+import 'package:async/async.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:rxdart/rxdart.dart';
 
-class BookRepository extends CustomRepository<Book> implements BookInterface {
+class BookRepository extends StateRepository<Book> implements BookInterface {
   late final FirebaseFirestoreBookService _firebaseFirestoreBookService;
   late final FirebaseStorageImageService _firebaseStorageImageService;
-  StreamSubscription<List<FirebaseDocChange<FirebaseBook>>>?
-      _docChangesListener;
+  StreamSubscription<List<Book>>? _addedBooksListener;
+  StreamSubscription<List<Book>>? _updatedBooksListener;
+  StreamSubscription<List<String>>? _removedBookIdsListener;
 
   BookRepository({
-    super.initialState,
+    super.initialData,
     required FirebaseFirestoreBookService firebaseFirestoreBookService,
     required FirebaseStorageImageService firebaseStorageImageService,
   }) {
@@ -28,27 +31,30 @@ class BookRepository extends CustomRepository<Book> implements BookInterface {
   }
 
   @override
-  void initializeForUser({required String userId}) {
-    _docChangesListener ??= _firebaseFirestoreBookService
-        .getDocChangesOfAllUserBooks(userId: userId)
-        .listen(_manageBooksChanges);
+  void initializeBooksOfUser({required String userId}) {
+    final multiStream = StreamSplitter(
+      _firebaseFirestoreBookService.getDocChangesOfAllBooksOfUser(
+        userId: userId,
+      ),
+    );
+    _setListenerForAddedBooks(multiStream.split());
+    _setListenerForUpdatedBooks(multiStream.split());
+    _setListenerForRemovedBooks(multiStream.split());
+    multiStream.close();
   }
 
   @override
   Stream<Book?> getBook({required String bookId, required String userId}) {
     return dataStream$.map(
-      (List<Book>? allBooks) {
-        final List<Book?> books = [...?allBooks];
-        return books.firstWhere(
-          (Book? book) => book?.id == bookId && book?.userId == userId,
-          orElse: () => null,
-        );
-      },
+      (List<Book>? allBooks) => <Book?>[...?allBooks].firstWhere(
+        (Book? book) => book?.id == bookId && book?.userId == userId,
+        orElse: () => null,
+      ),
     );
   }
 
   @override
-  Stream<List<Book>?> getUserBooks({
+  Stream<List<Book>?> getBooksOfUser({
     required String userId,
     BookStatus? bookStatus,
   }) {
@@ -162,55 +168,46 @@ class BookRepository extends CustomRepository<Book> implements BookInterface {
   }
 
   @override
-  Future<void> deleteAllUserBooks({required String userId}) async {
-    await _firebaseFirestoreBookService.deleteAllUserBooks(userId: userId);
+  Future<void> deleteAllBooksOfUser({required String userId}) async {
+    await _firebaseFirestoreBookService.deleteAllBooksOfUser(userId: userId);
     await _firebaseStorageImageService.deleteAllUserImages(userId: userId);
   }
 
   @override
   void dispose() {
-    _docChangesListener?.cancel();
+    _addedBooksListener?.cancel();
+    _updatedBooksListener?.cancel();
+    _removedBookIdsListener?.cancel();
   }
 
-  Future<void> _manageBooksChanges(
-    List<FirebaseDocChange<FirebaseBook>> docChanges,
-  ) async {
-    for (final FirebaseDocChange<FirebaseBook> docChange in docChanges) {
-      final FirebaseBook? firebaseBook = docChange.doc;
-      if (firebaseBook != null) {
-        switch (docChange.docChangeType) {
-          case DocumentChangeType.added:
-            await _manageAddedFirebaseBook(firebaseBook);
-            break;
-          case DocumentChangeType.modified:
-            await _manageModifiedFirebaseBook(firebaseBook);
-            break;
-          case DocumentChangeType.removed:
-            _manageRemovedFirebaseBook(firebaseBook);
-            break;
-        }
-      }
-    }
+  void _setListenerForAddedBooks(
+    Stream<List<FirebaseDocChange<FirebaseBook>>> docChanges,
+  ) {
+    _addedBooksListener ??= docChanges
+        .selectByDocChangeType(DocumentChangeType.added)
+        .map(_mapDocChangesToFirebaseBooks)
+        .switchMap(_mapFirebaseBooksToBooks)
+        .listen(addEntities);
   }
 
-  Future<void> _manageAddedFirebaseBook(FirebaseBook firebaseBook) async {
-    final Book? book = await _combineFirebaseBookWithImage(firebaseBook);
-    if (book == null) {
-      return;
-    }
-    addEntity(book);
+  void _setListenerForUpdatedBooks(
+    Stream<List<FirebaseDocChange<FirebaseBook>>> docChanges,
+  ) {
+    _updatedBooksListener ??= docChanges
+        .selectByDocChangeType(DocumentChangeType.modified)
+        .map(_mapDocChangesToFirebaseBooks)
+        .switchMap(_mapFirebaseBooksToBooks)
+        .listen(updateEntities);
   }
 
-  Future<void> _manageModifiedFirebaseBook(FirebaseBook firebaseBook) async {
-    final Book? book = await _combineFirebaseBookWithImage(firebaseBook);
-    if (book == null) {
-      return;
-    }
-    updateEntity(book);
-  }
-
-  void _manageRemovedFirebaseBook(FirebaseBook firebaseBook) {
-    removeEntity(firebaseBook.id);
+  void _setListenerForRemovedBooks(
+    Stream<List<FirebaseDocChange<FirebaseBook>>> docChanges,
+  ) {
+    _removedBookIdsListener ??= docChanges
+        .selectByDocChangeType(DocumentChangeType.removed)
+        .map(_mapDocChangesToFirebaseBooks)
+        .map(_selectIds)
+        .listen(removeEntities);
   }
 
   Future<void> _updateBookImage(
@@ -239,20 +236,38 @@ class BookRepository extends CustomRepository<Book> implements BookInterface {
     );
   }
 
-  Future<Book?> _combineFirebaseBookWithImage(
-    FirebaseBook? firebaseBook,
-  ) async {
-    Book? book;
-    if (firebaseBook != null) {
-      final Image? image = await _loadImageForFirebaseBook(firebaseBook);
-      book = _createBook(firebaseBook, image);
-    }
-    return book;
+  List<FirebaseBook> _mapDocChangesToFirebaseBooks(
+    List<FirebaseDocChange<FirebaseBook>> docChanges,
+  ) {
+    return docChanges
+        .map((FirebaseDocChange<FirebaseBook> docChange) => docChange.doc)
+        .whereType<FirebaseBook>()
+        .toList();
   }
 
-  Future<Image?> _loadImageForFirebaseBook(
-    FirebaseBook firebaseBook,
-  ) async {
+  Stream<List<Book>> _mapFirebaseBooksToBooks(
+    List<FirebaseBook> firebaseBooks,
+  ) {
+    return Rx.combineLatest(
+      firebaseBooks.map(_combineFirebaseBookWithImage),
+      (List<Book> books) => books,
+    );
+  }
+
+  List<String> _selectIds(List<FirebaseBook> firebaseBooks) {
+    return firebaseBooks
+        .map((FirebaseBook firebaseBook) => firebaseBook.id)
+        .toList();
+  }
+
+  Stream<Book> _combineFirebaseBookWithImage(FirebaseBook firebaseBook) {
+    return Rx.fromCallable(() async {
+      final Image? image = await _loadImageForFirebaseBook(firebaseBook);
+      return _createBook(firebaseBook, image);
+    });
+  }
+
+  Future<Image?> _loadImageForFirebaseBook(FirebaseBook firebaseBook) async {
     final String? imageFileName = firebaseBook.imageFileName;
     if (imageFileName == null) {
       return null;
@@ -282,6 +297,21 @@ class BookRepository extends CustomRepository<Book> implements BookInterface {
       author: firebaseBook.author,
       readPagesAmount: firebaseBook.readPagesAmount,
       allPagesAmount: firebaseBook.allPagesAmount,
+    );
+  }
+}
+
+extension _FirebaseBookChangesExtension
+    on Stream<List<FirebaseDocChange<FirebaseBook>>> {
+  Stream<List<FirebaseDocChange<FirebaseBook>>> selectByDocChangeType(
+    DocumentChangeType expectedDocChangeType,
+  ) {
+    return map(
+      (firebaseBookChanges) => firebaseBookChanges
+          .where(
+            (docChange) => docChange.docChangeType == expectedDocChangeType,
+          )
+          .toList(),
     );
   }
 }

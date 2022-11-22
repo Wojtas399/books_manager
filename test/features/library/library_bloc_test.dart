@@ -6,12 +6,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../mocks/domain/use_cases/auth/mock_get_logged_user_id_use_case.dart';
-import '../../mocks/domain/use_cases/book/mock_get_all_user_books_use_case.dart';
+import '../../mocks/domain/use_cases/book/mock_get_all_books_of_user_use_case.dart';
 
 void main() {
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
-  final getAllUserBooksUseCase = MockGetAllUserBooksUseCase();
-  final List<Book> userBooks = [
+  final getAllBooksOfUserUseCase = MockGetAllBooksOfUserUseCase();
+  final List<Book> booksOfUser = [
     createBook(id: 'b1'),
     createBook(id: 'b2'),
   ];
@@ -19,7 +19,7 @@ void main() {
   LibraryBloc createBloc() {
     return LibraryBloc(
       getLoggedUserIdUseCase: getLoggedUserIdUseCase,
-      getAllUserBooksUseCase: getAllUserBooksUseCase,
+      getAllBooksOfUserUseCase: getAllBooksOfUserUseCase,
     );
   }
 
@@ -37,7 +37,7 @@ void main() {
 
   tearDown(() {
     reset(getLoggedUserIdUseCase);
-    reset(getAllUserBooksUseCase);
+    reset(getAllBooksOfUserUseCase);
   });
 
   group(
@@ -78,7 +78,7 @@ void main() {
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
-          getAllUserBooksUseCase.mock(userBooks: userBooks);
+          getAllBooksOfUserUseCase.mock(booksOfUser: booksOfUser);
         },
         act: (LibraryBloc bloc) => eventCall(bloc),
         expect: () => [
@@ -87,12 +87,12 @@ void main() {
           ),
           createState(
             status: const BlocStatusComplete(),
-            books: userBooks,
+            books: booksOfUser,
           ),
         ],
         verify: (_) {
           verify(
-            () => getAllUserBooksUseCase.execute(userId: 'u1'),
+            () => getAllBooksOfUserUseCase.execute(userId: 'u1'),
           ).called(1);
         },
       );
@@ -104,13 +104,13 @@ void main() {
     build: () => createBloc(),
     act: (LibraryBloc bloc) {
       bloc.add(
-        LibraryEventBooksUpdated(books: userBooks),
+        LibraryEventBooksUpdated(books: booksOfUser),
       );
     },
     expect: () => [
       createState(
         status: const BlocStatusComplete(),
-        books: userBooks,
+        books: booksOfUser,
       ),
     ],
   );

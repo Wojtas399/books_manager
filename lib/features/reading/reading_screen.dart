@@ -2,7 +2,7 @@ import 'package:app/components/bloc_listener_component.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
 import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import 'package:app/domain/use_cases/book/get_user_books_in_progress_use_case.dart';
+import 'package:app/domain/use_cases/book/get_books_in_progress_of_user_use_case.dart';
 import 'package:app/features/reading/bloc/reading_bloc.dart';
 import 'package:app/features/reading/components/reading_content.dart';
 import 'package:flutter/widgets.dart';
@@ -33,7 +33,7 @@ class _ReadingBlocProvider extends StatelessWidget {
         getLoggedUserIdUseCase: GetLoggedUserIdUseCase(
           authInterface: context.read<AuthInterface>(),
         ),
-        getUserBooksInProgressUseCase: GetUserBooksInProgressUseCase(
+        getBooksInProgressOfUserUseCase: GetBooksInProgressOfUserUseCase(
           bookInterface: context.read<BookInterface>(),
         ),
       )..add(const ReadingEventInitialize()),

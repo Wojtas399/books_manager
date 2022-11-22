@@ -1,6 +1,7 @@
 import 'package:app/components/custom_button_component.dart';
 import 'package:app/config/themes/app_colors.dart';
 import 'package:app/domain/interfaces/auth_interface.dart';
+import 'package:app/domain/interfaces/book_interface.dart';
 import 'package:app/domain/use_cases/auth/sign_out_use_case.dart';
 import 'package:app/extensions/navigator_build_context_extension.dart';
 import 'package:flutter/material.dart';
@@ -76,6 +77,7 @@ class _ExitButtonState extends State<_ExitButton> {
   Future<void> _onButtonPressed() async {
     await SignOutUseCase(
       authInterface: context.read<AuthInterface>(),
+      bookInterface: context.read<BookInterface>(),
     ).execute();
     if (mounted) {
       context.navigateBackToSignInScreen();

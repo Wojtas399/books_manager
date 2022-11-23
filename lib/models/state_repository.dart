@@ -16,15 +16,21 @@ class StateRepository<T extends Entity> {
     _dataStream.close();
   }
 
-  void addEntities(List<T> entities) {
+  void addEntities(List<T> entitiesToAdd) {
+    if (_dataStream.value == null && entitiesToAdd.isEmpty) {
+      return;
+    }
     final List<T> updatedData = [...?_dataStream.value];
-    updatedData.addAll(entities);
+    updatedData.addAll(entitiesToAdd);
     _dataStream.add(updatedData.removeRepetitions());
   }
 
-  void updateEntities(List<T> updatedEntities) {
+  void updateEntities(List<T> entitiesToUpdate) {
+    if (_dataStream.value == null) {
+      return;
+    }
     final List<T> updatedData = [...?_dataStream.value];
-    for (final T updatedEntity in updatedEntities) {
+    for (final T updatedEntity in entitiesToUpdate) {
       final int indexOfEntity = updatedData.indexWhere(
         (T entity) => entity.id == updatedEntity.id,
       );
@@ -35,9 +41,12 @@ class StateRepository<T extends Entity> {
     _dataStream.add(updatedData);
   }
 
-  void removeEntities(List<String> idsOfRemovedEntities) {
+  void removeEntities(List<String> idsOfEntitiesToRemove) {
+    if (_dataStream.value == null) {
+      return;
+    }
     final List<T> updatedData = [...?_dataStream.value];
-    for (final String removedEntityId in idsOfRemovedEntities) {
+    for (final String removedEntityId in idsOfEntitiesToRemove) {
       updatedData.removeWhere(
         (T entity) => entity.id == removedEntityId,
       );

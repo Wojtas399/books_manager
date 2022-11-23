@@ -25,61 +25,137 @@ void main() {
     TestEntity(id: 'e2', name: 'name2'),
   ];
 
+  TestRepository createRepository({
+    List<TestEntity>? initialData,
+  }) {
+    return TestRepository(initialData: initialData);
+  }
+
   setUp(() {
-    repository = TestRepository(initialData: existingEntities);
+    repository = createRepository();
   });
 
-  test(
-    'add entities, should add entities to data stream without repetitions',
-    () async {
-      final List<TestEntity> newEntities = [
-        existingEntities.first,
-        const TestEntity(id: 'e3', name: 'name3'),
-      ];
-      final List<TestEntity> expectedEntities = [
-        existingEntities.first,
-        existingEntities[1],
-        newEntities.last,
-      ];
+  group(
+    'add entities',
+    () {
+      void methodCall(List<TestEntity> entitiesToAdd) {
+        repository.addEntities(entitiesToAdd);
+      }
 
-      repository.addEntities(newEntities);
-      final Stream<List<TestEntity>?> entities$ = repository.dataStream$;
+      test(
+        'value of data stream is null, given list of entities is empty, should do nothing',
+        () async {
+          final List<TestEntity> entitiesToAdd = [];
 
-      expect(await entities$.first, expectedEntities);
+          methodCall(entitiesToAdd);
+          final Stream<List<TestEntity>?> entities$ = repository.dataStream$;
+
+          expect(await entities$.first, null);
+        },
+      );
+
+      test(
+        'value of data stream is not null, should add entities to data stream without repetitions',
+        () async {
+          final List<TestEntity> entitiesToAdd = [
+            existingEntities.first,
+            const TestEntity(id: 'e3', name: 'name3'),
+          ];
+          final List<TestEntity> expectedEntities = [
+            existingEntities.first,
+            existingEntities[1],
+            entitiesToAdd.last,
+          ];
+          repository = createRepository(initialData: existingEntities);
+
+          methodCall(entitiesToAdd);
+          final Stream<List<TestEntity>?> entities$ = repository.dataStream$;
+
+          expect(await entities$.first, expectedEntities);
+        },
+      );
     },
   );
 
-  test(
-    'update entities, should update existing entities in data stream',
-    () async {
-      final List<TestEntity> updatedEntities = [
-        TestEntity(id: existingEntities.first.id, name: 'n1'),
-        const TestEntity(id: 'e3', name: 'name3'),
-      ];
-      final List<TestEntity> expectedEntities = [
-        updatedEntities.first,
-        existingEntities.last,
-      ];
+  group(
+    'update entities',
+    () {
+      void methodCall(List<TestEntity> entitiesToUpdate) {
+        repository.updateEntities(entitiesToUpdate);
+      }
 
-      repository.updateEntities(updatedEntities);
-      final Stream<List<TestEntity>?> entities$ = repository.dataStream$;
+      test(
+        'value of data stream is null, should not change value of data stream',
+        () async {
+          final List<TestEntity> entitiesToUpdate = [
+            TestEntity(id: existingEntities.first.id, name: 'n1'),
+          ];
 
-      expect(await entities$.first, expectedEntities);
+          methodCall(entitiesToUpdate);
+          final Stream<List<TestEntity>?> entities$ = repository.dataStream$;
+
+          expect(await entities$.first, null);
+        },
+      );
+
+      test(
+        'value of data stream is not null, should update existing entities in data stream',
+        () async {
+          final List<TestEntity> entitiesToUpdate = [
+            TestEntity(id: existingEntities.first.id, name: 'n1'),
+            const TestEntity(id: 'e3', name: 'name3'),
+          ];
+          final List<TestEntity> expectedEntities = [
+            entitiesToUpdate.first,
+            existingEntities.last,
+          ];
+          repository = createRepository(initialData: existingEntities);
+
+          methodCall(entitiesToUpdate);
+          final Stream<List<TestEntity>?> entities$ = repository.dataStream$;
+
+          expect(await entities$.first, expectedEntities);
+        },
+      );
     },
   );
 
-  test(
-    'remove entities, should remove entities from data stream',
-    () async {
-      final List<String> idsOfRemovedEntities = [existingEntities.last.id];
-      final List<TestEntity> expectedEntities = [
-        existingEntities.first,
-      ];
+  group(
+    'remove entities',
+    () {
+      void methodCall(List<String> idsOfEntitiesToRemove) {
+        repository.removeEntities(idsOfEntitiesToRemove);
+      }
 
-      repository.removeEntities(idsOfRemovedEntities);
-      final Stream<List<TestEntity>?> entities$ = repository.dataStream$;
+      test(
+        'value of data stream is null, should do nothing',
+        () async {
+          final List<String> idsOfEntitiesToRemove = [
+            existingEntities.first.id,
+          ];
 
-      expect(await entities$.first, expectedEntities);
+          methodCall(idsOfEntitiesToRemove);
+          final Stream<List<TestEntity>?> entities$ = repository.dataStream$;
+
+          expect(await entities$.first, null);
+        },
+      );
+
+      test(
+        'value of data stream is not null, should remove entities from data stream',
+        () async {
+          final List<String> idsOfEntitiesToRemove = [existingEntities.last.id];
+          final List<TestEntity> expectedEntities = [
+            existingEntities.first,
+          ];
+          repository = createRepository(initialData: existingEntities);
+
+          methodCall(idsOfEntitiesToRemove);
+          final Stream<List<TestEntity>?> entities$ = repository.dataStream$;
+
+          expect(await entities$.first, expectedEntities);
+        },
+      );
     },
   );
 }

@@ -20,34 +20,26 @@ class Shimmer extends StatefulWidget {
 }
 
 class ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
-  late final LinearGradient _shimmerGradient;
+  late LinearGradient _shimmerGradient;
   late AnimationController _shimmerController;
 
   @override
   void initState() {
     super.initState();
 
-    _shimmerGradient = LinearGradient(
-      colors: [
-        widget.isDarkMode ? const Color(0xFF424242) : const Color(0xFFFFFFFF),
-        widget.isDarkMode ? const Color(0xFF4A4A4A) : const Color(0xFFF4F4F4),
-        widget.isDarkMode ? const Color(0xFF424242) : const Color(0xFFFFFFFF),
-      ],
-      stops: const [
-        0.1,
-        0.3,
-        0.4,
-      ],
-      begin: const Alignment(-1.0, -0.3),
-      end: const Alignment(1.0, 0.3),
-      tileMode: TileMode.clamp,
-    );
+    _updateShimmerGradient();
     _shimmerController = AnimationController.unbounded(vsync: this)
       ..repeat(
         min: -0.5,
         max: 1.5,
         period: const Duration(milliseconds: 1000),
       );
+  }
+
+  @override
+  void didUpdateWidget(covariant Shimmer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _updateShimmerGradient();
   }
 
   @override
@@ -84,6 +76,26 @@ class ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
   }) {
     final shimmerBox = context.findRenderObject() as RenderBox;
     return descendant.localToGlobal(offset, ancestor: shimmerBox);
+  }
+
+  void _updateShimmerGradient() {
+    setState(() {
+      _shimmerGradient = LinearGradient(
+        colors: [
+          widget.isDarkMode ? const Color(0xFF666666) : const Color(0xFFD4D4D4),
+          widget.isDarkMode ? const Color(0xFF868686) : const Color(0xFFF4F4F4),
+          widget.isDarkMode ? const Color(0xFF666666) : const Color(0xFFD4D4D4),
+        ],
+        stops: const [
+          0.1,
+          0.3,
+          0.4,
+        ],
+        begin: const Alignment(-1.0, -0.3),
+        end: const Alignment(1.0, 0.3),
+        tileMode: TileMode.clamp,
+      );
+    });
   }
 }
 

@@ -5,6 +5,7 @@ import 'package:app/components/pages_progress_bar_component.dart';
 import 'package:app/domain/entities/book.dart';
 import 'package:app/extensions/book_status_extension.dart';
 import 'package:app/extensions/navigator_build_context_extension.dart';
+import 'package:app/features/reading/components/reading_book_item_skeleton.dart';
 import 'package:flutter/material.dart';
 
 class ReadingBookItem extends StatelessWidget {
@@ -14,26 +15,17 @@ class ReadingBookItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _onPressed(context),
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        child: Row(
-          children: [
-            _Image(
-              bookId: book.id,
-              imageData: book.image?.data,
-            ),
-            Expanded(
-              child: _Info(
-                title: book.title,
-                author: book.author,
-                readPagesAmount: book.readPagesAmount,
-                allPagesAmount: book.allPagesAmount,
-              ),
-            ),
-          ],
-        ),
+    return ReadingBookItemSkeleton(
+      onPressed: () => _onPressed(context),
+      imageBody: _Image(
+        bookId: book.id,
+        imageData: book.image?.data,
+      ),
+      descriptionBody: _Description(
+        title: book.title,
+        author: book.author,
+        readPagesAmount: book.readPagesAmount,
+        allPagesAmount: book.allPagesAmount,
       ),
     );
   }
@@ -66,36 +58,26 @@ class _Image extends StatelessWidget {
       );
     }
 
-    return SizedBox(
-      width: 120,
-      child: Material(
-        shadowColor: Theme.of(context).shadowColor,
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Hero(
-          tag: bookId,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: BookImageComponent(
-              image: image,
-              bookIconSize: 48,
-            ),
-          ),
+    return Hero(
+      tag: bookId,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: BookImageComponent(
+          image: image,
+          bookIconSize: 48,
         ),
       ),
     );
   }
 }
 
-class _Info extends StatelessWidget {
+class _Description extends StatelessWidget {
   final String title;
   final String author;
   final int readPagesAmount;
   final int allPagesAmount;
 
-  const _Info({
+  const _Description({
     required this.title,
     required this.author,
     required this.readPagesAmount,
@@ -104,35 +86,20 @@ class _Info extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 150,
-      child: Card(
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(10),
-            bottomRight: Radius.circular(10),
-          ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _TitleAndAuthor(
+          title: title,
+          author: author,
         ),
-        margin: const EdgeInsets.all(0),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _TitleAndAuthor(
-                title: title,
-                author: author,
-              ),
-              const SizedBox(height: 16),
-              _Pages(
-                readPagesAmount: readPagesAmount,
-                allPagesAmount: allPagesAmount,
-              ),
-            ],
-          ),
+        const SizedBox(height: 16),
+        _Pages(
+          readPagesAmount: readPagesAmount,
+          allPagesAmount: allPagesAmount,
         ),
-      ),
+      ],
     );
   }
 }

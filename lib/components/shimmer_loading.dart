@@ -4,11 +4,9 @@ import 'package:flutter/widgets.dart';
 class ShimmerLoading extends StatefulWidget {
   const ShimmerLoading({
     super.key,
-    required this.isLoading,
     required this.child,
   });
 
-  final bool isLoading;
   final Widget child;
 
   @override
@@ -38,10 +36,6 @@ class _ShimmerLoadingState extends State<ShimmerLoading> {
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.isLoading) {
-      return widget.child;
-    }
-
     final shimmer = Shimmer.of(context)!;
     if (!shimmer.isSized) {
       return const SizedBox();
@@ -69,10 +63,6 @@ class _ShimmerLoadingState extends State<ShimmerLoading> {
   }
 
   void _onShimmerChange() {
-    if (widget.isLoading) {
-      setState(() {
-        // update the shimmer painting.
-      });
-    }
+    setState(() {});
   }
 }

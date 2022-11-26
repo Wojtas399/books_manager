@@ -25,7 +25,7 @@ void main() {
     List<Book>? books,
   }) {
     return BookRepository(
-      initialState: books,
+      initialData: books,
       firebaseFirestoreBookService: firebaseFirestoreBookService,
       firebaseStorageImageService: firebaseStorageImageService,
     );
@@ -45,15 +45,19 @@ void main() {
   });
 
   group(
-    'initialize for user, should set listener of doc changes for all user books',
+    'initialize books of user',
     () {
       void methodCall() {
-        repository.initializeForUser(userId: userId);
+        repository.initializeBooksOfUser(userId: userId);
+      }
+
+      Stream<List<Book>?> getBooksOfUser() {
+        return repository.getBooksOfUser(userId: userId);
       }
 
       tearDown(() {
         verify(
-          () => firebaseFirestoreBookService.getDocChangesOfAllUserBooks(
+          () => firebaseFirestoreBookService.getDocChangesOfAllBooksOfUser(
             userId: userId,
           ),
         ).called(1);
@@ -81,16 +85,14 @@ void main() {
             userId: userId,
             image: bookImage,
           );
-          firebaseFirestoreBookService.mockGetDocChangesOfAllUserBooks(
+          firebaseFirestoreBookService.mockGetDocChangesOfAllBooksOfUser(
             docChanges: docChanges,
           );
           firebaseStorageImageService.mockLoadImage(imageData: bookImage.data);
 
           methodCall();
           await Future.delayed(const Duration(seconds: 1));
-          final Stream<List<Book>?> allUserBooks$ = repository.getUserBooks(
-            userId: userId,
-          );
+          final Stream<List<Book>?> allUserBooks$ = getBooksOfUser();
 
           verify(
             () => firebaseStorageImageService.loadImage(
@@ -128,16 +130,14 @@ void main() {
             image: bookImage,
           );
           repository = createRepository(books: [existingBook]);
-          firebaseFirestoreBookService.mockGetDocChangesOfAllUserBooks(
+          firebaseFirestoreBookService.mockGetDocChangesOfAllBooksOfUser(
             docChanges: docChanges,
           );
           firebaseStorageImageService.mockLoadImage(imageData: bookImage.data);
 
           methodCall();
           await Future.delayed(const Duration(seconds: 1));
-          final Stream<List<Book>?> allUserBooks$ = repository.getUserBooks(
-            userId: userId,
-          );
+          final Stream<List<Book>?> allUserBooks$ = getBooksOfUser();
 
           verify(
             () => firebaseStorageImageService.loadImage(
@@ -160,15 +160,13 @@ void main() {
           ];
           final Book existingBook = createBook(id: 'b1', userId: userId);
           repository = createRepository(books: [existingBook]);
-          firebaseFirestoreBookService.mockGetDocChangesOfAllUserBooks(
+          firebaseFirestoreBookService.mockGetDocChangesOfAllBooksOfUser(
             docChanges: docChanges,
           );
 
           methodCall();
           await Future.delayed(const Duration(seconds: 1));
-          final Stream<List<Book>?> allUserBooks$ = repository.getUserBooks(
-            userId: userId,
-          );
+          final Stream<List<Book>?> allUserBooks$ = getBooksOfUser();
 
           expect(await allUserBooks$.first, []);
         },
@@ -198,7 +196,7 @@ void main() {
   );
 
   group(
-    'get user books',
+    'get books of user',
     () {
       final List<Book> existingBooks = [
         createBook(id: 'b1', userId: userId, status: BookStatus.inProgress),
@@ -208,7 +206,10 @@ void main() {
       ];
 
       Stream<List<Book>?> methodCall(BookStatus? bookStatus) {
-        return repository.getUserBooks(userId: userId, bookStatus: bookStatus);
+        return repository.getBooksOfUser(
+          userId: userId,
+          bookStatus: bookStatus,
+        );
       }
 
       setUp(() {
@@ -619,15 +620,15 @@ void main() {
   );
 
   test(
-    'delete all user books, should call methods responsible for deleting all user books and their images',
+    'delete books of user, should call methods responsible for deleting all user books and their images',
     () async {
-      firebaseFirestoreBookService.mockDeleteAllUserBooks();
+      firebaseFirestoreBookService.mockDeleteAllBooksOfUser();
       firebaseStorageImageService.mockDeleteAllUserImages();
 
-      await repository.deleteAllUserBooks(userId: userId);
+      await repository.deleteAllBooksOfUser(userId: userId);
 
       verify(
-        () => firebaseFirestoreBookService.deleteAllUserBooks(
+        () => firebaseFirestoreBookService.deleteAllBooksOfUser(
           userId: userId,
         ),
       ).called(1);

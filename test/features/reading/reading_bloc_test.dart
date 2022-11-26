@@ -6,16 +6,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../mocks/domain/use_cases/auth/mock_get_logged_user_id_use_case.dart';
-import '../../mocks/domain/use_cases/book/mock_get_user_books_in_progress_use_case.dart';
+import '../../mocks/domain/use_cases/book/mock_get_books_in_progress_of_user_use_case.dart';
 
 void main() {
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
-  final getUserBooksInProgressUseCase = MockGetUserBooksInProgressUseCase();
+  final getBooksInProgressOfUserUseCase = MockGetBooksInProgressOfUserUseCase();
 
   ReadingBloc createBloc() {
     return ReadingBloc(
       getLoggedUserIdUseCase: getLoggedUserIdUseCase,
-      getUserBooksInProgressUseCase: getUserBooksInProgressUseCase,
+      getBooksInProgressOfUserUseCase: getBooksInProgressOfUserUseCase,
     );
   }
 
@@ -31,7 +31,7 @@ void main() {
 
   tearDown(() {
     reset(getLoggedUserIdUseCase);
-    reset(getUserBooksInProgressUseCase);
+    reset(getBooksInProgressOfUserUseCase);
   });
 
   group(
@@ -70,7 +70,7 @@ void main() {
         build: () => createBloc(),
         setUp: () {
           getLoggedUserIdUseCase.mock(loggedUserId: 'u1');
-          getUserBooksInProgressUseCase.mock(userBooksInProgress: []);
+          getBooksInProgressOfUserUseCase.mock(booksInProgressOfUser: []);
         },
         act: (ReadingBloc bloc) => eventCall(bloc),
         expect: () => [
@@ -84,7 +84,7 @@ void main() {
         ],
         verify: (_) {
           verify(
-            () => getUserBooksInProgressUseCase.execute(userId: 'u1'),
+            () => getBooksInProgressOfUserUseCase.execute(userId: 'u1'),
           ).called(1);
         },
       );

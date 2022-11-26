@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:app/domain/entities/book.dart';
 import 'package:app/domain/use_cases/auth/get_logged_user_id_use_case.dart';
-import 'package:app/domain/use_cases/book/get_all_user_books_use_case.dart';
+import 'package:app/domain/use_cases/book/get_all_books_of_user_use_case.dart';
 import 'package:app/models/bloc_state.dart';
 import 'package:app/models/bloc_status.dart';
 import 'package:app/models/custom_bloc.dart';
@@ -14,12 +14,12 @@ part 'library_state.dart';
 
 class LibraryBloc extends CustomBloc<LibraryEvent, LibraryState> {
   late final GetLoggedUserIdUseCase _getLoggedUserIdUseCase;
-  late final GetAllUserBooksUseCase _getAllUserBooksUseCase;
+  late final GetAllBooksOfUserUseCase _getAllBooksOfUserUseCase;
   StreamSubscription<List<Book>?>? _booksListener;
 
   LibraryBloc({
     required GetLoggedUserIdUseCase getLoggedUserIdUseCase,
-    required GetAllUserBooksUseCase getAllUserBooksUseCase,
+    required GetAllBooksOfUserUseCase getAllBooksOfUserUseCase,
     BlocStatus status = const BlocStatusInitial(),
     String searchValue = '',
     List<Book>? books,
@@ -31,7 +31,7 @@ class LibraryBloc extends CustomBloc<LibraryEvent, LibraryState> {
           ),
         ) {
     _getLoggedUserIdUseCase = getLoggedUserIdUseCase;
-    _getAllUserBooksUseCase = getAllUserBooksUseCase;
+    _getAllBooksOfUserUseCase = getAllBooksOfUserUseCase;
     on<LibraryEventInitialize>(_initialize);
     on<LibraryEventBooksUpdated>(_booksUpdated);
     on<LibraryEventSearchValueChanged>(_searchValueChanged);
@@ -78,6 +78,6 @@ class LibraryBloc extends CustomBloc<LibraryEvent, LibraryState> {
     if (loggedUserId == null) {
       return Stream.value(null);
     }
-    return _getAllUserBooksUseCase.execute(userId: loggedUserId);
+    return _getAllBooksOfUserUseCase.execute(userId: loggedUserId);
   }
 }

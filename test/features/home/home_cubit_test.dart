@@ -3,17 +3,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../mocks/domain/use_cases/auth/mock_get_logged_user_id_use_case.dart';
-import '../../mocks/domain/use_cases/book/mock_initialize_user_books_use_case.dart';
+import '../../mocks/domain/use_cases/book/mock_initialize_books_of_user_use_case.dart';
 
 void main() {
   final getLoggedUserIdUseCase = MockGetLoggedUserIdUseCase();
-  final initializeUserBooksUseCase = MockInitializeUserBooksUseCase();
+  final initializeBooksOfUserUseCase = MockInitializeBooksOfUserUseCase();
   late HomeCubit cubit;
 
   setUp(() {
     cubit = HomeCubit(
       getLoggedUserIdUseCase: getLoggedUserIdUseCase,
-      initializeUserBooksUseCase: initializeUserBooksUseCase,
+      initializeBooksOfUserUseCase: initializeBooksOfUserUseCase,
     );
   });
 
@@ -38,7 +38,7 @@ void main() {
           await methodCall();
 
           verifyNever(
-            () => initializeUserBooksUseCase.execute(
+            () => initializeBooksOfUserUseCase.execute(
               userId: any(named: 'userId'),
             ),
           );
@@ -54,7 +54,7 @@ void main() {
           await methodCall();
 
           verify(
-            () => initializeUserBooksUseCase.execute(
+            () => initializeBooksOfUserUseCase.execute(
               userId: loggedUserId,
             ),
           ).called(1);

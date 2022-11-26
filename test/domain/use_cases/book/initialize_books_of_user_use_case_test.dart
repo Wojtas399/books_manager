@@ -1,4 +1,4 @@
-import 'package:app/domain/use_cases/book/initialize_user_books_use_case.dart';
+import 'package:app/domain/use_cases/book/initialize_books_of_user_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -6,7 +6,7 @@ import '../../../mocks/domain/interfaces/mock_book_interface.dart';
 
 void main() {
   final bookInterface = MockBookInterface();
-  final useCase = InitializeUserBooksUseCase(bookInterface: bookInterface);
+  final useCase = InitializeBooksOfUserUseCase(bookInterface: bookInterface);
 
   test(
     'should call method responsible for initializing user books',
@@ -16,7 +16,7 @@ void main() {
       useCase.execute(userId: userId);
 
       verify(
-        () => bookInterface.initializeForUser(userId: userId),
+        () => bookInterface.initializeBooksOfUser(userId: userId),
       ).called(1);
     },
   );

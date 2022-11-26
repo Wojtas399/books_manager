@@ -7,14 +7,22 @@ class FakeFirebaseBook extends Fake implements FirebaseBook {}
 
 class MockFirebaseFirestoreBookService extends Mock
     implements FirebaseFirestoreBookService {
-  void mockGetDocChangesOfAllUserBooks({
+  void mockGetDocChangesOfAllBooksOfUser({
     required List<FirebaseDocChange<FirebaseBook>> docChanges,
   }) {
     when(
-      () => getDocChangesOfAllUserBooks(
+      () => getDocChangesOfAllBooksOfUser(
         userId: any(named: 'userId'),
       ),
     ).thenAnswer((_) => Stream.value(docChanges));
+  }
+
+  void mockLoadAllBooksOfUser({required List<FirebaseBook> allUserBooks}) {
+    when(
+      () => loadAllBooksOfUser(
+        userId: any(named: 'userId'),
+      ),
+    ).thenAnswer((_) async => allUserBooks);
   }
 
   void mockLoadBookImageFileName({String? bookImageFileName}) {
@@ -65,9 +73,9 @@ class MockFirebaseFirestoreBookService extends Mock
     ).thenAnswer((_) async => '');
   }
 
-  void mockDeleteAllUserBooks() {
+  void mockDeleteAllBooksOfUser() {
     when(
-      () => deleteAllUserBooks(
+      () => deleteAllBooksOfUser(
         userId: any(named: 'userId'),
       ),
     ).thenAnswer((_) async => '');

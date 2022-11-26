@@ -29,7 +29,7 @@ class DeleteLoggedUserUseCase {
     if (!isPasswordCorrect) {
       throw const AuthError(code: AuthErrorCode.wrongPassword);
     }
-    await _bookInterface.deleteAllUserBooks(userId: loggedUserId);
+    await _bookInterface.deleteAllBooksOfUser(userId: loggedUserId);
     await _userInterface.deleteUser(userId: loggedUserId);
     await _authInterface.deleteLoggedUser(password: password);
   }

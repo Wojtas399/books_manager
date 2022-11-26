@@ -22,7 +22,7 @@ void main() {
       authInterface: authInterface,
     );
 
-    bookInterface.mockDeleteAllUserBooks();
+    bookInterface.mockDeleteAllBooksOfUser();
     userInterface.mockDeleteUser();
     authInterface.mockDeleteLoggedUser();
   });
@@ -86,7 +86,7 @@ void main() {
       await useCase.execute(password: password);
 
       verify(
-        () => bookInterface.deleteAllUserBooks(userId: loggedUserId),
+        () => bookInterface.deleteAllBooksOfUser(userId: loggedUserId),
       ).called(1);
       verify(
         () => userInterface.deleteUser(userId: loggedUserId),

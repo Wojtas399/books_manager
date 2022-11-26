@@ -3,11 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../mocks/domain/interfaces/mock_auth_interface.dart';
+import '../../../mocks/domain/interfaces/mock_book_interface.dart';
 
 void main() {
   final authInterface = MockAuthInterface();
+  final bookInterface = MockBookInterface();
   final useCase = SignOutUseCase(
     authInterface: authInterface,
+    bookInterface: bookInterface,
   );
 
   test(
@@ -17,6 +20,9 @@ void main() {
 
       await useCase.execute();
 
+      verify(
+        () => bookInterface.dispose(),
+      ).called(1);
       verify(
         () => authInterface.signOut(),
       ).called(1);

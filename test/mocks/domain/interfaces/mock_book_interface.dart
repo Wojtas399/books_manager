@@ -15,10 +15,10 @@ class MockBookInterface extends Mock implements BookInterface {
     ).thenAnswer((_) => Stream.value(book));
   }
 
-  void mockGetUserBooks({required List<Book> userBooks}) {
+  void mockGetBooksOfUser({required List<Book> userBooks}) {
     _mockBookStatus();
     when(
-      () => getUserBooks(
+      () => getBooksOfUser(
         userId: any(named: 'userId'),
         bookStatus: any(named: 'bookStatus'),
       ),
@@ -76,9 +76,9 @@ class MockBookInterface extends Mock implements BookInterface {
     ).thenAnswer((_) async => '');
   }
 
-  void mockDeleteAllUserBooks() {
+  void mockDeleteAllBooksOfUser() {
     when(
-      () => deleteAllUserBooks(
+      () => deleteAllBooksOfUser(
         userId: any(named: 'userId'),
       ),
     ).thenAnswer((_) async => '');

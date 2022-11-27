@@ -21,8 +21,7 @@ Using this app you can store all your books in one place, manage currently readi
 
 ## Screenshots
 
-<img width="300" alt="2_1" src="https://user-images.githubusercontent.com/72093398/202563816-2b5c993f-99a9-4d9e-9282-19ba61850371.png"><img width="300" alt="1_2" src="https://user-images.githubusercontent.com/72093398/202564008-68a80196-d008-4800-994f-ebbe62cf745c.png">
-<img width="300" alt="3_1" src="https://user-images.githubusercontent.com/72093398/202564268-01ba7cb0-12a5-4d8e-b072-4662be4280a1.png"><img width="300" alt="1_3" src="https://user-images.githubusercontent.com/72093398/202564312-de9b4114-fa08-43c7-88ae-e428b8740bc3.png">
-<img width="300" alt="4_1" src="https://user-images.githubusercontent.com/72093398/202564431-4a06db56-6072-44b1-a1aa-8dceac564c4f.png"><img width="300" alt="4_2" src="https://user-images.githubusercontent.com/72093398/202564460-4a80c6de-3a76-4a13-98c2-90ec5cae8f69.png">
-<img width="300" alt="4_3" src="https://user-images.githubusercontent.com/72093398/202564736-b80bb667-3398-40ee-ab60-beaf7993a1a1.png"><img width="300" alt="4_4" src="https://user-images.githubusercontent.com/72093398/202564768-858b19b6-6aac-44cf-a74f-0982e8ffa2e7.png">
-
+<img width="300" alt="2_1" src="https://user-images.githubusercontent.com/72093398/204148827-d2c4db4e-11b0-4746-9dab-d1a12e7cc31a.png"><img width="300" alt="1_2" src="https://user-images.githubusercontent.com/72093398/204148873-c0d88714-105b-4320-b013-76a84a11094b.png">
+<img width="300" alt="3_1" src="https://user-images.githubusercontent.com/72093398/204148906-d90ea431-8367-4537-87c6-7cf573f95612.png"><img width="300" alt="1_3" src="https://user-images.githubusercontent.com/72093398/204148923-f59da054-809e-4069-8f8e-f8e428b5af5a.png">
+<img width="300" alt="4_1" src="https://user-images.githubusercontent.com/72093398/204149425-b5881476-3dba-4514-a2ff-135151dcf05b.png"><img width="300" alt="4_2" src="https://user-images.githubusercontent.com/72093398/204149443-86596842-3600-4a71-9ab2-c6414baff803.png">
+<img width="300" alt="4_3" src="https://user-images.githubusercontent.com/72093398/204149459-93bccd8b-d98b-4ecd-aba1-f0fc9cbaa237.png"><img width="300" alt="4_4" src="https://user-images.githubusercontent.com/72093398/204149474-a7d83e14-b658-4e98-ab42-3ed4cd67a3ae.png">

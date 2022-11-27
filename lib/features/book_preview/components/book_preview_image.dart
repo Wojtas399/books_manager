@@ -46,9 +46,12 @@ class _BookImage extends StatelessWidget {
 
     return Hero(
       tag: bookId,
-      child: BookImageComponent(
-        image: image,
-        bookIconSize: 120,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: BookImageComponent(
+          image: image,
+          bookIconSize: 120,
+        ),
       ),
     );
   }

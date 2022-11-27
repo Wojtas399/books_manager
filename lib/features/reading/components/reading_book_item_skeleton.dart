@@ -65,14 +65,15 @@ class _ImageSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
+    return Material(
+      color: Theme.of(context).cardColor,
+      elevation: 2,
       borderRadius: BorderRadius.circular(10),
-      child: SizedBox(
-        width: 120,
-        height: 160,
-        child: Material(
-          shadowColor: Theme.of(context).shadowColor,
-          elevation: 2,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: SizedBox(
+          width: 120,
+          height: 160,
           child: imageBody,
         ),
       ),

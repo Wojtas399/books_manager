@@ -10,15 +10,12 @@ class ReadingShimmerLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Brightness platformBrightness =
-        MediaQuery.of(context).platformBrightness;
-    final ThemeMode themeMode = context.select(
-      (ThemeProvider themeProvider) => themeProvider.state,
+    final bool isDarkModeOn = context.select(
+      (ThemeProvider themeProvider) => themeProvider.isDarkModeOn(context),
     );
 
     return Shimmer(
-      isDarkMode:
-          platformBrightness == Brightness.dark || themeMode == ThemeMode.dark,
+      isDarkMode: isDarkModeOn,
       child: ListView.builder(
         itemCount: 4,
         padding: const EdgeInsets.all(12),

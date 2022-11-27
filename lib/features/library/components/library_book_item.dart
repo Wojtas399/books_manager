@@ -63,7 +63,7 @@ class _Image extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Material(
         shadowColor: Theme.of(context).shadowColor,
         elevation: 1,
@@ -97,7 +97,7 @@ class _Description extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(left: 8, top: 4, right: 8),
+      padding: const EdgeInsets.only(left: 12, top: 4, right: 12),
       width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -11,7 +11,7 @@ class LibraryBooksList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const int itemsWidth = 200;
-    const int itemsHeight = 360;
+    const int itemsHeight = 330;
     final List<Book> sortedBooks = [...books];
     sortedBooks.sort(_compareTitlesAlphabetically);
 

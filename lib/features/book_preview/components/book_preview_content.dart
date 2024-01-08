@@ -12,10 +12,10 @@ class BookPreviewContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScaffold(
+    return const CustomScaffold(
       resizeToAvoidBottomInset: false,
       appBarTitle: 'Podgląd książki',
-      trailing: const BookPreviewActionsIcon(),
+      trailing: BookPreviewActionsIcon(),
       trailingRightPadding: 0,
       body: SafeArea(
         child: SizedBox(
@@ -24,7 +24,7 @@ class BookPreviewContent extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
-                children: const [
+                children: [
                   BookPreviewImage(),
                   Divider(thickness: 1),
                   BookPreviewDescription(),
@@ -34,7 +34,7 @@ class BookPreviewContent extends StatelessWidget {
                   BookPreviewPagesStatus(),
                 ],
               ),
-              const BookPreviewButton(),
+              BookPreviewButton(),
             ],
           ),
         ),

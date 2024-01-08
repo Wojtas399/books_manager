@@ -13,13 +13,13 @@ class NoInternetConnectionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Theme(
       data: GlobalMaterialTheme.lightTheme,
-      child: Scaffold(
+      child: const Scaffold(
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
+              children: [
                 _Description(),
                 SizedBox(height: 64),
                 _TryAgainButton(),

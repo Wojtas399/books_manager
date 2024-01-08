@@ -23,7 +23,7 @@ class MaterialCustomActionSheet extends StatelessWidget {
             title,
             style: Theme.of(context)
                 .textTheme
-                .subtitle1
+                .titleMedium
                 ?.copyWith(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 16),

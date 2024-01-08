@@ -13,7 +13,7 @@ class BookPreviewActionsIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color? iconColor = Theme.of(context).textTheme.bodyText1?.color;
+    final Color? iconColor = Theme.of(context).textTheme.bodyLarge?.color;
     return Padding(
       padding: const EdgeInsets.only(right: 4),
       child: PopupMenuButton(

@@ -13,7 +13,7 @@ class BookEditorContent extends StatelessWidget {
   Widget build(BuildContext context) {
     const Widget gap = SizedBox(height: 24);
 
-    return CustomScaffold(
+    return const CustomScaffold(
       appBarTitle: 'Edytor książki',
       appBarWithElevation: false,
       body: SafeArea(
@@ -21,9 +21,9 @@ class BookEditorContent extends StatelessWidget {
           child: Center(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(24),
                 child: Column(
-                  children: const [
+                  children: [
                     BookEditorImage(),
                     gap,
                     BookEditorTitleAuthor(),

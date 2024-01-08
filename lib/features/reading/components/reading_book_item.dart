@@ -119,7 +119,7 @@ class _TitleAndAuthor extends StatelessWidget {
         Text(
           title,
           maxLines: 2,
-          style: Theme.of(context).textTheme.subtitle1?.copyWith(
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w500,
               ),
           overflow: TextOverflow.ellipsis,
@@ -130,7 +130,7 @@ class _TitleAndAuthor extends StatelessWidget {
           maxLines: 1,
           style: TextStyle(
             color:
-                Theme.of(context).textTheme.bodyText1?.color?.withOpacity(0.6),
+                Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.6),
           ),
         ),
       ],

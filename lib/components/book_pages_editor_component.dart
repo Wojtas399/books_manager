@@ -23,7 +23,7 @@ class BookPagesEditorComponent extends StatelessWidget {
       children: [
         Text(
           'Liczba stron',
-          style: Theme.of(context).textTheme.subtitle1,
+          style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 16),
         IntrinsicHeight(
@@ -124,7 +124,7 @@ class _PagesAmount extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               '$amount',
-              style: Theme.of(context).textTheme.subtitle2,
+              style: Theme.of(context).textTheme.titleSmall,
             ),
           ],
         ),

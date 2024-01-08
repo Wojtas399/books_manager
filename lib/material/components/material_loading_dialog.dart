@@ -20,7 +20,7 @@ class MaterialLoadingDialog extends StatelessWidget {
             children: [
               Text(
                 'Ładowanie...',
-                style: Theme.of(context).textTheme.subtitle1,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 16),
               CircularProgressIndicator(color: AppColors.primary),

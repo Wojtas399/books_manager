@@ -14,14 +14,14 @@ class SettingsContent extends StatelessWidget {
   Widget build(BuildContext context) {
     const Widget divider = Divider(thickness: 0.6);
 
-    return CustomScaffold(
+    return const CustomScaffold(
       appBarTitle: 'Ustawienia',
       body: Padding(
-        padding: const EdgeInsets.only(top: 24, left: 16, right: 16),
+        padding: EdgeInsets.only(top: 24, left: 16, right: 16),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
-            children: const [
+            children: [
               SettingsEmail(),
               divider,
               SettingsDarkMode(),

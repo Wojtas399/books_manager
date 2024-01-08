@@ -105,7 +105,7 @@ class _Text extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: Theme.of(context).textTheme.headline6?.copyWith(
+      style: Theme.of(context).textTheme.titleLarge?.copyWith(
             color: AppColors.primary,
           ),
     );

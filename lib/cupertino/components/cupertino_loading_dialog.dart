@@ -5,10 +5,10 @@ class CupertinoLoadingDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoAlertDialog(
-      title: const Text('Ładowanie...'),
+    return const CupertinoAlertDialog(
+      title: Text('Ładowanie...'),
       content: Column(
-        children: const [
+        children: [
           SizedBox(height: 8),
           CupertinoActivityIndicator(),
         ],

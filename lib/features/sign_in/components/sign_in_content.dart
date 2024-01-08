@@ -18,7 +18,7 @@ class SignInContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Theme(
       data: GlobalMaterialTheme.lightTheme,
-      child: AnnotatedRegion<SystemUiOverlayStyle>(
+      child: const AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.dark,
         child: Scaffold(
           body: SafeArea(
@@ -27,11 +27,11 @@ class SignInContent extends StatelessWidget {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      const _Logo(),
-                      const SizedBox(height: 32),
+                      _Logo(),
+                      SizedBox(height: 32),
                       SignInFormCard(
                         child: Column(
-                          children: const [
+                          children: [
                             _Title(),
                             SizedBox(height: 32),
                             SignInInputs(),
@@ -73,7 +73,7 @@ class _Title extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       'Logowanie',
-      style: Theme.of(context).textTheme.headline4?.copyWith(
+      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             color: AppColors.primary,
             fontWeight: FontWeight.w500,
           ),

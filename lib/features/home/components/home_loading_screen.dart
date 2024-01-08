@@ -9,9 +9,9 @@ class HomeLoadingScreen extends StatelessWidget {
     return Container(
       color: AppColors.lightBackground,
       padding: const EdgeInsets.all(24),
-      child: Column(
+      child: const Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
+        children: [
           _Logo(),
           SizedBox(height: 16),
           _Info(),
@@ -39,7 +39,7 @@ class _Info extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       'Trwa ładowanie danych...',
-      style: Theme.of(context).textTheme.headline6,
+      style: Theme.of(context).textTheme.titleLarge,
     );
   }
 }

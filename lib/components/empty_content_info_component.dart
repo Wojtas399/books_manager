@@ -15,7 +15,7 @@ class EmptyContentInfoComponent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color? color =
-        Theme.of(context).textTheme.bodyText1?.color?.withOpacity(0.3);
+        Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.3);
     return SizedBox(
       width: double.infinity,
       child: Column(

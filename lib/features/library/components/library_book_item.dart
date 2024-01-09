@@ -106,7 +106,7 @@ class _Description extends StatelessWidget {
             title,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.subtitle1?.copyWith(
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w500,
                 ),
           ),
@@ -117,7 +117,7 @@ class _Description extends StatelessWidget {
             style: TextStyle(
               color: Theme.of(context)
                   .textTheme
-                  .bodyText2
+                  .bodyMedium
                   ?.color
                   ?.withOpacity(0.6),
             ),

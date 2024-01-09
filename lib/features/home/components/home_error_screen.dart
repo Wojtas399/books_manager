@@ -15,9 +15,9 @@ class HomeErrorScreen extends StatelessWidget {
     return Container(
       color: AppColors.lightBackground,
       padding: const EdgeInsets.all(24),
-      child: Column(
+      child: const Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
+        children: [
           _Title(),
           SizedBox(height: 16),
           _Message(),
@@ -36,7 +36,7 @@ class _Title extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       'Wystąpił nieoczekiwany błąd z ładowaniem aplikacji :(',
-      style: Theme.of(context).textTheme.headline5?.copyWith(
+      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.w500,
           ),
     );
@@ -50,7 +50,7 @@ class _Message extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       'Spróbuj zalogować/zarejestrować się jeszcze raz. Jeśli błąd nie zniknie musisz uzbroić się w cierpliwość. Nieustannie pracujemy nad rozwiązywaniem pojawiających się problemów. \nPrzepraszamy za niedogodności...',
-      style: Theme.of(context).textTheme.subtitle1?.copyWith(
+      style: Theme.of(context).textTheme.titleMedium?.copyWith(
             color: Colors.black.withOpacity(0.5),
             height: 1.4,
           ),

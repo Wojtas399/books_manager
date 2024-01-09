@@ -10,9 +10,9 @@ class BookPreviewDescription extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.only(top: 16, right: 24, left: 24),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
+        children: [
           _Title(),
           SizedBox(height: 8),
           _Author(),
@@ -34,7 +34,7 @@ class _Title extends StatelessWidget {
     return Text(
       title ?? '',
       maxLines: 4,
-      style: Theme.of(context).textTheme.headline6,
+      style: Theme.of(context).textTheme.titleLarge,
     );
   }
 }
@@ -50,7 +50,7 @@ class _Author extends StatelessWidget {
 
     return Text(
       author ?? '',
-      style: Theme.of(context).textTheme.subtitle1,
+      style: Theme.of(context).textTheme.titleMedium,
     );
   }
 }

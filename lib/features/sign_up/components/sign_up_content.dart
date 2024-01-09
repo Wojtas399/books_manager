@@ -22,14 +22,14 @@ class SignUpContent extends StatelessWidget {
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
       ),
-      body: SafeArea(
+      body: const SafeArea(
         child: OnTapFocusLoseAreaComponent(
           child: Center(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(24),
                 child: Column(
-                  children: const [
+                  children: [
                     _Title(),
                     SizedBox(height: 32),
                     SignUpInputs(),
@@ -55,7 +55,7 @@ class _Title extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       'Rejestracja',
-      style: Theme.of(context).textTheme.headline4?.copyWith(
+      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             color: AppColors.primary,
             fontWeight: FontWeight.w500,
           ),

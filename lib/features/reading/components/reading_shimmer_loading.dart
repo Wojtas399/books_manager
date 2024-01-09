@@ -48,10 +48,10 @@ class _ShimmerDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
+      children: [
         _ShimmerTitle(),
         SizedBox(height: 4),
         _ShimmerAuthor(),

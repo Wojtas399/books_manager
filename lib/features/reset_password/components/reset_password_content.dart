@@ -12,13 +12,13 @@ class ResetPasswordContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScaffold(
+    return const CustomScaffold(
       appBarTitle: 'Resetowanie hasła',
       leadingIcon: MdiIcons.close,
       appBarWithElevation: false,
       body: OnTapFocusLoseAreaComponent(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(24),
           child: SafeArea(
             child: Center(
               child: Column(
@@ -26,14 +26,14 @@ class ResetPasswordContent extends StatelessWidget {
                 children: [
                   SingleChildScrollView(
                     child: Column(
-                      children: const [
+                      children: [
                         ResetPasswordDescription(),
                         SizedBox(height: 32),
                         ResetPasswordInput(),
                       ],
                     ),
                   ),
-                  const ResetPasswordSubmitButton(),
+                  ResetPasswordSubmitButton(),
                 ],
               ),
             ),

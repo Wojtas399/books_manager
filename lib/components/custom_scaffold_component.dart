@@ -59,7 +59,7 @@ class CustomScaffold extends StatelessWidget {
   }
 }
 
-class _AppBar extends StatelessWidget with PreferredSizeWidget {
+class _AppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? appBarTitle;
   final Color? appBarColor;
   final Color? foregroundColor;

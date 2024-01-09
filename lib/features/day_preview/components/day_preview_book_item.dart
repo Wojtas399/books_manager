@@ -58,14 +58,14 @@ class _TitleAndAuthor extends StatelessWidget {
           title,
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.subtitle1,
+          style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 4),
         Text(
           author,
           style: TextStyle(
             color:
-                Theme.of(context).textTheme.bodyText1?.color?.withOpacity(0.6),
+                Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.6),
           ),
         ),
       ],
@@ -90,7 +90,7 @@ class _ReadPagesAmount extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           '$readPagesAmount',
-          style: Theme.of(context).textTheme.headline5,
+          style: Theme.of(context).textTheme.headlineSmall,
         ),
       ],
     );

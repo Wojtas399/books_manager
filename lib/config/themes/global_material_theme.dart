@@ -5,6 +5,7 @@ import 'app_colors.dart';
 
 class GlobalMaterialTheme {
   static ThemeData get lightTheme => ThemeData(
+        useMaterial3: false,
         scaffoldBackgroundColor: AppColors.lightBackground,
         colorScheme: const ColorScheme.light().copyWith(
           primary: AppColors.primary,
@@ -15,6 +16,7 @@ class GlobalMaterialTheme {
       );
 
   static ThemeData get darkTheme => ThemeData(
+        useMaterial3: false,
         colorScheme: const ColorScheme.dark().copyWith(
           primary: AppColors.primary,
           secondary: AppColors.primary,

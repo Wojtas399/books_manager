@@ -13,8 +13,8 @@ class SignUpInputs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const Widget gap = SizedBox(height: 24.0);
-    return Column(
-      children: const [
+    return const Column(
+      children: [
         _Email(),
         gap,
         _Password(),
